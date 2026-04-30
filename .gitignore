@@ -1,0 +1,61 @@
+# Build output
+bin/
+obj/
+out/
+
+# .NET / Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.DS_Store
+
+# Publicación
+publish/
+*.pubxml
+*.pubxml.user
+
+# Base de datos SQLite local
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# IMPORTANTE: Credenciales y secretos
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+secrets.json
+*.pfx
+*.p12
+
+# User secrets de .NET
+**/Properties/launchSettings.json
+
+# Variables de entorno
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# Temporales
+*~
+*.tmp
+*.temp
