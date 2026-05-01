@@ -7,7 +7,7 @@
 - Subir repo inicial a GitHub
 
 ## Sesión 2 — Dominio y base de datos
-- Modelos EF Core (Season, Liga, Copa, Supercopa, Match, etc.)
+- Modelos EF Core (Season, Liga, Copa, Supercopa, Match, VideoGame, Team, etc.)
 - AppDbContext con configuraciones Fluent API
 - Primera migración y seed de datos de prueba
 - Verificar que la DB se crea correctamente
@@ -19,32 +19,69 @@
 - Servicio de auth en el Client (localStorage para token)
 - Páginas: Login.razor, Register.razor
 
-## Sesión 4 — Temporadas
-- CRUD de temporadas (crear, ver, editar)
-- Agregar/quitar jugadores
-- Sistema de invitaciones por email
-- Aceptar invitación con token
-- Páginas: Dashboard.razor, SeasonDetail.razor, CreateSeason.razor
+## Sesión 4 — Vault + Catálogos
+- CRUD de vaults (crear, ver, editar)
+- Invitar jugadores al vault por email (VaultInvitation)
+- CRUD de videojuegos (VideoGame)
+- CRUD de equipos (Team)
+- Páginas: Dashboard.razor, VaultDetail.razor, CreateVault.razor, Games.razor, Teams.razor
 
-## Sesión 5 — Liga
-- Generación automática de fixture (round-robin)
+## Sesión 5 — Temporadas
+- Crear temporada dentro de un vault (elegir jugadores del vault)
+- Configurar Liga, Copa, Supercopa (on/off + elegir jugadores por torneo)
+- Páginas: SeasonDetail.razor, CreateSeason.razor
+
+## Sesión 6 — Liga
+- Generación automática de fixture (round-robin, soporta número impar con "libre")
+- Re-sorteo del fixture mientras no haya resultados cargados
 - Tabla de posiciones
-- Cargar resultados de partidos
+- Cargar resultados: equipo local, equipo visitante, videojuego, goles
+- Cálculo y visualización de ELO al cargar resultado (antes → después, cambio de posición)
 - Páginas: Liga/LigaView.razor
 
-## Sesión 6 — Copa
-- Generación del bracket de eliminación directa
+## Sesión 7 — Copa
+- Generación del bracket (4, 5, 6, 8 jugadores)
 - Vista del bracket (árbol visual)
-- Manejo de ida y vuelta (aggregate)
-- Avance automático al siguiente ronda
+- Manejo de ida y vuelta (aggregate) y penales
+- Avance automático a la siguiente ronda
 - Páginas: Copa/CopaView.razor
 
-## Sesión 7 — Supercopa
+## Sesión 8 — Supercopa
 - Lógica para determinar los participantes
-- Partido(s) simple(s)
+- Partido(s) simple(s) con registro de equipo y videojuego
 - Página: Supercopa/SupercopaView.razor
 
-## Sesión 8 — Pulido y despliegue
+## Sesión 9 — Perfiles
+
+### Perfil de jugador (visible por todos)
+- Stats generales: partidos / ganados / empatados / perdidos / goles
+- Top 3 equipos más usados (con record G/E/P por equipo)
+- Top 3 videojuegos más jugados
+- ELO actual + historial partido a partido (línea de tiempo, cambios de posición)
+- Lista completa de partidos jugados (fecha, rival, competencia, resultado, equipo, juego)
+- Sección head-to-head: lista de rivales con record acumulado contra cada uno
+
+### Vista head-to-head (cualquier jugador A vs jugador B, visible por todos)
+- Record total: X victorias - Y empates - Z derrotas
+- Goles totales de cada lado
+- Lista de todos los partidos entre ambos (fecha, competencia, resultado, equipos, juego)
+- Evolución del ELO de ambos a lo largo de sus enfrentamientos
+
+### Perfil de equipo (visible por todos)
+- Jugadores que lo usaron y cuántas veces
+- Record global con ese equipo (G/E/P), goles a favor y en contra
+- Videojuegos en que fue usado
+
+### Ranking general
+- Tabla con todos los jugadores del vault, ELO actual y cambio del último partido
+
+### Páginas
+- Player/PlayerProfile.razor
+- Player/HeadToHead.razor
+- Teams/TeamProfile.razor
+- Ranking.razor
+
+## Sesión 10 — Pulido y despliegue
 - Responsive mobile
 - Validaciones y manejo de errores
 - Opciones de hosting (Railway, Fly.io, Azure)

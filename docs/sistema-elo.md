@@ -89,11 +89,31 @@ SF y Final
 
 - **Por temporada:** se resetean al inicio de cada temporada
 - **Histórico:** acumula todas las temporadas, mantiene memoria permanente
+- `EloHistory` guarda `RankBefore` y `RankAfter` para mostrar cambios de posición
+
+### Visualización al cargar un resultado
+
+Al guardar el resultado de un partido, la UI muestra inmediatamente:
+
+```
+✓ Resultado cargado
+
+  Martín   1505 → 1523  (+18)  ↑ al puesto 1
+  Vos      1495 → 1477  (-18)  ↓ al puesto 2
+```
+
+La página de ranking siempre refleja el estado actual (sin push/WebSockets).  
+Cada fila muestra el cambio del último partido jugado (▲ / ▼ / —).
+
+### Historial ELO (perfil de jugador)
+
+- Línea de tiempo partido a partido
+- ELO histórico y ELO de temporada visualizados por separado
+- Para cada entrada: rival, competencia, resultado, ELO antes/después, cambio de posición
 
 ## Adicionales (ideas futuras)
 
 - Predictor de resultados basado en ELO y partidos anteriores
-- Gráficos de evolución de ELO en el tiempo
 - Decaimiento de puntos por inactividad
 
 ## Ejemplo

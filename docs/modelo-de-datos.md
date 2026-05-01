@@ -1,5 +1,21 @@
 # Modelo de datos - Futelo
 
+## Entidades de catálogo (globales, CRUD libre)
+
+### VideoGame
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| Id | int | PK |
+| Name | string | Ej: "FIFA 23", "PES 2013", "eFootball 2025" |
+
+### Team
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| Id | int | PK |
+| Name | string | Ej: "Real Madrid", "Boca Juniors" |
+
+---
+
 ## Entidades principales
 
 ### AppUser (extiende IdentityUser)
@@ -8,19 +24,53 @@
 | DisplayName | string | Nombre visible en la app |
 | EloRating | int | ELO histórico acumulado (arranca en 1500) |
 
+### Vault (Bóveda)
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| Id | int | PK |
+| Name | string | Ej: "Los pibes" |
+| OwnerId | string | FK → AppUser |
+| Players | List\<VaultPlayer\> | Miembros del vault |
+| Seasons | List\<Season\> | Temporadas del vault |
+| Invitations | List\<VaultInvitation\> | Invitaciones pendientes |
+
+### VaultPlayer (many-to-many Vault ↔ AppUser)
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| VaultId | int | FK → Vault |
+| PlayerId | string | FK → AppUser |
+| JoinedAt | DateTime | Fecha en que se unió al vault |
+
+### VaultInvitation
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| Id | int | PK |
+| VaultId | int | FK → Vault |
+| Email | string | Destinatario |
+| Token | string | Token único para aceptar |
+| Status | enum | Pending, Accepted, Expired |
+| CreatedAt | DateTime | |
+| ExpiresAt | DateTime | |
+
 ### Season (Temporada)
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | Id | int | PK |
+| VaultId | int | FK → Vault |
 | Name | string | Ej: "Temporada 2025" |
 | Year | int | Año |
 | Status | enum | Draft, Active, Finished |
-| OwnerId | string | FK → AppUser |
 | Liga | Liga? | null si no se juega |
 | Copa | Copa? | null si no se juega |
 | Supercopa | Supercopa? | null si no se juega |
-| Players | List\<SeasonPlayer\> | Jugadores de la temporada |
-| Invitations | List\<SeasonInvitation\> | Invitaciones pendientes |
+| Players | List\<SeasonPlayer\> | Subconjunto de jugadores del vault que participan |
+
+### SeasonPlayer (subconjunto de VaultPlayer para la temporada)
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| SeasonId | int | FK → Season |
+| PlayerId | string | FK → AppUser (debe ser VaultPlayer del vault) |
+| SeasonElo | int | ELO del jugador en esta temporada (arranca en 1500, se resetea) |
 
 ### Liga
 | Campo | Tipo | Descripción |
@@ -29,7 +79,19 @@
 | SeasonId | int | FK → Season |
 | IsHomeAndAway | bool | Si se juega ida y vuelta |
 | Status | enum | NotStarted, Active, Finished |
+| Players | List\<LigaPlayer\> | Subconjunto de SeasonPlayer que juegan la Liga |
 | Matches | List\<Match\> | Todos los partidos |
+
+> El fixture se genera automáticamente con round-robin al crear la Liga.
+> Se puede regenerar (re-sortear) mientras el Status sea `NotStarted` (ningún partido jugado aún).
+> Una vez cargado el primer resultado, el fixture queda bloqueado.
+
+### LigaPlayer (subconjunto de SeasonPlayer para la Liga)
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| LigaId | int | FK → Liga |
+| PlayerId | string | FK → AppUser |
+| LigaPosition | int? | Posición final (para seed de Copa) |
 
 ### Copa
 | Campo | Tipo | Descripción |
@@ -37,8 +99,19 @@
 | Id | int | PK |
 | SeasonId | int | FK → Season |
 | IsHomeAndAway | bool | Si cada ronda es ida y vuelta |
+| BracketMode | enum | Seeded, Free |
 | Status | enum | NotStarted, Active, Finished |
+| Players | List\<CopaPlayer\> | Subconjunto de SeasonPlayer que juegan la Copa |
 | Rounds | List\<CopaRound\> | Rondas del torneo |
+
+> **Seeded**: los cruces se arman automáticamente según la posición final en Liga.
+> **Free**: el organizador arma los cruces manualmente antes de iniciar la Copa.
+
+### CopaPlayer (subconjunto de SeasonPlayer para la Copa)
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| CopaId | int | FK → Copa |
+| PlayerId | string | FK → AppUser |
 
 ### CopaRound
 | Campo | Tipo | Descripción |
@@ -60,6 +133,8 @@
 | Status | enum | NotStarted, Active, Finished |
 | Matches | List\<Match\> | 1 o 2 partidos |
 
+> Los participantes de la Supercopa se determinan automáticamente al finalizar Liga y Copa.
+
 ### Match (Partido)
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
@@ -72,29 +147,12 @@
 | Status | enum | Pending, Played |
 | Leg | int | 1 o 2 (para ida y vuelta) |
 | PlayedAt | DateTime? | Fecha del partido |
+| VideoGameId | int? | FK → VideoGame (null si no se especifica) |
+| HomeTeamId | int? | FK → Team — equipo elegido por el local |
+| AwayTeamId | int? | FK → Team — equipo elegido por el visitante |
 | LigaId | int? | FK → Liga (nullable) |
 | CopaRoundId | int? | FK → CopaRound (nullable) |
 | SupercopaId | int? | FK → Supercopa (nullable) |
-
-### SeasonPlayer (many-to-many Season ↔ AppUser)
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| SeasonId | int | FK → Season |
-| PlayerId | string | FK → AppUser |
-| Role | enum | Owner, Player |
-| SeasonElo | int | ELO del jugador en esta temporada (arranca en 1500, se resetea) |
-| LigaPosition | int? | Posición final en Liga (para seed de Copa) |
-
-### SeasonInvitation
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| Id | int | PK |
-| SeasonId | int | FK → Season |
-| Email | string | Destinatario |
-| Token | string | Token único para aceptar |
-| Status | enum | Pending, Accepted, Expired |
-| CreatedAt | DateTime | |
-| ExpiresAt | DateTime | |
 
 ### EloHistory (historial de cambios ELO)
 | Campo | Tipo | Descripción |
@@ -106,8 +164,34 @@
 | EloBefore | int | ELO antes del partido |
 | EloAfter | int | ELO después del partido |
 | EloChange | int | Diferencia (puede ser negativa) |
+| RankBefore | int | Posición en el ranking antes del partido |
+| RankAfter | int | Posición en el ranking después del partido |
 | IsSeasonElo | bool | Si es el ELO de temporada o el histórico |
 | CreatedAt | DateTime | |
+
+---
+
+## Jerarquía de la aplicación
+
+```
+AppUser
+  └── puede pertenecer a múltiples Vaults
+
+Vault
+  ├── VaultPlayer     (miembros permanentes del grupo)
+  ├── VaultInvitation (para sumar nuevos miembros)
+  └── Season
+        ├── SeasonPlayer  (subconjunto de VaultPlayer)
+        ├── Liga
+        │     ├── LigaPlayer  (subconjunto de SeasonPlayer)
+        │     └── Match[]
+        ├── Copa
+        │     ├── CopaPlayer  (subconjunto de SeasonPlayer)
+        │     ├── CopaRound[]
+        │     └── Match[]
+        └── Supercopa
+              └── Match[] (1 o 2, jugadores auto-determinados)
+```
 
 ---
 
@@ -116,7 +200,8 @@
 ### Liga
 - W=3pts, D=1pt, L=0pts
 - Desempate: diferencia de goles → goles a favor → head-to-head
-- Fixture generado automáticamente con round-robin al iniciar
+- Fixture generado automáticamente con round-robin al crear
+- Re-sorteo permitido mientras Status = `NotStarted`
 
 ### Copa — Bracket por cantidad de jugadores
 
@@ -142,9 +227,16 @@ SF: 1 vs ganador(4v5)  |  SF: 2 vs ganador(3v6)  →  Final
 QF: 1v8, 2v7, 3v6, 4v5  →  SF  →  Final
 ```
 
-- El seed se determina por la posición final en Liga (`LigaPosition` en `SeasonPlayer`)
+> 7 jugadores: pendiente de definir (TBD).
+
+**Modo Seeded** (default si hay Liga en la temporada):
+- Los cruces se arman automáticamente según `LigaPosition` en `LigaPlayer`
 - Bracket generado automáticamente al finalizar la Liga
-- Si no hay Liga en la temporada, el seed es aleatorio
+
+**Modo Free**:
+- El organizador asigna manualmente los cruces de cada ronda antes de iniciar
+- No requiere Liga previa
+- Si no hay Liga en la temporada, este es el único modo disponible
 
 ### Copa — Penales
 - Resultado del partido = **empate** para el cálculo ELO
