@@ -60,9 +60,9 @@
 | Name | string | Ej: "Temporada 2025" |
 | Year | int | Año |
 | Status | enum | Draft, Active, Finished |
-| Liga | Liga? | null si no se juega |
-| Copa | Copa? | null si no se juega |
-| Supercopa | Supercopa? | null si no se juega |
+| League | League? | null si no se juega |
+| Cup | Cup? | null si no se juega |
+| SuperCup | SuperCup? | null si no se juega |
 | Players | List\<SeasonPlayer\> | Subconjunto de jugadores del vault que participan |
 
 ### SeasonPlayer (subconjunto de VaultPlayer para la temporada)
@@ -72,28 +72,28 @@
 | PlayerId | string | FK → AppUser (debe ser VaultPlayer del vault) |
 | SeasonElo | int | ELO del jugador en esta temporada (arranca en 1500, se resetea) |
 
-### Liga
+### League
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | Id | int | PK |
 | SeasonId | int | FK → Season |
 | IsHomeAndAway | bool | Si se juega ida y vuelta |
 | Status | enum | NotStarted, Active, Finished |
-| Players | List\<LigaPlayer\> | Subconjunto de SeasonPlayer que juegan la Liga |
+| Players | List\<LeaguePlayer\> | Subconjunto de SeasonPlayer que juegan la League |
 | Matches | List\<Match\> | Todos los partidos |
 
-> El fixture se genera automáticamente con round-robin al crear la Liga.
+> El fixture se genera automáticamente con round-robin al crear la League.
 > Se puede regenerar (re-sortear) mientras el Status sea `NotStarted` (ningún partido jugado aún).
 > Una vez cargado el primer resultado, el fixture queda bloqueado.
 
-### LigaPlayer (subconjunto de SeasonPlayer para la Liga)
+### LeaguePlayer (subconjunto de SeasonPlayer para la League)
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| LigaId | int | FK → Liga |
+| LeagueId | int | FK → League |
 | PlayerId | string | FK → AppUser |
-| LigaPosition | int? | Posición final (para seed de Copa) |
+| LeaguePosition | int? | Posición final (para seed de Cup) |
 
-### Copa
+### Cup
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | Id | int | PK |
@@ -101,39 +101,39 @@
 | IsHomeAndAway | bool | Si cada ronda es ida y vuelta |
 | BracketMode | enum | Seeded, Free |
 | Status | enum | NotStarted, Active, Finished |
-| Players | List\<CopaPlayer\> | Subconjunto de SeasonPlayer que juegan la Copa |
-| Rounds | List\<CopaRound\> | Rondas del torneo |
+| Players | List\<CupPlayer\> | Subconjunto de SeasonPlayer que juegan la Cup |
+| Rounds | List\<CupRound\> | Rondas del torneo |
 
-> **Seeded**: los cruces se arman automáticamente según la posición final en Liga.
-> **Free**: el organizador arma los cruces manualmente antes de iniciar la Copa.
+> **Seeded**: los cruces se arman automáticamente según la posición final en League.
+> **Free**: el organizador arma los cruces manualmente antes de iniciar la Cup.
 
-### CopaPlayer (subconjunto de SeasonPlayer para la Copa)
+### CupPlayer (subconjunto de SeasonPlayer para la Cup)
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| CopaId | int | FK → Copa |
+| CupId | int | FK → Cup |
 | PlayerId | string | FK → AppUser |
 
-### CopaRound
+### CupRound
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | Id | int | PK |
-| CopaId | int | FK → Copa |
+| CupId | int | FK → Cup |
 | RoundNumber | int | 1=Final, 2=Semis, 4=Cuartos/Previa... |
 | Name | string | "Final", "Semifinal", "Ronda Previa" |
 | Matches | List\<Match\> | Partidos de la ronda |
 
-### Supercopa
+### SuperCup
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | Id | int | PK |
 | SeasonId | int | FK → Season |
 | IsHomeAndAway | bool | Si se juega ida y vuelta |
-| Player1Id | string? | FK → AppUser (campeón Liga) |
-| Player2Id | string? | FK → AppUser (campeón Copa) |
+| Player1Id | string? | FK → AppUser (campeón League) |
+| Player2Id | string? | FK → AppUser (campeón Cup) |
 | Status | enum | NotStarted, Active, Finished |
 | Matches | List\<Match\> | 1 o 2 partidos |
 
-> Los participantes de la Supercopa se determinan automáticamente al finalizar Liga y Copa.
+> Los participantes de la SuperCup se determinan automáticamente al finalizar League y Cup.
 
 ### Match (Partido)
 | Campo | Tipo | Descripción |
@@ -143,16 +143,16 @@
 | AwayPlayerId | string | FK → AppUser |
 | HomeScore | int? | null = no jugado aún |
 | AwayScore | int? | null = no jugado aún |
-| WonOnPenalties | string? | FK → AppUser — ganador por penales (null si no hubo) |
+| WonOnPenaltiesId | string? | FK → AppUser — ganador por penales (null si no hubo) |
 | Status | enum | Pending, Played |
 | Leg | int | 1 o 2 (para ida y vuelta) |
 | PlayedAt | DateTime? | Fecha del partido |
 | VideoGameId | int? | FK → VideoGame (null si no se especifica) |
 | HomeTeamId | int? | FK → Team — equipo elegido por el local |
 | AwayTeamId | int? | FK → Team — equipo elegido por el visitante |
-| LigaId | int? | FK → Liga (nullable) |
-| CopaRoundId | int? | FK → CopaRound (nullable) |
-| SupercopaId | int? | FK → Supercopa (nullable) |
+| LeagueId | int? | FK → League (nullable) |
+| CupRoundId | int? | FK → CupRound (nullable) |
+| SuperCupId | int? | FK → SuperCup (nullable) |
 
 ### EloHistory (historial de cambios ELO)
 | Campo | Tipo | Descripción |
@@ -182,14 +182,14 @@ Vault
   ├── VaultInvitation (para sumar nuevos miembros)
   └── Season
         ├── SeasonPlayer  (subconjunto de VaultPlayer)
-        ├── Liga
-        │     ├── LigaPlayer  (subconjunto de SeasonPlayer)
+        ├── League
+        │     ├── LeaguePlayer  (subconjunto de SeasonPlayer)
         │     └── Match[]
-        ├── Copa
-        │     ├── CopaPlayer  (subconjunto de SeasonPlayer)
-        │     ├── CopaRound[]
+        ├── Cup
+        │     ├── CupPlayer  (subconjunto de SeasonPlayer)
+        │     ├── CupRound[]
         │     └── Match[]
-        └── Supercopa
+        └── SuperCup
               └── Match[] (1 o 2, jugadores auto-determinados)
 ```
 
@@ -197,13 +197,13 @@ Vault
 
 ## Reglas de negocio
 
-### Liga
+### League
 - W=3pts, D=1pt, L=0pts
 - Desempate: diferencia de goles → goles a favor → head-to-head
 - Fixture generado automáticamente con round-robin al crear
 - Re-sorteo permitido mientras Status = `NotStarted`
 
-### Copa — Bracket por cantidad de jugadores
+### Cup — Bracket por cantidad de jugadores
 
 **4 jugadores:**
 ```
@@ -229,23 +229,23 @@ QF: 1v8, 2v7, 3v6, 4v5  →  SF  →  Final
 
 > 7 jugadores: pendiente de definir (TBD).
 
-**Modo Seeded** (default si hay Liga en la temporada):
-- Los cruces se arman automáticamente según `LigaPosition` en `LigaPlayer`
-- Bracket generado automáticamente al finalizar la Liga
+**Modo Seeded** (default si hay League en la temporada):
+- Los cruces se arman automáticamente según `LeaguePosition` en `LeaguePlayer`
+- Bracket generado automáticamente al finalizar la League
 
 **Modo Free**:
 - El organizador asigna manualmente los cruces de cada ronda antes de iniciar
-- No requiere Liga previa
-- Si no hay Liga en la temporada, este es el único modo disponible
+- No requiere League previa
+- Si no hay League en la temporada, este es el único modo disponible
 
-### Copa — Penales
+### Cup — Penales
 - Resultado del partido = **empate** para el cálculo ELO
-- El ganador por penales se guarda en `WonOnPenalties`
+- El ganador por penales se guarda en `WonOnPenaltiesId`
 - El bonus de clasificación se otorga igual al que avanza
 
-### Supercopa
-- Participantes: campeón Liga vs campeón Copa
-- Si el mismo jugador ganó ambos, juega el subcampeón de Copa
+### SuperCup
+- Participantes: campeón League vs campeón Cup
+- Si el mismo jugador ganó ambos, juega el subcampeón de Cup
 - 1 o 2 partidos según `IsHomeAndAway`
 
 ### ELO
@@ -256,9 +256,9 @@ QF: 1v8, 2v7, 3v6, 4v5  →  SF  →  Final
 
 | Competencia | K base |
 |-------------|--------|
-| Liga | 32 |
-| Copa | 24 |
-| Supercopa | 16 |
+| League | 32 |
+| Cup | 24 |
+| SuperCup | 16 |
 
 | Diferencia de goles | Multiplicador |
 |---------------------|--------------|
@@ -266,8 +266,8 @@ QF: 1v8, 2v7, 3v6, 4v5  →  SF  →  Final
 | 2 goles | × 1.2 |
 | 3+ goles | × 1.5 |
 
-| Ronda Copa | Bonus al que avanza |
-|------------|-------------------|
+| Ronda Cup | Bonus al que avanza |
+|-----------|-------------------|
 | Ronda previa / QF | +8 pts |
 | Semifinal | +12 pts |
 | Final | +16 pts |
