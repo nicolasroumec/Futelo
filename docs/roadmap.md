@@ -7,7 +7,7 @@
 - Subir repo inicial a GitHub
 
 ## Sesión 2 — Dominio y base de datos
-- Modelos EF Core (Season, Liga, Copa, Supercopa, Match, VideoGame, Team, etc.)
+- Modelos EF Core (Season, League, Cup, SuperCup, Match, VideoGame, Team, etc.)
 - AppDbContext con configuraciones Fluent API
 - Primera migración y seed de datos de prueba
 - Verificar que la DB se crea correctamente
@@ -28,28 +28,28 @@
 
 ## Sesión 5 — Temporadas
 - Crear temporada dentro de un vault (elegir jugadores del vault)
-- Configurar Liga, Copa, Supercopa (on/off + elegir jugadores por torneo)
+- Configurar League, Cup, SuperCup (on/off + elegir jugadores por torneo)
 - Páginas: SeasonDetail.razor, CreateSeason.razor
 
-## Sesión 6 — Liga
+## Sesión 6 — League
 - Generación automática de fixture (round-robin, soporta número impar con "libre")
 - Re-sorteo del fixture mientras no haya resultados cargados
 - Tabla de posiciones
 - Cargar resultados: equipo local, equipo visitante, videojuego, goles
 - Cálculo y visualización de ELO al cargar resultado (antes → después, cambio de posición)
-- Páginas: Liga/LigaView.razor
+- Páginas: League/LeagueView.razor
 
-## Sesión 7 — Copa
+## Sesión 7 — Cup
 - Generación del bracket (4, 5, 6, 8 jugadores)
 - Vista del bracket (árbol visual)
 - Manejo de ida y vuelta (aggregate) y penales
 - Avance automático a la siguiente ronda
-- Páginas: Copa/CopaView.razor
+- Páginas: Cup/CupView.razor
 
-## Sesión 8 — Supercopa
+## Sesión 8 — SuperCup
 - Lógica para determinar los participantes
 - Partido(s) simple(s) con registro de equipo y videojuego
-- Página: Supercopa/SupercopaView.razor
+- Página: SuperCup/SuperCupView.razor
 
 ## Sesión 9 — Perfiles
 

@@ -20,9 +20,9 @@ Expectativa = 1 / (1 + 10^((ELO_rival - ELO_propio) / 400))
 
 | Competencia | K base |
 |-------------|--------|
-| Liga | 32 |
-| Copa | 24 |
-| Supercopa | 16 |
+| League | 32 |
+| Cup | 24 |
+| SuperCup | 16 |
 
 ## Ajuste por diferencia de goles
 
@@ -32,15 +32,15 @@ Expectativa = 1 / (1 + 10^((ELO_rival - ELO_propio) / 400))
 | 2 goles | K × 1.2 |
 | 3+ goles | K × 1.5 |
 
-## Penales en Copa
+## Penales en Cup
 
 - El partido se computa como **empate** para el cálculo ELO (ninguno ganó en el juego)
 - El ajuste por diferencia de goles no aplica (resultado = empate)
 - El **bonus de clasificación se otorga igual** al jugador que avanza de ronda
 
-## Formato del bracket de Copa
+## Formato del bracket de Cup
 
-El bracket se arma según la posición final en Liga. Los mejor ubicados tienen ventaja (menos partidos o rivales más débiles).
+El bracket se arma según la posición final en League. Los mejor ubicados tienen ventaja (menos partidos o rivales más débiles).
 
 ### 4 jugadores
 ```
@@ -72,9 +72,9 @@ QF: 1v8, 2v7, 3v6, 4v5
 SF y Final
 ```
 
-> Para otros números de jugadores, los peor ubicados en Liga juegan rondas previas y los mejor ubicados entran directo a semis.
+> Para otros números de jugadores, los peor ubicados en League juegan rondas previas y los mejor ubicados entran directo a semis.
 
-## Bonus Copa por clasificación
+## Bonus Cup por clasificación
 
 | Ronda | Bonus al que avanza |
 |-------|-------------------|
