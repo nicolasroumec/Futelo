@@ -1,87 +1,139 @@
 # Roadmap de sesiones - Futelo
 
+## Patrón de capas (Server)
+
+Cada feature del servidor sigue esta estructura. Leer antes de implementar cualquier sesión.
+
+```
+Controller  →  Service  →  Repository  →  FuteloContext
+```
+
+| Capa | Hace | No hace |
+|------|------|---------|
+| **Controller** | Recibe HTTP, valida modelo, llama al service, devuelve respuesta | Lógica de negocio, acceso a DB |
+| **Service** | Lógica de negocio, orquesta repositorios, lanza excepciones de dominio | Saber de HTTP, tocar FuteloContext directo |
+| **Repository** | Queries a la DB, usa `FindByCondition`/`FindAll` internamente, expone métodos con nombre semántico | Lógica de negocio, `IQueryable` público |
+
+**Reglas:**
+- Siempre crear la interfaz antes que la implementación (`IXxxService`, `IXxxRepository`)
+- Registrar todo en `Program.cs` via inyección de dependencias (`AddScoped`)
+- Los repositorios concretos heredan de `BaseRepository<T>` e implementan su interfaz
+- **Excepción:** para Auth no hay repositorio custom — `UserManager<AppUser>` de Identity ya cumple ese rol
+
+---
+
 ## Sesión 1 — Base del proyecto ✅
 - Crear solución con Server, Client y Shared
 - Instalar paquetes NuGet
 - Crear documentación base
 - Subir repo inicial a GitHub
 
-## Sesión 2 — Dominio y base de datos
+## Sesión 2 — Dominio y base de datos ✅
 - Modelos EF Core (Season, League, Cup, SuperCup, Match, VideoGame, Team, etc.)
-- AppDbContext con configuraciones Fluent API
-- Primera migración y seed de datos de prueba
-- Verificar que la DB se crea correctamente
+- FuteloContext con configuraciones Fluent API
+- BaseRepository<T> como base para todos los repositorios
+- Primera migración
 
-## Sesión 3 — Autenticación
-- ASP.NET Core Identity configurado
-- Endpoints: POST /auth/register, POST /auth/login
-- Generación y validación de JWT
-- Servicio de auth en el Client (localStorage para token)
-- Páginas: Login.razor, Register.razor
+## Sesión 3 — Autenticación (en curso)
+
+### Server
+- `IAuthService` + `AuthService` (register, login, generación de JWT)
+- `AuthController` → POST `/api/auth/register`, POST `/api/auth/login`
+- Configurar JWT en `Program.cs` (`AddAuthentication`, `AddJwtBearer`)
+- Sin repositorio custom: usar `UserManager<AppUser>` dentro del service
+
+### Client
+- `IAuthService` + `AuthService` (HTTP calls, guardar/leer token en localStorage)
+- `Login.razor`, `Register.razor`
+- Registrar `AuthService` en `Program.cs` del Client
 
 ## Sesión 4 — Vault + Catálogos
-- CRUD de vaults (crear, ver, editar)
-- Invitar jugadores al vault por email (VaultInvitation)
-- CRUD de videojuegos (VideoGame)
-- CRUD de equipos (Team)
-- Páginas: Dashboard.razor, VaultDetail.razor, CreateVault.razor, Games.razor, Teams.razor
+
+### Server
+- `IVaultRepository` + `VaultRepository : BaseRepository<Vault>`
+- `IVaultService` + `VaultService`
+- `VaultController` → GET/POST/PUT/DELETE `/api/vaults`
+- `IInvitationRepository` + `InvitationRepository`
+- `IInvitationService` + `InvitationService`
+- Endpoints de invitación: POST `/api/vaults/{id}/invite`, POST `/api/invitations/{token}/accept`
+- `ITeamRepository` + `TeamRepository`, `IVideoGameRepository` + `VideoGameRepository`
+- `ICatalogService` + `CatalogService` (Teams + VideoGames — lógica simple, un solo service)
+- Endpoints: GET `/api/teams`, GET `/api/videogames`
+
+### Client
+- `VaultService`, `CatalogService`
+- `Dashboard.razor`, `VaultDetail.razor`, `CreateVault.razor`, `Teams.razor`, `Games.razor`
 
 ## Sesión 5 — Temporadas
-- Crear temporada dentro de un vault (elegir jugadores del vault)
-- Configurar League, Cup, SuperCup (on/off + elegir jugadores por torneo)
-- Páginas: SeasonDetail.razor, CreateSeason.razor
+
+### Server
+- `ISeasonRepository` + `SeasonRepository`
+- `ISeasonService` + `SeasonService`
+- `SeasonController` → POST `/api/seasons`, GET `/api/seasons/{id}`, PUT `/api/seasons/{id}/configure`
+- Lógica: crear temporada, asignar jugadores, habilitar League/Cup/SuperCup
+
+### Client
+- `SeasonService`
+- `CreateSeason.razor`, `SeasonDetail.razor`
 
 ## Sesión 6 — League
-- Generación automática de fixture (round-robin, soporta número impar con "libre")
-- Re-sorteo del fixture mientras no haya resultados cargados
-- Tabla de posiciones
-- Cargar resultados: equipo local, equipo visitante, videojuego, goles
-- Cálculo y visualización de ELO al cargar resultado (antes → después, cambio de posición)
-- Páginas: League/LeagueView.razor
+
+### Server
+- `ILeagueRepository` + `LeagueRepository`
+- `ILeagueService` + `LeagueService`
+  - Generación de fixture round-robin (soporta impar con "fecha libre")
+  - Cálculo de tabla de posiciones
+  - Registro de resultado + cálculo de ELO (K=32, multiplicador por diferencia de goles)
+- `LeagueController`
+
+### Client
+- `LeagueService`
+- `League/LeagueView.razor` (fixture + tabla)
 
 ## Sesión 7 — Cup
-- Generación del bracket (4, 5, 6, 8 jugadores)
-- Vista del bracket (árbol visual)
-- Manejo de ida y vuelta (aggregate) y penales
-- Avance automático a la siguiente ronda
-- Páginas: Cup/CupView.razor
+
+### Server
+- `ICupRepository` + `CupRepository`
+- `ICupService` + `CupService`
+  - Generación de bracket (4, 5, 6, 8 jugadores)
+  - Manejo de ida y vuelta + penales
+  - Avance automático de ronda
+  - ELO (K=24, bonos por ronda)
+- `CupController`
+
+### Client
+- `CupService`
+- `Cup/CupView.razor` (árbol de bracket)
 
 ## Sesión 8 — SuperCup
-- Lógica para determinar los participantes
-- Partido(s) simple(s) con registro de equipo y videojuego
-- Página: SuperCup/SuperCupView.razor
 
-## Sesión 9 — Perfiles
+### Server
+- `ISuperCupRepository` + `SuperCupRepository`
+- `ISuperCupService` + `SuperCupService`
+  - Determinar participantes (campeón League vs campeón Cup)
+  - Registro de partido(s), ELO (K=16)
+- `SuperCupController`
 
-### Perfil de jugador (visible por todos)
-- Stats generales: partidos / ganados / empatados / perdidos / goles
-- Top 3 equipos más usados (con record G/E/P por equipo)
-- Top 3 videojuegos más jugados
-- ELO actual + historial partido a partido (línea de tiempo, cambios de posición)
-- Lista completa de partidos jugados (fecha, rival, competencia, resultado, equipo, juego)
-- Sección head-to-head: lista de rivales con record acumulado contra cada uno
+### Client
+- `SuperCupService`
+- `SuperCup/SuperCupView.razor`
 
-### Vista head-to-head (cualquier jugador A vs jugador B, visible por todos)
-- Record total: X victorias - Y empates - Z derrotas
-- Goles totales de cada lado
-- Lista de todos los partidos entre ambos (fecha, competencia, resultado, equipos, juego)
-- Evolución del ELO de ambos a lo largo de sus enfrentamientos
+## Sesión 9 — Perfiles y estadísticas
 
-### Perfil de equipo (visible por todos)
-- Jugadores que lo usaron y cuántas veces
-- Record global con ese equipo (G/E/P), goles a favor y en contra
-- Videojuegos en que fue usado
+### Server
+- `IStatsRepository` + `StatsRepository` (queries de solo lectura, no hereda BaseRepository con writes)
+- `IStatsService` + `StatsService`
+  - Stats de jugador: partidos, W/D/L, goles, top equipos, top juegos
+  - Head-to-head entre dos jugadores
+  - Perfil de equipo
+  - Ranking general del vault
+- `StatsController`
 
-### Ranking general
-- Tabla con todos los jugadores del vault, ELO actual y cambio del último partido
-
-### Páginas
-- Player/PlayerProfile.razor
-- Player/HeadToHead.razor
-- Teams/TeamProfile.razor
-- Ranking.razor
+### Client
+- `StatsService`
+- `Player/PlayerProfile.razor`, `Player/HeadToHead.razor`, `Teams/TeamProfile.razor`, `Ranking.razor`
 
 ## Sesión 10 — Pulido y despliegue
 - Responsive mobile
-- Validaciones y manejo de errores
+- Manejo global de errores (middleware en Server, error boundaries en Client)
 - Opciones de hosting (Railway, Fly.io, Azure)
