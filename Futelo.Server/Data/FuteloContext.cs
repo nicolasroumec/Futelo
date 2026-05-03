@@ -4,9 +4,9 @@ using Futelo.Server.Models;
 
 namespace Futelo.Server.Data;
 
-public class AppDbContext : IdentityDbContext<AppUser>
+public class FuteloContext : IdentityDbContext<AppUser>
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    public FuteloContext(DbContextOptions<FuteloContext> options) : base(options) { }
 
     public DbSet<Vault> Vaults { get; set; } = null!;
     public DbSet<VaultPlayer> VaultPlayers { get; set; } = null!;

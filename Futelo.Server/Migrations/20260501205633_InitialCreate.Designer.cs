@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Futelo.Server.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(FuteloContext))]
     [Migration("20260501205633_InitialCreate")]
     partial class InitialCreate
     {
