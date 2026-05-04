@@ -1,9 +1,15 @@
 using System.Text;
 using Futelo.Server.Data;
 using Futelo.Server.Models;
+using Futelo.Server.Repositories.Invitation;
+using Futelo.Server.Repositories.Teams;
 using Futelo.Server.Repositories.Vault;
+using Futelo.Server.Repositories.VideoGames;
 using Futelo.Server.Services.Auth;
+using Futelo.Server.Services.Invitation;
+using Futelo.Server.Services.Teams;
 using Futelo.Server.Services.Vault;
+using Futelo.Server.Services.VideoGames;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +55,12 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVaultRepository, VaultRepository>();
 builder.Services.AddScoped<IVaultService, VaultService>();
+builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
+builder.Services.AddScoped<IInvitationService, InvitationService>();
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<IVideoGameRepository, VideoGameRepository>();
+builder.Services.AddScoped<IVideoGameService, VideoGameService>();
 
 builder.Services.AddControllers();
 

@@ -39,4 +39,10 @@ public class VaultRepository(FuteloContext context) : BaseRepository<Models.Vaul
         Delete(vault);
         await SaveChangesAsync();
     }
+
+    public async Task AddPlayerAsync(VaultPlayer player)
+    {
+        Context.Set<VaultPlayer>().Add(player);
+        await SaveChangesAsync();
+    }
 }

@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using Futelo.Server.Services.Invitation;
 using Futelo.Server.Services.Vault;
+using Futelo.Shared.DTOs.Invitation;
 using Futelo.Shared.DTOs.Vault;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,7 @@ namespace Futelo.Server.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class VaultController(IVaultService vaultService) : ControllerBase
+public class VaultController(IVaultService vaultService, IInvitationService invitationService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
@@ -74,6 +76,28 @@ public class VaultController(IVaultService vaultService) : ControllerBase
         catch (UnauthorizedAccessException)
         {
             return Forbid();
+        }
+    }
+
+    [HttpPost("{id}/invite")]
+    public async Task<IActionResult> Invite(int id, InviteRequest request)
+    {
+        try
+        {
+            var invitation = await invitationService.InviteAsync(id, UserId, request);
+            return Ok(invitation);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 }

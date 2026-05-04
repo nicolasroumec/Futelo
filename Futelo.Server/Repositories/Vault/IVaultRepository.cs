@@ -9,4 +9,5 @@ public interface IVaultRepository
     Task CreateAsync(Models.Vault vault);
     Task UpdateAsync(Models.Vault vault);
     Task DeleteAsync(Models.Vault vault);
+    Task AddPlayerAsync(VaultPlayer player);
 }
