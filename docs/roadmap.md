@@ -34,7 +34,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - BaseRepository<T> como base para todos los repositorios
 - Primera migración
 
-## Sesión 3 — Autenticación (en curso)
+## Sesión 3 — Autenticación ✅
 
 ### Server
 - `IAuthService` + `AuthService` (register, login, generación de JWT)
@@ -47,7 +47,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `Login.razor`, `Register.razor`
 - Registrar `AuthService` en `Program.cs` del Client
 
-## Sesión 4 — Vault + Catálogos
+## Sesión 4 — Vault + Catálogos ✅
 
 ### Server
 - `IVaultRepository` + `VaultRepository : BaseRepository<Vault>`
@@ -58,28 +58,54 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - Endpoints de invitación: POST `/api/vaults/{id}/invite`, POST `/api/invitations/{token}/accept`
 - `ITeamRepository` + `TeamRepository`
 - `ITeamService` + `TeamService`
-- `TeamController` → GET `/api/teams`
+- `TeamController` → GET/POST/PUT/DELETE `/api/teams`
 - `IVideoGameRepository` + `VideoGameRepository`
 - `IVideoGameService` + `VideoGameService`
-- `VideoGameController` → GET `/api/videogames`
+- `VideoGameController` → GET/POST/PUT/DELETE `/api/videogames`
 
 ### Client
 - `VaultService`, `TeamService`, `VideoGameService`
 - `Dashboard.razor`, `VaultDetail.razor`, `CreateVault.razor`, `Teams.razor`, `Games.razor`
+- CRUD completo de Teams y VideoGames desde el front
 
-## Sesión 5 — Temporadas
+## Sesión 5 — Roles en Vault + Invitaciones (client)
+
+### Modelo
+- Agregar enum `VaultRole` (Admin, Editor, Viewer)
+- Agregar campo `Role` a `VaultPlayer`
+- Migración EF Core
+
+### Server
+- Actualizar `VaultService` e `InvitationService` para respetar roles
+- Al invitar, se puede especificar el rol que tendrá el invitado
+- Endpoints que modifican el vault solo accesibles para Admin/Editor según corresponda
+
+### Client
+- `InvitationService` (HTTP calls para invitar y aceptar)
+- Formulario de invitación dentro del detalle del vault (email + rol)
+- Página `AcceptInvitation.razor` → ruta `/invitations/{token}/accept`
+- Mostrar rol de cada miembro en el detalle del vault
+
+## Sesión 6 — Temporadas
+
+### Modelo
+- Agregar `VideoGameId` a `Season` (el juego fijo de la temporada)
+- Agregar `TeamId` a `SeasonPlayer` (el equipo asignado a cada jugador en esa temporada)
+- Migración EF Core
 
 ### Server
 - `ISeasonRepository` + `SeasonRepository`
 - `ISeasonService` + `SeasonService`
 - `SeasonController` → POST `/api/seasons`, GET `/api/seasons/{id}`, PUT `/api/seasons/{id}/configure`
-- Lógica: crear temporada, asignar jugadores, habilitar League/Cup/SuperCup
+- Lógica: crear temporada (elegir videojuego), agregar jugadores con su equipo asignado, habilitar League/Cup/SuperCup
 
 ### Client
 - `SeasonService`
-- `CreateSeason.razor`, `SeasonDetail.razor`
+- `CreateSeason.razor` (nombre, año, videojuego)
+- `SeasonDetail.razor` (jugadores con sus equipos, torneos habilitados)
+- Asignación de equipo por jugador al sumarlo a la temporada
 
-## Sesión 6 — League
+## Sesión 7 — League
 
 ### Server
 - `ILeagueRepository` + `LeagueRepository`
@@ -93,7 +119,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `LeagueService`
 - `League/LeagueView.razor` (fixture + tabla)
 
-## Sesión 7 — Cup
+## Sesión 8 — Cup
 
 ### Server
 - `ICupRepository` + `CupRepository`
@@ -108,7 +134,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `CupService`
 - `Cup/CupView.razor` (árbol de bracket)
 
-## Sesión 8 — SuperCup
+## Sesión 9 — SuperCup
 
 ### Server
 - `ISuperCupRepository` + `SuperCupRepository`
@@ -121,7 +147,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `SuperCupService`
 - `SuperCup/SuperCupView.razor`
 
-## Sesión 9 — Perfiles y estadísticas
+## Sesión 10 — Perfiles y estadísticas
 
 ### Server
 - `IStatsRepository` + `StatsRepository` (queries de solo lectura, no hereda BaseRepository con writes)
@@ -136,7 +162,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `StatsService`
 - `Player/PlayerProfile.razor`, `Player/HeadToHead.razor`, `Teams/TeamProfile.razor`, `Ranking.razor`
 
-## Sesión 10 — Pulido y despliegue
+## Sesión 11 — Pulido y despliegue
 - Responsive mobile
 - Manejo global de errores (middleware en Server, error boundaries en Client)
 - Opciones de hosting (Railway, Fly.io, Azure)
