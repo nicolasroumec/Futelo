@@ -15,10 +15,17 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 var baseAddress = string.IsNullOrEmpty(apiBaseUrl)
     ? builder.HostEnvironment.BaseAddress
     : apiBaseUrl;
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseAddress) });
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<FuteloAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<FuteloAuthStateProvider>());
+builder.Services.AddScoped<AuthTokenHandler>();
+builder.Services.AddScoped(sp =>
+{
+    var handler = sp.GetRequiredService<AuthTokenHandler>();
+    handler.InnerHandler = new HttpClientHandler();
+    return new HttpClient(handler) { BaseAddress = new Uri(baseAddress) };
+});
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVaultService, VaultService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
