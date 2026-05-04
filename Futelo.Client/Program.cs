@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Futelo.Client;
 using Futelo.Client.Services.Auth;
+using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Vault;
+using Futelo.Client.Services.VideoGames;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,5 +20,8 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<FuteloAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<FuteloAuthStateProvider>());
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IVaultService, VaultService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<IVideoGameService, VideoGameService>();
 
 await builder.Build().RunAsync();

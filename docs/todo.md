@@ -10,6 +10,6 @@
 
 ## Client
 
-- [ ] Vault — `VaultService` (HTTP calls) + `Dashboard.razor` + `VaultDetail.razor` + `CreateVault.razor`
-- [ ] Teams — `TeamService` + `Teams.razor`
-- [ ] VideoGames — `VideoGameService` + `Games.razor`
+- [x] Vault — `VaultService` (HTTP calls) + `Dashboard.razor` + `VaultDetail.razor` + `CreateVault.razor`
+- [x] Teams — `TeamService` + `Teams.razor`
+- [x] VideoGames — `VideoGameService` + `Games.razor`

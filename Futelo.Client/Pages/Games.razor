@@ -1,0 +1,24 @@
+@page "/games"
+@attribute [Authorize]
+
+<PageTitle>Games - Futelo</PageTitle>
+
+<h3 class="mb-4">Video Games</h3>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (games.Count == 0)
+{
+    <p class="text-muted">No games available.</p>
+}
+else
+{
+    <ul class="list-group" style="max-width:400px">
+        @foreach (var game in games)
+        {
+            <li class="list-group-item">@game.Name</li>
+        }
+    </ul>
+}

@@ -1,0 +1,24 @@
+@page "/teams"
+@attribute [Authorize]
+
+<PageTitle>Teams - Futelo</PageTitle>
+
+<h3 class="mb-4">Teams</h3>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (teams.Count == 0)
+{
+    <p class="text-muted">No teams available.</p>
+}
+else
+{
+    <ul class="list-group" style="max-width:400px">
+        @foreach (var team in teams)
+        {
+            <li class="list-group-item">@team.Name</li>
+        }
+    </ul>
+}

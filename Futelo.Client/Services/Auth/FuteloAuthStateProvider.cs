@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -5,7 +6,7 @@ using Microsoft.JSInterop;
 
 namespace Futelo.Client.Services.Auth;
 
-public class FuteloAuthStateProvider(IJSRuntime js) : AuthenticationStateProvider
+public class FuteloAuthStateProvider(IJSRuntime js, HttpClient http) : AuthenticationStateProvider
 {
     private const string TokenKey = "futelo_token";
 
@@ -14,7 +15,13 @@ public class FuteloAuthStateProvider(IJSRuntime js) : AuthenticationStateProvide
         var token = await js.InvokeAsync<string?>("localStorage.getItem", TokenKey);
 
         if (string.IsNullOrEmpty(token))
+        {
+            http.DefaultRequestHeaders.Authorization = null;
             return Anonymous();
+        }
+
+        http.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
 
         var claims = ParseClaimsFromJwt(token);
         var identity = new ClaimsIdentity(claims, "jwt", "unique_name", ClaimTypes.Role);
