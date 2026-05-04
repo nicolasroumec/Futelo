@@ -1,7 +1,9 @@
 using System.Text;
 using Futelo.Server.Data;
 using Futelo.Server.Models;
+using Futelo.Server.Repositories.Vault;
 using Futelo.Server.Services.Auth;
+using Futelo.Server.Services.Vault;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +47,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IVaultRepository, VaultRepository>();
+builder.Services.AddScoped<IVaultService, VaultService>();
 
 builder.Services.AddControllers();
 
