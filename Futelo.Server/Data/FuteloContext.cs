@@ -30,15 +30,35 @@ public class FuteloContext : IdentityDbContext<AppUser>
 
         builder.Entity<VaultPlayer>()
             .HasKey(vp => new { vp.VaultId, vp.PlayerId });
+        builder.Entity<VaultPlayer>()
+            .HasOne(vp => vp.Player)
+            .WithMany()
+            .HasForeignKey(vp => vp.PlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<SeasonPlayer>()
             .HasKey(sp => new { sp.SeasonId, sp.PlayerId });
+        builder.Entity<SeasonPlayer>()
+            .HasOne(sp => sp.Player)
+            .WithMany()
+            .HasForeignKey(sp => sp.PlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<LeaguePlayer>()
             .HasKey(lp => new { lp.LeagueId, lp.PlayerId });
+        builder.Entity<LeaguePlayer>()
+            .HasOne(lp => lp.Player)
+            .WithMany()
+            .HasForeignKey(lp => lp.PlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<CupPlayer>()
             .HasKey(cp => new { cp.CupId, cp.PlayerId });
+        builder.Entity<CupPlayer>()
+            .HasOne(cp => cp.Player)
+            .WithMany()
+            .HasForeignKey(cp => cp.PlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<Season>()
             .HasOne(s => s.League)
@@ -54,6 +74,22 @@ public class FuteloContext : IdentityDbContext<AppUser>
             .HasOne(s => s.SuperCup)
             .WithOne(sc => sc.Season)
             .HasForeignKey<SuperCup>(sc => sc.SeasonId);
+
+        builder.Entity<EloHistory>()
+            .HasOne(e => e.Player)
+            .WithMany()
+            .HasForeignKey(e => e.PlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EloHistory>()
+            .HasOne(e => e.Match)
+            .WithMany()
+            .HasForeignKey(e => e.MatchId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<EloHistory>()
+            .HasOne(e => e.Season)
+            .WithMany()
+            .HasForeignKey(e => e.SeasonId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Entity<Match>()
             .HasOne(m => m.HomePlayer)
