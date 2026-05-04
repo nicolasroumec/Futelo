@@ -1,6 +1,4 @@
 @page "/register"
-@inject IAuthService AuthService
-@inject NavigationManager Nav
 
 <PageTitle>Register - Futelo</PageTitle>
 
@@ -50,29 +48,3 @@
         </p>
     </div>
 </div>
-
-@code {
-    private RegisterRequest model = new();
-    private string? errorMessage;
-    private bool isLoading;
-
-    private async Task HandleRegister()
-    {
-        isLoading = true;
-        errorMessage = null;
-
-        try
-        {
-            await AuthService.RegisterAsync(model);
-            Nav.NavigateTo("/");
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-}

@@ -1,12 +1,1 @@
 @page "/logout"
-@inject IAuthService AuthService
-@inject NavigationManager Nav
-
-@code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-        await AuthService.LogoutAsync();
-        Nav.NavigateTo("/login");
-    }
-}

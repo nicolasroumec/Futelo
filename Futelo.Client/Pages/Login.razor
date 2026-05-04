@@ -1,6 +1,4 @@
 @page "/login"
-@inject IAuthService AuthService
-@inject NavigationManager Nav
 
 <PageTitle>Login - Futelo</PageTitle>
 
@@ -38,29 +36,3 @@
         </p>
     </div>
 </div>
-
-@code {
-    private LoginRequest model = new();
-    private string? errorMessage;
-    private bool isLoading;
-
-    private async Task HandleLogin()
-    {
-        isLoading = true;
-        errorMessage = null;
-
-        try
-        {
-            await AuthService.LoginAsync(model);
-            Nav.NavigateTo("/");
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-}
