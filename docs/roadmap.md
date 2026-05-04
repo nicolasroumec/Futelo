@@ -56,12 +56,15 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `IInvitationRepository` + `InvitationRepository`
 - `IInvitationService` + `InvitationService`
 - Endpoints de invitación: POST `/api/vaults/{id}/invite`, POST `/api/invitations/{token}/accept`
-- `ITeamRepository` + `TeamRepository`, `IVideoGameRepository` + `VideoGameRepository`
-- `ICatalogService` + `CatalogService` (Teams + VideoGames — lógica simple, un solo service)
-- Endpoints: GET `/api/teams`, GET `/api/videogames`
+- `ITeamRepository` + `TeamRepository`
+- `ITeamService` + `TeamService`
+- `TeamController` → GET `/api/teams`
+- `IVideoGameRepository` + `VideoGameRepository`
+- `IVideoGameService` + `VideoGameService`
+- `VideoGameController` → GET `/api/videogames`
 
 ### Client
-- `VaultService`, `CatalogService`
+- `VaultService`, `TeamService`, `VideoGameService`
 - `Dashboard.razor`, `VaultDetail.razor`, `CreateVault.razor`, `Teams.razor`, `Games.razor`
 
 ## Sesión 5 — Temporadas
