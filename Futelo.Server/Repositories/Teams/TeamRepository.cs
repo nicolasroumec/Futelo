@@ -9,4 +9,26 @@ public class TeamRepository(FuteloContext context) : BaseRepository<Team>(contex
 {
     public async Task<IEnumerable<Team>> GetAllAsync()
         => await FindAll().OrderBy(t => t.Name).ToListAsync();
+
+    public async Task<Team?> GetByIdAsync(int id)
+        => await FindByCondition(t => t.Id == id).FirstOrDefaultAsync();
+
+    public async Task<Team> CreateAsync(Team team)
+    {
+        Create(team);
+        await SaveChangesAsync();
+        return team;
+    }
+
+    public async Task UpdateAsync(Team team)
+    {
+        Update(team);
+        await SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Team team)
+    {
+        Delete(team);
+        await SaveChangesAsync();
+    }
 }
