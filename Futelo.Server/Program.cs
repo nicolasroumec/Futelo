@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevClient", policy =>
-        policy.WithOrigins("https://localhost:60938", "http://localhost:60940")
+        policy.WithOrigins("https://localhost:7079", "http://localhost:5276")
               .AllowAnyHeader()
               .AllowAnyMethod());
 });

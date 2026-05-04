@@ -9,6 +9,10 @@
 {
     <p>Loading...</p>
 }
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
 else if (games.Count == 0)
 {
     <p class="text-muted">No games available.</p>

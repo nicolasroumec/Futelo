@@ -10,7 +10,7 @@ namespace Futelo.Server.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/vaults")]
 public class VaultController(IVaultService vaultService, IInvitationService invitationService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;

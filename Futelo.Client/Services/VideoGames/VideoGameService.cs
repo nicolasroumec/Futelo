@@ -6,5 +6,5 @@ namespace Futelo.Client.Services.VideoGames;
 public class VideoGameService(HttpClient http) : IVideoGameService
 {
     public async Task<List<VideoGameResponse>> GetAllAsync()
-        => await http.GetFromJsonAsync<List<VideoGameResponse>>("api/videogame") ?? [];
+        => await http.GetFromJsonAsync<List<VideoGameResponse>>("api/videogames") ?? [];
 }

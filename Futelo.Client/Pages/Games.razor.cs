@@ -10,10 +10,21 @@ public partial class Games
 
     private List<VideoGameResponse> games = [];
     private bool isLoading = true;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        games = await VideoGameService.GetAllAsync();
-        isLoading = false;
+        try
+        {
+            games = await VideoGameService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace Futelo.Server.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/teams")]
 public class TeamController(ITeamService teamService) : ControllerBase
 {
     [HttpGet]

@@ -10,10 +10,21 @@ public partial class Teams
 
     private List<TeamResponse> teams = [];
     private bool isLoading = true;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        teams = await TeamService.GetAllAsync();
-        isLoading = false;
+        try
+        {
+            teams = await TeamService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace Futelo.Server.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/videogames")]
 public class VideoGameController(IVideoGameService videoGameService) : ControllerBase
 {
     [HttpGet]
