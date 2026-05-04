@@ -6,49 +6,64 @@
 |------|-----------|
 | Frontend | Blazor 10 WebAssembly |
 | Backend | ASP.NET Core 10 Web API |
-| Base de datos | SQLite (via Entity Framework Core 10) |
-| Auth | ASP.NET Core Identity + JWT |
-| UI | Bootstrap 5 (incluido en el template) |
-| Almacenamiento cliente | JS Interop directo (localStorage) |
+| Base de datos | PostgreSQL (via Entity Framework Core 10) |
+| Auth | ASP.NET Core Identity + JWT (7 días, sin refresh tokens) |
+| UI | Bootstrap 5 |
+| Almacenamiento cliente | localStorage via IJSRuntime |
 
 ## Estructura de proyectos
 
 ```
 Futelo.slnx
-├── Futelo.Server/       # ASP.NET Core 10 API
-│   ├── Controllers/
-│   ├── Data/            # DbContext
-│   ├── Models/          # Entidades EF Core
-│   ├── Services/        # Lógica de negocio
-│   └── DTOs/            # (si no van en Shared)
+├── Futelo.Server/
+│   ├── Controllers/         # Reciben requests HTTP, llaman al servicio, devuelven respuestas
+│   ├── Data/                # AppDbContext (EF Core)
+│   ├── Models/              # Entidades de dominio (EF Core)
+│   ├── Repositories/        # Acceso a datos (wrappean DbContext)
+│   └── Services/            # Lógica de negocio (usan Repositories)
 │
-├── Futelo.Client/       # Blazor 10 WebAssembly
-│   ├── Pages/
-│   ├── Layout/
-│   ├── Services/        # HTTP clients, auth
-│   └── wwwroot/
+├── Futelo.Client/
+│   ├── Pages/               # Componentes Razor (una página = un archivo)
+│   ├── Layout/              # Shell visual (NavMenu, MainLayout)
+│   ├── Services/            # Lógica cliente (HTTP calls, auth, estado)
+│   └── wwwroot/             # Archivos estáticos
 │
-└── Futelo.Shared/       # Compartido entre Server y Client
-    └── DTOs/            # Request/Response models
+└── Futelo.Shared/
+    └── DTOs/                # Request/Response objects compartidos entre Server y Client
+        └── Auth/            # RegisterRequest, LoginRequest, AuthResponse
 ```
 
-## Paquetes NuGet instalados
+## Capas del Server
 
-### Futelo.Server
-- `Microsoft.AspNetCore.Identity.EntityFrameworkCore` 10.0.7
-- `Microsoft.EntityFrameworkCore.Sqlite` 10.0.7
-- `Microsoft.EntityFrameworkCore.Design` 10.0.7
-- `Microsoft.AspNetCore.Authentication.JwtBearer` 10.0.7
-- `Microsoft.IdentityModel.Tokens` 8.x
+La lógica del servidor sigue tres capas bien separadas:
 
-### Futelo.Client
-- Sin paquetes extra (Bootstrap viene incluido en el template)
-- localStorage via `IJSRuntime` directo
+```
+Controller  →  Service  →  Repository  →  DbContext / UserManager
+```
+
+| Capa | Responsabilidad |
+|------|----------------|
+| **Controller** | Recibe el HTTP request, valida el modelo, llama al service, devuelve el HTTP response |
+| **Service** | Contiene la lógica de negocio. No sabe nada de HTTP ni de EF Core directamente |
+| **Repository** | Encapsula las queries a la base de datos. El Service no toca DbContext directo |
+
+- Los Services e interfaces de Repositories se registran en `Program.cs` via inyección de dependencias.
+- Para Auth, `UserManager<AppUser>` de Identity ya actúa como repositorio — no se crea uno extra.
+
+## Convenciones de nombres
+
+| Elemento | Convención | Ejemplo |
+|----------|-----------|---------|
+| Interfaces | `I` + nombre | `IAuthService`, `IVaultRepository` |
+| Implementaciones | nombre sin prefijo | `AuthService`, `VaultRepository` |
+| DTOs entrantes | `XxxRequest` | `RegisterRequest` |
+| DTOs salientes | `XxxResponse` | `AuthResponse` |
+| Archivos/clases | PascalCase en inglés | `AuthController.cs` |
 
 ## Comunicación
 
 ```
-Blazor WASM  ──HTTP/JSON──►  ASP.NET Core API  ──EF Core──►  SQLite
+Blazor WASM  ──HTTP/JSON──►  ASP.NET Core API  ──EF Core──►  PostgreSQL
     │                               │
     └── localStorage (JWT token)    └── ASP.NET Core Identity
 ```
