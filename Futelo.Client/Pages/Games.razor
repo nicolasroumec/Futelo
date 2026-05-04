@@ -1,0 +1,64 @@
+@page "/games"
+@attribute [Authorize]
+
+<PageTitle>Games - Futelo</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Video Games</h3>
+    <button class="btn btn-primary" @onclick="ShowCreateForm">New Game</button>
+</div>
+
+@if (showForm)
+{
+    <div class="card mb-4" style="max-width:400px">
+        <div class="card-body">
+            <h5 class="card-title">@(editingId.HasValue ? "Edit Game" : "New Game")</h5>
+            <EditForm Model="formModel" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="formModel.Name" />
+                    <ValidationMessage For="() => formModel.Name" />
+                </div>
+                @if (!string.IsNullOrEmpty(formError))
+                {
+                    <div class="alert alert-danger">@formError</div>
+                }
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                        @(isSubmitting ? "Saving..." : "Save")
+                    </button>
+                    <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else if (games.Count == 0)
+{
+    <p class="text-muted">No games yet.</p>
+}
+else
+{
+    <ul class="list-group" style="max-width:400px">
+        @foreach (var game in games)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @game.Name
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => EditGame(game)">Edit</button>
+                    <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteGame(game.Id)">Delete</button>
+                </div>
+            </li>
+        }
+    </ul>
+}

@@ -9,9 +9,12 @@ public class FuteloAuthStateProvider(IJSRuntime js) : AuthenticationStateProvide
 {
     private const string TokenKey = "futelo_token";
 
+    public string? CurrentToken { get; set; }
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var token = await js.InvokeAsync<string?>("localStorage.getItem", TokenKey);
+        CurrentToken = token;
 
         if (string.IsNullOrEmpty(token))
             return Anonymous();

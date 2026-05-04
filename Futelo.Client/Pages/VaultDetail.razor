@@ -1,0 +1,61 @@
+@page "/vaults/{id:int}"
+@attribute [Authorize]
+
+<PageTitle>@(vault?.Name ?? "Vault") - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (vault == null)
+{
+    <p class="text-danger">Vault not found.</p>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/dashboard" class="btn btn-outline-secondary btn-sm">Back</a>
+        <h3 class="mb-0">@vault.Name</h3>
+    </div>
+
+    <p class="text-muted">Owner: @vault.OwnerDisplayName</p>
+
+    <h5 class="mt-4">Players</h5>
+    <ul class="list-group mb-4" style="max-width:420px">
+        @foreach (var player in vault.Players)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @player.DisplayName
+                @if (player.PlayerId == vault.OwnerId)
+                {
+                    <span class="badge bg-primary">Owner</span>
+                }
+            </li>
+        }
+    </ul>
+
+    @if (isOwner)
+    {
+        <h5>Invite Player</h5>
+        <EditForm Model="inviteModel" OnValidSubmit="HandleInvite" style="max-width:420px">
+            <DataAnnotationsValidator />
+            <div class="input-group mb-1">
+                <InputText class="form-control" @bind-Value="inviteModel.Email" placeholder="Email address" />
+                <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
+                    @(isInviting ? "Sending..." : "Invite")
+                </button>
+            </div>
+            <ValidationMessage For="() => inviteModel.Email" />
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(inviteMessage))
+        {
+            <div class="alert @inviteAlertClass mt-2">@inviteMessage</div>
+        }
+    }
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-3">@errorMessage</div>
+}

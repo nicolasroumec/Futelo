@@ -1,0 +1,32 @@
+@page "/vaults/create"
+@attribute [Authorize]
+
+<PageTitle>New Vault - Futelo</PageTitle>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <h3 class="mb-4">New Vault</h3>
+
+        <EditForm Model="model" OnValidSubmit="HandleCreate">
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <InputText class="form-control" @bind-Value="model.Name" />
+                <ValidationMessage For="() => model.Name" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                    @(isLoading ? "Creating..." : "Create")
+                </button>
+                <a href="/dashboard" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </EditForm>
+    </div>
+</div>

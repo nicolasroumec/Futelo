@@ -47,7 +47,7 @@ public class AuthService(HttpClient http, IJSRuntime js, FuteloAuthStateProvider
     public async Task LogoutAsync()
     {
         await js.InvokeVoidAsync("localStorage.removeItem", TokenKey);
-        http.DefaultRequestHeaders.Authorization = null;
+        authStateProvider.CurrentToken = null;
         authStateProvider.NotifyAuthStateChanged();
     }
 
@@ -65,7 +65,6 @@ public class AuthService(HttpClient http, IJSRuntime js, FuteloAuthStateProvider
     private async Task SaveTokenAsync(string token)
     {
         await js.InvokeVoidAsync("localStorage.setItem", TokenKey, token);
-        http.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        authStateProvider.CurrentToken = token;
     }
 }
