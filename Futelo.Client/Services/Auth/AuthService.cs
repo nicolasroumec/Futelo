@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 
 namespace Futelo.Client.Services.Auth;
 
-public class AuthService(HttpClient http, IJSRuntime js) : IAuthService
+public class AuthService(HttpClient http, IJSRuntime js, FuteloAuthStateProvider authStateProvider) : IAuthService
 {
     private const string TokenKey = "futelo_token";
 
@@ -22,6 +22,7 @@ public class AuthService(HttpClient http, IJSRuntime js) : IAuthService
             ?? throw new InvalidOperationException("Invalid server response.");
 
         await SaveTokenAsync(result.Token);
+        authStateProvider.NotifyAuthStateChanged();
         return result;
     }
 
@@ -39,6 +40,7 @@ public class AuthService(HttpClient http, IJSRuntime js) : IAuthService
             ?? throw new InvalidOperationException("Invalid server response.");
 
         await SaveTokenAsync(result.Token);
+        authStateProvider.NotifyAuthStateChanged();
         return result;
     }
 
@@ -46,6 +48,7 @@ public class AuthService(HttpClient http, IJSRuntime js) : IAuthService
     {
         await js.InvokeVoidAsync("localStorage.removeItem", TokenKey);
         http.DefaultRequestHeaders.Authorization = null;
+        authStateProvider.NotifyAuthStateChanged();
     }
 
     public async Task<string?> GetTokenAsync()
