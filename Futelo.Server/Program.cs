@@ -2,11 +2,13 @@ using System.Text;
 using Futelo.Server.Data;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Invitation;
+using Futelo.Server.Repositories.Season;
 using Futelo.Server.Repositories.Teams;
 using Futelo.Server.Repositories.Vault;
 using Futelo.Server.Repositories.VideoGames;
 using Futelo.Server.Services.Auth;
 using Futelo.Server.Services.Invitation;
+using Futelo.Server.Services.Season;
 using Futelo.Server.Services.Teams;
 using Futelo.Server.Services.Vault;
 using Futelo.Server.Services.VideoGames;
@@ -60,6 +62,8 @@ builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IVideoGameRepository, VideoGameRepository>();
 builder.Services.AddScoped<IVideoGameService, VideoGameService>();
+builder.Services.AddScoped<ISeasonRepository, SeasonRepository>();
+builder.Services.AddScoped<ISeasonService, SeasonService>();
 
 builder.Services.AddControllers();
 
