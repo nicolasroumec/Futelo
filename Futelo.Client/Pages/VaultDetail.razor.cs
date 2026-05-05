@@ -1,5 +1,7 @@
+using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Vault;
 using Futelo.Shared.DTOs.Invitation;
+using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.DTOs.Vault;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -10,9 +12,11 @@ public partial class VaultDetail
 {
     [Parameter] public int Id { get; set; }
     [Inject] private IVaultService VaultService { get; set; } = null!;
+    [Inject] private ISeasonService SeasonService { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private VaultResponse? vault;
+    private List<SeasonResponse> seasons = [];
     private bool isOwner;
     private bool isLoading = true;
     private string? errorMessage;
@@ -30,6 +34,7 @@ public partial class VaultDetail
             var userId = authState.User.FindFirst("nameid")?.Value;
             vault = await VaultService.GetByIdAsync(Id);
             isOwner = vault.OwnerId == userId;
+            seasons = await SeasonService.GetByVaultAsync(Id);
         }
         catch (Exception ex)
         {

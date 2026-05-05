@@ -34,6 +34,30 @@ else
         }
     </ul>
 
+    <div class="d-flex align-items-center gap-3 mt-4 mb-2">
+        <h5 class="mb-0">Seasons</h5>
+        @if (isOwner)
+        {
+            <a href="/vaults/@Id/seasons/create" class="btn btn-outline-primary btn-sm">+ New Season</a>
+        }
+    </div>
+    @if (seasons.Count == 0)
+    {
+        <p class="text-muted">No seasons yet.</p>
+    }
+    else
+    {
+        <ul class="list-group mb-4" style="max-width:420px">
+            @foreach (var s in seasons)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="/seasons/@s.Id" class="text-decoration-none">@s.Name (@s.Year)</a>
+                    <span class="badge bg-secondary">@s.Status</span>
+                </li>
+            }
+        </ul>
+    }
+
     @if (isOwner)
     {
         <h5>Invite Player</h5>
