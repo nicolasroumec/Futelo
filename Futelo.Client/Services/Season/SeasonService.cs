@@ -23,6 +23,10 @@ public class SeasonService(HttpClient http) : ISeasonService
     public async Task ConfigureAsync(int id, ConfigureSeasonRequest request)
     {
         var response = await http.PutAsJsonAsync($"api/seasons/{id}/configure", request);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to configure season." : error);
+        }
     }
 }
