@@ -59,6 +59,28 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
         }
     }
 
+    [HttpPut("{id}/activate")]
+    public async Task<IActionResult> Activate(int id)
+    {
+        try
+        {
+            await seasonService.ActivateAsync(id, UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpPut("{id}/configure")]
     public async Task<IActionResult> Configure(int id, ConfigureSeasonRequest request)
     {

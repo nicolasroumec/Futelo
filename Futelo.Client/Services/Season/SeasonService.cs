@@ -20,6 +20,16 @@ public class SeasonService(HttpClient http) : ISeasonService
             ?? throw new InvalidOperationException("Invalid server response.");
     }
 
+    public async Task ActivateAsync(int id)
+    {
+        var response = await http.PutAsync($"api/seasons/{id}/activate", null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to activate season." : error);
+        }
+    }
+
     public async Task ConfigureAsync(int id, ConfigureSeasonRequest request)
     {
         var response = await http.PutAsJsonAsync($"api/seasons/{id}/configure", request);

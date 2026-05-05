@@ -21,9 +21,12 @@ public partial class SeasonDetail
     private bool isOwner;
     private bool isLoading = true;
     private bool isConfiguring;
+    private bool isActivating;
     private string? errorMessage;
     private string? configureMessage;
     private string configureAlertClass = "alert-success";
+    private string? activateMessage;
+    private string activateAlertClass = "alert-success";
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,6 +60,29 @@ public partial class SeasonDetail
     {
         if (selected) selectedPlayerIds.Add(playerId);
         else selectedPlayerIds.Remove(playerId);
+    }
+
+    private async Task HandleActivate()
+    {
+        isActivating = true;
+        activateMessage = null;
+
+        try
+        {
+            await SeasonService.ActivateAsync(Id);
+            season = await SeasonService.GetByIdAsync(Id);
+            activateMessage = "Season activated successfully.";
+            activateAlertClass = "alert-success";
+        }
+        catch (Exception ex)
+        {
+            activateMessage = ex.Message;
+            activateAlertClass = "alert-danger";
+        }
+        finally
+        {
+            isActivating = false;
+        }
     }
 
     private async Task HandleConfigure()

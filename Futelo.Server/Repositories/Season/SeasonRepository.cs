@@ -59,4 +59,12 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 
         await SaveChangesAsync();
     }
+
+    public async Task UpdateStatusAsync(int seasonId, SeasonStatus status)
+    {
+        var season = await Context.Set<Models.Season>().FindAsync(seasonId);
+        if (season == null) return;
+        season.Status = status;
+        await SaveChangesAsync();
+    }
 }

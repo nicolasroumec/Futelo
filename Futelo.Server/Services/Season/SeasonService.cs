@@ -72,6 +72,23 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.HasCup, request.HasSuperCup);
     }
 
+    public async Task ActivateAsync(int id, string userId)
+    {
+        var season = await seasonRepository.GetByIdAsync(id);
+        if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException("Season not found.");
+        if (season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException("Only the vault owner can activate a season.");
+        if (season.Status != SeasonStatus.Draft)
+            throw new InvalidOperationException("Only Draft seasons can be activated.");
+        if (!season.Players.Any())
+            throw new InvalidOperationException("Season must have players before activation.");
+        if (season.League == null && season.Cup == null)
+            throw new InvalidOperationException("Season must have at least one competition before activation.");
+
+        await seasonRepository.UpdateStatusAsync(id, SeasonStatus.Active);
+    }
+
     private static SeasonResponse MapToResponse(Models.Season season) => new()
     {
         Id = season.Id,

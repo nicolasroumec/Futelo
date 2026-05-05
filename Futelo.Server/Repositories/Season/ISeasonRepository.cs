@@ -8,4 +8,5 @@ public interface ISeasonRepository
     Task<Models.Season?> GetByIdAsync(int id);
     Task CreateAsync(Models.Season season);
     Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, bool hasCup, bool hasSuperCup);
+    Task UpdateStatusAsync(int seasonId, SeasonStatus status);
 }
