@@ -31,7 +31,7 @@ public partial class VaultDetail
         try
         {
             var authState = await AuthStateTask;
-            var userId = authState.User.FindFirst("nameid")?.Value;
+            var userId = authState.User.FindFirst("sub")?.Value;
             vault = await VaultService.GetByIdAsync(Id);
             isOwner = vault.OwnerId == userId;
             seasons = await SeasonService.GetByVaultAsync(Id);

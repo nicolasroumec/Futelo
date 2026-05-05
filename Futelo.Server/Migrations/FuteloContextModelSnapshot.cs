@@ -119,7 +119,7 @@ namespace Futelo.Server.Migrations
                     b.HasIndex("SeasonId")
                         .IsUnique();
 
-                    b.ToTable("Cups");
+                    b.ToTable("Cups", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.CupPlayer", b =>
@@ -134,7 +134,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("CupPlayers");
+                    b.ToTable("CupPlayers", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.CupRound", b =>
@@ -159,7 +159,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("CupId");
 
-                    b.ToTable("CupRounds");
+                    b.ToTable("CupRounds", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.EloHistory", b =>
@@ -214,7 +214,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("SeasonId");
 
-                    b.ToTable("EloHistories");
+                    b.ToTable("EloHistories", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.League", b =>
@@ -239,7 +239,7 @@ namespace Futelo.Server.Migrations
                     b.HasIndex("SeasonId")
                         .IsUnique();
 
-                    b.ToTable("Leagues");
+                    b.ToTable("Leagues", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.LeaguePlayer", b =>
@@ -257,7 +257,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("LeaguePlayers");
+                    b.ToTable("LeaguePlayers", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.Match", b =>
@@ -332,7 +332,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("WonOnPenaltiesId");
 
-                    b.ToTable("Matches");
+                    b.ToTable("Matches", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.Season", b =>
@@ -360,7 +360,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("VaultId");
 
-                    b.ToTable("Seasons");
+                    b.ToTable("Seasons", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.SeasonPlayer", b =>
@@ -378,7 +378,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("SeasonPlayers");
+                    b.ToTable("SeasonPlayers", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.SuperCup", b =>
@@ -413,7 +413,7 @@ namespace Futelo.Server.Migrations
                     b.HasIndex("SeasonId")
                         .IsUnique();
 
-                    b.ToTable("SuperCups");
+                    b.ToTable("SuperCups", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.Team", b =>
@@ -430,7 +430,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teams");
+                    b.ToTable("Teams", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.Vault", b =>
@@ -453,7 +453,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Vaults");
+                    b.ToTable("Vaults", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.VaultInvitation", b =>
@@ -488,7 +488,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("VaultId");
 
-                    b.ToTable("VaultInvitations");
+                    b.ToTable("VaultInvitations", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.VaultPlayer", b =>
@@ -511,7 +511,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("VaultPlayers");
+                    b.ToTable("VaultPlayers", (string)null);
                 });
 
             modelBuilder.Entity("Futelo.Server.Models.VideoGame", b =>
@@ -528,7 +528,7 @@ namespace Futelo.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VideoGames");
+                    b.ToTable("VideoGames", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

@@ -30,7 +30,7 @@ public partial class SeasonDetail
         try
         {
             var authState = await AuthStateTask;
-            var userId = authState.User.FindFirst("nameid")?.Value;
+            var userId = authState.User.FindFirst("sub")?.Value;
 
             season = await SeasonService.GetByIdAsync(Id);
 
