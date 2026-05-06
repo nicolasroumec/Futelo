@@ -2,6 +2,7 @@ using Futelo.Server.Models;
 using Futelo.Server.Repositories.Invitation;
 using Futelo.Server.Repositories.Vault;
 using Futelo.Shared.DTOs.Invitation;
+using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Invitation;
 
@@ -12,8 +13,9 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         var vault = await vaultRepository.GetByIdAsync(vaultId)
             ?? throw new KeyNotFoundException("Vault not found.");
 
-        if (vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can invite players.");
+        var caller = vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || caller.Role != VaultRole.Admin)
+            throw new UnauthorizedAccessException("Only vault admins can invite players.");
 
         if (vault.Players.Any(p => p.Player.Email == request.Email))
             throw new InvalidOperationException("This user is already a member of the vault.");
@@ -27,6 +29,7 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
             Email = request.Email,
             Token = Guid.NewGuid().ToString("N"),
             Status = InvitationStatus.Pending,
+            Role = request.Role,
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddDays(7)
         };
@@ -61,7 +64,8 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         {
             VaultId = invitation.VaultId,
             PlayerId = userId,
-            JoinedAt = DateTime.UtcNow
+            JoinedAt = DateTime.UtcNow,
+            Role = invitation.Role
         });
 
         invitation.Status = InvitationStatus.Accepted;

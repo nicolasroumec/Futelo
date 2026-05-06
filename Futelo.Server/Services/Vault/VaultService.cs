@@ -37,10 +37,11 @@ public class VaultService(IVaultRepository repository) : IVaultService
     public async Task UpdateAsync(int id, string userId, UpdateVaultRequest request)
     {
         var vault = await repository.GetByIdAsync(id);
-        if (vault == null || vault.Players.All(p => p.PlayerId != userId))
+        var caller = vault?.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (vault == null || caller == null)
             throw new KeyNotFoundException("Vault not found.");
-        if (vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can perform this action.");
+        if (caller.Role != VaultRole.Admin)
+            throw new UnauthorizedAccessException("Only vault admins can update the vault.");
         vault.Name = request.Name;
         await repository.UpdateAsync(vault);
     }
@@ -51,7 +52,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
             throw new KeyNotFoundException("Vault not found.");
         if (vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can perform this action.");
+            throw new UnauthorizedAccessException("Only the vault owner can delete the vault.");
         await repository.DeleteAsync(vault);
     }
 
