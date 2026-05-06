@@ -17,16 +17,10 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         if (caller == null || caller.Role != VaultRole.Admin)
             throw new UnauthorizedAccessException("Only vault admins can invite players.");
 
-        if (vault.Players.Any(p => p.Player.Email == request.Email))
-            throw new InvalidOperationException("This user is already a member of the vault.");
-
-        if (await invitationRepository.HasPendingAsync(vaultId, request.Email))
-            throw new InvalidOperationException("A pending invitation already exists for this email.");
-
         var invitation = new VaultInvitation
         {
             VaultId = vaultId,
-            Email = request.Email,
+            Email = string.Empty,
             Token = Guid.NewGuid().ToString("N"),
             Status = InvitationStatus.Pending,
             Role = request.Role,
@@ -39,7 +33,7 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         return MapToResponse(invitation, vault.Name);
     }
 
-    public async Task AcceptAsync(string token, string userId, string userEmail)
+    public async Task AcceptAsync(string token, string userId)
     {
         var invitation = await invitationRepository.GetByTokenAsync(token)
             ?? throw new KeyNotFoundException("Invitation not found.");
@@ -53,9 +47,6 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
             await invitationRepository.UpdateAsync(invitation);
             throw new InvalidOperationException("This invitation has expired.");
         }
-
-        if (!invitation.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase))
-            throw new UnauthorizedAccessException("This invitation was not sent to your account.");
 
         if (invitation.Vault.Players.Any(p => p.PlayerId == userId))
             throw new InvalidOperationException("You are already a member of this vault.");
@@ -77,7 +68,7 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         Id = invitation.Id,
         VaultId = invitation.VaultId,
         VaultName = vaultName,
-        Email = invitation.Email,
+        Token = invitation.Token,
         Status = invitation.Status.ToString(),
         CreatedAt = invitation.CreatedAt,
         ExpiresAt = invitation.ExpiresAt

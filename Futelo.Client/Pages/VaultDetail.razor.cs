@@ -6,6 +6,7 @@ using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 
 namespace Futelo.Client.Pages;
 
@@ -14,6 +15,8 @@ public partial class VaultDetail
     [Parameter] public int Id { get; set; }
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private VaultResponse? vault;
@@ -25,6 +28,7 @@ public partial class VaultDetail
 
     private InviteRequest inviteModel = new();
     private bool isInviting;
+    private string? inviteLink;
     private string? inviteMessage;
     private string inviteAlertClass = "alert-success";
 
@@ -59,14 +63,13 @@ public partial class VaultDetail
     private async Task HandleInvite()
     {
         isInviting = true;
+        inviteLink = null;
         inviteMessage = null;
 
         try
         {
-            await VaultService.InviteAsync(Id, inviteModel);
-            inviteMessage = $"Invitation sent to {inviteModel.Email}.";
-            inviteAlertClass = "alert-success";
-            inviteModel = new();
+            var result = await VaultService.InviteAsync(Id, inviteModel);
+            inviteLink = $"{Navigation.BaseUri}invitations/{result.Token}/accept";
         }
         catch (Exception ex)
         {
@@ -77,5 +80,11 @@ public partial class VaultDetail
         {
             isInviting = false;
         }
+    }
+
+    private async Task CopyInviteLink()
+    {
+        if (inviteLink is not null)
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", inviteLink);
     }
 }

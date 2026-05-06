@@ -61,21 +61,25 @@ else
         <h5>Invite Player</h5>
         <EditForm Model="inviteModel" OnValidSubmit="HandleInvite" style="max-width:420px">
             <DataAnnotationsValidator />
-            <div class="mb-2">
-                <InputText class="form-control" @bind-Value="inviteModel.Email" placeholder="Email address" />
-                <ValidationMessage For="() => inviteModel.Email" />
-            </div>
-            <div class="mb-2">
+            <div class="input-group mb-2">
                 <InputSelect class="form-select" @bind-Value="inviteModel.Role">
                     <option value="@VaultRole.Viewer">Viewer</option>
                     <option value="@VaultRole.Editor">Editor</option>
                     <option value="@VaultRole.Admin">Admin</option>
                 </InputSelect>
+                <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
+                    @(isInviting ? "Generating..." : "Generate Link")
+                </button>
             </div>
-            <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
-                @(isInviting ? "Sending..." : "Invite")
-            </button>
         </EditForm>
+
+        @if (!string.IsNullOrEmpty(inviteLink))
+        {
+            <div class="input-group mt-2" style="max-width:420px">
+                <input class="form-control form-control-sm" readonly value="@inviteLink" />
+                <button class="btn btn-outline-secondary btn-sm" @onclick="CopyInviteLink">Copy</button>
+            </div>
+        }
 
         @if (!string.IsNullOrEmpty(inviteMessage))
         {

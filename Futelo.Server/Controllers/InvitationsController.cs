@@ -11,14 +11,13 @@ namespace Futelo.Server.Controllers;
 public class InvitationsController(IInvitationService invitationService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-    private string UserEmail => User.FindFirstValue(ClaimTypes.Email)!;
 
     [HttpPost("{token}/accept")]
     public async Task<IActionResult> Accept(string token)
     {
         try
         {
-            await invitationService.AcceptAsync(token, UserId, UserEmail);
+            await invitationService.AcceptAsync(token, UserId);
             return NoContent();
         }
         catch (KeyNotFoundException)
