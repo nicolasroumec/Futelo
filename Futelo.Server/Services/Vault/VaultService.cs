@@ -1,6 +1,7 @@
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Vault;
 using Futelo.Shared.DTOs.Vault;
+using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Vault;
 
@@ -26,7 +27,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
         {
             Name = request.Name,
             OwnerId = ownerId,
-            Players = [new VaultPlayer { PlayerId = ownerId, JoinedAt = DateTime.UtcNow }]
+            Players = [new VaultPlayer { PlayerId = ownerId, JoinedAt = DateTime.UtcNow, Role = VaultRole.Admin }]
         };
         await repository.CreateAsync(vault);
         var created = await repository.GetByIdAsync(vault.Id);
@@ -36,10 +37,11 @@ public class VaultService(IVaultRepository repository) : IVaultService
     public async Task UpdateAsync(int id, string userId, UpdateVaultRequest request)
     {
         var vault = await repository.GetByIdAsync(id);
-        if (vault == null || vault.Players.All(p => p.PlayerId != userId))
+        var caller = vault?.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (vault == null || caller == null)
             throw new KeyNotFoundException("Vault not found.");
-        if (vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can perform this action.");
+        if (caller.Role != VaultRole.Admin)
+            throw new UnauthorizedAccessException("Only vault admins can update the vault.");
         vault.Name = request.Name;
         await repository.UpdateAsync(vault);
     }
@@ -50,7 +52,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
             throw new KeyNotFoundException("Vault not found.");
         if (vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can perform this action.");
+            throw new UnauthorizedAccessException("Only the vault owner can delete the vault.");
         await repository.DeleteAsync(vault);
     }
 
@@ -64,7 +66,8 @@ public class VaultService(IVaultRepository repository) : IVaultService
         {
             PlayerId = p.PlayerId,
             DisplayName = p.Player.DisplayName,
-            JoinedAt = p.JoinedAt
+            JoinedAt = p.JoinedAt,
+            Role = p.Role
         }).ToList()
     };
 }

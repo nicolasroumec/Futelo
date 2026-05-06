@@ -1,11 +1,23 @@
-# TODO — Sesión 5: Temporadas
+# TODO — Sesión 5: Roles en Vault + Invitaciones
+
+## Shared
+- [x] Enum `VaultRole` (Admin, Editor, Viewer)
+- [x] `VaultPlayerResponse` — campo `Role`
+- [x] `InviteRequest` — campo `Role`
 
 ## Server
-
-- [x] DTOs — `CreateSeasonRequest`, `ConfigureSeasonRequest`, `SeasonResponse`, `SeasonPlayerResponse`
-- [x] Seasons — `ISeasonRepository` + `SeasonRepository` + `ISeasonService` + `SeasonService` + `SeasonController` (GET `/api/seasons?vaultId=`, GET `/api/seasons/{id}`, POST `/api/seasons`, PUT `/api/seasons/{id}/configure`, PUT `/api/seasons/{id}/activate`)
+- [x] `VaultPlayer` — campo `Role`, default `Viewer`
+- [x] `VaultInvitation` — campo `Role`
+- [x] Migración `AddVaultRoles`
+- [x] `VaultService.CreateAsync` — owner se agrega con `Admin`
+- [x] `VaultService.UpdateAsync` — requiere rol `Admin`
+- [x] `VaultService.DeleteAsync` — requiere ser owner
+- [x] `InvitationService.InviteAsync` — requiere rol `Admin`; guarda `Role` en la invitación
+- [x] `InvitationService.AcceptAsync` — asigna el rol de la invitación al nuevo `VaultPlayer`
 
 ## Client
-
-- [x] Season — `ISeasonService` + `SeasonService` + `CreateSeason.razor` + `SeasonDetail.razor` (configure + Start Season)
-- [x] VaultDetail — muestra lista de seasons + botón "New Season"
+- [x] `IInvitationService` + `InvitationService` — POST `/api/invitations/{token}/accept`
+- [x] `AcceptInvitation.razor` — ruta `/invitations/{token}/accept`
+- [x] `VaultDetail` — badges de rol en lista de miembros
+- [x] `VaultDetail` — selector de rol en form de invitación (visible solo para Admin)
+- [x] Mostrar el link de invitación en la app tras invitar (sin email, copiable para compartir)

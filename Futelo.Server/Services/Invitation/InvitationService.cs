@@ -2,6 +2,7 @@ using Futelo.Server.Models;
 using Futelo.Server.Repositories.Invitation;
 using Futelo.Server.Repositories.Vault;
 using Futelo.Shared.DTOs.Invitation;
+using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Invitation;
 
@@ -12,21 +13,17 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         var vault = await vaultRepository.GetByIdAsync(vaultId)
             ?? throw new KeyNotFoundException("Vault not found.");
 
-        if (vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can invite players.");
-
-        if (vault.Players.Any(p => p.Player.Email == request.Email))
-            throw new InvalidOperationException("This user is already a member of the vault.");
-
-        if (await invitationRepository.HasPendingAsync(vaultId, request.Email))
-            throw new InvalidOperationException("A pending invitation already exists for this email.");
+        var caller = vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || caller.Role != VaultRole.Admin)
+            throw new UnauthorizedAccessException("Only vault admins can invite players.");
 
         var invitation = new VaultInvitation
         {
             VaultId = vaultId,
-            Email = request.Email,
+            Email = string.Empty,
             Token = Guid.NewGuid().ToString("N"),
             Status = InvitationStatus.Pending,
+            Role = request.Role,
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddDays(7)
         };
@@ -36,7 +33,7 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         return MapToResponse(invitation, vault.Name);
     }
 
-    public async Task AcceptAsync(string token, string userId, string userEmail)
+    public async Task AcceptAsync(string token, string userId)
     {
         var invitation = await invitationRepository.GetByTokenAsync(token)
             ?? throw new KeyNotFoundException("Invitation not found.");
@@ -51,9 +48,6 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
             throw new InvalidOperationException("This invitation has expired.");
         }
 
-        if (!invitation.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase))
-            throw new UnauthorizedAccessException("This invitation was not sent to your account.");
-
         if (invitation.Vault.Players.Any(p => p.PlayerId == userId))
             throw new InvalidOperationException("You are already a member of this vault.");
 
@@ -61,7 +55,8 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         {
             VaultId = invitation.VaultId,
             PlayerId = userId,
-            JoinedAt = DateTime.UtcNow
+            JoinedAt = DateTime.UtcNow,
+            Role = invitation.Role
         });
 
         invitation.Status = InvitationStatus.Accepted;
@@ -73,7 +68,7 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         Id = invitation.Id,
         VaultId = invitation.VaultId,
         VaultName = vaultName,
-        Email = invitation.Email,
+        Token = invitation.Token,
         Status = invitation.Status.ToString(),
         CreatedAt = invitation.CreatedAt,
         ExpiresAt = invitation.ExpiresAt

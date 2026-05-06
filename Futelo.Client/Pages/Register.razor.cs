@@ -9,6 +9,9 @@ public partial class Register
     [Inject] private IAuthService AuthService { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
 
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    private string? ReturnUrl { get; set; }
+
     private RegisterRequest model = new();
     private string? errorMessage;
     private bool isLoading;
@@ -21,7 +24,7 @@ public partial class Register
         try
         {
             await AuthService.RegisterAsync(model);
-            Nav.NavigateTo("/");
+            Nav.NavigateTo(ReturnUrl ?? "/");
         }
         catch (Exception ex)
         {
