@@ -1,3 +1,5 @@
+using Futelo.Shared.Enums;
+
 namespace Futelo.Server.Models;
 
 public class VaultInvitation
@@ -7,6 +9,7 @@ public class VaultInvitation
     public string Email { get; set; } = string.Empty;
     public string Token { get; set; } = string.Empty;
     public InvitationStatus Status { get; set; } = InvitationStatus.Pending;
+    public VaultRole Role { get; set; } = VaultRole.Viewer;
     public DateTime CreatedAt { get; set; }
     public DateTime ExpiresAt { get; set; }
 

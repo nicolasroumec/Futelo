@@ -1,6 +1,7 @@
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Vault;
 using Futelo.Shared.DTOs.Vault;
+using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Vault;
 
@@ -26,7 +27,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
         {
             Name = request.Name,
             OwnerId = ownerId,
-            Players = [new VaultPlayer { PlayerId = ownerId, JoinedAt = DateTime.UtcNow }]
+            Players = [new VaultPlayer { PlayerId = ownerId, JoinedAt = DateTime.UtcNow, Role = VaultRole.Admin }]
         };
         await repository.CreateAsync(vault);
         var created = await repository.GetByIdAsync(vault.Id);
@@ -64,7 +65,8 @@ public class VaultService(IVaultRepository repository) : IVaultService
         {
             PlayerId = p.PlayerId,
             DisplayName = p.Player.DisplayName,
-            JoinedAt = p.JoinedAt
+            JoinedAt = p.JoinedAt,
+            Role = p.Role
         }).ToList()
     };
 }
