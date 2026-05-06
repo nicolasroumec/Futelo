@@ -86,24 +86,18 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - Página `AcceptInvitation.razor` → ruta `/invitations/{token}/accept`
 - Mostrar rol de cada miembro en el detalle del vault
 
-## Sesión 6 — Temporadas
-
-### Modelo
-- Agregar `VideoGameId` a `Season` (el juego fijo de la temporada)
-- Agregar `TeamId` a `SeasonPlayer` (el equipo asignado a cada jugador en esa temporada)
-- Migración EF Core
+## Sesión 6 — Temporadas ✅
 
 ### Server
 - `ISeasonRepository` + `SeasonRepository`
 - `ISeasonService` + `SeasonService`
-- `SeasonController` → POST `/api/seasons`, GET `/api/seasons/{id}`, PUT `/api/seasons/{id}/configure`
-- Lógica: crear temporada (elegir videojuego), agregar jugadores con su equipo asignado, habilitar League/Cup/SuperCup
+- `SeasonController` → GET `/api/seasons?vaultId=`, GET `/api/seasons/{id}`, POST `/api/seasons`, PUT `/api/seasons/{id}/configure`, PUT `/api/seasons/{id}/activate`
+- Lógica: crear temporada, asignar jugadores, habilitar League/Cup/SuperCup, activar temporada (Draft → Active)
 
 ### Client
-- `SeasonService`
-- `CreateSeason.razor` (nombre, año, videojuego)
-- `SeasonDetail.razor` (jugadores con sus equipos, torneos habilitados)
-- Asignación de equipo por jugador al sumarlo a la temporada
+- `ISeasonService` + `SeasonService`
+- `CreateSeason.razor`, `SeasonDetail.razor` (configure + Start Season)
+- `VaultDetail.razor` actualizado: lista de seasons + botón New Season
 
 ## Sesión 7 — League
 
