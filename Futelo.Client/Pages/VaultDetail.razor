@@ -1,5 +1,6 @@
 @page "/vaults/{id:int}"
 @attribute [Authorize]
+@using Futelo.Shared.Enums
 
 <PageTitle>@(vault?.Name ?? "Vault") - Futelo</PageTitle>
 
@@ -26,10 +27,7 @@ else
         {
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 @player.DisplayName
-                @if (player.PlayerId == vault.OwnerId)
-                {
-                    <span class="badge bg-primary">Owner</span>
-                }
+                <span class="badge @RoleBadgeClass(player.Role)">@player.Role</span>
             </li>
         }
     </ul>
@@ -58,18 +56,25 @@ else
         </ul>
     }
 
-    @if (isOwner)
+    @if (isAdmin)
     {
         <h5>Invite Player</h5>
         <EditForm Model="inviteModel" OnValidSubmit="HandleInvite" style="max-width:420px">
             <DataAnnotationsValidator />
-            <div class="input-group mb-1">
+            <div class="mb-2">
                 <InputText class="form-control" @bind-Value="inviteModel.Email" placeholder="Email address" />
-                <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
-                    @(isInviting ? "Sending..." : "Invite")
-                </button>
+                <ValidationMessage For="() => inviteModel.Email" />
             </div>
-            <ValidationMessage For="() => inviteModel.Email" />
+            <div class="mb-2">
+                <InputSelect class="form-select" @bind-Value="inviteModel.Role">
+                    <option value="@VaultRole.Viewer">Viewer</option>
+                    <option value="@VaultRole.Editor">Editor</option>
+                    <option value="@VaultRole.Admin">Admin</option>
+                </InputSelect>
+            </div>
+            <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
+                @(isInviting ? "Sending..." : "Invite")
+            </button>
         </EditForm>
 
         @if (!string.IsNullOrEmpty(inviteMessage))

@@ -3,6 +3,7 @@ using Futelo.Client.Services.Vault;
 using Futelo.Shared.DTOs.Invitation;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.DTOs.Vault;
+using Futelo.Shared.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -18,6 +19,7 @@ public partial class VaultDetail
     private VaultResponse? vault;
     private List<SeasonResponse> seasons = [];
     private bool isOwner;
+    private bool isAdmin;
     private bool isLoading = true;
     private string? errorMessage;
 
@@ -34,6 +36,7 @@ public partial class VaultDetail
             var userId = authState.User.FindFirst("sub")?.Value;
             vault = await VaultService.GetByIdAsync(Id);
             isOwner = vault.OwnerId == userId;
+            isAdmin = vault.Players.Any(p => p.PlayerId == userId && p.Role == VaultRole.Admin);
             seasons = await SeasonService.GetByVaultAsync(Id);
         }
         catch (Exception ex)
@@ -45,6 +48,13 @@ public partial class VaultDetail
             isLoading = false;
         }
     }
+
+    private static string RoleBadgeClass(VaultRole role) => role switch
+    {
+        VaultRole.Admin => "bg-primary",
+        VaultRole.Editor => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
 
     private async Task HandleInvite()
     {
