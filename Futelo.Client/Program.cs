@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Futelo.Client;
 using Futelo.Client.Services.Auth;
 using Futelo.Client.Services.Invitation;
+using Futelo.Client.Services.League;
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
@@ -32,6 +33,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVaultService, VaultService>();
 builder.Services.AddScoped<IInvitationService, InvitationService>();
 builder.Services.AddScoped<ISeasonService, SeasonService>();
+builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IVideoGameService, VideoGameService>();
 

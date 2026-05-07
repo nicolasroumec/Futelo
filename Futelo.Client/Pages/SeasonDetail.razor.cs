@@ -43,8 +43,12 @@ public partial class SeasonDetail
 
             selectedPlayerIds = season.Players.Select(p => p.PlayerId).ToHashSet();
             configureModel.HasLeague = season.HasLeague;
+            configureModel.LeagueName = season.LeagueName;
+            configureModel.LeagueIsHomeAndAway = season.LeagueIsHomeAndAway;
             configureModel.HasCup = season.HasCup;
+            configureModel.CupName = season.CupName;
             configureModel.HasSuperCup = season.HasSuperCup;
+            configureModel.SuperCupName = season.SuperCupName;
         }
         catch (Exception ex)
         {

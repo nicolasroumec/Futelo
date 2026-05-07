@@ -108,6 +108,10 @@ namespace Futelo.Server.Migrations
                     b.Property<bool>("IsHomeAndAway")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("SeasonId")
                         .HasColumnType("int");
 
@@ -225,8 +229,15 @@ namespace Futelo.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ChampionId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<bool>("IsHomeAndAway")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("int");
@@ -235,6 +246,8 @@ namespace Futelo.Server.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChampionId");
 
                     b.HasIndex("SeasonId")
                         .IsUnique();
@@ -391,6 +404,10 @@ namespace Futelo.Server.Migrations
 
                     b.Property<bool>("IsHomeAndAway")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Player1Id")
                         .HasColumnType("nvarchar(450)");
@@ -744,11 +761,18 @@ namespace Futelo.Server.Migrations
 
             modelBuilder.Entity("Futelo.Server.Models.League", b =>
                 {
+                    b.HasOne("Futelo.Server.Models.AppUser", "Champion")
+                        .WithMany()
+                        .HasForeignKey("ChampionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Futelo.Server.Models.Season", "Season")
                         .WithOne("League")
                         .HasForeignKey("Futelo.Server.Models.League", "SeasonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Champion");
 
                     b.Navigation("Season");
                 });

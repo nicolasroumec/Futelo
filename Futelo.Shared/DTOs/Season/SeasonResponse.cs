@@ -8,7 +8,12 @@ public class SeasonResponse
     public int Year { get; set; }
     public string Status { get; set; } = string.Empty;
     public bool HasLeague { get; set; }
+    public int? LeagueId { get; set; }
+    public string LeagueName { get; set; } = "League";
+    public bool LeagueIsHomeAndAway { get; set; }
     public bool HasCup { get; set; }
+    public string CupName { get; set; } = "Cup";
     public bool HasSuperCup { get; set; }
+    public string SuperCupName { get; set; } = "SuperCup";
     public List<SeasonPlayerResponse> Players { get; set; } = [];
 }

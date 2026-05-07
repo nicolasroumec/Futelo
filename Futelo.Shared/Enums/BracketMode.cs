@@ -1,4 +1,4 @@
-namespace Futelo.Server.Models;
+namespace Futelo.Shared.Enums;
 
 public enum BracketMode
 {
