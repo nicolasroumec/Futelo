@@ -149,6 +149,27 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
 
         bool leagueFinished = league.Matches.Count(m => m.Status == MatchStatus.Pending) == 1;
 
+        Dictionary<string, int> finalPositions = [];
+        if (leagueFinished)
+        {
+            var allPlayedWithNew = league.Matches
+                .Where(m => m.Status == MatchStatus.Played)
+                .Append(new Match
+                {
+                    HomePlayerId = match.HomePlayerId,
+                    AwayPlayerId = match.AwayPlayerId,
+                    HomeScore = homeScore,
+                    AwayScore = awayScore,
+                    Status = MatchStatus.Played
+                })
+                .ToList();
+
+            var finalStandings = ComputeStandings(allPlayedWithNew, league.Players);
+            finalPositions = finalStandings
+                .Select((row, i) => (row.PlayerId, Position: i + 1))
+                .ToDictionary(x => x.PlayerId, x => x.Position);
+        }
+
         await leagueRepository.SaveMatchResultAsync(new MatchResultData
         {
             MatchId = matchId,
@@ -163,7 +184,8 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             AwayNewSeasonElo = awayNewSeasonElo,
             AwayNewHistoricalElo = awayNewHistElo,
             EloHistories = histories,
-            LeagueFinished = leagueFinished
+            LeagueFinished = leagueFinished,
+            FinalLeaguePositions = finalPositions
         });
 
         return new RecordResultResponse
@@ -198,8 +220,12 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             throw new KeyNotFoundException("League not found.");
 
         var played = league.Matches.Where(m => m.Status == MatchStatus.Played).ToList();
+        return ComputeStandings(played, league.Players);
+    }
 
-        var rows = league.Players.Select(lp =>
+    private static List<StandingRow> ComputeStandings(List<Match> played, IEnumerable<LeaguePlayer> leaguePlayers)
+    {
+        var rows = leaguePlayers.Select(lp =>
         {
             string pid = lp.PlayerId;
             var home = played.Where(m => m.HomePlayerId == pid).ToList();
@@ -214,7 +240,7 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             return new StandingRow
             {
                 PlayerId = pid,
-                DisplayName = lp.Player.DisplayName,
+                DisplayName = lp.Player?.DisplayName ?? pid,
                 Played = p,
                 Won = wins,
                 Drawn = draws,
