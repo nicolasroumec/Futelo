@@ -122,24 +122,31 @@ Controller  →  Service  →  Repository  →  FuteloContext
   - Manejo de ida y vuelta + penales
   - Avance automático de ronda
   - ELO (K=24, bonos por ronda)
+  - Al terminar: `Cup.ChampionId` + `CupPlayer.CupPosition` (para seed de SuperCup)
 - `CupController`
 
 ### Client
 - `CupService`
 - `Cup/CupView.razor` (árbol de bracket)
 
+> **Nota:** agregar `ChampionId` al modelo `Cup` + migración, igual que se hizo en League (sesión 7).
+
 ## Sesión 9 — SuperCup
 
 ### Server
 - `ISuperCupRepository` + `SuperCupRepository`
 - `ISuperCupService` + `SuperCupService`
-  - Determinar participantes (campeón League vs campeón Cup)
+  - Determinar participantes desde `League.ChampionId` y `Cup.ChampionId`
+  - Si el mismo jugador ganó ambos → usar subcampeón de Cup (`CupPlayer.CupPosition = 2`)
   - Registro de partido(s), ELO (K=16)
+  - Al terminar: `SuperCup.ChampionId`
 - `SuperCupController`
 
 ### Client
 - `SuperCupService`
 - `SuperCup/SuperCupView.razor`
+
+> **Nota:** agregar `ChampionId` al modelo `SuperCup` + migración.
 
 ## Sesión 10 — Perfiles y estadísticas
 
@@ -149,12 +156,15 @@ Controller  →  Service  →  Repository  →  FuteloContext
   - Stats de jugador: partidos, W/D/L, goles, top equipos, top juegos
   - Head-to-head entre dos jugadores
   - Perfil de equipo
-  - Ranking general del vault
+  - Ranking general del vault (por `SeasonElo` activo y por `EloRating` histórico)
+  - **Palmarés**: historial de campeones por temporada (League/Cup/SuperCup) usando `ChampionId` de cada torneo
 - `StatsController`
 
 ### Client
 - `StatsService`
-- `Player/PlayerProfile.razor`, `Player/HeadToHead.razor`, `Teams/TeamProfile.razor`, `Ranking.razor`
+- `Player/PlayerProfile.razor`, `Player/HeadToHead.razor`, `Teams/TeamProfile.razor`
+- `Ranking.razor` — ranking de temporada + histórico
+- `Palmares.razor` — trofeos ganados por cada jugador a lo largo de todas las temporadas
 
 ## Sesión 11 — Pulido y despliegue
 - Responsive mobile

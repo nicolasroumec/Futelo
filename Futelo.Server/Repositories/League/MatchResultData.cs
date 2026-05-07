@@ -17,5 +17,6 @@ public class MatchResultData
     public int AwayNewHistoricalElo { get; init; }
     public List<EloHistory> EloHistories { get; init; } = [];
     public bool LeagueFinished { get; init; }
+    public string? ChampionId { get; init; }
     public Dictionary<string, int> FinalLeaguePositions { get; init; } = [];
 }

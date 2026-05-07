@@ -23,6 +23,10 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             SeasonId = league.SeasonId,
             Status = league.Status.ToString(),
             IsHomeAndAway = league.IsHomeAndAway,
+            ChampionId = league.ChampionId,
+            ChampionName = league.ChampionId != null
+                ? league.Season.Players.FirstOrDefault(sp => sp.PlayerId == league.ChampionId)?.Player.DisplayName
+                : null,
             Matches = league.Matches
                 .OrderBy(m => m.Leg).ThenBy(m => m.Id)
                 .Select(m => new MatchResponse
@@ -178,6 +182,10 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
                 .ToDictionary(x => x.PlayerId, x => x.Position);
         }
 
+        string? championId = leagueFinished
+            ? finalPositions.FirstOrDefault(x => x.Value == 1).Key
+            : null;
+
         await leagueRepository.SaveMatchResultAsync(new MatchResultData
         {
             MatchId = matchId,
@@ -193,6 +201,7 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             AwayNewHistoricalElo = awayNewHistElo,
             EloHistories = histories,
             LeagueFinished = leagueFinished,
+            ChampionId = championId,
             FinalLeaguePositions = finalPositions
         });
 

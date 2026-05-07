@@ -21,6 +21,10 @@ else
         {
             <span class="badge bg-info text-dark">Home &amp; Away</span>
         }
+        @if (league.Status == "Finished" && league.ChampionName != null)
+        {
+            <span class="badge bg-warning text-dark">🏆 @league.ChampionName</span>
+        }
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))

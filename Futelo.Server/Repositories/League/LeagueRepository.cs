@@ -88,7 +88,10 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
         {
             var league = await Context.Set<Models.League>().FindAsync(data.LeagueId);
             if (league != null)
+            {
                 league.Status = TournamentStatus.Finished;
+                league.ChampionId = data.ChampionId;
+            }
 
             foreach (var (playerId, position) in data.FinalLeaguePositions)
             {

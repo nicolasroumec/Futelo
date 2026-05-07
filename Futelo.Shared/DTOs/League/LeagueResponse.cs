@@ -6,6 +6,8 @@ public class LeagueResponse
     public int SeasonId { get; set; }
     public string Status { get; set; } = string.Empty;
     public bool IsHomeAndAway { get; set; }
+    public string? ChampionId { get; set; }
+    public string? ChampionName { get; set; }
     public List<MatchResponse> Matches { get; set; } = [];
     public List<StandingRow> Standings { get; set; } = [];
 }
