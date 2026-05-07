@@ -4,6 +4,7 @@ public class SuperCup
 {
     public int Id { get; set; }
     public int SeasonId { get; set; }
+    public string Name { get; set; } = "SuperCup";
     public bool IsHomeAndAway { get; set; }
     public string? Player1Id { get; set; }
     public string? Player2Id { get; set; }

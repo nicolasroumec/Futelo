@@ -33,7 +33,7 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         await SaveChangesAsync();
     }
 
-    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, bool leagueIsHomeAndAway, bool hasCup, bool hasSuperCup)
+    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, string leagueName, bool leagueIsHomeAndAway, bool hasCup, string cupName, bool hasSuperCup, string superCupName)
     {
         var existing = await Context.Set<SeasonPlayer>().Where(p => p.SeasonId == seasonId).ToListAsync();
         Context.Set<SeasonPlayer>().RemoveRange(existing);
@@ -41,21 +41,28 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 
         var league = await Context.Set<Models.League>().FirstOrDefaultAsync(l => l.SeasonId == seasonId);
         if (hasLeague && league == null)
-            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId, IsHomeAndAway = leagueIsHomeAndAway });
+            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId, Name = leagueName, IsHomeAndAway = leagueIsHomeAndAway });
         else if (hasLeague && league != null)
+        {
+            league.Name = leagueName;
             league.IsHomeAndAway = leagueIsHomeAndAway;
+        }
         else if (!hasLeague && league != null)
             Context.Set<Models.League>().Remove(league);
 
         var cup = await Context.Set<Cup>().FirstOrDefaultAsync(c => c.SeasonId == seasonId);
         if (hasCup && cup == null)
-            Context.Set<Cup>().Add(new Cup { SeasonId = seasonId });
+            Context.Set<Cup>().Add(new Cup { SeasonId = seasonId, Name = cupName });
+        else if (hasCup && cup != null)
+            cup.Name = cupName;
         else if (!hasCup && cup != null)
             Context.Set<Cup>().Remove(cup);
 
         var superCup = await Context.Set<SuperCup>().FirstOrDefaultAsync(sc => sc.SeasonId == seasonId);
         if (hasSuperCup && superCup == null)
-            Context.Set<SuperCup>().Add(new SuperCup { SeasonId = seasonId });
+            Context.Set<SuperCup>().Add(new SuperCup { SeasonId = seasonId, Name = superCupName });
+        else if (hasSuperCup && superCup != null)
+            superCup.Name = superCupName;
         else if (!hasSuperCup && superCup != null)
             Context.Set<SuperCup>().Remove(superCup);
 

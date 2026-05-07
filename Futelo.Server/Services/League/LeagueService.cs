@@ -22,6 +22,7 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             Id = league.Id,
             SeasonId = league.SeasonId,
             Status = league.Status.ToString(),
+            Name = league.Name,
             IsHomeAndAway = league.IsHomeAndAway,
             ChampionId = league.ChampionId,
             ChampionName = league.ChampionId != null

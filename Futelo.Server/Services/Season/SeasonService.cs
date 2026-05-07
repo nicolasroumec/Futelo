@@ -69,7 +69,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             SeasonElo = 1500
         }).ToList();
 
-        await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueIsHomeAndAway, request.HasCup, request.HasSuperCup);
+        await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.HasCup, request.CupName, request.HasSuperCup, request.SuperCupName);
     }
 
     public async Task ActivateAsync(int id, string userId)
@@ -98,9 +98,12 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         Status = season.Status.ToString(),
         HasLeague = season.League != null,
         LeagueId = season.League?.Id,
+        LeagueName = season.League?.Name ?? "League",
         LeagueIsHomeAndAway = season.League?.IsHomeAndAway ?? false,
         HasCup = season.Cup != null,
+        CupName = season.Cup?.Name ?? "Cup",
         HasSuperCup = season.SuperCup != null,
+        SuperCupName = season.SuperCup?.Name ?? "SuperCup",
         Players = season.Players.Select(p => new SeasonPlayerResponse
         {
             PlayerId = p.PlayerId,

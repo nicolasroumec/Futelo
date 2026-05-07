@@ -26,11 +26,11 @@ else
         {
             @if (season.LeagueId.HasValue)
             {
-                <a href="/leagues/@season.LeagueId" class="badge bg-primary text-decoration-none">League</a>
+                <a href="/leagues/@season.LeagueId" class="badge bg-primary text-decoration-none">@season.LeagueName</a>
             }
             else
             {
-                <span class="badge bg-primary">League</span>
+                <span class="badge bg-primary">@season.LeagueName</span>
             }
         }
         @if (season.HasCup) { <span class="badge bg-success">Cup</span> }
@@ -81,6 +81,10 @@ else
             </div>
             @if (configureModel.HasLeague)
             {
+                <div class="ms-3 mb-2">
+                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
+                           placeholder="League name" @bind="configureModel.LeagueName" />
+                </div>
                 <div class="form-check ms-3">
                     <input class="form-check-input" type="checkbox" id="chkLeagueH2H"
                            @bind="configureModel.LeagueIsHomeAndAway" />
@@ -92,12 +96,26 @@ else
                        @bind="configureModel.HasCup" />
                 <label class="form-check-label" for="chkCup">Cup</label>
             </div>
+            @if (configureModel.HasCup)
+            {
+                <div class="ms-3 mb-2">
+                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
+                           placeholder="Cup name" @bind="configureModel.CupName" />
+                </div>
+            }
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkSuperCup"
                        @bind="configureModel.HasSuperCup"
                        disabled="@(!configureModel.HasLeague || !configureModel.HasCup)" />
                 <label class="form-check-label" for="chkSuperCup">SuperCup</label>
             </div>
+            @if (configureModel.HasSuperCup)
+            {
+                <div class="ms-3 mb-2">
+                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
+                           placeholder="SuperCup name" @bind="configureModel.SuperCupName" />
+                </div>
+            }
         </div>
 
         @if (!string.IsNullOrEmpty(configureMessage))
