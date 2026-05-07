@@ -103,6 +103,9 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
             throw new UnauthorizedAccessException("Only vault admins and editors can record results.");
 
+        if (homeScore < 0 || awayScore < 0)
+            throw new InvalidOperationException("Scores cannot be negative.");
+
         var match = league.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
             throw new KeyNotFoundException("Match not found.");

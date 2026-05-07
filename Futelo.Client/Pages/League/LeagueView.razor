@@ -17,6 +17,10 @@ else
         <a href="/seasons/@league.SeasonId" class="btn btn-outline-secondary btn-sm">Back</a>
         <h3 class="mb-0">League</h3>
         <span class="badge bg-secondary">@league.Status</span>
+        @if (league.IsHomeAndAway)
+        {
+            <span class="badge bg-info text-dark">Home &amp; Away</span>
+        }
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
