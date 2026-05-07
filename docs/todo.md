@@ -1,43 +1,38 @@
 # TODO — Sesión 7: League
 
 ## Sprint 1 — Server: Repository + Service base
-- [ ] `ILeagueRepository` + `LeagueRepository` (GetById con Players y Matches)
-- [ ] `ILeagueService` + `LeagueService` (esqueleto con DI)
-- [ ] Registrar en `Program.cs`
+- [x] `ILeagueRepository` + `LeagueRepository` (GetById con Players y Matches)
+- [x] `ILeagueService` + `LeagueService` (esqueleto con DI)
+- [x] Registrar en `Program.cs`
 
 ## Sprint 2 — Server: Generación de fixture
-
-- [ ] `LeagueService.GenerateFixtureAsync` — genera fixture round-robin al activar la liga
-  - Soporta cantidad impar (bye automático — jugador vs null)
+- [x] `LeagueService.GenerateFixtureAsync` — genera fixture round-robin
+  - Soporta cantidad impar (bye automático)
   - Si `IsHomeAndAway`: duplica el fixture invirtiendo local/visitante
-  - Crea los `Match` con `Status = Pending`
-- [ ] Re-sorteo: solo permitido mientras `League.Status = NotStarted` (ningún partido Played)
+  - Crea los `Match` con `Status = Pending`, setea `League.Status = Active`
+- [x] `LeagueService.RegenerateFixtureAsync` — reshuffle mientras no hay resultados
 
 ## Sprint 3 — Server: Resultado + Tabla + ELO
-
-- [ ] `LeagueService.RecordResultAsync(matchId, homeScore, awayScore)`
-  - Valida que el match sea de esta liga y esté `Pending`
+- [x] `LeagueService.RecordResultAsync`
+  - Valida match de esta liga y `Pending`
   - Guarda scores, `Status = Played`, `PlayedAt`
-  - Actualiza ELO: `SeasonPlayer.SeasonElo` **y** `AppUser.EloRating` (histórico)
-    - K=32, multiplicador por diferencia de goles (×1.0 / ×1.2 / ×1.5)
-  - Graba `EloHistory` (dos entradas por jugador: `IsSeasonElo=true` y `IsSeasonElo=false`)
-  - Si todos los matches están `Played` → `League.Status = Finished`
-- [ ] `LeagueService.GetStandingsAsync` — tabla de posiciones
-  - Puntos (W=3, D=1, L=0)
-  - Desempate: diferencia de goles → goles a favor → head-to-head
+  - Actualiza `SeasonPlayer.SeasonElo` y `AppUser.EloRating`
+  - K=32, multiplicador por diferencia de goles (×1.0 / ×1.2 / ×1.5)
+  - 4 entradas `EloHistory` por partido (2 por jugador: season + histórico)
+  - Al terminar: `League.Status = Finished` + graba `LeaguePlayer.LeaguePosition`
+- [x] `LeagueService.GetStandingsAsync` — Pts / GD / GF / head-to-head
 
 ## Sprint 4 — Server: Controller + DTOs
-
-- [ ] DTOs: `LeagueResponse`, `StandingRow`, `MatchResponse`, `RecordResultRequest`, `EloChangeResult`
-- [ ] `LeagueController`:
+- [x] DTOs: `LeagueResponse`, `MatchResponse`, `StandingRow`, `RecordResultRequest`, `EloChangeResult`, `RecordResultResponse`
+- [x] `LeagueController`:
   - `GET /api/leagues/{id}` — fixture + standings
-  - `POST /api/leagues/{id}/start` — genera fixture y activa liga
-  - `PUT /api/leagues/{id}/start` — re-sorteo (solo si `NotStarted`)
-  - `PUT /api/leagues/{id}/matches/{matchId}/result` — carga resultado
-    - Respuesta incluye `EloChangeResult` (ELO antes/después por jugador)
+  - `POST /api/leagues/{id}/start` — genera fixture
+  - `PUT /api/leagues/{id}/reshuffle` — re-sorteo
+  - `PUT /api/leagues/{id}/matches/{matchId}/result` — carga resultado con ELO change en respuesta
 
 ## Sprint 5 — Client
-
-- [ ] `ILeagueService` + `LeagueService` (HTTP calls)
-- [ ] `League/LeagueView.razor` — tabla de posiciones + fixture agrupado por fecha
-- [ ] Link a la liga desde `SeasonDetail`
+- [x] `ILeagueService` + `LeagueService` (HTTP calls)
+- [x] `League/LeagueView.razor` — tabla + fixture agrupado por fecha + entrada de resultados inline + feedback ELO
+- [x] Link a la liga desde `SeasonDetail` (badge clickeable)
+- [x] `LeagueId` agregado a `SeasonResponse`
+- [x] `_Imports.razor` actualizado

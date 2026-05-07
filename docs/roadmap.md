@@ -99,7 +99,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `CreateSeason.razor`, `SeasonDetail.razor` (configure + Start Season)
 - `VaultDetail.razor` actualizado: lista de seasons + botón New Season
 
-## Sesión 7 — League
+## Sesión 7 — League ✅
 
 ### Server
 - `ILeagueRepository` + `LeagueRepository`

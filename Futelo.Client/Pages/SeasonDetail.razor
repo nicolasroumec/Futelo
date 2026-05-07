@@ -79,6 +79,14 @@ else
                        @bind="configureModel.HasLeague" />
                 <label class="form-check-label" for="chkLeague">League</label>
             </div>
+            @if (configureModel.HasLeague)
+            {
+                <div class="form-check ms-3">
+                    <input class="form-check-input" type="checkbox" id="chkLeagueH2H"
+                           @bind="configureModel.LeagueIsHomeAndAway" />
+                    <label class="form-check-label" for="chkLeagueH2H">Home &amp; Away</label>
+                </div>
+            }
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkCup"
                        @bind="configureModel.HasCup" />

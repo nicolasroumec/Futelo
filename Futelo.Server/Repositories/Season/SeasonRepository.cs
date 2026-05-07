@@ -33,7 +33,7 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         await SaveChangesAsync();
     }
 
-    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, bool hasCup, bool hasSuperCup)
+    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, bool leagueIsHomeAndAway, bool hasCup, bool hasSuperCup)
     {
         var existing = await Context.Set<SeasonPlayer>().Where(p => p.SeasonId == seasonId).ToListAsync();
         Context.Set<SeasonPlayer>().RemoveRange(existing);
@@ -41,7 +41,9 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 
         var league = await Context.Set<Models.League>().FirstOrDefaultAsync(l => l.SeasonId == seasonId);
         if (hasLeague && league == null)
-            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId });
+            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId, IsHomeAndAway = leagueIsHomeAndAway });
+        else if (hasLeague && league != null)
+            league.IsHomeAndAway = leagueIsHomeAndAway;
         else if (!hasLeague && league != null)
             Context.Set<Models.League>().Remove(league);
 
