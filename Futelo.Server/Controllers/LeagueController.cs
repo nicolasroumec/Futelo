@@ -75,6 +75,10 @@ public class LeagueController(ILeagueService leagueService) : ControllerBase
         {
             return NotFound();
         }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);

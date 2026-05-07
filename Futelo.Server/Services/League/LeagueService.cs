@@ -1,6 +1,7 @@
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.League;
 using Futelo.Shared.DTOs.League;
+using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.League;
 
@@ -97,6 +98,10 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
 
         if (league.Status != TournamentStatus.Active)
             throw new InvalidOperationException("League is not active.");
+
+        var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException("Only vault admins and editors can record results.");
 
         var match = league.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
