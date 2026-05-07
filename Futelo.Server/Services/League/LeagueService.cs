@@ -6,6 +6,41 @@ namespace Futelo.Server.Services.League;
 
 public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
 {
+    public async Task<LeagueResponse> GetByIdAsync(int leagueId, string userId)
+    {
+        var league = await leagueRepository.GetByIdAsync(leagueId);
+        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException("League not found.");
+
+        var standings = league.Status == TournamentStatus.NotStarted
+            ? []
+            : await GetStandingsAsync(leagueId, userId);
+
+        return new LeagueResponse
+        {
+            Id = league.Id,
+            SeasonId = league.SeasonId,
+            Status = league.Status.ToString(),
+            IsHomeAndAway = league.IsHomeAndAway,
+            Matches = league.Matches
+                .OrderBy(m => m.Leg).ThenBy(m => m.Id)
+                .Select(m => new MatchResponse
+                {
+                    Id = m.Id,
+                    HomePlayerId = m.HomePlayerId,
+                    HomePlayerName = m.HomePlayer.DisplayName,
+                    AwayPlayerId = m.AwayPlayerId,
+                    AwayPlayerName = m.AwayPlayer.DisplayName,
+                    HomeScore = m.HomeScore,
+                    AwayScore = m.AwayScore,
+                    Status = m.Status.ToString(),
+                    Matchday = m.Leg,
+                    PlayedAt = m.PlayedAt
+                }).ToList(),
+            Standings = standings
+        };
+    }
+
     public async Task GenerateFixtureAsync(int leagueId, string userId)
     {
         var league = await leagueRepository.GetByIdAsync(leagueId);
