@@ -1,4 +1,5 @@
 using Futelo.Server.Models;
+using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Repositories.Season;
 

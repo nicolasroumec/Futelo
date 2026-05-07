@@ -2,6 +2,7 @@ using Futelo.Server.Models;
 using Futelo.Server.Repositories.Season;
 using Futelo.Server.Repositories.Vault;
 using Futelo.Shared.DTOs.Season;
+using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Season;
 

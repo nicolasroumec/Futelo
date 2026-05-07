@@ -1,3 +1,5 @@
+using Futelo.Shared.Enums;
+
 namespace Futelo.Server.Models;
 
 public class Season

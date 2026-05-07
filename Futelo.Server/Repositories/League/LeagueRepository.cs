@@ -1,6 +1,7 @@
 using Futelo.Server.Data;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Base;
+using Futelo.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Futelo.Server.Repositories.League;
