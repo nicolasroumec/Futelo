@@ -22,7 +22,17 @@ else
     <p class="text-muted">Year: @season.Year</p>
 
     <div class="d-flex gap-2 mb-4">
-        @if (season.HasLeague) { <span class="badge bg-primary">League</span> }
+        @if (season.HasLeague)
+        {
+            @if (season.LeagueId.HasValue)
+            {
+                <a href="/leagues/@season.LeagueId" class="badge bg-primary text-decoration-none">League</a>
+            }
+            else
+            {
+                <span class="badge bg-primary">League</span>
+            }
+        }
         @if (season.HasCup) { <span class="badge bg-success">Cup</span> }
         @if (season.HasSuperCup) { <span class="badge bg-warning text-dark">SuperCup</span> }
     </div>

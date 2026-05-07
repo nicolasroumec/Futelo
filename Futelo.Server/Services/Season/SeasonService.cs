@@ -97,6 +97,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         Year = season.Year,
         Status = season.Status.ToString(),
         HasLeague = season.League != null,
+        LeagueId = season.League?.Id,
         HasCup = season.Cup != null,
         HasSuperCup = season.SuperCup != null,
         Players = season.Players.Select(p => new SeasonPlayerResponse

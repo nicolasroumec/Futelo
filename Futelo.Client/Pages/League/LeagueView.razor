@@ -1,0 +1,146 @@
+@page "/leagues/{id:int}"
+@attribute [Authorize]
+
+<PageTitle>League - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (league == null)
+{
+    <p class="text-danger">League not found.</p>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/seasons/@league.SeasonId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <h3 class="mb-0">League</h3>
+        <span class="badge bg-secondary">@league.Status</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mb-3">@errorMessage</div>
+    }
+
+    @if (league.Status == "NotStarted")
+    {
+        <button class="btn btn-success mb-4" disabled="@isWorking" @onclick="HandleStart">
+            @(isWorking ? "Starting..." : "Generate Fixture")
+        </button>
+    }
+    else
+    {
+        <h5 class="mt-2">Standings</h5>
+        @if (league.Standings.Count == 0)
+        {
+            <p class="text-muted mb-4">No results yet.</p>
+        }
+        else
+        {
+            <div class="table-responsive mb-4" style="max-width:620px">
+                <table class="table table-sm table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Player</th>
+                            <th>P</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>GF</th>
+                            <th>GA</th>
+                            <th>GD</th>
+                            <th>Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int pos = 1; }
+                        @foreach (var row in league.Standings)
+                        {
+                            <tr>
+                                <td>@pos</td>
+                                <td>@row.DisplayName</td>
+                                <td>@row.Played</td>
+                                <td>@row.Won</td>
+                                <td>@row.Drawn</td>
+                                <td>@row.Lost</td>
+                                <td>@row.GoalsFor</td>
+                                <td>@row.GoalsAgainst</td>
+                                <td>@(row.GoalDifference > 0 ? $"+{row.GoalDifference}" : row.GoalDifference.ToString())</td>
+                                <td><strong>@row.Points</strong></td>
+                            </tr>
+                            pos++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (lastResult != null)
+        {
+            <div class="alert alert-success mb-4" style="max-width:420px">
+                <strong>Result recorded</strong>
+                <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
+                <div>@FormatEloChange(lastResult.Away)</div>
+            </div>
+        }
+
+        <h5>Fixture</h5>
+        @foreach (var matchday in league.Matches.GroupBy(m => m.Matchday).OrderBy(g => g.Key))
+        {
+            <div class="mb-3">
+                <div class="fw-semibold text-muted small mb-1">Matchday @matchday.Key</div>
+                @foreach (var match in matchday)
+                {
+                    <div class="card mb-2" style="max-width:480px">
+                        <div class="card-body py-2 px-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>@match.HomePlayerName</span>
+                                @if (match.Status == "Played")
+                                {
+                                    <span class="fw-bold mx-2">@match.HomeScore – @match.AwayScore</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted mx-2">vs</span>
+                                }
+                                <span>@match.AwayPlayerName</span>
+                                @if (match.Status == "Pending" && league.Status == "Active")
+                                {
+                                    <button class="btn btn-sm btn-outline-primary ms-3"
+                                            @onclick="() => SelectMatch(match.Id)">
+                                        @(recordingMatchId == match.Id ? "Cancel" : "Enter Result")
+                                    </button>
+                                }
+                            </div>
+
+                            @if (recordingMatchId == match.Id)
+                            {
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                           placeholder="Home" @bind="homeScore" />
+                                    <span>–</span>
+                                    <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                           placeholder="Away" @bind="awayScore" />
+                                    <button class="btn btn-sm btn-success" disabled="@isWorking"
+                                            @onclick="HandleRecordResult">
+                                        @(isWorking ? "..." : "Save")
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (league.Status == "Active" && league.Matches.All(m => m.Status == "Pending"))
+        {
+            <button class="btn btn-outline-secondary btn-sm mt-2" disabled="@isWorking" @onclick="HandleReshuffle">
+                @(isWorking ? "..." : "Reshuffle Fixture")
+            </button>
+        }
+    }
+}
