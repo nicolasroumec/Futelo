@@ -41,19 +41,6 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
         await SaveChangesAsync();
     }
 
-    public async Task ClearFixtureAsync(int leagueId)
-    {
-        var matches = await Context.Set<Match>()
-            .Where(m => m.LeagueId == leagueId).ToListAsync();
-        Context.Set<Match>().RemoveRange(matches);
-
-        var players = await Context.Set<LeaguePlayer>()
-            .Where(lp => lp.LeagueId == leagueId).ToListAsync();
-        Context.Set<LeaguePlayer>().RemoveRange(players);
-
-        await SaveChangesAsync();
-    }
-
     public async Task SaveMatchResultAsync(MatchResultData data)
     {
         var match = await Context.Set<Match>().FindAsync(data.MatchId);
@@ -94,10 +81,13 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
                 league.ChampionId = data.ChampionId;
             }
 
+            var leaguePlayers = await Context.Set<LeaguePlayer>()
+                .Where(lp => lp.LeagueId == data.LeagueId)
+                .ToListAsync();
+
             foreach (var (playerId, position) in data.FinalLeaguePositions)
             {
-                var lp = await Context.Set<LeaguePlayer>()
-                    .FirstOrDefaultAsync(lp => lp.LeagueId == data.LeagueId && lp.PlayerId == playerId);
+                var lp = leaguePlayers.FirstOrDefault(lp => lp.PlayerId == playerId);
                 if (lp != null)
                     lp.LeaguePosition = position;
             }

@@ -15,7 +15,7 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
 
         var standings = league.Status == TournamentStatus.NotStarted
             ? []
-            : await GetStandingsAsync(leagueId, userId);
+            : ComputeStandings(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players);
 
         return new LeagueResponse
         {
@@ -229,16 +229,6 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
                 RankAfter = awaySeasonRankAfter
             }
         };
-    }
-
-    public async Task<List<StandingRow>> GetStandingsAsync(int leagueId, string userId)
-    {
-        var league = await leagueRepository.GetByIdAsync(leagueId);
-        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("League not found.");
-
-        var played = league.Matches.Where(m => m.Status == MatchStatus.Played).ToList();
-        return ComputeStandings(played, league.Players);
     }
 
     private static List<StandingRow> ComputeStandings(List<Match> played, IEnumerable<LeaguePlayer> leaguePlayers)
