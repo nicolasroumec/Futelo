@@ -1,23 +1,43 @@
-# TODO — Sesión 5: Roles en Vault + Invitaciones
+# TODO — Sesión 7: League
 
-## Shared
-- [x] Enum `VaultRole` (Admin, Editor, Viewer)
-- [x] `VaultPlayerResponse` — campo `Role`
-- [x] `InviteRequest` — campo `Role`
+## Sprint 1 — Server: Repository + Service base
+- [ ] `ILeagueRepository` + `LeagueRepository` (GetById con Players y Matches)
+- [ ] `ILeagueService` + `LeagueService` (esqueleto con DI)
+- [ ] Registrar en `Program.cs`
 
-## Server
-- [x] `VaultPlayer` — campo `Role`, default `Viewer`
-- [x] `VaultInvitation` — campo `Role`
-- [x] Migración `AddVaultRoles`
-- [x] `VaultService.CreateAsync` — owner se agrega con `Admin`
-- [x] `VaultService.UpdateAsync` — requiere rol `Admin`
-- [x] `VaultService.DeleteAsync` — requiere ser owner
-- [x] `InvitationService.InviteAsync` — requiere rol `Admin`; guarda `Role` en la invitación
-- [x] `InvitationService.AcceptAsync` — asigna el rol de la invitación al nuevo `VaultPlayer`
+## Sprint 2 — Server: Generación de fixture
 
-## Client
-- [x] `IInvitationService` + `InvitationService` — POST `/api/invitations/{token}/accept`
-- [x] `AcceptInvitation.razor` — ruta `/invitations/{token}/accept`
-- [x] `VaultDetail` — badges de rol en lista de miembros
-- [x] `VaultDetail` — selector de rol en form de invitación (visible solo para Admin)
-- [x] Mostrar el link de invitación en la app tras invitar (sin email, copiable para compartir)
+- [ ] `LeagueService.GenerateFixtureAsync` — genera fixture round-robin al activar la liga
+  - Soporta cantidad impar (bye automático — jugador vs null)
+  - Si `IsHomeAndAway`: duplica el fixture invirtiendo local/visitante
+  - Crea los `Match` con `Status = Pending`
+- [ ] Re-sorteo: solo permitido mientras `League.Status = NotStarted` (ningún partido Played)
+
+## Sprint 3 — Server: Resultado + Tabla + ELO
+
+- [ ] `LeagueService.RecordResultAsync(matchId, homeScore, awayScore)`
+  - Valida que el match sea de esta liga y esté `Pending`
+  - Guarda scores, `Status = Played`, `PlayedAt`
+  - Actualiza ELO: `SeasonPlayer.SeasonElo` **y** `AppUser.EloRating` (histórico)
+    - K=32, multiplicador por diferencia de goles (×1.0 / ×1.2 / ×1.5)
+  - Graba `EloHistory` (dos entradas por jugador: `IsSeasonElo=true` y `IsSeasonElo=false`)
+  - Si todos los matches están `Played` → `League.Status = Finished`
+- [ ] `LeagueService.GetStandingsAsync` — tabla de posiciones
+  - Puntos (W=3, D=1, L=0)
+  - Desempate: diferencia de goles → goles a favor → head-to-head
+
+## Sprint 4 — Server: Controller + DTOs
+
+- [ ] DTOs: `LeagueResponse`, `StandingRow`, `MatchResponse`, `RecordResultRequest`, `EloChangeResult`
+- [ ] `LeagueController`:
+  - `GET /api/leagues/{id}` — fixture + standings
+  - `POST /api/leagues/{id}/start` — genera fixture y activa liga
+  - `PUT /api/leagues/{id}/start` — re-sorteo (solo si `NotStarted`)
+  - `PUT /api/leagues/{id}/matches/{matchId}/result` — carga resultado
+    - Respuesta incluye `EloChangeResult` (ELO antes/después por jugador)
+
+## Sprint 5 — Client
+
+- [ ] `ILeagueService` + `LeagueService` (HTTP calls)
+- [ ] `League/LeagueView.razor` — tabla de posiciones + fixture agrupado por fecha
+- [ ] Link a la liga desde `SeasonDetail`

@@ -39,11 +39,11 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         Context.Set<SeasonPlayer>().RemoveRange(existing);
         Context.Set<SeasonPlayer>().AddRange(players);
 
-        var league = await Context.Set<League>().FirstOrDefaultAsync(l => l.SeasonId == seasonId);
+        var league = await Context.Set<Models.League>().FirstOrDefaultAsync(l => l.SeasonId == seasonId);
         if (hasLeague && league == null)
-            Context.Set<League>().Add(new League { SeasonId = seasonId });
+            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId });
         else if (!hasLeague && league != null)
-            Context.Set<League>().Remove(league);
+            Context.Set<Models.League>().Remove(league);
 
         var cup = await Context.Set<Cup>().FirstOrDefaultAsync(c => c.SeasonId == seasonId);
         if (hasCup && cup == null)
