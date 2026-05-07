@@ -8,4 +8,5 @@ public interface ILeagueRepository
     Task UpdateStatusAsync(int leagueId, TournamentStatus status);
     Task SetFixtureAsync(int leagueId, List<LeaguePlayer> players, List<Match> matches);
     Task ClearFixtureAsync(int leagueId);
+    Task SaveMatchResultAsync(MatchResultData data);
 }

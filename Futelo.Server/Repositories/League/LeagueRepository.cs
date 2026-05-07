@@ -51,4 +51,45 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
 
         await SaveChangesAsync();
     }
+
+    public async Task SaveMatchResultAsync(MatchResultData data)
+    {
+        var match = await Context.Set<Match>().FindAsync(data.MatchId);
+        if (match != null)
+        {
+            match.HomeScore = data.HomeScore;
+            match.AwayScore = data.AwayScore;
+            match.Status = MatchStatus.Played;
+            match.PlayedAt = DateTime.UtcNow;
+        }
+
+        var homeSeasonPlayer = await Context.Set<SeasonPlayer>()
+            .FirstOrDefaultAsync(sp => sp.SeasonId == data.SeasonId && sp.PlayerId == data.HomePlayerId);
+        if (homeSeasonPlayer != null)
+            homeSeasonPlayer.SeasonElo = data.HomeNewSeasonElo;
+
+        var awaySeasonPlayer = await Context.Set<SeasonPlayer>()
+            .FirstOrDefaultAsync(sp => sp.SeasonId == data.SeasonId && sp.PlayerId == data.AwayPlayerId);
+        if (awaySeasonPlayer != null)
+            awaySeasonPlayer.SeasonElo = data.AwayNewSeasonElo;
+
+        var homeUser = await Context.Set<AppUser>().FindAsync(data.HomePlayerId);
+        if (homeUser != null)
+            homeUser.EloRating = data.HomeNewHistoricalElo;
+
+        var awayUser = await Context.Set<AppUser>().FindAsync(data.AwayPlayerId);
+        if (awayUser != null)
+            awayUser.EloRating = data.AwayNewHistoricalElo;
+
+        Context.Set<EloHistory>().AddRange(data.EloHistories);
+
+        if (data.LeagueFinished)
+        {
+            var league = await Context.Set<Models.League>().FindAsync(data.LeagueId);
+            if (league != null)
+                league.Status = TournamentStatus.Finished;
+        }
+
+        await SaveChangesAsync();
+    }
 }
