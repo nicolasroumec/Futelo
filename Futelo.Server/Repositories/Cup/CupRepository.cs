@@ -52,6 +52,8 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
             match.HomeScore = data.HomeScore;
             match.AwayScore = data.AwayScore;
             match.WonOnPenaltiesId = data.WonOnPenaltiesId;
+            match.HomePenaltyScore = data.HomePenaltyScore;
+            match.AwayPenaltyScore = data.AwayPenaltyScore;
             match.Status = MatchStatus.Played;
             match.PlayedAt = DateTime.UtcNow;
         }

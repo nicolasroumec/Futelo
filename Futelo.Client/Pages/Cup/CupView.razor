@@ -73,10 +73,13 @@ else
                                 </span>
                                 @if (match.Status == "Played")
                                 {
-                                    <span class="fw-bold mx-2">@match.HomeScore – @match.AwayScore
+                                    <span class="fw-bold mx-2">
+                                        @match.HomeScore – @match.AwayScore
                                         @if (match.WonOnPenaltiesId != null)
                                         {
-                                            <span class="text-muted small"> (pen)</span>
+                                            <span class="text-muted small">
+                                                (@(match.HomePenaltyScore)–@(match.AwayPenaltyScore) pen)
+                                            </span>
                                         }
                                     </span>
                                 }
@@ -108,7 +111,7 @@ else
                                         <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
                                                placeholder="Away" @bind="awayScore" />
                                     </div>
-                                    @if (homeScore == awayScore)
+                                    @if (ShowPenaltyFields)
                                     {
                                         <div class="mb-2">
                                             <label class="form-label small mb-1">Winner on penalties</label>
@@ -119,6 +122,16 @@ else
                                                 <option value="@recordingAwayId">@recordingAwayName</option>
                                             </select>
                                         </div>
+                                        @if (!string.IsNullOrEmpty(wonOnPenaltiesId))
+                                        {
+                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                                       placeholder="Pen H" @bind="homePenaltyScore" />
+                                                <span>–</span>
+                                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                                       placeholder="Pen A" @bind="awayPenaltyScore" />
+                                            </div>
+                                        }
                                     }
                                     <button class="btn btn-sm btn-success" disabled="@isWorking"
                                             @onclick="HandleRecordResult">

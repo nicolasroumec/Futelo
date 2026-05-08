@@ -10,6 +10,8 @@ public class Match
     public int? HomeScore { get; set; }
     public int? AwayScore { get; set; }
     public string? WonOnPenaltiesId { get; set; }
+    public int? HomePenaltyScore { get; set; }
+    public int? AwayPenaltyScore { get; set; }
     public MatchStatus Status { get; set; } = MatchStatus.Pending;
     public int Leg { get; set; } = 1;
     public DateTime? PlayedAt { get; set; }

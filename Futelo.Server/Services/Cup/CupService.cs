@@ -45,7 +45,8 @@ public class CupService(ICupRepository cupRepository) : ICupService
     }
 
     public async Task<RecordCupResultResponse> RecordResultAsync(
-        int cupId, int matchId, int homeScore, int awayScore, string? wonOnPenaltiesId, string userId)
+        int cupId, int matchId, int homeScore, int awayScore, string? wonOnPenaltiesId,
+        int? homePenaltyScore, int? awayPenaltyScore, string userId)
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
@@ -250,6 +251,8 @@ public class CupService(ICupRepository cupRepository) : ICupService
             HomeScore = homeScore,
             AwayScore = awayScore,
             WonOnPenaltiesId = wonOnPenaltiesId,
+            HomePenaltyScore = wonOnPenaltiesId != null ? homePenaltyScore : null,
+            AwayPenaltyScore = wonOnPenaltiesId != null ? awayPenaltyScore : null,
             HomePlayerId = match.HomePlayerId,
             HomeNewSeasonElo = homeNewSeasonElo,
             HomeNewHistoricalElo = homeNewHistElo,
@@ -449,6 +452,8 @@ public class CupService(ICupRepository cupRepository) : ICupService
                             HomeScore = m.HomeScore,
                             AwayScore = m.AwayScore,
                             WonOnPenaltiesId = m.WonOnPenaltiesId,
+                            HomePenaltyScore = m.HomePenaltyScore,
+                            AwayPenaltyScore = m.AwayPenaltyScore,
                             Status = m.Status.ToString(),
                             Leg = m.Leg,
                             PlayedAt = m.PlayedAt

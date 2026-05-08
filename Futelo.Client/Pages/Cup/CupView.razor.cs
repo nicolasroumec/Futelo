@@ -18,10 +18,15 @@ public partial class CupView
     private int homeScore;
     private int awayScore;
     private string wonOnPenaltiesId = string.Empty;
+    private int? homePenaltyScore;
+    private int? awayPenaltyScore;
     private string recordingHomeId = string.Empty;
     private string recordingHomeName = string.Empty;
     private string recordingAwayId = string.Empty;
     private string recordingAwayName = string.Empty;
+    private bool recordingIsLeg2HomeAndAway;
+    private int? otherLegHomeScore;
+    private int? otherLegAwayScore;
     private RecordCupResultResponse? lastResult;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
@@ -56,6 +61,8 @@ public partial class CupView
             homeScore = 0;
             awayScore = 0;
             wonOnPenaltiesId = string.Empty;
+            homePenaltyScore = null;
+            awayPenaltyScore = null;
             lastResult = null;
 
             var match = cup!.Rounds
@@ -65,8 +72,41 @@ public partial class CupView
             recordingHomeName = match.HomePlayerName;
             recordingAwayId = awayId;
             recordingAwayName = match.AwayPlayerName;
+
+            // For H&A: track the other leg to know when aggregate could be tied
+            recordingIsLeg2HomeAndAway = cup.IsHomeAndAway && match.Leg == 2;
+            otherLegHomeScore = null;
+            otherLegAwayScore = null;
+            if (recordingIsLeg2HomeAndAway)
+            {
+                var round = cup.Rounds.First(r => r.Matches.Any(m => m.Id == matchId));
+                var ordered = round.Matches.OrderBy(m => m.Id).ToList();
+                int idx = ordered.FindIndex(m => m.Id == matchId);
+                var leg1 = ordered[idx - 1];
+                otherLegHomeScore = leg1.HomeScore;
+                otherLegAwayScore = leg1.AwayScore;
+            }
         }
         errorMessage = null;
+    }
+
+    // Show penalty fields when: single-leg and score is tied, OR H&A leg2 and aggregate could be tied
+    private bool ShowPenaltyFields
+    {
+        get
+        {
+            if (!cup!.IsHomeAndAway)
+                return homeScore == awayScore;
+
+            if (!recordingIsLeg2HomeAndAway) return false;
+
+            if (otherLegHomeScore == null) return false;
+            // leg1: Home=A, Away=B. leg2: Home=B, Away=A
+            // A goals = leg1Home + leg2Away(=awayScore), B goals = leg1Away + leg2Home(=homeScore)
+            int aGoals = otherLegHomeScore.Value + awayScore;
+            int bGoals = (otherLegAwayScore ?? 0) + homeScore;
+            return aGoals == bGoals;
+        }
     }
 
     private async Task HandleStart()
@@ -95,13 +135,14 @@ public partial class CupView
         errorMessage = null;
         try
         {
+            bool hasPenalties = ShowPenaltyFields && !string.IsNullOrEmpty(wonOnPenaltiesId);
             var request = new RecordCupResultRequest
             {
                 HomeScore = homeScore,
                 AwayScore = awayScore,
-                WonOnPenaltiesId = homeScore == awayScore && !string.IsNullOrEmpty(wonOnPenaltiesId)
-                    ? wonOnPenaltiesId
-                    : null
+                WonOnPenaltiesId = hasPenalties ? wonOnPenaltiesId : null,
+                HomePenaltyScore = hasPenalties ? homePenaltyScore : null,
+                AwayPenaltyScore = hasPenalties ? awayPenaltyScore : null
             };
             lastResult = await CupService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;

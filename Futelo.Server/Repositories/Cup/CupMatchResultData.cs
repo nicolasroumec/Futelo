@@ -10,6 +10,8 @@ public class CupMatchResultData
     public int HomeScore { get; init; }
     public int AwayScore { get; init; }
     public string? WonOnPenaltiesId { get; init; }
+    public int? HomePenaltyScore { get; init; }
+    public int? AwayPenaltyScore { get; init; }
     public string HomePlayerId { get; init; } = string.Empty;
     public int HomeNewSeasonElo { get; init; }
     public int HomeNewHistoricalElo { get; init; }

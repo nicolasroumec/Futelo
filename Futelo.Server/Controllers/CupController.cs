@@ -55,7 +55,8 @@ public class CupController(ICupService cupService) : ControllerBase
         try
         {
             var result = await cupService.RecordResultAsync(
-                id, matchId, request.HomeScore, request.AwayScore, request.WonOnPenaltiesId, UserId);
+                id, matchId, request.HomeScore, request.AwayScore,
+                request.WonOnPenaltiesId, request.HomePenaltyScore, request.AwayPenaltyScore, UserId);
             return Ok(result);
         }
         catch (KeyNotFoundException)
