@@ -71,6 +71,12 @@ public class FuteloContext : IdentityDbContext<AppUser>
             .HasForeignKey(l => l.ChampionId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<Cup>()
+            .HasOne(c => c.Champion)
+            .WithMany()
+            .HasForeignKey(c => c.ChampionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Entity<Season>()
             .HasOne(s => s.Cup)
             .WithOne(c => c.Season)
