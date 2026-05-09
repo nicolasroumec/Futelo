@@ -12,8 +12,11 @@ public class SuperCup
     public string? Player2Id { get; set; }
     public TournamentStatus Status { get; set; } = TournamentStatus.NotStarted;
 
+    public string? ChampionId { get; set; }
+
     public Season Season { get; set; } = null!;
     public AppUser? Player1 { get; set; }
     public AppUser? Player2 { get; set; }
+    public AppUser? Champion { get; set; }
     public ICollection<Match> Matches { get; set; } = [];
 }
