@@ -4,6 +4,7 @@ using Futelo.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Futelo.Server.Migrations
 {
     [DbContext(typeof(FuteloContext))]
-    partial class FuteloContextModelSnapshot : ModelSnapshot
+    [Migration("20260508175005_AddCupChampion")]
+    partial class AddCupChampion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,10 +292,8 @@ namespace Futelo.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AwayPenaltyScore")
-                        .HasColumnType("int");
-
                     b.Property<string>("AwayPlayerId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("AwayScore")
@@ -304,10 +305,8 @@ namespace Futelo.Server.Migrations
                     b.Property<int?>("CupRoundId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("HomePenaltyScore")
-                        .HasColumnType("int");
-
                     b.Property<string>("HomePlayerId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("HomeScore")
@@ -820,7 +819,8 @@ namespace Futelo.Server.Migrations
                     b.HasOne("Futelo.Server.Models.AppUser", "AwayPlayer")
                         .WithMany()
                         .HasForeignKey("AwayPlayerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Futelo.Server.Models.Team", "AwayTeam")
                         .WithMany()
@@ -834,7 +834,8 @@ namespace Futelo.Server.Migrations
                     b.HasOne("Futelo.Server.Models.AppUser", "HomePlayer")
                         .WithMany()
                         .HasForeignKey("HomePlayerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Futelo.Server.Models.Team", "HomeTeam")
                         .WithMany()

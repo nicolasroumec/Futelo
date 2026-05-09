@@ -102,6 +102,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         LeagueName = season.League?.Name ?? "League",
         LeagueIsHomeAndAway = season.League?.IsHomeAndAway ?? false,
         HasCup = season.Cup != null,
+        CupId = season.Cup?.Id,
         CupName = season.Cup?.Name ?? "Cup",
         HasSuperCup = season.SuperCup != null,
         SuperCupName = season.SuperCup?.Name ?? "SuperCup",

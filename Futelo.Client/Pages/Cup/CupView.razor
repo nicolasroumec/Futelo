@@ -1,0 +1,156 @@
+@page "/cups/{id:int}"
+@attribute [Authorize]
+
+<PageTitle>Cup - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (cup == null)
+{
+    <p class="text-danger">Cup not found.</p>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/seasons/@cup.SeasonId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <h3 class="mb-0">@cup.Name</h3>
+        <span class="badge bg-secondary">@cup.Status</span>
+        @if (cup.IsHomeAndAway)
+        {
+            <span class="badge bg-info text-dark">Home &amp; Away</span>
+        }
+        @if (cup.Status == "Finished" && cup.ChampionName != null)
+        {
+            <span class="badge bg-warning text-dark">🏆 @cup.ChampionName</span>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mb-3">@errorMessage</div>
+    }
+
+    @if (cup.Status == "NotStarted")
+    {
+        <button class="btn btn-success mb-4" disabled="@isWorking" @onclick="HandleStart">
+            @(isWorking ? "Generating..." : "Generate Bracket")
+        </button>
+    }
+    else
+    {
+        @if (lastResult != null)
+        {
+            <div class="alert alert-success mb-4" style="max-width:420px">
+                <strong>Result recorded</strong>
+                @if (lastResult.TieDecided)
+                {
+                    <div class="text-muted small">Tie decided</div>
+                }
+                <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
+                <div>@FormatEloChange(lastResult.Away)</div>
+            </div>
+        }
+
+        @foreach (var round in cup.Rounds)
+        {
+            <h5 class="mt-3">@round.Name</h5>
+
+            @foreach (var tie in GetTies(round))
+            {
+                <div class="card mb-3" style="max-width:520px">
+                    <div class="card-body py-2 px-3">
+                        @foreach (var match in tie)
+                        {
+                            <div class="d-flex justify-content-between align-items-center @(tie.Count > 1 ? "mb-1" : "")">
+                                @if (cup.IsHomeAndAway)
+                                {
+                                    <span class="badge bg-light text-dark me-2" style="font-size:.7rem">Leg @match.Leg</span>
+                                }
+                                <span class="@(string.IsNullOrEmpty(match.HomePlayerId) ? "text-muted" : "")">
+                                    @match.HomePlayerName
+                                </span>
+                                @if (match.Status == "Played")
+                                {
+                                    <span class="fw-bold mx-2">
+                                        @match.HomeScore – @match.AwayScore
+                                        @if (match.WonOnPenaltiesId != null)
+                                        {
+                                            <span class="text-muted small">
+                                                (@(match.HomePenaltyScore)–@(match.AwayPenaltyScore) pen)
+                                            </span>
+                                        }
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted mx-2">vs</span>
+                                }
+                                <span class="@(string.IsNullOrEmpty(match.AwayPlayerId) ? "text-muted" : "")">
+                                    @match.AwayPlayerName
+                                </span>
+                                @if (match.Status == "Pending" && cup.Status == "Active"
+                                    && !string.IsNullOrEmpty(match.HomePlayerId)
+                                    && !string.IsNullOrEmpty(match.AwayPlayerId))
+                                {
+                                    <button class="btn btn-sm btn-outline-primary ms-3"
+                                            @onclick="() => SelectMatch(match.Id, match.HomePlayerId, match.AwayPlayerId)">
+                                        @(recordingMatchId == match.Id ? "Cancel" : "Enter Result")
+                                    </button>
+                                }
+                            </div>
+
+                            @if (recordingMatchId == match.Id)
+                            {
+                                <div class="mt-2 border-top pt-2">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                               placeholder="Home" @bind="homeScore" />
+                                        <span>–</span>
+                                        <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                               placeholder="Away" @bind="awayScore" />
+                                    </div>
+                                    @if (ShowPenaltyFields)
+                                    {
+                                        <div class="mb-2">
+                                            <label class="form-label small mb-1">Winner on penalties</label>
+                                            <select class="form-select form-select-sm" style="max-width:200px"
+                                                    @bind="wonOnPenaltiesId">
+                                                <option value="">-- select --</option>
+                                                <option value="@recordingHomeId">@recordingHomeName</option>
+                                                <option value="@recordingAwayId">@recordingAwayName</option>
+                                            </select>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(wonOnPenaltiesId))
+                                        {
+                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                                       placeholder="Pen H" @bind="homePenaltyScore" />
+                                                <span>–</span>
+                                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                                       placeholder="Pen A" @bind="awayPenaltyScore" />
+                                            </div>
+                                        }
+                                    }
+                                    <button class="btn btn-sm btn-success" disabled="@isWorking"
+                                            @onclick="HandleRecordResult">
+                                        @(isWorking ? "..." : "Save")
+                                    </button>
+                                </div>
+                            }
+                        }
+
+                        @if (cup.IsHomeAndAway && tie.All(m => m.Status == "Played"))
+                        {
+                            var agg = ComputeAggregate(tie);
+                            <div class="text-muted small mt-1 border-top pt-1">
+                                Aggregate: @agg.homeName @agg.homeGoals – @agg.awayGoals @agg.awayName
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    }
+}

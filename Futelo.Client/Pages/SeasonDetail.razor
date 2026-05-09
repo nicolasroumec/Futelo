@@ -33,7 +33,17 @@ else
                 <span class="badge bg-primary">@season.LeagueName</span>
             }
         }
-        @if (season.HasCup) { <span class="badge bg-success">Cup</span> }
+        @if (season.HasCup)
+        {
+            @if (season.CupId.HasValue)
+            {
+                <a href="/cups/@season.CupId" class="badge bg-success text-decoration-none">@season.CupName</a>
+            }
+            else
+            {
+                <span class="badge bg-success">@season.CupName</span>
+            }
+        }
         @if (season.HasSuperCup) { <span class="badge bg-warning text-dark">SuperCup</span> }
     </div>
 

@@ -12,6 +12,7 @@ public class SeasonResponse
     public string LeagueName { get; set; } = "League";
     public bool LeagueIsHomeAndAway { get; set; }
     public bool HasCup { get; set; }
+    public int? CupId { get; set; }
     public string CupName { get; set; } = "Cup";
     public bool HasSuperCup { get; set; }
     public string SuperCupName { get; set; } = "SuperCup";
