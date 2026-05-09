@@ -59,13 +59,13 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         else if (!hasCup && cup != null)
             Context.Set<Models.Cup>().Remove(cup);
 
-        var superCup = await Context.Set<SuperCup>().FirstOrDefaultAsync(sc => sc.SeasonId == seasonId);
+        var superCup = await Context.Set<Models.SuperCup>().FirstOrDefaultAsync(sc => sc.SeasonId == seasonId);
         if (hasSuperCup && superCup == null)
-            Context.Set<SuperCup>().Add(new SuperCup { SeasonId = seasonId, Name = superCupName });
+            Context.Set<Models.SuperCup>().Add(new Models.SuperCup { SeasonId = seasonId, Name = superCupName });
         else if (hasSuperCup && superCup != null)
             superCup.Name = superCupName;
         else if (!hasSuperCup && superCup != null)
-            Context.Set<SuperCup>().Remove(superCup);
+            Context.Set<Models.SuperCup>().Remove(superCup);
 
         await SaveChangesAsync();
     }
