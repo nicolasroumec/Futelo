@@ -5,8 +5,8 @@ namespace Futelo.Server.Models;
 public class Match
 {
     public int Id { get; set; }
-    public string HomePlayerId { get; set; } = string.Empty;
-    public string AwayPlayerId { get; set; } = string.Empty;
+    public string? HomePlayerId { get; set; }
+    public string? AwayPlayerId { get; set; }
     public int? HomeScore { get; set; }
     public int? AwayScore { get; set; }
     public string? WonOnPenaltiesId { get; set; }
@@ -22,8 +22,8 @@ public class Match
     public int? CupRoundId { get; set; }
     public int? SuperCupId { get; set; }
 
-    public AppUser HomePlayer { get; set; } = null!;
-    public AppUser AwayPlayer { get; set; } = null!;
+    public AppUser? HomePlayer { get; set; }
+    public AppUser? AwayPlayer { get; set; }
     public AppUser? WonOnPenalties { get; set; }
     public VideoGame? VideoGame { get; set; }
     public Team? HomeTeam { get; set; }

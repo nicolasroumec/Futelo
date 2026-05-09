@@ -33,10 +33,10 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
                 .Select(m => new MatchResponse
                 {
                     Id = m.Id,
-                    HomePlayerId = m.HomePlayerId,
-                    HomePlayerName = m.HomePlayer.DisplayName,
-                    AwayPlayerId = m.AwayPlayerId,
-                    AwayPlayerName = m.AwayPlayer.DisplayName,
+                    HomePlayerId = m.HomePlayerId!,
+                    HomePlayerName = m.HomePlayer!.DisplayName,
+                    AwayPlayerId = m.AwayPlayerId!,
+                    AwayPlayerName = m.AwayPlayer!.DisplayName,
                     HomeScore = m.HomeScore,
                     AwayScore = m.AwayScore,
                     Status = m.Status.ToString(),

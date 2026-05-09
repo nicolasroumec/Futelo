@@ -173,8 +173,8 @@ public class CupService(ICupRepository cupRepository) : ICupService
                 int l2HomeScore = leg2.Id == matchId ? homeScore : leg2.HomeScore ?? 0;
                 int l2AwayScore = leg2.Id == matchId ? awayScore : leg2.AwayScore ?? 0;
 
-                string playerA = leg1.HomePlayerId;
-                string playerB = leg1.AwayPlayerId;
+                string playerA = leg1.HomePlayerId!;
+                string playerB = leg1.AwayPlayerId!;
                 int aGoals = l1HomeScore + l2AwayScore;
                 int bGoals = l1AwayScore + l2HomeScore;
 
@@ -341,8 +341,8 @@ public class CupService(ICupRepository cupRepository) : ICupService
             {
                 matches.Add(new Match
                 {
-                    HomePlayerId = home ?? string.Empty,
-                    AwayPlayerId = away ?? string.Empty,
+                    HomePlayerId = home,
+                    AwayPlayerId = away,
                     Status = MatchStatus.Pending,
                     Leg = 1
                 });
@@ -351,8 +351,8 @@ public class CupService(ICupRepository cupRepository) : ICupService
                 {
                     matches.Add(new Match
                     {
-                        HomePlayerId = away ?? string.Empty,
-                        AwayPlayerId = home ?? string.Empty,
+                        HomePlayerId = away,
+                        AwayPlayerId = home,
                         Status = MatchStatus.Pending,
                         Leg = 2
                     });
@@ -380,8 +380,8 @@ public class CupService(ICupRepository cupRepository) : ICupService
         var finalMatches = finalRound.Matches.OrderBy(m => m.Id).ToList();
         var finalMatch = finalMatches[0];
         string runnerUpId = finalMatch.HomePlayerId == championId
-            ? finalMatch.AwayPlayerId
-            : finalMatch.HomePlayerId;
+            ? finalMatch.AwayPlayerId!
+            : finalMatch.HomePlayerId!;
         positions[runnerUpId] = 2;
 
         // Semi-final losers (position 3)
@@ -441,11 +441,11 @@ public class CupService(ICupRepository cupRepository) : ICupService
                         .Select(m => new CupMatchResponse
                         {
                             Id = m.Id,
-                            HomePlayerId = m.HomePlayerId,
+                            HomePlayerId = m.HomePlayerId ?? string.Empty,
                             HomePlayerName = !string.IsNullOrEmpty(m.HomePlayerId)
                                 ? seasonPlayerMap.GetValueOrDefault(m.HomePlayerId, m.HomePlayerId)
                                 : "TBD",
-                            AwayPlayerId = m.AwayPlayerId,
+                            AwayPlayerId = m.AwayPlayerId ?? string.Empty,
                             AwayPlayerName = !string.IsNullOrEmpty(m.AwayPlayerId)
                                 ? seasonPlayerMap.GetValueOrDefault(m.AwayPlayerId, m.AwayPlayerId)
                                 : "TBD",
