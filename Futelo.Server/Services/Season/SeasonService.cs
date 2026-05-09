@@ -105,6 +105,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         CupId = season.Cup?.Id,
         CupName = season.Cup?.Name ?? "Cup",
         HasSuperCup = season.SuperCup != null,
+        SuperCupId = season.SuperCup?.Id,
         SuperCupName = season.SuperCup?.Name ?? "SuperCup",
         Players = season.Players.Select(p => new SeasonPlayerResponse
         {
