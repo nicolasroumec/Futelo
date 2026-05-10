@@ -1,3 +1,4 @@
+using Futelo.Server.Models;
 using Futelo.Server.Repositories.Stats;
 using Futelo.Shared.DTOs.Stats;
 
@@ -32,6 +33,8 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             goalsAgainst += conceded;
         }
 
+        var (currentStreak, bestWinStreak, bestUnbeatenStreak) = ComputeStreaks(matches, playerId);
+
         var topTeams = matches
             .Select(m => m.HomePlayerId == playerId ? m.HomeTeam?.Name : m.AwayTeam?.Name)
             .Where(name => name != null)
@@ -41,12 +44,35 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             .Select(g => new TeamUsageRow { TeamName = g.Key, TimesUsed = g.Count() })
             .ToList();
 
-        var topGames = matches
+        var gameStats = matches
             .Where(m => m.VideoGame != null)
             .GroupBy(m => m.VideoGame!.Name)
             .OrderByDescending(g => g.Count())
-            .Take(5)
-            .Select(g => new VideoGameUsageRow { VideoGameName = g.Key, TimesPlayed = g.Count() })
+            .Select(g =>
+            {
+                int gWon = 0, gDrawn = 0, gLost = 0, gGF = 0, gGA = 0;
+                foreach (var m in g)
+                {
+                    bool isHome = m.HomePlayerId == playerId;
+                    int s = isHome ? (m.HomeScore ?? 0) : (m.AwayScore ?? 0);
+                    int c = isHome ? (m.AwayScore ?? 0) : (m.HomeScore ?? 0);
+                    if (s > c) gWon++;
+                    else if (s < c) gLost++;
+                    else gDrawn++;
+                    gGF += s;
+                    gGA += c;
+                }
+                return new VideoGameStatsRow
+                {
+                    VideoGameName = g.Key,
+                    Played = g.Count(),
+                    Won = gWon,
+                    Drawn = gDrawn,
+                    Lost = gLost,
+                    GoalsFor = gGF,
+                    GoalsAgainst = gGA
+                };
+            })
             .ToList();
 
         return new PlayerStatsResponse
@@ -60,8 +86,11 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             GoalsFor = goalsFor,
             GoalsAgainst = goalsAgainst,
             EloRating = player.EloRating,
+            CurrentStreak = currentStreak,
+            BestWinStreak = bestWinStreak,
+            BestUnbeatenStreak = bestUnbeatenStreak,
             TopTeams = topTeams,
-            TopGames = topGames
+            GameStats = gameStats
         };
     }
 
@@ -166,13 +195,169 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         return seasons
             .Where(s => s.League?.ChampionId != null || s.Cup?.ChampionId != null || s.SuperCup?.ChampionId != null)
             .Select(s => new PalmaresSeasonRow
+            {
+                SeasonId = s.Id,
+                SeasonName = s.Name,
+                Year = s.Year,
+                LeagueChampion = s.League?.Champion?.DisplayName,
+                CupChampion = s.Cup?.Champion?.DisplayName,
+                SuperCupChampion = s.SuperCup?.Champion?.DisplayName
+            }).ToList();
+    }
+
+    public async Task<List<EloHistoryPoint>> GetEloHistoryAsync(string playerId, int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var history = await statsRepository.GetPlayerEloHistoryInVaultAsync(playerId, vaultId);
+
+        if (history.Count == 0)
+            return [];
+
+        var points = new List<EloHistoryPoint>
         {
-            SeasonId = s.Id,
-            SeasonName = s.Name,
-            Year = s.Year,
-            LeagueChampion = s.League?.Champion?.DisplayName,
-            CupChampion = s.Cup?.Champion?.DisplayName,
-            SuperCupChampion = s.SuperCup?.Champion?.DisplayName
-        }).ToList();
+            new() { Date = history[0].CreatedAt, Elo = history[0].EloBefore }
+        };
+        points.AddRange(history.Select(h => new EloHistoryPoint { Date = h.CreatedAt, Elo = h.EloAfter }));
+
+        return points;
+    }
+
+    public async Task<List<ScorerRow>> GetScorersAsync(int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var matches = await statsRepository.GetAllPlayedMatchesInVaultAsync(vaultId);
+        var scorerMap = new Dictionary<string, (string DisplayName, int Goals)>();
+
+        foreach (var m in matches)
+        {
+            if (m.HomePlayerId != null && m.HomePlayer != null)
+            {
+                var entry = scorerMap.GetValueOrDefault(m.HomePlayerId, (m.HomePlayer.DisplayName, 0));
+                scorerMap[m.HomePlayerId] = (entry.DisplayName, entry.Goals + (m.HomeScore ?? 0));
+            }
+            if (m.AwayPlayerId != null && m.AwayPlayer != null)
+            {
+                var entry = scorerMap.GetValueOrDefault(m.AwayPlayerId, (m.AwayPlayer.DisplayName, 0));
+                scorerMap[m.AwayPlayerId] = (entry.DisplayName, entry.Goals + (m.AwayScore ?? 0));
+            }
+        }
+
+        return scorerMap
+            .OrderByDescending(x => x.Value.Goals)
+            .Select((x, i) => new ScorerRow
+            {
+                Position = i + 1,
+                PlayerId = x.Key,
+                DisplayName = x.Value.DisplayName,
+                Goals = x.Value.Goals
+            })
+            .ToList();
+    }
+
+    public async Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var matches = await statsRepository.GetAllPlayedMatchesInVaultAsync(vaultId);
+
+        var playerIds = matches
+            .SelectMany(m => new[] { m.HomePlayerId, m.AwayPlayerId })
+            .Where(id => id != null)
+            .Distinct()
+            .ToList();
+
+        RecordEntry? bestWinRecord = null;
+        RecordEntry? bestUnbeatenRecord = null;
+
+        foreach (var playerId in playerIds)
+        {
+            var playerMatches = matches
+                .Where(m => m.HomePlayerId == playerId || m.AwayPlayerId == playerId)
+                .ToList();
+
+            var playerUser = playerMatches
+                .Select(m => m.HomePlayerId == playerId ? m.HomePlayer : m.AwayPlayer)
+                .FirstOrDefault(p => p != null);
+
+            if (playerUser == null) continue;
+
+            var (_, bestWin, bestUnbeaten) = ComputeStreaks(playerMatches, playerId!);
+
+            if (bestWinRecord == null || bestWin > bestWinRecord.Value)
+                bestWinRecord = new RecordEntry { PlayerId = playerId!, DisplayName = playerUser.DisplayName, Value = bestWin };
+
+            if (bestUnbeatenRecord == null || bestUnbeaten > bestUnbeatenRecord.Value)
+                bestUnbeatenRecord = new RecordEntry { PlayerId = playerId!, DisplayName = playerUser.DisplayName, Value = bestUnbeaten };
+        }
+
+        return new VaultRecordsResponse
+        {
+            BestWinStreak = bestWinRecord,
+            BestUnbeatenStreak = bestUnbeatenRecord
+        };
+    }
+
+    private static (int current, int bestWin, int bestUnbeaten) ComputeStreaks(List<Match> matches, string playerId)
+    {
+        var sorted = matches
+            .Where(m => m.PlayedAt.HasValue)
+            .OrderBy(m => m.PlayedAt)
+            .ToList();
+
+        if (sorted.Count == 0)
+            return (0, 0, 0);
+
+        int bestWin = 0, bestUnbeaten = 0;
+        int runWin = 0, runUnbeaten = 0;
+
+        foreach (var m in sorted)
+        {
+            bool isHome = m.HomePlayerId == playerId;
+            int s = isHome ? (m.HomeScore ?? 0) : (m.AwayScore ?? 0);
+            int c = isHome ? (m.AwayScore ?? 0) : (m.HomeScore ?? 0);
+
+            if (s > c) { runWin++; runUnbeaten++; }
+            else if (s == c) { runWin = 0; runUnbeaten++; }
+            else { runWin = 0; runUnbeaten = 0; }
+
+            if (runWin > bestWin) bestWin = runWin;
+            if (runUnbeaten > bestUnbeaten) bestUnbeaten = runUnbeaten;
+        }
+
+        int current = 0;
+        var last = sorted.Last();
+        bool lastHome = last.HomePlayerId == playerId;
+        int lastS = lastHome ? (last.HomeScore ?? 0) : (last.AwayScore ?? 0);
+        int lastC = lastHome ? (last.AwayScore ?? 0) : (last.HomeScore ?? 0);
+
+        if (lastS > lastC)
+        {
+            for (int i = sorted.Count - 1; i >= 0; i--)
+            {
+                bool h = sorted[i].HomePlayerId == playerId;
+                int s = h ? (sorted[i].HomeScore ?? 0) : (sorted[i].AwayScore ?? 0);
+                int c = h ? (sorted[i].AwayScore ?? 0) : (sorted[i].HomeScore ?? 0);
+                if (s > c) current++;
+                else break;
+            }
+        }
+        else if (lastS < lastC)
+        {
+            for (int i = sorted.Count - 1; i >= 0; i--)
+            {
+                bool h = sorted[i].HomePlayerId == playerId;
+                int s = h ? (sorted[i].HomeScore ?? 0) : (sorted[i].AwayScore ?? 0);
+                int c = h ? (sorted[i].AwayScore ?? 0) : (sorted[i].HomeScore ?? 0);
+                if (s < c) current--;
+                else break;
+            }
+        }
+
+        return (current, bestWin, bestUnbeaten);
     }
 }

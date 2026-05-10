@@ -81,4 +81,46 @@ public class StatsController(IStatsService statsService) : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpGet("vaults/{vaultId}/players/{playerId}/elo-history")]
+    public async Task<IActionResult> GetEloHistory(int vaultId, string playerId)
+    {
+        try
+        {
+            var history = await statsService.GetEloHistoryAsync(playerId, vaultId, UserId);
+            return Ok(history);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpGet("vaults/{vaultId}/scorers")]
+    public async Task<IActionResult> GetScorers(int vaultId)
+    {
+        try
+        {
+            var scorers = await statsService.GetScorersAsync(vaultId, UserId);
+            return Ok(scorers);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpGet("vaults/{vaultId}/records")]
+    public async Task<IActionResult> GetVaultRecords(int vaultId)
+    {
+        try
+        {
+            var records = await statsService.GetVaultRecordsAsync(vaultId, UserId);
+            return Ok(records);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }
