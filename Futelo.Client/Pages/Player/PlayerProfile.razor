@@ -1,0 +1,90 @@
+@page "/vaults/{vaultId:int}/players/{playerId}"
+@attribute [Authorize]
+
+<PageTitle>@(stats?.DisplayName ?? "Player") - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (stats == null)
+{
+    <p class="text-danger">Player not found.</p>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <h3 class="mb-0">@stats.DisplayName</h3>
+        <span class="badge bg-secondary">ELO @stats.EloRating</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mb-3">@errorMessage</div>
+    }
+
+    <h5>Stats</h5>
+    <div class="table-responsive mb-4" style="max-width:480px">
+        <table class="table table-sm table-bordered align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@stats.Played</td>
+                    <td>@stats.Won</td>
+                    <td>@stats.Drawn</td>
+                    <td>@stats.Lost</td>
+                    <td>@stats.GoalsFor</td>
+                    <td>@stats.GoalsAgainst</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    @if (stats.TopTeams.Count > 0)
+    {
+        <h5>Top Teams</h5>
+        <ul class="list-group mb-4" style="max-width:320px">
+            @foreach (var t in stats.TopTeams)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@t.TeamName</span>
+                    <span class="badge bg-secondary">@t.TimesUsed</span>
+                </li>
+            }
+        </ul>
+    }
+
+    @if (stats.TopGames.Count > 0)
+    {
+        <h5>Top Games</h5>
+        <ul class="list-group mb-4" style="max-width:320px">
+            @foreach (var g in stats.TopGames)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@g.VideoGameName</span>
+                    <span class="badge bg-secondary">@g.TimesPlayed</span>
+                </li>
+            }
+        </ul>
+    }
+
+    @if (opponents.Count > 0)
+    {
+        <h5>Head to Head</h5>
+        <div class="d-flex align-items-center gap-2" style="max-width:360px">
+            <select class="form-select form-select-sm" @bind="selectedOpponentId">
+                @foreach (var p in opponents)
+                {
+                    <option value="@p.PlayerId">@p.DisplayName</option>
+                }
+            </select>
+            <button class="btn btn-outline-primary btn-sm" @onclick="NavigateToH2H">Compare</button>
+        </div>
+    }
+}
+

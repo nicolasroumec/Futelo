@@ -1,0 +1,11 @@
+using Futelo.Shared.DTOs.Stats;
+
+namespace Futelo.Client.Services.Stats;
+
+public interface IStatsService
+{
+    Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId);
+    Task<HeadToHeadResponse> GetHeadToHeadAsync(string player1Id, string player2Id, int vaultId);
+    Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId);
+    Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId);
+}
