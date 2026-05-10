@@ -11,11 +11,14 @@ public class SeasonResponse
     public int? LeagueId { get; set; }
     public string LeagueName { get; set; } = "League";
     public bool LeagueIsHomeAndAway { get; set; }
+    public string? LeagueStatus { get; set; }
     public bool HasCup { get; set; }
     public int? CupId { get; set; }
     public string CupName { get; set; } = "Cup";
+    public string? CupStatus { get; set; }
     public bool HasSuperCup { get; set; }
     public int? SuperCupId { get; set; }
     public string SuperCupName { get; set; } = "SuperCup";
+    public string? SuperCupStatus { get; set; }
     public List<SeasonPlayerResponse> Players { get; set; } = [];
 }

@@ -146,7 +146,9 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
 
         var seasons = await statsRepository.GetVaultPalmaresAsync(vaultId);
 
-        return seasons.Select(s => new PalmaresSeasonRow
+        return seasons
+            .Where(s => s.League?.ChampionId != null || s.Cup?.ChampionId != null || s.SuperCup?.ChampionId != null)
+            .Select(s => new PalmaresSeasonRow
         {
             SeasonId = s.Id,
             SeasonName = s.Name,

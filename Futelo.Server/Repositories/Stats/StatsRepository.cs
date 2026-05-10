@@ -54,9 +54,9 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
-    public async Task<List<Season>> GetVaultPalmaresAsync(int vaultId)
+    public async Task<List<Models.Season>> GetVaultPalmaresAsync(int vaultId)
         => await context.Seasons
-            .Where(s => s.VaultId == vaultId && s.Status == SeasonStatus.Finished)
+            .Where(s => s.VaultId == vaultId && s.Status != SeasonStatus.Draft)
             .Include(s => s.League).ThenInclude(l => l!.Champion)
             .Include(s => s.Cup).ThenInclude(c => c!.Champion)
             .Include(s => s.SuperCup).ThenInclude(sc => sc!.Champion)

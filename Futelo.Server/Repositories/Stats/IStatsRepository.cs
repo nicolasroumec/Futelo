@@ -9,5 +9,5 @@ public interface IStatsRepository
     Task<List<Match>> GetH2HMatchesInVaultAsync(string player1Id, string player2Id, int vaultId);
     Task<bool> IsVaultMemberAsync(string playerId, int vaultId);
     Task<List<SeasonPlayer>> GetSeasonRankingAsync(int seasonId, int vaultId);
-    Task<List<Season>> GetVaultPalmaresAsync(int vaultId);
+    Task<List<Models.Season>> GetVaultPalmaresAsync(int vaultId);
 }
