@@ -71,4 +71,23 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .OrderBy(s => s.Year)
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
+
+    public async Task<List<EloHistory>> GetPlayerEloHistoryInVaultAsync(string playerId, int vaultId)
+        => await context.EloHistories
+            .Where(e => e.PlayerId == playerId && !e.IsSeasonElo && e.Season.VaultId == vaultId)
+            .OrderBy(e => e.CreatedAt)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
+
+    public async Task<List<Match>> GetAllPlayedMatchesInVaultAsync(int vaultId)
+        => await context.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .Where(m =>
+                (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
+                (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
+                (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId))
+            .Include(m => m.HomePlayer)
+            .Include(m => m.AwayPlayer)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
 }
