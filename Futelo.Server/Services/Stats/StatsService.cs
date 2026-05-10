@@ -1,0 +1,159 @@
+using Futelo.Server.Repositories.Stats;
+using Futelo.Shared.DTOs.Stats;
+
+namespace Futelo.Server.Services.Stats;
+
+public class StatsService(IStatsRepository statsRepository) : IStatsService
+{
+    public async Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var player = await statsRepository.GetPlayerAsync(playerId);
+        if (player == null)
+            throw new KeyNotFoundException("Player not found.");
+
+        var matches = await statsRepository.GetPlayerMatchesInVaultAsync(playerId, vaultId);
+
+        int won = 0, drawn = 0, lost = 0, goalsFor = 0, goalsAgainst = 0;
+
+        foreach (var m in matches)
+        {
+            bool isHome = m.HomePlayerId == playerId;
+            int scored = isHome ? (m.HomeScore ?? 0) : (m.AwayScore ?? 0);
+            int conceded = isHome ? (m.AwayScore ?? 0) : (m.HomeScore ?? 0);
+
+            if (scored > conceded) won++;
+            else if (scored < conceded) lost++;
+            else drawn++;
+
+            goalsFor += scored;
+            goalsAgainst += conceded;
+        }
+
+        var topTeams = matches
+            .Select(m => m.HomePlayerId == playerId ? m.HomeTeam?.Name : m.AwayTeam?.Name)
+            .Where(name => name != null)
+            .GroupBy(name => name!)
+            .OrderByDescending(g => g.Count())
+            .Take(5)
+            .Select(g => new TeamUsageRow { TeamName = g.Key, TimesUsed = g.Count() })
+            .ToList();
+
+        var topGames = matches
+            .Where(m => m.VideoGame != null)
+            .GroupBy(m => m.VideoGame!.Name)
+            .OrderByDescending(g => g.Count())
+            .Take(5)
+            .Select(g => new VideoGameUsageRow { VideoGameName = g.Key, TimesPlayed = g.Count() })
+            .ToList();
+
+        return new PlayerStatsResponse
+        {
+            PlayerId = player.Id,
+            DisplayName = player.DisplayName,
+            Played = matches.Count,
+            Won = won,
+            Drawn = drawn,
+            Lost = lost,
+            GoalsFor = goalsFor,
+            GoalsAgainst = goalsAgainst,
+            EloRating = player.EloRating,
+            TopTeams = topTeams,
+            TopGames = topGames
+        };
+    }
+
+    public async Task<HeadToHeadResponse> GetHeadToHeadAsync(string player1Id, string player2Id, int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var player1 = await statsRepository.GetPlayerAsync(player1Id);
+        var player2 = await statsRepository.GetPlayerAsync(player2Id);
+
+        if (player1 == null || player2 == null)
+            throw new KeyNotFoundException("Player not found.");
+
+        var matches = await statsRepository.GetH2HMatchesInVaultAsync(player1Id, player2Id, vaultId);
+
+        int p1Wins = 0, draws = 0, p2Wins = 0;
+
+        foreach (var m in matches)
+        {
+            int homeScore = m.HomeScore ?? 0;
+            int awayScore = m.AwayScore ?? 0;
+
+            if (homeScore == awayScore)
+                draws++;
+            else if ((m.HomePlayerId == player1Id && homeScore > awayScore) ||
+                     (m.AwayPlayerId == player1Id && awayScore > homeScore))
+                p1Wins++;
+            else
+                p2Wins++;
+        }
+
+        return new HeadToHeadResponse
+        {
+            Player1Id = player1.Id,
+            Player1DisplayName = player1.DisplayName,
+            Player2Id = player2.Id,
+            Player2DisplayName = player2.DisplayName,
+            Played = matches.Count,
+            Player1Wins = p1Wins,
+            Draws = draws,
+            Player2Wins = p2Wins,
+            Matches = matches
+                .OrderByDescending(m => m.PlayedAt)
+                .Select(m => new H2HMatchRow
+                {
+                    MatchId = m.Id,
+                    HomePlayerId = m.HomePlayerId!,
+                    HomePlayerDisplayName = m.HomePlayer?.DisplayName ?? m.HomePlayerId!,
+                    HomeScore = m.HomeScore ?? 0,
+                    AwayScore = m.AwayScore ?? 0,
+                    AwayPlayerId = m.AwayPlayerId!,
+                    AwayPlayerDisplayName = m.AwayPlayer?.DisplayName ?? m.AwayPlayerId!,
+                    VideoGameName = m.VideoGame?.Name,
+                    PlayedAt = m.PlayedAt
+                }).ToList()
+        };
+    }
+
+    public async Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var seasonPlayers = await statsRepository.GetSeasonRankingAsync(seasonId, vaultId);
+
+        return seasonPlayers
+            .Select((sp, i) => new RankingRow
+            {
+                Position = i + 1,
+                PlayerId = sp.PlayerId,
+                DisplayName = sp.Player.DisplayName,
+                SeasonElo = sp.SeasonElo,
+                HistoricalElo = sp.Player.EloRating
+            }).ToList();
+    }
+
+    public async Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var seasons = await statsRepository.GetVaultPalmaresAsync(vaultId);
+
+        return seasons.Select(s => new PalmaresSeasonRow
+        {
+            SeasonId = s.Id,
+            SeasonName = s.Name,
+            Year = s.Year,
+            LeagueChampion = s.League?.Champion?.DisplayName,
+            CupChampion = s.Cup?.Champion?.DisplayName,
+            SuperCupChampion = s.SuperCup?.Champion?.DisplayName
+        }).ToList();
+    }
+}

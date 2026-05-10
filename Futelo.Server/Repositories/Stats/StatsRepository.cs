@@ -42,9 +42,13 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
-    public async Task<List<SeasonPlayer>> GetSeasonRankingAsync(int seasonId)
+    public async Task<bool> IsVaultMemberAsync(string playerId, int vaultId)
+        => await context.VaultPlayers
+            .AnyAsync(vp => vp.VaultId == vaultId && vp.PlayerId == playerId);
+
+    public async Task<List<SeasonPlayer>> GetSeasonRankingAsync(int seasonId, int vaultId)
         => await context.SeasonPlayers
-            .Where(sp => sp.SeasonId == seasonId)
+            .Where(sp => sp.SeasonId == seasonId && sp.Season.VaultId == vaultId)
             .Include(sp => sp.Player)
             .OrderByDescending(sp => sp.SeasonElo)
             .AsNoTrackingWithIdentityResolution()

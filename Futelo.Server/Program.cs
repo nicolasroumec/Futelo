@@ -10,9 +10,11 @@ using Futelo.Server.Repositories.Vault;
 using Futelo.Server.Repositories.VideoGames;
 using Futelo.Server.Services.Auth;
 using Futelo.Server.Services.Invitation;
+using Futelo.Server.Repositories.Stats;
 using Futelo.Server.Repositories.SuperCup;
 using Futelo.Server.Services.Cup;
 using Futelo.Server.Services.League;
+using Futelo.Server.Services.Stats;
 using Futelo.Server.Services.SuperCup;
 using Futelo.Server.Services.Season;
 using Futelo.Server.Services.Teams;
@@ -76,6 +78,8 @@ builder.Services.AddScoped<ICupRepository, CupRepository>();
 builder.Services.AddScoped<ICupService, CupService>();
 builder.Services.AddScoped<ISuperCupRepository, SuperCupRepository>();
 builder.Services.AddScoped<ISuperCupService, SuperCupService>();
+builder.Services.AddScoped<IStatsRepository, StatsRepository>();
+builder.Services.AddScoped<IStatsService, StatsService>();
 
 builder.Services.AddControllers();
 
