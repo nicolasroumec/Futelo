@@ -11,18 +11,15 @@ public class PlayerStatsResponse
     public int GoalsFor { get; set; }
     public int GoalsAgainst { get; set; }
     public int EloRating { get; set; }
+    public int CurrentStreak { get; set; }
+    public int BestWinStreak { get; set; }
+    public int BestUnbeatenStreak { get; set; }
     public List<TeamUsageRow> TopTeams { get; set; } = [];
-    public List<VideoGameUsageRow> TopGames { get; set; } = [];
+    public List<VideoGameStatsRow> GameStats { get; set; } = [];
 }
 
 public class TeamUsageRow
 {
     public string TeamName { get; set; } = string.Empty;
     public int TimesUsed { get; set; }
-}
-
-public class VideoGameUsageRow
-{
-    public string VideoGameName { get; set; } = string.Empty;
-    public int TimesPlayed { get; set; }
 }
