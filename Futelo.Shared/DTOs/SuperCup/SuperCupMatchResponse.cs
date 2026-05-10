@@ -1,0 +1,18 @@
+namespace Futelo.Shared.DTOs.SuperCup;
+
+public class SuperCupMatchResponse
+{
+    public int Id { get; set; }
+    public string HomePlayerId { get; set; } = string.Empty;
+    public string HomePlayerName { get; set; } = string.Empty;
+    public string AwayPlayerId { get; set; } = string.Empty;
+    public string AwayPlayerName { get; set; } = string.Empty;
+    public int? HomeScore { get; set; }
+    public int? AwayScore { get; set; }
+    public string? WonOnPenaltiesId { get; set; }
+    public int? HomePenaltyScore { get; set; }
+    public int? AwayPenaltyScore { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public int Leg { get; set; }
+    public DateTime? PlayedAt { get; set; }
+}

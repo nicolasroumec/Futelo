@@ -15,6 +15,7 @@ public class SeasonResponse
     public int? CupId { get; set; }
     public string CupName { get; set; } = "Cup";
     public bool HasSuperCup { get; set; }
+    public int? SuperCupId { get; set; }
     public string SuperCupName { get; set; } = "SuperCup";
     public List<SeasonPlayerResponse> Players { get; set; } = [];
 }

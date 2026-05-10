@@ -1,0 +1,153 @@
+@page "/supercups/{id:int}"
+@attribute [Authorize]
+
+<PageTitle>SuperCup - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (superCup == null)
+{
+    <p class="text-danger">SuperCup not found.</p>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/seasons/@superCup.SeasonId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <h3 class="mb-0">@superCup.Name</h3>
+        <span class="badge bg-secondary">@superCup.Status</span>
+        @if (superCup.IsHomeAndAway)
+        {
+            <span class="badge bg-info text-dark">Home &amp; Away</span>
+        }
+        @if (superCup.Status == "Finished" && superCup.ChampionName != null)
+        {
+            <span class="badge bg-warning text-dark">🏆 @superCup.ChampionName</span>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mb-3">@errorMessage</div>
+    }
+
+    @if (superCup.Status == "NotStarted")
+    {
+        <div class="mb-3 text-muted">
+            <p>Participants will be determined automatically from the League and Cup champions.</p>
+        </div>
+        <button class="btn btn-success mb-4" disabled="@isWorking" @onclick="HandleStart">
+            @(isWorking ? "Starting..." : "Start SuperCup")
+        </button>
+    }
+    else
+    {
+        <div class="mb-4">
+            <div class="d-flex gap-3 align-items-center mb-2">
+                <span class="fw-semibold">@superCup.Player1Name</span>
+                <span class="text-muted">vs</span>
+                <span class="fw-semibold">@superCup.Player2Name</span>
+            </div>
+        </div>
+
+        @if (lastResult != null)
+        {
+            <div class="alert alert-success mb-4" style="max-width:420px">
+                <strong>Result recorded</strong>
+                @if (lastResult.Finished)
+                {
+                    <div class="text-muted small">SuperCup finished!</div>
+                }
+                <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
+                <div>@FormatEloChange(lastResult.Away)</div>
+            </div>
+        }
+
+        @foreach (var match in superCup.Matches.OrderBy(m => m.Id))
+        {
+            <div class="card mb-3" style="max-width:520px">
+                <div class="card-body py-2 px-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        @if (superCup.IsHomeAndAway)
+                        {
+                            <span class="badge bg-light text-dark me-2" style="font-size:.7rem">Leg @match.Leg</span>
+                        }
+                        <span>@match.HomePlayerName</span>
+                        @if (match.Status == "Played")
+                        {
+                            <span class="fw-bold mx-2">
+                                @match.HomeScore – @match.AwayScore
+                                @if (match.WonOnPenaltiesId != null)
+                                {
+                                    <span class="text-muted small">
+                                        (@(match.HomePenaltyScore)–@(match.AwayPenaltyScore) pen)
+                                    </span>
+                                }
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted mx-2">vs</span>
+                        }
+                        <span>@match.AwayPlayerName</span>
+                        @if (match.Status == "Pending" && superCup.Status == "Active")
+                        {
+                            <button class="btn btn-sm btn-outline-primary ms-3"
+                                    @onclick="() => SelectMatch(match.Id, match.HomePlayerId, match.HomePlayerName, match.AwayPlayerId, match.AwayPlayerName, match.Leg)">
+                                @(recordingMatchId == match.Id ? "Cancel" : "Enter Result")
+                            </button>
+                        }
+                    </div>
+
+                    @if (recordingMatchId == match.Id)
+                    {
+                        <div class="mt-2 border-top pt-2">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                       placeholder="Home" @bind="homeScore" />
+                                <span>–</span>
+                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                       placeholder="Away" @bind="awayScore" />
+                            </div>
+                            @if (ShowPenaltyFields)
+                            {
+                                <div class="mb-2">
+                                    <label class="form-label small mb-1">Winner on penalties</label>
+                                    <select class="form-select form-select-sm" style="max-width:200px"
+                                            @bind="wonOnPenaltiesId">
+                                        <option value="">-- select --</option>
+                                        <option value="@recordingHomeId">@recordingHomeName</option>
+                                        <option value="@recordingAwayId">@recordingAwayName</option>
+                                    </select>
+                                </div>
+                                @if (!string.IsNullOrEmpty(wonOnPenaltiesId))
+                                {
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                               placeholder="Pen H" @bind="homePenaltyScore" />
+                                        <span>–</span>
+                                        <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                               placeholder="Pen A" @bind="awayPenaltyScore" />
+                                    </div>
+                                }
+                            }
+                            <button class="btn btn-sm btn-success" disabled="@isWorking"
+                                    @onclick="HandleRecordResult">
+                                @(isWorking ? "..." : "Save")
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (superCup.IsHomeAndAway && superCup.Matches.All(m => m.Status == "Played"))
+        {
+            var agg = ComputeAggregate();
+            <div class="text-muted small mt-1">
+                Aggregate: @superCup.Player1Name @agg.p1Goals – @agg.p2Goals @superCup.Player2Name
+            </div>
+        }
+    }
+}
