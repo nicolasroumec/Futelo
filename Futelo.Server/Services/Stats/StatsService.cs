@@ -121,6 +121,23 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         };
     }
 
+    public async Task<List<RankingRow>> GetGeneralRankingAsync(int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var vaultPlayers = await statsRepository.GetGeneralRankingAsync(vaultId);
+
+        return vaultPlayers
+            .Select((vp, i) => new RankingRow
+            {
+                Position = i + 1,
+                PlayerId = vp.PlayerId,
+                DisplayName = vp.Player.DisplayName,
+                HistoricalElo = vp.Player.EloRating
+            }).ToList();
+    }
+
     public async Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))

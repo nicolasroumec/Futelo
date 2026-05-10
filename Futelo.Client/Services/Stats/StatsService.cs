@@ -14,6 +14,10 @@ public class StatsService(HttpClient http) : IStatsService
                 $"api/stats/vaults/{vaultId}/h2h?player1Id={player1Id}&player2Id={player2Id}")
             ?? throw new KeyNotFoundException("Head to head data not found.");
 
+    public async Task<List<RankingRow>> GetGeneralRankingAsync(int vaultId)
+        => await http.GetFromJsonAsync<List<RankingRow>>($"api/stats/vaults/{vaultId}/ranking")
+            ?? [];
+
     public async Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId)
         => await http.GetFromJsonAsync<List<RankingRow>>($"api/stats/vaults/{vaultId}/seasons/{seasonId}/ranking")
             ?? [];

@@ -26,6 +26,20 @@ public class StatsController(IStatsService statsService) : ControllerBase
         }
     }
 
+    [HttpGet("vaults/{vaultId}/ranking")]
+    public async Task<IActionResult> GetGeneralRanking(int vaultId)
+    {
+        try
+        {
+            var ranking = await statsService.GetGeneralRankingAsync(vaultId, UserId);
+            return Ok(ranking);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     [HttpGet("vaults/{vaultId}/h2h")]
     public async Task<IActionResult> GetHeadToHead(int vaultId, [FromQuery] string player1Id, [FromQuery] string player2Id)
     {
