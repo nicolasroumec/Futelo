@@ -9,4 +9,7 @@ public interface IStatsService
     Task<List<RankingRow>> GetGeneralRankingAsync(int vaultId);
     Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId);
     Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId);
+    Task<List<EloHistoryPoint>> GetEloHistoryAsync(int vaultId, string playerId);
+    Task<List<ScorerRow>> GetScorersAsync(int vaultId);
+    Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId);
 }

@@ -25,4 +25,16 @@ public class StatsService(HttpClient http) : IStatsService
     public async Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId)
         => await http.GetFromJsonAsync<List<PalmaresSeasonRow>>($"api/stats/vaults/{vaultId}/palmares")
             ?? [];
+
+    public async Task<List<EloHistoryPoint>> GetEloHistoryAsync(int vaultId, string playerId)
+        => await http.GetFromJsonAsync<List<EloHistoryPoint>>($"api/stats/vaults/{vaultId}/players/{playerId}/elo-history")
+            ?? [];
+
+    public async Task<List<ScorerRow>> GetScorersAsync(int vaultId)
+        => await http.GetFromJsonAsync<List<ScorerRow>>($"api/stats/vaults/{vaultId}/scorers")
+            ?? [];
+
+    public async Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId)
+        => await http.GetFromJsonAsync<VaultRecordsResponse>($"api/stats/vaults/{vaultId}/records")
+            ?? new VaultRecordsResponse();
 }
