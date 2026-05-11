@@ -12,4 +12,5 @@ public interface IStatsService
     Task<List<EloHistoryPoint>> GetEloHistoryAsync(int vaultId, string playerId);
     Task<List<ScorerRow>> GetScorersAsync(int vaultId);
     Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId);
+    Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId);
 }
