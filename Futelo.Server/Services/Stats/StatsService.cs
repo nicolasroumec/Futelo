@@ -330,6 +330,53 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         };
     }
 
+    public async Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var matches = await statsRepository.GetAllPlayedMatchesWithTeamsInVaultAsync(vaultId);
+
+        var entries = new List<(string TeamName, string PlayerId, string PlayerDisplayName, bool IsWin, bool IsDraw, int GoalsFor, int GoalsAgainst)>();
+
+        foreach (var m in matches)
+        {
+            int homeScore = m.HomeScore ?? 0;
+            int awayScore = m.AwayScore ?? 0;
+
+            if (m.HomeTeam != null && m.HomePlayer != null)
+                entries.Add((m.HomeTeam.Name, m.HomePlayerId!, m.HomePlayer.DisplayName,
+                    homeScore > awayScore, homeScore == awayScore, homeScore, awayScore));
+
+            if (m.AwayTeam != null && m.AwayPlayer != null)
+                entries.Add((m.AwayTeam.Name, m.AwayPlayerId!, m.AwayPlayer.DisplayName,
+                    awayScore > homeScore, homeScore == awayScore, awayScore, homeScore));
+        }
+
+        return entries
+            .GroupBy(e => e.TeamName)
+            .Select(g => new TeamPanelRow
+            {
+                TeamName = g.Key,
+                TotalUsed = g.Count(),
+                Won = g.Count(e => e.IsWin),
+                Drawn = g.Count(e => e.IsDraw),
+                Lost = g.Count(e => !e.IsWin && !e.IsDraw),
+                GoalsFor = g.Sum(e => e.GoalsFor),
+                GoalsAgainst = g.Sum(e => e.GoalsAgainst),
+                Players = g.GroupBy(e => e.PlayerId)
+                    .OrderByDescending(pg => pg.Count())
+                    .Select(pg => new PlayerTeamUsageRow
+                    {
+                        PlayerId = pg.Key,
+                        DisplayName = pg.First().PlayerDisplayName,
+                        TimesUsed = pg.Count()
+                    }).ToList()
+            })
+            .OrderByDescending(t => t.TotalUsed)
+            .ToList();
+    }
+
     private static (int current, int bestWin, int bestUnbeaten) ComputeStreaks(List<Match> matches, string playerId)
     {
         var sorted = matches

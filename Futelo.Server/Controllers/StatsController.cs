@@ -123,4 +123,18 @@ public class StatsController(IStatsService statsService) : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpGet("vaults/{vaultId}/teams")]
+    public async Task<IActionResult> GetTeamPanel(int vaultId)
+    {
+        try
+        {
+            var teams = await statsService.GetTeamPanelAsync(vaultId, UserId);
+            return Ok(teams);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }
