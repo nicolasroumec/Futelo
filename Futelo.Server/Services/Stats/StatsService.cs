@@ -330,6 +330,70 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         };
     }
 
+    public async Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var matches = await statsRepository.GetAllPlayedMatchesWithVideoGameInVaultAsync(vaultId);
+
+        var entries = new List<(int GameId, string GameName, string PlayerId, string DisplayName, bool IsWin, bool IsDraw, int GoalsFor, int GoalsAgainst)>();
+
+        foreach (var m in matches)
+        {
+            if (m.VideoGame == null) continue;
+            int homeScore = m.HomeScore ?? 0;
+            int awayScore = m.AwayScore ?? 0;
+
+            if (m.HomePlayer != null)
+                entries.Add((m.VideoGame.Id, m.VideoGame.Name, m.HomePlayerId!, m.HomePlayer.DisplayName,
+                    homeScore > awayScore, homeScore == awayScore, homeScore, awayScore));
+
+            if (m.AwayPlayer != null)
+                entries.Add((m.VideoGame.Id, m.VideoGame.Name, m.AwayPlayerId!, m.AwayPlayer.DisplayName,
+                    awayScore > homeScore, homeScore == awayScore, awayScore, homeScore));
+        }
+
+        return entries
+            .GroupBy(e => new { e.GameId, e.GameName })
+            .OrderBy(g => g.Key.GameName)
+            .Select(g =>
+            {
+                var players = g.GroupBy(e => e.PlayerId)
+                    .Select(pg =>
+                    {
+                        int won = pg.Count(e => e.IsWin);
+                        int drawn = pg.Count(e => e.IsDraw);
+                        int lost = pg.Count(e => !e.IsWin && !e.IsDraw);
+                        return new PlayerGameStatsRow
+                        {
+                            PlayerId = pg.Key,
+                            DisplayName = pg.First().DisplayName,
+                            Played = pg.Count(),
+                            Won = won,
+                            Drawn = drawn,
+                            Lost = lost,
+                            GoalsFor = pg.Sum(e => e.GoalsFor),
+                            GoalsAgainst = pg.Sum(e => e.GoalsAgainst)
+                        };
+                    })
+                    .OrderByDescending(p => p.Won)
+                    .ThenByDescending(p => p.GoalsFor - p.GoalsAgainst)
+                    .ToList();
+
+                for (int i = 0; i < players.Count; i++)
+                    players[i].Position = i + 1;
+
+                return new GameStatsEntry
+                {
+                    VideoGameId = g.Key.GameId,
+                    VideoGameName = g.Key.GameName,
+                    Players = players
+                };
+            })
+            .ToList();
+    }
+
     public async Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))

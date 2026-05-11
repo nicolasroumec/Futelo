@@ -124,6 +124,20 @@ public class StatsController(IStatsService statsService) : ControllerBase
         }
     }
 
+    [HttpGet("vaults/{vaultId}/games")]
+    public async Task<IActionResult> GetGamesRanking(int vaultId)
+    {
+        try
+        {
+            var games = await statsService.GetGamesRankingAsync(vaultId, UserId);
+            return Ok(games);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     [HttpGet("vaults/{vaultId}/teams")]
     public async Task<IActionResult> GetTeamPanel(int vaultId)
     {

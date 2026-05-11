@@ -104,4 +104,17 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .Include(m => m.AwayTeam)
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
+
+    public async Task<List<Match>> GetAllPlayedMatchesWithVideoGameInVaultAsync(int vaultId)
+        => await context.Matches
+            .Where(m => m.Status == MatchStatus.Played && m.VideoGameId != null)
+            .Where(m =>
+                (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
+                (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
+                (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId))
+            .Include(m => m.HomePlayer)
+            .Include(m => m.AwayPlayer)
+            .Include(m => m.VideoGame)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
 }

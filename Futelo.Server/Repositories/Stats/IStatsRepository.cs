@@ -14,4 +14,5 @@ public interface IStatsRepository
     Task<List<EloHistory>> GetPlayerEloHistoryInVaultAsync(string playerId, int vaultId);
     Task<List<Match>> GetAllPlayedMatchesInVaultAsync(int vaultId);
     Task<List<Match>> GetAllPlayedMatchesWithTeamsInVaultAsync(int vaultId);
+    Task<List<Match>> GetAllPlayedMatchesWithVideoGameInVaultAsync(int vaultId);
 }
