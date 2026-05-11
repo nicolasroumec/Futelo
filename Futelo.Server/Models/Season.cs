@@ -9,8 +9,10 @@ public class Season
     public string Name { get; set; } = string.Empty;
     public int Year { get; set; }
     public SeasonStatus Status { get; set; } = SeasonStatus.Draft;
+    public int? VideoGameId { get; set; }
 
     public Vault Vault { get; set; } = null!;
+    public VideoGame? VideoGame { get; set; }
     public ICollection<SeasonPlayer> Players { get; set; } = [];
     public League? League { get; set; }
     public Cup? Cup { get; set; }
