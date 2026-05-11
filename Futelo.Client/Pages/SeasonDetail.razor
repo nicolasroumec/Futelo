@@ -109,12 +109,36 @@ else
     }
     else
     {
-        <ul class="list-group mb-4" style="max-width:420px">
+        <ul class="list-group mb-4" style="max-width:520px">
             @foreach (var p in season.Players)
             {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    @p.DisplayName
-                    <span class="badge bg-light text-dark">ELO @p.SeasonElo</span>
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>@p.DisplayName</span>
+                        <span class="badge bg-light text-dark">ELO @p.SeasonElo</span>
+                    </div>
+                    @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
+                    {
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <select class="form-select form-select-sm"
+                                    value="@(playerTeamSelections.TryGetValue(p.PlayerId, out var t) ? t?.ToString() ?? "" : "")"
+                                    @onchange="e => { playerTeamSelections[p.PlayerId] = string.IsNullOrEmpty(e.Value?.ToString()) ? null : int.Parse(e.Value.ToString()!); }">
+                                <option value="">— No team —</option>
+                                @foreach (var team in teams)
+                                {
+                                    <option value="@team.Id">@team.Name</option>
+                                }
+                            </select>
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    @onclick="() => HandleSetPlayerTeam(p.PlayerId)">
+                                Save
+                            </button>
+                        </div>
+                    }
+                    else if (!string.IsNullOrEmpty(p.TeamName))
+                    {
+                        <small class="text-muted">@p.TeamName</small>
+                    }
                 </li>
             }
         </ul>

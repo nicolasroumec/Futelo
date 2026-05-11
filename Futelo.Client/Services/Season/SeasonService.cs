@@ -40,6 +40,16 @@ public class SeasonService(HttpClient http) : ISeasonService
         }
     }
 
+    public async Task SetPlayerTeamAsync(int id, string playerId, int? teamId)
+    {
+        var response = await http.PatchAsJsonAsync($"api/seasons/{id}/players/{playerId}/team", new { TeamId = teamId });
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to assign team." : error);
+        }
+    }
+
     public async Task PatchVideoGameAsync(int id, int? videoGameId)
     {
         var response = await http.PatchAsJsonAsync($"api/seasons/{id}/video-game", new { VideoGameId = videoGameId });

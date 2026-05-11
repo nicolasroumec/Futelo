@@ -135,7 +135,7 @@ feat: auto-populate VideoGame and Teams on match result from Season config
 
 ---
 
-### Sprint E — Frontend: selector de juego en la temporada
+### ✅ Sprint E — Frontend: selector de juego en la temporada
 **2 commits**
 
 **✅ Commit 1 — Client service**
@@ -165,7 +165,7 @@ feat: add VideoGame selector to Season create and detail UI
 ### Sprint F — Frontend: selector de equipo por jugador en la temporada
 **2 commits**
 
-**Commit 1 — Client service**
+**✅ Commit 1 — Client service**
 - Agregar `GetTeamsAsync()` en `ITeamService` / `TeamService` si no existe.
 - Agregar `SetSeasonPlayerTeamAsync(seasonId, playerId, teamId?)`.
 

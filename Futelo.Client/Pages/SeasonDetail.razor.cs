@@ -1,7 +1,9 @@
 using Futelo.Client.Services.Season;
+using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Shared.DTOs.Season;
+using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
@@ -15,11 +17,14 @@ public partial class SeasonDetail
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
+    [Inject] private ITeamService TeamService { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private SeasonResponse? season;
     private List<VaultPlayerResponse> vaultPlayers = [];
     private List<VideoGameResponse> videoGames = [];
+    private List<TeamResponse> teams = [];
+    private Dictionary<string, int?> playerTeamSelections = [];
     private HashSet<string> selectedPlayerIds = [];
     private ConfigureSeasonRequest configureModel = new();
     private int? selectedVideoGameId;
@@ -58,8 +63,10 @@ public partial class SeasonDetail
             isOwner = vault.OwnerId == userId;
 
             videoGames = await VideoGameService.GetAllAsync();
+            teams = await TeamService.GetAllAsync();
             selectedVideoGameId = season.VideoGameId;
             selectedPlayerIds = season.Players.Select(p => p.PlayerId).ToHashSet();
+            playerTeamSelections = season.Players.ToDictionary(p => p.PlayerId, p => p.TeamId);
             configureModel.HasLeague = season.HasLeague;
             configureModel.LeagueName = season.LeagueName;
             configureModel.LeagueIsHomeAndAway = season.LeagueIsHomeAndAway;
@@ -75,6 +82,21 @@ public partial class SeasonDetail
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task HandleSetPlayerTeam(string playerId)
+    {
+        try
+        {
+            var teamId = playerTeamSelections.TryGetValue(playerId, out var t) ? t : null;
+            await SeasonService.SetPlayerTeamAsync(Id, playerId, teamId);
+            season = await SeasonService.GetByIdAsync(Id);
+            playerTeamSelections = season.Players.ToDictionary(p => p.PlayerId, p => p.TeamId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
         }
     }
 
