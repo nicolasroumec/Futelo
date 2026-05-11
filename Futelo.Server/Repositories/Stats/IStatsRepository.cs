@@ -13,4 +13,5 @@ public interface IStatsRepository
     Task<List<Models.Season>> GetVaultPalmaresAsync(int vaultId);
     Task<List<EloHistory>> GetPlayerEloHistoryInVaultAsync(string playerId, int vaultId);
     Task<List<Match>> GetAllPlayedMatchesInVaultAsync(int vaultId);
+    Task<List<Match>> GetAllPlayedMatchesWithTeamsInVaultAsync(int vaultId);
 }
