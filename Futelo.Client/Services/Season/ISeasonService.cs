@@ -9,4 +9,5 @@ public interface ISeasonService
     Task<SeasonResponse> CreateAsync(CreateSeasonRequest request);
     Task ConfigureAsync(int id, ConfigureSeasonRequest request);
     Task ActivateAsync(int id);
+    Task FinishAsync(int id);
 }

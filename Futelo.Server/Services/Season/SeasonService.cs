@@ -73,6 +73,30 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.HasCup, request.CupName, request.HasSuperCup, request.SuperCupName);
     }
 
+    public async Task FinishAsync(int id, string userId)
+    {
+        var season = await seasonRepository.GetByIdAsync(id);
+        if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException("Season not found.");
+        if (season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException("Only the vault owner can finish a season.");
+        if (season.Status != SeasonStatus.Active)
+            throw new InvalidOperationException("Only Active seasons can be finished.");
+
+        var pending = new List<string>();
+        if (season.League != null && season.League.Status != TournamentStatus.Finished)
+            pending.Add(season.League.Name);
+        if (season.Cup != null && season.Cup.Status != TournamentStatus.Finished)
+            pending.Add(season.Cup.Name);
+        if (season.SuperCup != null && season.SuperCup.Status != TournamentStatus.Finished)
+            pending.Add(season.SuperCup.Name);
+
+        if (pending.Count > 0)
+            throw new InvalidOperationException($"The following competitions must be finished first: {string.Join(", ", pending)}.");
+
+        await seasonRepository.UpdateStatusAsync(id, SeasonStatus.Finished);
+    }
+
     public async Task ActivateAsync(int id, string userId)
     {
         var season = await seasonRepository.GetByIdAsync(id);
@@ -101,12 +125,15 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         LeagueId = season.League?.Id,
         LeagueName = season.League?.Name ?? "League",
         LeagueIsHomeAndAway = season.League?.IsHomeAndAway ?? false,
+        LeagueStatus = season.League?.Status.ToString(),
         HasCup = season.Cup != null,
         CupId = season.Cup?.Id,
         CupName = season.Cup?.Name ?? "Cup",
+        CupStatus = season.Cup?.Status.ToString(),
         HasSuperCup = season.SuperCup != null,
         SuperCupId = season.SuperCup?.Id,
         SuperCupName = season.SuperCup?.Name ?? "SuperCup",
+        SuperCupStatus = season.SuperCup?.Status.ToString(),
         Players = season.Players.Select(p => new SeasonPlayerResponse
         {
             PlayerId = p.PlayerId,

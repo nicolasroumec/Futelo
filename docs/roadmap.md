@@ -148,23 +148,31 @@ Controller  →  Service  →  Repository  →  FuteloContext
 
 > **Nota:** agregar `ChampionId` al modelo `SuperCup` + migración.
 
-## Sesión 10 — Perfiles y estadísticas
+## Sesión 10 — Perfiles y estadísticas ✅
 
 ### Server
 - `IStatsRepository` + `StatsRepository` (queries de solo lectura, no hereda BaseRepository con writes)
 - `IStatsService` + `StatsService`
-  - Stats de jugador: partidos, W/D/L, goles, top equipos, top juegos
+  - Stats de jugador: partidos, W/D/L, goles, top equipos, rendimiento por videojuego (W/D/L)
+  - Rachas: actual, mejor racha de victorias, mayor racha sin perder (por jugador y récords all-time del vault)
   - Head-to-head entre dos jugadores
-  - Perfil de equipo
-  - Ranking general del vault (por `SeasonElo` activo y por `EloRating` histórico)
-  - **Palmarés**: historial de campeones por temporada (League/Cup/SuperCup) usando `ChampionId` de cada torneo
+  - Ranking general del vault por `AppUser.EloRating` (histórico)
+  - Ranking de temporada por `SeasonPlayer.SeasonElo`
+  - Goleadores del vault
+  - Historial de ELO por jugador (para gráfico de línea)
+  - **Palmarés**: historial de campeones por temporada (aparece desde que hay al menos un campeón)
+  - Récords all-time del vault (mayor racha de victorias, mayor racha sin perder)
 - `StatsController`
+- `SeasonService.FinishAsync` — cierra temporada manualmente; requiere todas las competencias `Finished`
 
 ### Client
 - `StatsService`
-- `Player/PlayerProfile.razor`, `Player/HeadToHead.razor`, `Teams/TeamProfile.razor`
-- `Ranking.razor` — ranking de temporada + histórico
-- `Palmares.razor` — trofeos ganados por cada jugador a lo largo de todas las temporadas
+- `Player/PlayerProfile.razor` — stats, rachas, rendimiento por juego, gráfico ELO (Chart.js)
+- `Player/HeadToHead.razor`
+- `Stats/Ranking.razor` (temporada), `Stats/GeneralRanking.razor` (vault), `Stats/Palmares.razor`
+- `Stats/Scorers.razor` — ranking de goles del vault
+- `Stats/VaultRecords.razor` — récords all-time del vault
+- Links desde `VaultDetail` y `SeasonDetail`
 
 ## Sesión 11 — Pulido y despliegue
 - Responsive mobile

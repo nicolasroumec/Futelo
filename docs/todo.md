@@ -1,38 +1,36 @@
-# TODO — Sesión 7: League
+# TODO — Sesión 10 (continuación): Estadísticas avanzadas
 
-## Sprint 1 — Server: Repository + Service base
-- [x] `ILeagueRepository` + `LeagueRepository` (GetById con Players y Matches)
-- [x] `ILeagueService` + `LeagueService` (esqueleto con DI)
-- [x] Registrar en `Program.cs`
+## Sprint 1 — DTOs
+- [ ] `VideoGameStatsRow` — VideoGameName, Played, Won, Drawn, Lost, GoalsFor, GoalsAgainst
+- [ ] `EloHistoryPoint` — Date, Elo
+- [ ] `ScorerRow` — Position, PlayerId, DisplayName, Goals
+- [ ] `VaultRecordsResponse` — BestWinStreak y BestUnbeatenStreak (jugador + cantidad)
+- [ ] `PlayerStatsResponse` — agregar `CurrentStreak`, `BestWinStreak`, `BestUnbeatenStreak`; reemplazar `TopGames` (VideoGameUsageRow) por `GameStats` (VideoGameStatsRow)
 
-## Sprint 2 — Server: Generación de fixture
-- [x] `LeagueService.GenerateFixtureAsync` — genera fixture round-robin
-  - Soporta cantidad impar (bye automático)
-  - Si `IsHomeAndAway`: duplica el fixture invirtiendo local/visitante
-  - Crea los `Match` con `Status = Pending`, setea `League.Status = Active`
-- [x] `LeagueService.RegenerateFixtureAsync` — reshuffle mientras no hay resultados
+## Sprint 2 — Server: Repository
+- [ ] `GetPlayerEloHistoryInVaultAsync(playerId, vaultId)` — EloHistory histórico ordenado por fecha
+- [ ] `GetAllPlayedMatchesInVaultAsync(vaultId)` — todos los partidos jugados en el vault con HomePlayer/AwayPlayer
 
-## Sprint 3 — Server: Resultado + Tabla + ELO
-- [x] `LeagueService.RecordResultAsync`
-  - Valida match de esta liga y `Pending`
-  - Guarda scores, `Status = Played`, `PlayedAt`
-  - Actualiza `SeasonPlayer.SeasonElo` y `AppUser.EloRating`
-  - K=32, multiplicador por diferencia de goles (×1.0 / ×1.2 / ×1.5)
-  - 4 entradas `EloHistory` por partido (2 por jugador: season + histórico)
-  - Al terminar: `League.Status = Finished` + graba `LeaguePlayer.LeaguePosition`
-- [x] `LeagueService.GetStandingsAsync` — Pts / GD / GF / head-to-head
+## Sprint 3 — Server: Service + Controller
+- [ ] `GetPlayerStatsAsync` — computar `CurrentStreak`, `BestWinStreak`, `BestUnbeatenStreak` y `GameStats` desde los matches ya cargados
+- [ ] `GetEloHistoryAsync` → `GET api/stats/vaults/{vaultId}/players/{playerId}/elo-history`
+- [ ] `GetScorersAsync` → `GET api/stats/vaults/{vaultId}/scorers`
+- [ ] `GetVaultRecordsAsync` → `GET api/stats/vaults/{vaultId}/records`
 
-## Sprint 4 — Server: Controller + DTOs
-- [x] DTOs: `LeagueResponse`, `MatchResponse`, `StandingRow`, `RecordResultRequest`, `EloChangeResult`, `RecordResultResponse`
-- [x] `LeagueController`:
-  - `GET /api/leagues/{id}` — fixture + standings
-  - `POST /api/leagues/{id}/start` — genera fixture
-  - `PUT /api/leagues/{id}/reshuffle` — re-sorteo
-  - `PUT /api/leagues/{id}/matches/{matchId}/result` — carga resultado con ELO change en respuesta
+## Sprint 4 — Client: Service
+- [ ] `GetEloHistoryAsync(vaultId, playerId)`
+- [ ] `GetScorersAsync(vaultId)`
+- [ ] `GetVaultRecordsAsync(vaultId)`
 
-## Sprint 5 — Client
-- [x] `ILeagueService` + `LeagueService` (HTTP calls)
-- [x] `League/LeagueView.razor` — tabla + fixture agrupado por fecha + entrada de resultados inline + feedback ELO
-- [x] Link a la liga desde `SeasonDetail` (badge clickeable)
-- [x] `LeagueId` agregado a `SeasonResponse`
-- [x] `_Imports.razor` actualizado
+## Sprint 5 — Client: PlayerProfile actualizado
+- [ ] Mostrar `CurrentStreak`, `BestWinStreak`, `BestUnbeatenStreak`
+- [ ] Tabla `GameStats` (reemplaza TopGames)
+- [ ] Gráfico de línea ELO via Chart.js (JSInterop)
+  - [ ] Agregar Chart.js CDN a `wwwroot/index.html`
+  - [ ] Crear `wwwroot/js/charts.js` con `renderEloChart(canvasId, labels, data)`
+  - [ ] `OnAfterRenderAsync` en `PlayerProfile.razor.cs`
+
+## Sprint 6 — Client: Scorers + VaultRecords + links
+- [ ] `Stats/Scorers.razor` + `.razor.cs` — `/vaults/{vaultId}/scorers`
+- [ ] `Stats/VaultRecords.razor` + `.razor.cs` — `/vaults/{vaultId}/records`
+- [ ] Links desde `VaultDetail` (Scorers, Records)

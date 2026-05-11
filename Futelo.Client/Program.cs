@@ -10,6 +10,7 @@ using Futelo.Client.Services.SuperCup;
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
+using Futelo.Client.Services.Stats;
 using Futelo.Client.Services.VideoGames;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -40,5 +41,6 @@ builder.Services.AddScoped<ISuperCupService, SuperCupService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IVideoGameService, VideoGameService>();
+builder.Services.AddScoped<IStatsService, StatsService>();
 
 await builder.Build().RunAsync();

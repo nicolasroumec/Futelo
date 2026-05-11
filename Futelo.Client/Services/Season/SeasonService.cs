@@ -30,6 +30,16 @@ public class SeasonService(HttpClient http) : ISeasonService
         }
     }
 
+    public async Task FinishAsync(int id)
+    {
+        var response = await http.PutAsync($"api/seasons/{id}/finish", null);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to finish season." : error);
+        }
+    }
+
     public async Task ConfigureAsync(int id, ConfigureSeasonRequest request)
     {
         var response = await http.PutAsJsonAsync($"api/seasons/{id}/configure", request);

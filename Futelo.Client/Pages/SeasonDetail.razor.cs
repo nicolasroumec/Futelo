@@ -22,11 +22,19 @@ public partial class SeasonDetail
     private bool isLoading = true;
     private bool isConfiguring;
     private bool isActivating;
+    private bool isFinishing;
     private string? errorMessage;
     private string? configureMessage;
     private string configureAlertClass = "alert-success";
     private string? activateMessage;
     private string activateAlertClass = "alert-success";
+    private string? finishMessage;
+    private string finishAlertClass = "alert-success";
+
+    private bool CanFinish => season != null &&
+        (!season.HasLeague || season.LeagueStatus == "Finished") &&
+        (!season.HasCup || season.CupStatus == "Finished") &&
+        (!season.HasSuperCup || season.SuperCupStatus == "Finished");
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,6 +72,29 @@ public partial class SeasonDetail
     {
         if (selected) selectedPlayerIds.Add(playerId);
         else selectedPlayerIds.Remove(playerId);
+    }
+
+    private async Task HandleFinish()
+    {
+        isFinishing = true;
+        finishMessage = null;
+
+        try
+        {
+            await SeasonService.FinishAsync(Id);
+            season = await SeasonService.GetByIdAsync(Id);
+            finishMessage = "Season finished successfully.";
+            finishAlertClass = "alert-success";
+        }
+        catch (Exception ex)
+        {
+            finishMessage = ex.Message;
+            finishAlertClass = "alert-danger";
+        }
+        finally
+        {
+            isFinishing = false;
+        }
     }
 
     private async Task HandleActivate()

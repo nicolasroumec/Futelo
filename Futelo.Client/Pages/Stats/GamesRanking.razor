@@ -1,0 +1,67 @@
+@page "/vaults/{vaultId:int}/games"
+@attribute [Authorize]
+
+<PageTitle>Games Ranking - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <h3 class="mb-0">Games Ranking</h3>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mb-3">@errorMessage</div>
+    }
+    else if (games.Count == 0)
+    {
+        <p class="text-muted">No matches with a video game assigned yet.</p>
+    }
+    else
+    {
+        @foreach (var game in games)
+        {
+            <h5 class="mt-4">@game.VideoGameName</h5>
+            <div class="table-responsive mb-3" style="max-width:600px">
+                <table class="table table-sm table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Player</th>
+                            <th>P</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>GF</th>
+                            <th>GA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in game.Players)
+                        {
+                            <tr>
+                                <td>@p.Position</td>
+                                <td>
+                                    <a href="/vaults/@VaultId/players/@p.PlayerId" class="text-decoration-none">
+                                        @p.DisplayName
+                                    </a>
+                                </td>
+                                <td>@p.Played</td>
+                                <td>@p.Won</td>
+                                <td>@p.Drawn</td>
+                                <td>@p.Lost</td>
+                                <td>@p.GoalsFor</td>
+                                <td>@p.GoalsAgainst</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+}

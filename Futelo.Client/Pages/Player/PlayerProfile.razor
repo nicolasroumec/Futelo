@@ -1,0 +1,140 @@
+@page "/vaults/{vaultId:int}/players/{playerId}"
+@attribute [Authorize]
+
+<PageTitle>@(stats?.DisplayName ?? "Player") - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (stats == null)
+{
+    <p class="text-danger">Player not found.</p>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <h3 class="mb-0">@stats.DisplayName</h3>
+        <span class="badge bg-secondary">ELO @stats.EloRating</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mb-3">@errorMessage</div>
+    }
+
+    <h5>Stats</h5>
+    <div class="table-responsive mb-2" style="max-width:480px">
+        <table class="table table-sm table-bordered align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@stats.Played</td>
+                    <td>@stats.Won</td>
+                    <td>@stats.Drawn</td>
+                    <td>@stats.Lost</td>
+                    <td>@stats.GoalsFor</td>
+                    <td>@stats.GoalsAgainst</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex gap-4 mb-4">
+        <div>
+            <div class="text-muted small mb-1">Current streak</div>
+            <span class="badge @StreakBadgeClass() fs-6">@StreakLabel()</span>
+        </div>
+        <div>
+            <div class="text-muted small mb-1">Best win streak</div>
+            <span class="badge bg-success fs-6">@stats.BestWinStreak W</span>
+        </div>
+        <div>
+            <div class="text-muted small mb-1">Best unbeaten run</div>
+            <span class="badge bg-primary fs-6">@stats.BestUnbeatenStreak</span>
+        </div>
+    </div>
+
+    @if (eloHistory.Count > 0)
+    {
+        <h5>ELO History</h5>
+        <div class="mb-4" style="max-width:560px">
+            <canvas id="elo-chart"></canvas>
+        </div>
+    }
+
+    @if (stats.TopTeams.Count > 0)
+    {
+        <h5>Top Teams</h5>
+        <div class="table-responsive mb-4" style="max-width:560px">
+            <table class="table table-sm table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in stats.TopTeams)
+                    {
+                        <tr>
+                            <td>@t.TeamName</td>
+                            <td>@t.TimesUsed</td>
+                            <td>@t.Won</td>
+                            <td>@t.Drawn</td>
+                            <td>@t.Lost</td>
+                            <td>@t.GoalsFor</td>
+                            <td>@t.GoalsAgainst</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (stats.GameStats.Count > 0)
+    {
+        <h5>Performance by Game</h5>
+        <div class="table-responsive mb-4" style="max-width:560px">
+            <table class="table table-sm table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Game</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in stats.GameStats)
+                    {
+                        <tr>
+                            <td>@g.VideoGameName</td>
+                            <td>@g.Played</td>
+                            <td>@g.Won</td>
+                            <td>@g.Drawn</td>
+                            <td>@g.Lost</td>
+                            <td>@g.GoalsFor</td>
+                            <td>@g.GoalsAgainst</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (opponents.Count > 0)
+    {
+        <h5>Head to Head</h5>
+        <div class="d-flex align-items-center gap-2" style="max-width:360px">
+            <select class="form-select form-select-sm" @bind="selectedOpponentId">
+                @foreach (var p in opponents)
+                {
+                    <option value="@p.PlayerId">@p.DisplayName</option>
+                }
+            </select>
+            <button class="btn btn-outline-primary btn-sm" @onclick="NavigateToH2H">Compare</button>
+        </div>
+    }
+}
