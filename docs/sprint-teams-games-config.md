@@ -138,7 +138,7 @@ feat: auto-populate VideoGame and Teams on match result from Season config
 ### Sprint E — Frontend: selector de juego en la temporada
 **2 commits**
 
-**Commit 1 — Client service**
+**✅ Commit 1 — Client service**
 - Agregar método en `IVideoGameService` / `VideoGameService` para listar todos los juegos
   (`GET /api/videogames`), si no existe ya.
 - Agregar `PatchSeasonVideoGameAsync(seasonId, videoGameId?)` en el cliente de Season.

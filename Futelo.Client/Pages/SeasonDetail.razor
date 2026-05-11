@@ -20,6 +20,28 @@ else
     </div>
 
     <p class="text-muted">Year: @season.Year</p>
+    <p class="text-muted">Video Game: @(season.VideoGameName ?? "—")</p>
+
+    @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
+    {
+        <div class="d-flex align-items-center gap-2 mb-3" style="max-width:420px">
+            <select class="form-select form-select-sm" @bind="selectedVideoGameId">
+                <option value="">— None —</option>
+                @foreach (var g in videoGames)
+                {
+                    <option value="@g.Id">@g.Name</option>
+                }
+            </select>
+            <button class="btn btn-outline-primary btn-sm" disabled="@isPatchingVideoGame"
+                    @onclick="HandlePatchVideoGame">
+                @(isPatchingVideoGame ? "Saving..." : "Save")
+            </button>
+        </div>
+        @if (!string.IsNullOrEmpty(videoGameMessage))
+        {
+            <div class="alert @videoGameAlertClass mb-3" style="max-width:420px">@videoGameMessage</div>
+        }
+    }
 
     <div class="d-flex gap-2 mb-3">
         <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">Ranking</a>

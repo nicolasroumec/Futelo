@@ -10,4 +10,5 @@ public interface ISeasonService
     Task ConfigureAsync(int id, ConfigureSeasonRequest request);
     Task ActivateAsync(int id);
     Task FinishAsync(int id);
+    Task PatchVideoGameAsync(int id, int? videoGameId);
 }

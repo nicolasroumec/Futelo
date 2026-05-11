@@ -25,6 +25,17 @@
                 <ValidationMessage For="() => model.Year" />
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">Video Game</label>
+                <InputSelect class="form-select" @bind-Value="model.VideoGameId">
+                    <option value="">— None —</option>
+                    @foreach (var g in videoGames)
+                    {
+                        <option value="@g.Id">@g.Name</option>
+                    }
+                </InputSelect>
+            </div>
+
             @if (!string.IsNullOrEmpty(errorMessage))
             {
                 <div class="alert alert-danger">@errorMessage</div>

@@ -40,6 +40,16 @@ public class SeasonService(HttpClient http) : ISeasonService
         }
     }
 
+    public async Task PatchVideoGameAsync(int id, int? videoGameId)
+    {
+        var response = await http.PatchAsJsonAsync($"api/seasons/{id}/video-game", new { VideoGameId = videoGameId });
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to update video game." : error);
+        }
+    }
+
     public async Task ConfigureAsync(int id, ConfigureSeasonRequest request)
     {
         var response = await http.PutAsJsonAsync($"api/seasons/{id}/configure", request);
