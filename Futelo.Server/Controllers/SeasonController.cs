@@ -103,6 +103,24 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
         }
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await seasonService.DeleteAsync(id, UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
     [HttpPatch("{id}/players/{playerId}/team")]
     public async Task<IActionResult> SetPlayerTeam(int id, string playerId, SetSeasonPlayerTeamRequest request)
     {

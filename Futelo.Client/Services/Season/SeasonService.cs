@@ -40,6 +40,16 @@ public class SeasonService(HttpClient http) : ISeasonService
         }
     }
 
+    public async Task DeleteAsync(int id)
+    {
+        var response = await http.DeleteAsync($"api/seasons/{id}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to delete season." : error);
+        }
+    }
+
     public async Task SetPlayerTeamAsync(int id, string playerId, int? teamId)
     {
         var response = await http.PatchAsJsonAsync($"api/seasons/{id}/players/{playerId}/team", new { TeamId = teamId });

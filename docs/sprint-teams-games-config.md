@@ -162,7 +162,7 @@ feat: add VideoGame selector to Season create and detail UI
 
 ---
 
-### Sprint F — Frontend: selector de equipo por jugador en la temporada
+### ✅ Sprint F — Frontend: selector de equipo por jugador en la temporada
 **2 commits**
 
 **✅ Commit 1 — Client service**
@@ -173,7 +173,7 @@ feat: add VideoGame selector to Season create and detail UI
 feat: add team selector client service methods for SeasonPlayer
 ```
 
-**Commit 2 — UI**
+**✅ Commit 2 — UI**
 - En el detalle de temporada, para cada jugador de la lista: agregar un `<select>` con los
   equipos disponibles y guardar al cambiar.
 - Mostrar el equipo actual asignado.

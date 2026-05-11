@@ -12,4 +12,5 @@ public interface ISeasonRepository
     Task UpdateStatusAsync(int seasonId, SeasonStatus status);
     Task PatchVideoGameAsync(int seasonId, int? videoGameId);
     Task SetPlayerTeamAsync(int seasonId, string playerId, int? teamId);
+    Task DeleteAsync(int seasonId);
 }

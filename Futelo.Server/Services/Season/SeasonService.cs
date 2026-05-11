@@ -111,6 +111,17 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         await seasonRepository.SetPlayerTeamAsync(id, playerId, teamId);
     }
 
+    public async Task DeleteAsync(int id, string userId)
+    {
+        var season = await seasonRepository.GetByIdAsync(id);
+        if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException("Season not found.");
+        if (season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException("Only the vault owner can delete seasons.");
+
+        await seasonRepository.DeleteAsync(id);
+    }
+
     public async Task PatchVideoGameAsync(int id, string userId, int? videoGameId)
     {
         var season = await seasonRepository.GetByIdAsync(id);

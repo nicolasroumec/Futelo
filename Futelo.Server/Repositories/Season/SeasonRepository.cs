@@ -98,4 +98,61 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         sp.TeamId = teamId;
         await SaveChangesAsync();
     }
+
+    public async Task DeleteAsync(int seasonId)
+    {
+        // EloHistory must go first (Restrict FK on Season and Match)
+        var eloHistories = await Context.Set<EloHistory>()
+            .Where(e => e.SeasonId == seasonId).ToListAsync();
+        Context.Set<EloHistory>().RemoveRange(eloHistories);
+
+        // League matches and players
+        var league = await Context.Set<Models.League>()
+            .Include(l => l.Matches)
+            .FirstOrDefaultAsync(l => l.SeasonId == seasonId);
+        if (league != null)
+        {
+            Context.Set<Match>().RemoveRange(league.Matches);
+            var leaguePlayers = await Context.Set<LeaguePlayer>()
+                .Where(lp => lp.LeagueId == league.Id).ToListAsync();
+            Context.Set<LeaguePlayer>().RemoveRange(leaguePlayers);
+            Context.Set<Models.League>().Remove(league);
+        }
+
+        // Cup rounds, matches and players
+        var cup = await Context.Set<Models.Cup>()
+            .Include(c => c.Rounds).ThenInclude(r => r.Matches)
+            .FirstOrDefaultAsync(c => c.SeasonId == seasonId);
+        if (cup != null)
+        {
+            foreach (var round in cup.Rounds)
+                Context.Set<Match>().RemoveRange(round.Matches);
+            Context.Set<CupRound>().RemoveRange(cup.Rounds);
+            var cupPlayers = await Context.Set<CupPlayer>()
+                .Where(cp => cp.CupId == cup.Id).ToListAsync();
+            Context.Set<CupPlayer>().RemoveRange(cupPlayers);
+            Context.Set<Models.Cup>().Remove(cup);
+        }
+
+        // SuperCup matches
+        var superCup = await Context.Set<Models.SuperCup>()
+            .Include(sc => sc.Matches)
+            .FirstOrDefaultAsync(sc => sc.SeasonId == seasonId);
+        if (superCup != null)
+        {
+            Context.Set<Match>().RemoveRange(superCup.Matches);
+            Context.Set<Models.SuperCup>().Remove(superCup);
+        }
+
+        // Season players and the season itself
+        var seasonPlayers = await Context.Set<SeasonPlayer>()
+            .Where(sp => sp.SeasonId == seasonId).ToListAsync();
+        Context.Set<SeasonPlayer>().RemoveRange(seasonPlayers);
+
+        var season = await Context.Set<Models.Season>().FindAsync(seasonId);
+        if (season != null)
+            Context.Set<Models.Season>().Remove(season);
+
+        await SaveChangesAsync();
+    }
 }

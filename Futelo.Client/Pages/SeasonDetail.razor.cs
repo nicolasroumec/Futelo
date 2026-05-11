@@ -18,6 +18,7 @@ public partial class SeasonDetail
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private NavigationManager Nav { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private SeasonResponse? season;
@@ -34,6 +35,8 @@ public partial class SeasonDetail
     private bool isActivating;
     private bool isFinishing;
     private bool isPatchingVideoGame;
+    private bool isDeleting;
+    private bool confirmDelete;
     private string? errorMessage;
     private string? configureMessage;
     private string configureAlertClass = "alert-success";
@@ -82,6 +85,22 @@ public partial class SeasonDetail
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        isDeleting = true;
+        try
+        {
+            await SeasonService.DeleteAsync(Id);
+            Nav.NavigateTo($"/vaults/{season!.VaultId}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            isDeleting = false;
+            confirmDelete = false;
         }
     }
 
