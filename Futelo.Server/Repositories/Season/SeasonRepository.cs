@@ -89,4 +89,13 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         season.VideoGameId = videoGameId;
         await SaveChangesAsync();
     }
+
+    public async Task SetPlayerTeamAsync(int seasonId, string playerId, int? teamId)
+    {
+        var sp = await Context.Set<SeasonPlayer>()
+            .FirstOrDefaultAsync(sp => sp.SeasonId == seasonId && sp.PlayerId == playerId);
+        if (sp == null) return;
+        sp.TeamId = teamId;
+        await SaveChangesAsync();
+    }
 }

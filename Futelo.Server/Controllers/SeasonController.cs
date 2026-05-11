@@ -103,6 +103,24 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/players/{playerId}/team")]
+    public async Task<IActionResult> SetPlayerTeam(int id, string playerId, SetSeasonPlayerTeamRequest request)
+    {
+        try
+        {
+            await seasonService.SetPlayerTeamAsync(id, playerId, UserId, request.TeamId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
     [HttpPatch("{id}/video-game")]
     public async Task<IActionResult> PatchVideoGame(int id, UpdateSeasonVideoGameRequest request)
     {

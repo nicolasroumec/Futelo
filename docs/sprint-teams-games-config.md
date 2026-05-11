@@ -30,7 +30,7 @@ Las siguientes features de stats ya están implementadas y commiteadas:
 
 ## Sprints pendientes
 
-### Sprint A — Modelo de datos + migración
+### ✅ Sprint A — Modelo de datos + migración
 **1 commit**
 
 - Agregar `VideoGameId` (nullable int, FK → VideoGame) a `Season`.
@@ -50,10 +50,10 @@ feat: add VideoGameId to Season and TeamId to SeasonPlayer
 
 ---
 
-### Sprint B — Backend: configurar juego en la temporada
+### ✅ Sprint B — Backend: configurar juego en la temporada
 **2 commits**
 
-**Commit 1 — DTOs**
+**✅ Commit 1 — DTOs**
 - Agregar `VideoGameId?` y `VideoGameName?` a `SeasonResponse` (para mostrarlo en la UI).
 - Agregar `VideoGameId?` a `CreateSeasonRequest` o crear `UpdateSeasonVideoGameRequest`.
 
@@ -65,7 +65,7 @@ Archivos:
 feat: add VideoGameId to Season DTOs
 ```
 
-**Commit 2 — Service + endpoint**
+**✅ Commit 2 — Service + endpoint**
 - Actualizar `SeasonService.CreateSeasonAsync` para guardar `VideoGameId`.
 - Agregar `PATCH /api/seasons/{id}/video-game` para cambiar el juego después de crear.
 - Actualizar `SeasonRepository` si hace falta incluir `VideoGame` en las queries.
@@ -81,10 +81,10 @@ feat: add video game configuration to Season service and endpoint
 
 ---
 
-### Sprint C — Backend: equipo por defecto por jugador en la temporada
+### ✅ Sprint C — Backend: equipo por defecto por jugador en la temporada
 **2 commits**
 
-**Commit 1 — DTOs**
+**✅ Commit 1 — DTOs**
 - Agregar `TeamId?` y `TeamName?` a `SeasonPlayerResponse`.
 - Crear `SetSeasonPlayerTeamRequest { int? TeamId }`.
 
@@ -96,7 +96,7 @@ Archivos:
 feat: add TeamId to SeasonPlayer DTOs
 ```
 
-**Commit 2 — Service + endpoint**
+**✅ Commit 2 — Service + endpoint**
 - Agregar `PATCH /api/seasons/{id}/players/{playerId}/team` para asignar el equipo.
 - Actualizar `SeasonService` / `SeasonRepository` para guardar y retornar `TeamId`.
 

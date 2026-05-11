@@ -11,4 +11,5 @@ public interface ISeasonRepository
     Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, string leagueName, bool leagueIsHomeAndAway, bool hasCup, string cupName, bool hasSuperCup, string superCupName);
     Task UpdateStatusAsync(int seasonId, SeasonStatus status);
     Task PatchVideoGameAsync(int seasonId, int? videoGameId);
+    Task SetPlayerTeamAsync(int seasonId, string playerId, int? teamId);
 }
