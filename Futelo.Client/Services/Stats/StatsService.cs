@@ -41,4 +41,8 @@ public class StatsService(HttpClient http) : IStatsService
     public async Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId)
         => await http.GetFromJsonAsync<List<TeamPanelRow>>($"api/stats/vaults/{vaultId}/teams")
             ?? [];
+
+    public async Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId)
+        => await http.GetFromJsonAsync<List<GameStatsEntry>>($"api/stats/vaults/{vaultId}/games")
+            ?? [];
 }
