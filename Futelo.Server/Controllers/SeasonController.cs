@@ -103,6 +103,24 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/video-game")]
+    public async Task<IActionResult> PatchVideoGame(int id, UpdateSeasonVideoGameRequest request)
+    {
+        try
+        {
+            await seasonService.PatchVideoGameAsync(id, UserId, request.VideoGameId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
     [HttpPut("{id}/configure")]
     public async Task<IActionResult> Configure(int id, ConfigureSeasonRequest request)
     {

@@ -10,7 +10,9 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 {
     public async Task<IEnumerable<Models.Season>> GetByVaultAsync(int vaultId)
         => await Context.Set<Models.Season>()
+            .Include(s => s.VideoGame)
             .Include(s => s.Players).ThenInclude(sp => sp.Player)
+            .Include(s => s.Players).ThenInclude(sp => sp.Team)
             .Include(s => s.League)
             .Include(s => s.Cup)
             .Include(s => s.SuperCup)
@@ -21,7 +23,9 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
     public async Task<Models.Season?> GetByIdAsync(int id)
         => await Context.Set<Models.Season>()
             .Include(s => s.Vault).ThenInclude(v => v.Players)
+            .Include(s => s.VideoGame)
             .Include(s => s.Players).ThenInclude(sp => sp.Player)
+            .Include(s => s.Players).ThenInclude(sp => sp.Team)
             .Include(s => s.League)
             .Include(s => s.Cup)
             .Include(s => s.SuperCup)
@@ -75,6 +79,14 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         var season = await Context.Set<Models.Season>().FindAsync(seasonId);
         if (season == null) return;
         season.Status = status;
+        await SaveChangesAsync();
+    }
+
+    public async Task PatchVideoGameAsync(int seasonId, int? videoGameId)
+    {
+        var season = await Context.Set<Models.Season>().FindAsync(seasonId);
+        if (season == null) return;
+        season.VideoGameId = videoGameId;
         await SaveChangesAsync();
     }
 }
