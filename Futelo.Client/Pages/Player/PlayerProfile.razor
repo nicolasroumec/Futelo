@@ -71,15 +71,29 @@ else
     @if (stats.TopTeams.Count > 0)
     {
         <h5>Top Teams</h5>
-        <ul class="list-group mb-4" style="max-width:320px">
-            @foreach (var t in stats.TopTeams)
-            {
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>@t.TeamName</span>
-                    <span class="badge bg-secondary">@t.TimesUsed</span>
-                </li>
-            }
-        </ul>
+        <div class="table-responsive mb-4" style="max-width:560px">
+            <table class="table table-sm table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in stats.TopTeams)
+                    {
+                        <tr>
+                            <td>@t.TeamName</td>
+                            <td>@t.TimesUsed</td>
+                            <td>@t.Won</td>
+                            <td>@t.Drawn</td>
+                            <td>@t.Lost</td>
+                            <td>@t.GoalsFor</td>
+                            <td>@t.GoalsAgainst</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 
     @if (stats.GameStats.Count > 0)

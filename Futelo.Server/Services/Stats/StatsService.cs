@@ -36,12 +36,41 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         var (currentStreak, bestWinStreak, bestUnbeatenStreak) = ComputeStreaks(matches, playerId);
 
         var topTeams = matches
-            .Select(m => m.HomePlayerId == playerId ? m.HomeTeam?.Name : m.AwayTeam?.Name)
-            .Where(name => name != null)
-            .GroupBy(name => name!)
+            .Select(m => new
+            {
+                TeamName = m.HomePlayerId == playerId ? m.HomeTeam?.Name : m.AwayTeam?.Name,
+                IsHome = m.HomePlayerId == playerId,
+                HomeScore = m.HomeScore ?? 0,
+                AwayScore = m.AwayScore ?? 0
+            })
+            .Where(x => x.TeamName != null)
+            .GroupBy(x => x.TeamName!)
             .OrderByDescending(g => g.Count())
             .Take(5)
-            .Select(g => new TeamUsageRow { TeamName = g.Key, TimesUsed = g.Count() })
+            .Select(g =>
+            {
+                int tWon = 0, tDrawn = 0, tLost = 0, tGF = 0, tGA = 0;
+                foreach (var x in g)
+                {
+                    int scored = x.IsHome ? x.HomeScore : x.AwayScore;
+                    int conceded = x.IsHome ? x.AwayScore : x.HomeScore;
+                    if (scored > conceded) tWon++;
+                    else if (scored < conceded) tLost++;
+                    else tDrawn++;
+                    tGF += scored;
+                    tGA += conceded;
+                }
+                return new TeamUsageRow
+                {
+                    TeamName = g.Key,
+                    TimesUsed = g.Count(),
+                    Won = tWon,
+                    Drawn = tDrawn,
+                    Lost = tLost,
+                    GoalsFor = tGF,
+                    GoalsAgainst = tGA
+                };
+            })
             .ToList();
 
         var gameStats = matches
@@ -236,13 +265,13 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         {
             if (m.HomePlayerId != null && m.HomePlayer != null)
             {
-                var entry = scorerMap.GetValueOrDefault(m.HomePlayerId, (m.HomePlayer.DisplayName, 0));
-                scorerMap[m.HomePlayerId] = (entry.DisplayName, entry.Goals + (m.HomeScore ?? 0));
+                var entry = scorerMap.GetValueOrDefault(m.HomePlayerId, (DisplayName: m.HomePlayer.DisplayName, Goals: 0));
+                scorerMap[m.HomePlayerId] = (DisplayName: entry.DisplayName, Goals: entry.Goals + (m.HomeScore ?? 0));
             }
             if (m.AwayPlayerId != null && m.AwayPlayer != null)
             {
-                var entry = scorerMap.GetValueOrDefault(m.AwayPlayerId, (m.AwayPlayer.DisplayName, 0));
-                scorerMap[m.AwayPlayerId] = (entry.DisplayName, entry.Goals + (m.AwayScore ?? 0));
+                var entry = scorerMap.GetValueOrDefault(m.AwayPlayerId, (DisplayName: m.AwayPlayer.DisplayName, Goals: 0));
+                scorerMap[m.AwayPlayerId] = (DisplayName: entry.DisplayName, Goals: entry.Goals + (m.AwayScore ?? 0));
             }
         }
 
@@ -257,7 +286,6 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             })
             .ToList();
     }
-
     public async Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
