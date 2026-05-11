@@ -266,7 +266,10 @@ public class CupService(ICupRepository cupRepository) : ICupService
             AdvanceToLeg2MatchId = advanceToLeg2MatchId,
             CupFinished = cupFinished,
             ChampionId = championId,
-            FinalCupPositions = finalPositions
+            FinalCupPositions = finalPositions,
+            VideoGameId = cup.Season.VideoGameId,
+            HomeTeamId = homesp.TeamId,
+            AwayTeamId = awaysp.TeamId
         });
 
         return new RecordCupResultResponse

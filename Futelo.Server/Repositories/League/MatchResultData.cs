@@ -19,4 +19,7 @@ public class MatchResultData
     public bool LeagueFinished { get; init; }
     public string? ChampionId { get; init; }
     public Dictionary<string, int> FinalLeaguePositions { get; init; } = [];
+    public int? VideoGameId { get; init; }
+    public int? HomeTeamId { get; init; }
+    public int? AwayTeamId { get; init; }
 }

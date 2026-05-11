@@ -111,7 +111,7 @@ feat: add default team assignment per player in Season
 
 ---
 
-### Sprint D — Auto-popular VideoGame y Teams al registrar resultado
+### ✅ Sprint D — Auto-popular VideoGame y Teams al registrar resultado
 **1 commit** (el más importante)
 
 En `LeagueService.RecordResultAsync`, `CupService.RecordResultAsync` y

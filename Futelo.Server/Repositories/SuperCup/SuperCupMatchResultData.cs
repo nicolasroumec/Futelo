@@ -21,4 +21,7 @@ public class SuperCupMatchResultData
     public List<EloHistory> EloHistories { get; init; } = [];
     public bool Finished { get; init; }
     public string? ChampionId { get; init; }
+    public int? VideoGameId { get; init; }
+    public int? HomeTeamId { get; init; }
+    public int? AwayTeamId { get; init; }
 }

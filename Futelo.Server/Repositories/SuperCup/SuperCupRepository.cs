@@ -12,6 +12,7 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
         => await Context.Set<Models.SuperCup>()
             .Include(sc => sc.Season).ThenInclude(s => s.Vault).ThenInclude(v => v.Players)
             .Include(sc => sc.Season).ThenInclude(s => s.Players).ThenInclude(sp => sp.Player)
+            .Include(sc => sc.Season).ThenInclude(s => s.Players).ThenInclude(sp => sp.Team)
             .Include(sc => sc.Season).ThenInclude(s => s.League)
             .Include(sc => sc.Season).ThenInclude(s => s.Cup).ThenInclude(c => c!.Players)
             .Include(sc => sc.Player1)
@@ -46,6 +47,9 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
             match.AwayPenaltyScore = data.AwayPenaltyScore;
             match.Status = MatchStatus.Played;
             match.PlayedAt = DateTime.UtcNow;
+            match.VideoGameId = data.VideoGameId;
+            match.HomeTeamId = data.HomeTeamId;
+            match.AwayTeamId = data.AwayTeamId;
         }
 
         var homeSeasonPlayer = await Context.Set<SeasonPlayer>()

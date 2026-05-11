@@ -203,7 +203,10 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             EloHistories = histories,
             LeagueFinished = leagueFinished,
             ChampionId = championId,
-            FinalLeaguePositions = finalPositions
+            FinalLeaguePositions = finalPositions,
+            VideoGameId = league.Season.VideoGameId,
+            HomeTeamId = homesp.TeamId,
+            AwayTeamId = awaysp.TeamId
         });
 
         return new RecordResultResponse

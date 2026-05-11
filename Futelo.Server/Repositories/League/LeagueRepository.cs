@@ -12,6 +12,7 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
         => await Context.Set<Models.League>()
             .Include(l => l.Season).ThenInclude(s => s.Vault).ThenInclude(v => v.Players)
             .Include(l => l.Season).ThenInclude(s => s.Players).ThenInclude(sp => sp.Player)
+            .Include(l => l.Season).ThenInclude(s => s.Players).ThenInclude(sp => sp.Team)
             .Include(l => l.Players).ThenInclude(lp => lp.Player)
             .Include(l => l.Matches).ThenInclude(m => m.HomePlayer)
             .Include(l => l.Matches).ThenInclude(m => m.AwayPlayer)
@@ -50,6 +51,9 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
             match.AwayScore = data.AwayScore;
             match.Status = MatchStatus.Played;
             match.PlayedAt = DateTime.UtcNow;
+            match.VideoGameId = data.VideoGameId;
+            match.HomeTeamId = data.HomeTeamId;
+            match.AwayTeamId = data.AwayTeamId;
         }
 
         var homeSeasonPlayer = await Context.Set<SeasonPlayer>()
