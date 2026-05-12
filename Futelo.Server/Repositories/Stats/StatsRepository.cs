@@ -117,4 +117,35 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .Include(m => m.VideoGame)
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
+
+    public async Task<List<Match>> GetPlayerLastNMatchesAsync(string playerId, int vaultId, int n)
+        => await context.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .Where(m => m.HomePlayerId == playerId || m.AwayPlayerId == playerId)
+            .Where(m =>
+                (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
+                (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
+                (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId))
+            .Include(m => m.HomePlayer)
+            .Include(m => m.AwayPlayer)
+            .OrderByDescending(m => m.PlayedAt)
+            .Take(n)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
+
+    public async Task<Match?> GetTopScoringMatchInVaultAsync(int vaultId)
+        => await context.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .Where(m =>
+                (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
+                (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
+                (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId))
+            .Include(m => m.HomePlayer)
+            .Include(m => m.AwayPlayer)
+            .Include(m => m.League).ThenInclude(l => l!.Season)
+            .Include(m => m.CupRound).ThenInclude(cr => cr!.Cup).ThenInclude(c => c.Season)
+            .Include(m => m.SuperCup).ThenInclude(sc => sc!.Season)
+            .OrderByDescending(m => (m.HomeScore ?? 0) + (m.AwayScore ?? 0))
+            .AsNoTrackingWithIdentityResolution()
+            .FirstOrDefaultAsync();
 }

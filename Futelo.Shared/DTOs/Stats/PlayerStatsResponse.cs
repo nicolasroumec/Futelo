@@ -1,3 +1,5 @@
+using Futelo.Shared.Enums;
+
 namespace Futelo.Shared.DTOs.Stats;
 
 public class PlayerStatsResponse
@@ -12,6 +14,7 @@ public class PlayerStatsResponse
     public int GoalsAgainst { get; set; }
     public int EloRating { get; set; }
     public int CurrentStreak { get; set; }
+    public StreakType CurrentStreakType { get; set; }
     public int BestWinStreak { get; set; }
     public int BestUnbeatenStreak { get; set; }
     public List<TeamUsageRow> TopTeams { get; set; } = [];
