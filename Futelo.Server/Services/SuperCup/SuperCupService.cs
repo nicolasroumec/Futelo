@@ -216,7 +216,10 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
             AwayNewHistoricalElo = awayNewHistElo,
             EloHistories = histories,
             Finished = finished,
-            ChampionId = championId
+            ChampionId = championId,
+            VideoGameId = superCup.Season.VideoGameId,
+            HomeTeamId = homesp.TeamId,
+            AwayTeamId = awaysp.TeamId
         });
 
         return new RecordSuperCupResultResponse

@@ -20,5 +20,7 @@ public class SeasonResponse
     public int? SuperCupId { get; set; }
     public string SuperCupName { get; set; } = "SuperCup";
     public string? SuperCupStatus { get; set; }
+    public int? VideoGameId { get; set; }
+    public string? VideoGameName { get; set; }
     public List<SeasonPlayerResponse> Players { get; set; } = [];
 }

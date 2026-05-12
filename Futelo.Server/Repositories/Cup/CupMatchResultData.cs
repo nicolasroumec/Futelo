@@ -26,4 +26,7 @@ public class CupMatchResultData
     public bool CupFinished { get; init; }
     public string? ChampionId { get; init; }
     public Dictionary<string, int> FinalCupPositions { get; init; } = [];
+    public int? VideoGameId { get; init; }
+    public int? HomeTeamId { get; init; }
+    public int? AwayTeamId { get; init; }
 }

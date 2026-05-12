@@ -12,6 +12,7 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
         => await Context.Set<Models.Cup>()
             .Include(c => c.Season).ThenInclude(s => s.Vault).ThenInclude(v => v.Players)
             .Include(c => c.Season).ThenInclude(s => s.Players).ThenInclude(sp => sp.Player)
+            .Include(c => c.Season).ThenInclude(s => s.Players).ThenInclude(sp => sp.Team)
             .Include(c => c.Players).ThenInclude(cp => cp.Player)
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.HomePlayer)
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.AwayPlayer)
@@ -56,6 +57,9 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
             match.AwayPenaltyScore = data.AwayPenaltyScore;
             match.Status = MatchStatus.Played;
             match.PlayedAt = DateTime.UtcNow;
+            match.VideoGameId = data.VideoGameId;
+            match.HomeTeamId = data.HomeTeamId;
+            match.AwayTeamId = data.AwayTeamId;
         }
 
         var homeSeasonPlayer = await Context.Set<SeasonPlayer>()

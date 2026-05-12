@@ -174,7 +174,64 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `Stats/VaultRecords.razor` — récords all-time del vault
 - Links desde `VaultDetail` y `SeasonDetail`
 
-## Sesión 11 — Pulido y despliegue
-- Responsive mobile
+## Sesión 11 — Estadísticas avanzadas (pendientes)
+
+### Feature 1: Forma reciente por jugador (últimos 5: W/D/L)
+- DTO `RecentFormResponse` con lista de los últimos N resultados por partido
+- Repository: `GetPlayerLastNMatchesAsync(playerId, vaultId, n)` ordenado por fecha desc
+- Service: `GetRecentFormAsync` → calcula W/D/L para esos partidos
+- Endpoint: `GET api/stats/vaults/{vaultId}/players/{playerId}/recent-form`
+- Client service + UI en `PlayerProfile.razor`: fila de íconos W/D/L (últimos 5)
+
+### Feature 2: Racha actual con label semántico ("3W", "2L", "1D")
+- Actualizar `PlayerStatsResponse.CurrentStreak` de `int` a un objeto con valor + tipo (Win/Draw/Loss)
+- O agregar campo `CurrentStreakType` (enum: Win, Draw, Loss) al DTO existente
+- Actualizar `StatsService.ComputeStreaks()` para devolver también el tipo de racha
+- UI en `PlayerProfile.razor`: mostrar "3W" / "2L" en lugar del número solo
+
+### Feature 3: Partido más goleado de la liga/temporada
+- DTO `TopScoringMatchResponse` — HomePlayer, AwayPlayer, HomeScore, AwayScore, TotalGoals, Date, SeasonName
+- Repository: `GetTopScoringMatchInVaultAsync(vaultId)` y opcionalmente por temporada
+- Service: `GetTopScoringMatchAsync`
+- Endpoint: `GET api/stats/vaults/{vaultId}/records/top-scoring-match`
+- UI en `VaultRecords.razor`: nueva sección mostrando el partido récord
+
+## Sesión 12 — Diseño y UI (desde cero)
+
+> El frontend actual tiene estructura y navegación, pero ninguna decisión visual está tomada.
+> Esta sesión define y aplica el sistema de diseño completo.
+
+### Decisiones previas a implementar
+- Paleta de colores (primario, secundario, fondo, texto, estados: éxito/error/warning)
+- Tipografía: fuente, tamaños, pesos para títulos, subtítulos, cuerpo, labels
+- Espaciado y grilla (padding, margin, breakpoints)
+- Estilo general: minimalista, deportivo, oscuro/claro, etc.
+
+### Sistema de diseño
+- Variables CSS globales (o configuración de Tailwind/MudBlazor/Bootstrap si se adopta una librería)
+- Componentes base reutilizables: botones, cards, badges, tablas, inputs, modals
+- Layout general: navbar, sidebar, contenedor principal
+
+### Páginas a estilizar (todas)
+- Auth: Login, Register
+- Dashboard, VaultDetail, CreateVault
+- SeasonDetail, CreateSeason
+- League, Cup, SuperCup views
+- PlayerProfile, HeadToHead
+- Stats: Ranking, GeneralRanking, Scorers, VaultRecords, Palmares, GamesRanking
+- Teams, Games
+
+### Internacionalización (i18n)
+- Decidir mecanismo: archivos de recursos `.resx`, librería como `AKSoftware.Localization.MultiLanguage`, o diccionarios custom
+- Definir idiomas soportados (ES / EN como mínimo)
+- Extraer todos los textos hardcodeados de los componentes a archivos de traducción
+- Componente `LanguageSwitcher` en la navbar
+- Persistir idioma seleccionado en `localStorage`
+
+### Responsive
+- Adaptación mobile de todas las vistas
+- Navbar colapsable en móvil
+
+## Sesión 13 — Pulido y despliegue
 - Manejo global de errores (middleware en Server, error boundaries en Client)
 - Opciones de hosting (Railway, Fly.io, Azure)

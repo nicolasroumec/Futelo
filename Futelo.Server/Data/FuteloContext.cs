@@ -43,6 +43,11 @@ public class FuteloContext : IdentityDbContext<AppUser>
             .WithMany()
             .HasForeignKey(sp => sp.PlayerId)
             .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<SeasonPlayer>()
+            .HasOne(sp => sp.Team)
+            .WithMany()
+            .HasForeignKey(sp => sp.TeamId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.Entity<LeaguePlayer>()
             .HasKey(lp => new { lp.LeagueId, lp.PlayerId });
@@ -59,6 +64,12 @@ public class FuteloContext : IdentityDbContext<AppUser>
             .WithMany()
             .HasForeignKey(cp => cp.PlayerId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Season>()
+            .HasOne(s => s.VideoGame)
+            .WithMany()
+            .HasForeignKey(s => s.VideoGameId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.Entity<Season>()
             .HasOne(s => s.League)

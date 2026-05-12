@@ -1,7 +1,11 @@
 using Futelo.Client.Services.Season;
+using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
+using Futelo.Client.Services.VideoGames;
 using Futelo.Shared.DTOs.Season;
+using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.Vault;
+using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -12,17 +16,27 @@ public partial class SeasonDetail
     [Parameter] public int Id { get; set; }
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
     [Inject] private IVaultService VaultService { get; set; } = null!;
+    [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
+    [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private NavigationManager Nav { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private SeasonResponse? season;
     private List<VaultPlayerResponse> vaultPlayers = [];
+    private List<VideoGameResponse> videoGames = [];
+    private List<TeamResponse> teams = [];
+    private Dictionary<string, int?> playerTeamSelections = [];
     private HashSet<string> selectedPlayerIds = [];
     private ConfigureSeasonRequest configureModel = new();
+    private int? selectedVideoGameId;
     private bool isOwner;
     private bool isLoading = true;
     private bool isConfiguring;
     private bool isActivating;
     private bool isFinishing;
+    private bool isPatchingVideoGame;
+    private bool isDeleting;
+    private bool confirmDelete;
     private string? errorMessage;
     private string? configureMessage;
     private string configureAlertClass = "alert-success";
@@ -30,6 +44,8 @@ public partial class SeasonDetail
     private string activateAlertClass = "alert-success";
     private string? finishMessage;
     private string finishAlertClass = "alert-success";
+    private string? videoGameMessage;
+    private string videoGameAlertClass = "alert-success";
 
     private bool CanFinish => season != null &&
         (!season.HasLeague || season.LeagueStatus == "Finished") &&
@@ -49,7 +65,11 @@ public partial class SeasonDetail
             vaultPlayers = vault.Players;
             isOwner = vault.OwnerId == userId;
 
+            videoGames = await VideoGameService.GetAllAsync();
+            teams = await TeamService.GetAllAsync();
+            selectedVideoGameId = season.VideoGameId;
             selectedPlayerIds = season.Players.Select(p => p.PlayerId).ToHashSet();
+            playerTeamSelections = season.Players.ToDictionary(p => p.PlayerId, p => p.TeamId);
             configureModel.HasLeague = season.HasLeague;
             configureModel.LeagueName = season.LeagueName;
             configureModel.LeagueIsHomeAndAway = season.LeagueIsHomeAndAway;
@@ -65,6 +85,60 @@ public partial class SeasonDetail
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        isDeleting = true;
+        try
+        {
+            await SeasonService.DeleteAsync(Id);
+            Nav.NavigateTo($"/vaults/{season!.VaultId}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            isDeleting = false;
+            confirmDelete = false;
+        }
+    }
+
+    private async Task HandleSetPlayerTeam(string playerId)
+    {
+        try
+        {
+            var teamId = playerTeamSelections.TryGetValue(playerId, out var t) ? t : null;
+            await SeasonService.SetPlayerTeamAsync(Id, playerId, teamId);
+            season = await SeasonService.GetByIdAsync(Id);
+            playerTeamSelections = season.Players.ToDictionary(p => p.PlayerId, p => p.TeamId);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task HandlePatchVideoGame()
+    {
+        isPatchingVideoGame = true;
+        videoGameMessage = null;
+
+        try
+        {
+            await SeasonService.PatchVideoGameAsync(Id, selectedVideoGameId);
+            season = await SeasonService.GetByIdAsync(Id);
+            videoGameMessage = "Video game updated.";
+            videoGameAlertClass = "alert-success";
+        }
+        catch (Exception ex)
+        {
+            videoGameMessage = ex.Message;
+            videoGameAlertClass = "alert-danger";
+        }
+        finally
+        {
+            isPatchingVideoGame = false;
         }
     }
 

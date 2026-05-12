@@ -103,6 +103,60 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
         }
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await seasonService.DeleteAsync(id, UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
+    [HttpPatch("{id}/players/{playerId}/team")]
+    public async Task<IActionResult> SetPlayerTeam(int id, string playerId, SetSeasonPlayerTeamRequest request)
+    {
+        try
+        {
+            await seasonService.SetPlayerTeamAsync(id, playerId, UserId, request.TeamId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
+    [HttpPatch("{id}/video-game")]
+    public async Task<IActionResult> PatchVideoGame(int id, UpdateSeasonVideoGameRequest request)
+    {
+        try
+        {
+            await seasonService.PatchVideoGameAsync(id, UserId, request.VideoGameId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
     [HttpPut("{id}/configure")]
     public async Task<IActionResult> Configure(int id, ConfigureSeasonRequest request)
     {
