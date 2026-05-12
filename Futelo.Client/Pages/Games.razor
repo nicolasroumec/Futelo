@@ -37,7 +37,7 @@
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <SkeletonList Items="4" />
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {

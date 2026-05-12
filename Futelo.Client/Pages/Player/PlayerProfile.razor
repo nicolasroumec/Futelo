@@ -5,7 +5,36 @@
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="skeleton-block" style="width:3.5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:160px;height:1.75rem"></div>
+        <div class="skeleton-block" style="width:6rem;height:1.5rem;border-radius:1rem"></div>
+    </div>
+    <div class="skeleton-block mb-2" style="width:50px;height:1rem"></div>
+    <SkeletonTable Rows="1" Columns="6" />
+    <div class="d-flex gap-1 mb-4">
+        <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
+        <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
+        <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
+        <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
+        <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
+    </div>
+    <div class="d-flex gap-4 mb-4">
+        <div>
+            <div class="skeleton-block mb-1" style="width:90px;height:.6rem"></div>
+            <div class="skeleton-block" style="width:4rem;height:1.75rem;border-radius:1rem"></div>
+        </div>
+        <div>
+            <div class="skeleton-block mb-1" style="width:90px;height:.6rem"></div>
+            <div class="skeleton-block" style="width:4rem;height:1.75rem;border-radius:1rem"></div>
+        </div>
+        <div>
+            <div class="skeleton-block mb-1" style="width:90px;height:.6rem"></div>
+            <div class="skeleton-block" style="width:4rem;height:1.75rem;border-radius:1rem"></div>
+        </div>
+    </div>
+    <div class="skeleton-block mb-2" style="width:90px;height:1rem"></div>
+    <div class="skeleton-block" style="max-width:560px;height:160px"></div>
 }
 else if (stats == null)
 {

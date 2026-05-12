@@ -12,18 +12,18 @@ Sesiones 1–11 completas. Pendiente:
 
 ---
 
-### Sprint 1 — Fundamentos visuales
+### ✅ Sprint 1 — Fundamentos visuales
 `feat: style auth pages and empty states`
 
-- [ ] Auth pages — Login y Register centrados en card con presencia visual
-- [ ] Empty states — estilizar los "no data yet" de todas las páginas
+- [x] Auth pages — Login y Register centrados en card con presencia visual
+- [x] Empty states — estilizar los "no data yet" de todas las páginas
 
 ---
 
-### Sprint 2 — Loading experience
+### ✅ Sprint 2 — Loading experience
 `feat: add skeleton loading`
 
-- [ ] Skeleton loading — componentes SkeletonTable, SkeletonList, SkeletonCards aplicados en las 17 páginas con `Loading...`
+- [x] Skeleton loading — componentes SkeletonTable, SkeletonList, SkeletonCards aplicados en las 17 páginas con `Loading...`
 
 ---
 
