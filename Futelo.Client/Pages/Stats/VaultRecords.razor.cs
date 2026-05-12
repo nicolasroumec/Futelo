@@ -10,6 +10,7 @@ public partial class VaultRecords
     [Inject] private IStatsService StatsService { get; set; } = null!;
 
     private VaultRecordsResponse? records;
+    private TopScoringMatchResponse? topScoringMatch;
     private bool isLoading = true;
     private string? errorMessage;
 
@@ -18,6 +19,7 @@ public partial class VaultRecords
         try
         {
             records = await StatsService.GetVaultRecordsAsync(VaultId);
+            topScoringMatch = await StatsService.GetTopScoringMatchAsync(VaultId);
         }
         catch (Exception ex)
         {

@@ -14,4 +14,6 @@ public interface IStatsService
     Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId);
     Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId);
     Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId);
+    Task<List<RecentFormEntry>> GetRecentFormAsync(int vaultId, string playerId);
+    Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId);
 }
