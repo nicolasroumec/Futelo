@@ -51,5 +51,10 @@ public class StatsService(HttpClient http) : IStatsService
             ?? [];
 
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId)
-        => await http.GetFromJsonAsync<TopScoringMatchResponse>($"api/stats/vaults/{vaultId}/records/top-scoring-match");
+    {
+        var response = await http.GetAsync($"api/stats/vaults/{vaultId}/records/top-scoring-match");
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<TopScoringMatchResponse>();
+    }
 }

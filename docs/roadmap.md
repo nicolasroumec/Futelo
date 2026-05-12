@@ -174,7 +174,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - `Stats/VaultRecords.razor` — récords all-time del vault
 - Links desde `VaultDetail` y `SeasonDetail`
 
-## Sesión 11 — Estadísticas avanzadas (pendientes)
+## Sesión 11 — Estadísticas avanzadas ✅
 
 ### Feature 1: Forma reciente por jugador (últimos 5: W/D/L)
 - DTO `RecentFormResponse` con lista de los últimos N resultados por partido
