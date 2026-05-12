@@ -27,12 +27,12 @@ Sesiones 1–11 completas. Pendiente:
 
 ---
 
-### Sprint 3 — Micro-interactions
+### ✅ Sprint 3 — Micro-interactions
 `feat: add nav indicator, glow and page transitions`
 
-- [ ] NavLink con indicador animado — línea verde que se desliza entre links en la sidebar
-- [ ] Glow verde en #1 — sutil resplandor en la fila del jugador top del ranking
-- [ ] Transición de página — fade in suave al navegar
+- [x] NavLink con indicador animado — línea verde que se desliza entre links en la sidebar
+- [x] Glow verde en #1 — sutil resplandor en la fila del jugador top del ranking
+- [x] Transición de página — fade in suave al navegar
 
 ---
 

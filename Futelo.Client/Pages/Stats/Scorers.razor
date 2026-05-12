@@ -36,7 +36,7 @@ else
                 <tbody>
                     @foreach (var row in rows)
                     {
-                        <tr>
+                        <tr class="@(row.Position == 1 ? "rank-gold" : "")">
                             <td>@row.Position</td>
                             <td>
                                 <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
