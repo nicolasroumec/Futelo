@@ -151,4 +151,33 @@ public class StatsController(IStatsService statsService) : ControllerBase
             return NotFound();
         }
     }
+
+    [HttpGet("vaults/{vaultId}/players/{playerId}/recent-form")]
+    public async Task<IActionResult> GetRecentForm(int vaultId, string playerId)
+    {
+        try
+        {
+            var form = await statsService.GetRecentFormAsync(playerId, vaultId, UserId);
+            return Ok(form);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpGet("vaults/{vaultId}/records/top-scoring-match")]
+    public async Task<IActionResult> GetTopScoringMatch(int vaultId)
+    {
+        try
+        {
+            var match = await statsService.GetTopScoringMatchAsync(vaultId, UserId);
+            if (match == null) return NotFound();
+            return Ok(match);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }
