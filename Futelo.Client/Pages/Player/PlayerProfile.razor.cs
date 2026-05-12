@@ -24,7 +24,11 @@ public partial class PlayerProfile
     private string selectedOpponentId = string.Empty;
     private bool isLoading = true;
     private bool chartRendered = false;
+    private bool countersAnimated = false;
     private string? errorMessage;
+
+    private int _elo;
+    private int _played, _won, _drawn, _lost, _gf, _ga;
 
     protected override async Task OnInitializedAsync()
     {
@@ -50,6 +54,12 @@ public partial class PlayerProfile
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!isLoading && stats != null && !countersAnimated)
+        {
+            countersAnimated = true;
+            _ = AnimateCountersAsync();
+        }
+
         if (!isLoading && !chartRendered && eloHistory.Count > 0)
         {
             chartRendered = true;
@@ -57,6 +67,35 @@ public partial class PlayerProfile
             var data = eloHistory.Select(p => p.Elo).ToArray();
             await JS.InvokeVoidAsync("renderEloChart", "elo-chart", labels, data);
         }
+    }
+
+    private async Task AnimateCountersAsync()
+    {
+        const int steps = 30;
+        const int delayMs = 16;
+
+        for (int i = 1; i <= steps; i++)
+        {
+            var t = 1 - Math.Pow(1 - (double)i / steps, 3);
+            _elo     = (int)(stats!.EloRating  * t);
+            _played  = (int)(stats.Played      * t);
+            _won     = (int)(stats.Won         * t);
+            _drawn   = (int)(stats.Drawn       * t);
+            _lost    = (int)(stats.Lost        * t);
+            _gf      = (int)(stats.GoalsFor    * t);
+            _ga      = (int)(stats.GoalsAgainst * t);
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(delayMs);
+        }
+
+        _elo    = stats!.EloRating;
+        _played = stats.Played;
+        _won    = stats.Won;
+        _drawn  = stats.Drawn;
+        _lost   = stats.Lost;
+        _gf     = stats.GoalsFor;
+        _ga     = stats.GoalsAgainst;
+        await InvokeAsync(StateHasChanged);
     }
 
     private void NavigateToH2H()

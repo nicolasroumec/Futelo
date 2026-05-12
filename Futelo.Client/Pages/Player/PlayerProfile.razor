@@ -46,7 +46,7 @@ else
         <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
         <PlayerAvatar Name="@stats.DisplayName" Size="40" />
         <h3 class="mb-0">@stats.DisplayName</h3>
-        <span class="badge bg-secondary">ELO @stats.EloRating</span>
+        <span class="badge bg-secondary">ELO @_elo</span>
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -64,12 +64,12 @@ else
             </thead>
             <tbody>
                 <tr>
-                    <td>@stats.Played</td>
-                    <td>@stats.Won</td>
-                    <td>@stats.Drawn</td>
-                    <td>@stats.Lost</td>
-                    <td>@stats.GoalsFor</td>
-                    <td>@stats.GoalsAgainst</td>
+                    <td>@_played</td>
+                    <td>@_won</td>
+                    <td>@_drawn</td>
+                    <td>@_lost</td>
+                    <td>@_gf</td>
+                    <td>@_ga</td>
                 </tr>
             </tbody>
         </table>

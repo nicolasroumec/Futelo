@@ -1,0 +1,103 @@
+/* ── Podium ── */
+
+.podium {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+}
+
+.podium-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    animation: podium-rise 0.4s ease-out both;
+}
+
+.podium-first  { animation-delay: 0.05s; }
+.podium-second { animation-delay: 0.15s; }
+.podium-third  { animation-delay: 0.25s; }
+
+@keyframes podium-rise {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.podium-medal {
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+    line-height: 1;
+}
+
+.podium-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    border-bottom: none;
+    width: 100%;
+    color: inherit;
+    transition: border-color 0.2s;
+}
+
+.podium-card:hover {
+    border-color: rgba(34, 197, 94, 0.3);
+    color: inherit;
+}
+
+.podium-first .podium-card {
+    border-color: rgba(250, 204, 21, 0.4);
+    background-color: rgba(250, 204, 21, 0.04);
+    box-shadow: 0 0 24px rgba(250, 204, 21, 0.1);
+}
+
+.podium-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-top: 0.4rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.podium-elo {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    margin-top: 0.1rem;
+}
+
+.podium-first .podium-elo {
+    color: var(--color-warning);
+}
+
+.podium-base {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.podium-base--first  { background-color: var(--color-warning); color: #000; height: 80px; }
+.podium-base--second { background-color: #9AA4B2;              color: #000; height: 60px; }
+.podium-base--third  { background-color: #cd7f32;              color: #000; height: 45px; }

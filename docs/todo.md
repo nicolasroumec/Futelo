@@ -45,12 +45,12 @@ Sesiones 1–11 completas. Pendiente:
 
 ---
 
-### Sprint 5 — Páginas destacadas
+### ✅ Sprint 5 — Páginas destacadas
 `feat: podium, ELO counter animation and chart theme`
 
-- [ ] Podio top 3 — rediseño de General Ranking con podio para 1°/2°/3°
-- [ ] Contador animado — ELO y stats cuentan desde 0 al cargar
-- [ ] Chart.js custom — colores y tooltip del gráfico ELO que matcheen la paleta
+- [x] Podio top 3 — rediseño de General Ranking con podio para 1°/2°/3°
+- [x] Contador animado — ELO y stats cuentan desde 0 al cargar
+- [x] Chart.js custom — colores y tooltip del gráfico ELO que matcheen la paleta
 
 ---
 
