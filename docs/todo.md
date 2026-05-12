@@ -36,12 +36,12 @@ Sesiones 1–11 completas. Pendiente:
 
 ---
 
-### Sprint 4 — Componentes de stats
+### ✅ Sprint 4 — Componentes de stats
 `feat: add player avatars, win rate bar and form visualization`
 
-- [ ] Avatar con iniciales — círculo con color único generado del nombre (rankings, listas, profile)
-- [ ] Forma reciente visual — bloques W/D/L con animación de entrada en cascada (PlayerProfile)
-- [ ] Barra de win rate animada — progress bar que se llena al cargar (PlayerProfile)
+- [x] Avatar con iniciales — círculo con color único generado del nombre (rankings, listas, profile)
+- [x] Forma reciente visual — bloques W/D/L con animación de entrada en cascada (PlayerProfile)
+- [x] Barra de win rate animada — progress bar que se llena al cargar (PlayerProfile)
 
 ---
 

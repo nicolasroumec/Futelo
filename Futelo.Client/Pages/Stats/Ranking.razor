@@ -40,9 +40,12 @@ else
                         <tr class="@(row.Position == 1 ? "rank-gold" : "")">
                             <td>@row.Position</td>
                             <td>
-                                <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
-                                    @row.DisplayName
-                                </a>
+                                <div class="d-flex align-items-center gap-2">
+                                    <PlayerAvatar Name="@row.DisplayName" Size="24" />
+                                    <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
+                                        @row.DisplayName
+                                    </a>
+                                </div>
                             </td>
                             <td>@row.SeasonElo</td>
                             <td>@row.HistoricalElo</td>

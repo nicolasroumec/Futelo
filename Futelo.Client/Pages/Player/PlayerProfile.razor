@@ -44,6 +44,7 @@ else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <PlayerAvatar Name="@stats.DisplayName" Size="40" />
         <h3 class="mb-0">@stats.DisplayName</h3>
         <span class="badge bg-secondary">ELO @stats.EloRating</span>
     </div>
@@ -74,14 +75,30 @@ else
         </table>
     </div>
 
+    @if (stats.Played > 0)
+    {
+        var winRate = stats.Won * 100 / stats.Played;
+        <div class="mb-3" style="max-width:480px">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="small text-muted">Win rate</span>
+                <span class="small fw-semibold">@winRate%</span>
+            </div>
+            <div class="win-rate-track">
+                <div class="win-rate-fill" style="--wr:@winRate%"></div>
+            </div>
+        </div>
+    }
+
     @if (recentForm.Count > 0)
     {
         <div class="mb-4">
             <div class="text-muted small mb-1">Recent form</div>
             <div class="d-flex gap-1">
-                @foreach (var entry in recentForm)
+                @for (int i = 0; i < recentForm.Count; i++)
                 {
-                    <span class="badge @FormBadgeClass(entry.Result)"
+                    var entry = recentForm[i];
+                    <span class="form-block @FormBadgeClass(entry.Result)"
+                          style="animation-delay:@(i * 0.06)s"
                           title="@entry.OpponentDisplayName @entry.GoalsFor-@entry.GoalsAgainst">
                         @FormBadgeLabel(entry.Result)
                     </span>
