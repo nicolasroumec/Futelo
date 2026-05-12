@@ -44,12 +44,15 @@
     align-items: center;
     text-align: center;
     padding: 0.75rem 0.5rem;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background: rgba(23, 26, 33, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: var(--radius) var(--radius) 0 0;
     border-bottom: none;
     width: 100%;
     color: inherit;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
     transition: border-color 0.2s;
 }
 

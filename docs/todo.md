@@ -54,10 +54,10 @@ Sesiones 1–11 completas. Pendiente:
 
 ---
 
-### Sprint 6 — Efectos visuales
+### ✅ Sprint 6 — Efectos visuales
 `feat: glassmorphism cards`
 
-- [ ] Glassmorphism — `backdrop-filter: blur` con borde semitransparente en cards destacadas
+- [x] Glassmorphism — `backdrop-filter: blur` con borde semitransparente en cards destacadas
 
 ---
 
