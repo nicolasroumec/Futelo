@@ -331,6 +331,23 @@
 }
 
 /* =============================================
+   EMPTY STATES
+   ============================================= */
+
+.empty-state {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background-color: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  max-width: 480px;
+  margin-bottom: 1rem;
+}
+
+/* =============================================
    UTILITIES
    ============================================= */
 
