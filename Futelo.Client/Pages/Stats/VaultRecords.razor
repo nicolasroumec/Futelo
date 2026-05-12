@@ -55,6 +55,24 @@ else
                     </div>
                 </div>
             }
+            @if (topScoringMatch != null)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">Top Scoring Match</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="fw-semibold fs-5">
+                                @topScoringMatch.HomePlayerDisplayName @topScoringMatch.HomeScore – @topScoringMatch.AwayScore @topScoringMatch.AwayPlayerDisplayName
+                            </span>
+                            <span class="badge bg-warning text-dark fs-5">@topScoringMatch.TotalGoals goals</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(topScoringMatch.SeasonName))
+                        {
+                            <div class="text-muted small mt-1">@topScoringMatch.SeasonName</div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     }
 }
