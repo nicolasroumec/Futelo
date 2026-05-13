@@ -74,9 +74,9 @@ Sesiones 1–11 completas. Pendiente:
 - [x] Componente `LanguageSwitcher` en la sidebar (toggle ES / EN)
 - [x] Strings del NavMenu (Dashboard, Teams, Games, Logout, Login, Register)
 
-#### Commit 3 — feat: i18n auth pages
-- [ ] Login — título, subtítulo, labels, botón, link a register
-- [ ] Register — título, subtítulo, labels, botón, link a login
+#### ✅ Commit 3 — feat: i18n auth pages
+- [x] Login — título, subtítulo, labels, botón, link a register
+- [x] Register — título, subtítulo, labels, botón, link a login
 
 #### Commit 4 — feat: i18n dashboard and vault pages
 - [ ] Dashboard (My Vaults, New Vault, empty state, Open)

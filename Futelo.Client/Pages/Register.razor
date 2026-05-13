@@ -6,32 +6,32 @@
     <div class="auth-card">
         <div class="auth-brand">FUTELO</div>
 
-        <h4 class="auth-title">Create account</h4>
-        <p class="auth-subtitle">Join and start tracking your stats</p>
+        <h4 class="auth-title">@Lang.Get("auth.register.title")</h4>
+        <p class="auth-subtitle">@Lang.Get("auth.register.subtitle")</p>
 
         <EditForm Model="model" OnValidSubmit="HandleRegister">
             <DataAnnotationsValidator />
 
             <div class="mb-3">
-                <label class="form-label">Email</label>
+                <label class="form-label">@Lang.Get("auth.register.email")</label>
                 <InputText class="form-control" @bind-Value="model.Email" />
                 <ValidationMessage For="() => model.Email" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Username</label>
+                <label class="form-label">@Lang.Get("auth.register.username")</label>
                 <InputText class="form-control" @bind-Value="model.Username" />
                 <ValidationMessage For="() => model.Username" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Display Name</label>
+                <label class="form-label">@Lang.Get("auth.register.displayName")</label>
                 <InputText class="form-control" @bind-Value="model.DisplayName" />
                 <ValidationMessage For="() => model.DisplayName" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Password</label>
+                <label class="form-label">@Lang.Get("auth.register.password")</label>
                 <InputText class="form-control" type="password" @bind-Value="model.Password" />
                 <ValidationMessage For="() => model.Password" />
             </div>
@@ -42,12 +42,12 @@
             }
 
             <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
-                @(isLoading ? "Creating account..." : "Create Account")
+                @(isLoading ? Lang.Get("auth.register.creatingAccount") : Lang.Get("auth.register.button"))
             </button>
         </EditForm>
 
         <p class="auth-footer">
-            Already have an account? <a href="/login">Sign in</a>
+            @Lang.Get("auth.register.hasAccount") <a href="/login">@Lang.Get("auth.register.loginLink")</a>
         </p>
     </div>
 </div>

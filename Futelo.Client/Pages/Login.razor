@@ -6,20 +6,20 @@
     <div class="auth-card">
         <div class="auth-brand">FUTELO</div>
 
-        <h4 class="auth-title">Welcome back</h4>
-        <p class="auth-subtitle">Sign in to your account</p>
+        <h4 class="auth-title">@Lang.Get("auth.login.title")</h4>
+        <p class="auth-subtitle">@Lang.Get("auth.login.subtitle")</p>
 
         <EditForm Model="model" OnValidSubmit="HandleLogin">
             <DataAnnotationsValidator />
 
             <div class="mb-3">
-                <label class="form-label">Username or Email</label>
+                <label class="form-label">@Lang.Get("auth.login.usernameOrEmail")</label>
                 <InputText class="form-control" @bind-Value="model.UsernameOrEmail" />
                 <ValidationMessage For="() => model.UsernameOrEmail" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Password</label>
+                <label class="form-label">@Lang.Get("auth.login.password")</label>
                 <InputText class="form-control" type="password" @bind-Value="model.Password" />
                 <ValidationMessage For="() => model.Password" />
             </div>
@@ -30,12 +30,12 @@
             }
 
             <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
-                @(isLoading ? "Signing in..." : "Sign In")
+                @(isLoading ? Lang.Get("auth.login.signingIn") : Lang.Get("auth.login.button"))
             </button>
         </EditForm>
 
         <p class="auth-footer">
-            Don't have an account? <a href="/register">Register</a>
+            @Lang.Get("auth.login.noAccount") <a href="/register">@Lang.Get("auth.login.registerLink")</a>
         </p>
     </div>
 </div>
