@@ -30,24 +30,24 @@
 }
 else if (season == null)
 {
-    <p class="text-danger">Season not found.</p>
+    <p class="text-danger">@Lang.Get("season.notFound")</p>
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@season.VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <a href="/vaults/@season.VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@season.Name</h3>
         <span class="badge bg-secondary">@season.Status</span>
     </div>
 
-    <p class="text-muted">Year: @season.Year</p>
-    <p class="text-muted">Video Game: @(season.VideoGameName ?? "—")</p>
+    <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
+    <p class="text-muted">@Lang.Get("season.videoGame"): @(season.VideoGameName ?? "—")</p>
 
     @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
     {
         <div class="d-flex align-items-center gap-2 mb-3" style="max-width:420px">
             <select class="form-select form-select-sm" @bind="selectedVideoGameId">
-                <option value="">— None —</option>
+                <option value="">@Lang.Get("common.none")</option>
                 @foreach (var g in videoGames)
                 {
                     <option value="@g.Id">@g.Name</option>
@@ -55,7 +55,7 @@ else
             </select>
             <button class="btn btn-outline-primary btn-sm" disabled="@isPatchingVideoGame"
                     @onclick="HandlePatchVideoGame">
-                @(isPatchingVideoGame ? "Saving..." : "Save")
+                @(isPatchingVideoGame ? Lang.Get("common.saving") : Lang.Get("common.save"))
             </button>
         </div>
         @if (!string.IsNullOrEmpty(videoGameMessage))
@@ -65,12 +65,12 @@ else
     }
 
     <div class="d-flex gap-2 mb-3">
-        <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">Ranking</a>
+        <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
         @if (isOwner && season.Status == "Active")
         {
             <button class="btn btn-outline-danger btn-sm" disabled="@(!CanFinish || isFinishing)"
                     @onclick="HandleFinish">
-                @(isFinishing ? "Finishing..." : "Finish Season")
+                @(isFinishing ? Lang.Get("season.finishing") : Lang.Get("season.finishSeason"))
             </button>
         }
         @if (isOwner)
@@ -79,20 +79,20 @@ else
             {
                 <button class="btn btn-outline-danger btn-sm ms-auto"
                         @onclick="() => confirmDelete = true">
-                    Delete Season
+                    @Lang.Get("season.deleteSeason")
                 </button>
             }
             else
             {
                 <span class="ms-auto d-flex align-items-center gap-2">
-                    <small class="text-danger">Are you sure? This cannot be undone.</small>
+                    <small class="text-danger">@Lang.Get("season.deleteConfirm")</small>
                     <button class="btn btn-danger btn-sm" disabled="@isDeleting"
                             @onclick="HandleDelete">
-                        @(isDeleting ? "Deleting..." : "Confirm Delete")
+                        @(isDeleting ? Lang.Get("common.deleting") : Lang.Get("common.confirmDelete"))
                     </button>
                     <button class="btn btn-outline-secondary btn-sm"
                             @onclick="() => confirmDelete = false">
-                        Cancel
+                        @Lang.Get("common.cancel")
                     </button>
                 </span>
             }
@@ -107,7 +107,7 @@ else
     @if (isOwner && season.Status == "Active" && !CanFinish)
     {
         <div class="alert alert-warning mb-3" style="max-width:420px">
-            To finish the season, all competitions must be completed first.
+            @Lang.Get("season.finishWarning")
         </div>
     }
 
@@ -147,10 +147,10 @@ else
         }
     </div>
 
-    <h5>Players</h5>
+    <h5>@Lang.Get("season.players")</h5>
     @if (season.Players.Count == 0)
     {
-        <p class="empty-state">No players assigned yet.</p>
+        <p class="empty-state">@Lang.Get("season.noPlayers")</p>
     }
     else
     {
@@ -168,7 +168,7 @@ else
                             <select class="form-select form-select-sm"
                                     value="@(playerTeamSelections.TryGetValue(p.PlayerId, out var t) ? t?.ToString() ?? "" : "")"
                                     @onchange="e => { playerTeamSelections[p.PlayerId] = string.IsNullOrEmpty(e.Value?.ToString()) ? null : int.Parse(e.Value.ToString()!); }">
-                                <option value="">— No team —</option>
+                                <option value="">@Lang.Get("season.noTeam")</option>
                                 @foreach (var team in teams)
                                 {
                                     <option value="@team.Id">@team.Name</option>
@@ -176,7 +176,7 @@ else
                             </select>
                             <button class="btn btn-outline-secondary btn-sm"
                                     @onclick="() => HandleSetPlayerTeam(p.PlayerId)">
-                                Save
+                                @Lang.Get("common.save")
                             </button>
                         </div>
                     }
@@ -191,10 +191,10 @@ else
 
     @if (isOwner && season.Status == "Draft")
     {
-        <h5 class="mt-4">Configure Season</h5>
+        <h5 class="mt-4">@Lang.Get("season.configureSeason")</h5>
 
         <div class="mb-3" style="max-width:420px">
-            <label class="form-label fw-semibold">Players</label>
+            <label class="form-label fw-semibold">@Lang.Get("season.players")</label>
             @foreach (var vp in vaultPlayers)
             {
                 <div class="form-check">
@@ -207,47 +207,47 @@ else
         </div>
 
         <div class="mb-3">
-            <label class="form-label fw-semibold">Competitions</label>
+            <label class="form-label fw-semibold">@Lang.Get("season.competitions")</label>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkLeague"
                        @bind="configureModel.HasLeague" />
-                <label class="form-check-label" for="chkLeague">League</label>
+                <label class="form-check-label" for="chkLeague">@Lang.Get("createSeason.league")</label>
             </div>
             @if (configureModel.HasLeague)
             {
                 <div class="ms-3 mb-2">
                     <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="League name" @bind="configureModel.LeagueName" />
+                           placeholder="@Lang.Get("season.leagueNamePlaceholder")" @bind="configureModel.LeagueName" />
                 </div>
                 <div class="form-check ms-3">
                     <input class="form-check-input" type="checkbox" id="chkLeagueH2H"
                            @bind="configureModel.LeagueIsHomeAndAway" />
-                    <label class="form-check-label" for="chkLeagueH2H">Home &amp; Away</label>
+                    <label class="form-check-label" for="chkLeagueH2H">@Lang.Get("season.homeAndAway")</label>
                 </div>
             }
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkCup"
                        @bind="configureModel.HasCup" />
-                <label class="form-check-label" for="chkCup">Cup</label>
+                <label class="form-check-label" for="chkCup">@Lang.Get("createSeason.cup")</label>
             </div>
             @if (configureModel.HasCup)
             {
                 <div class="ms-3 mb-2">
                     <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="Cup name" @bind="configureModel.CupName" />
+                           placeholder="@Lang.Get("season.cupNamePlaceholder")" @bind="configureModel.CupName" />
                 </div>
             }
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkSuperCup"
                        @bind="configureModel.HasSuperCup"
                        disabled="@(!configureModel.HasLeague || !configureModel.HasCup)" />
-                <label class="form-check-label" for="chkSuperCup">SuperCup</label>
+                <label class="form-check-label" for="chkSuperCup">@Lang.Get("createSeason.superCup")</label>
             </div>
             @if (configureModel.HasSuperCup)
             {
                 <div class="ms-3 mb-2">
                     <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="SuperCup name" @bind="configureModel.SuperCupName" />
+                           placeholder="@Lang.Get("season.superCupNamePlaceholder")" @bind="configureModel.SuperCupName" />
                 </div>
             }
         </div>
@@ -258,7 +258,7 @@ else
         }
 
         <button class="btn btn-primary" disabled="@isConfiguring" @onclick="HandleConfigure">
-            @(isConfiguring ? "Saving..." : "Save Configuration")
+            @(isConfiguring ? Lang.Get("common.saving") : Lang.Get("season.saveConfig"))
         </button>
 
     @if (season.Players.Count >= 2 && (season.HasLeague || season.HasCup))
@@ -269,7 +269,7 @@ else
                 <div class="alert @activateAlertClass mb-2" style="max-width:420px">@activateMessage</div>
             }
             <button class="btn btn-success" disabled="@isActivating" @onclick="HandleActivate">
-                @(isActivating ? "Activating..." : "Start Season")
+                @(isActivating ? Lang.Get("season.activating") : Lang.Get("season.startSeason"))
             </button>
         </div>
     }

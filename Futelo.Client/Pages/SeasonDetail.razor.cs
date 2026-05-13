@@ -1,3 +1,4 @@
+using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
@@ -11,13 +12,14 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Futelo.Client.Pages;
 
-public partial class SeasonDetail
+public partial class SeasonDetail : IDisposable
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private ILanguageService Lang { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
@@ -54,6 +56,8 @@ public partial class SeasonDetail
 
     protected override async Task OnInitializedAsync()
     {
+        Lang.OnChange += HandleLanguageChange;
+
         try
         {
             var authState = await AuthStateTask;
@@ -87,6 +91,8 @@ public partial class SeasonDetail
             isLoading = false;
         }
     }
+
+    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task HandleDelete()
     {
@@ -128,7 +134,7 @@ public partial class SeasonDetail
         {
             await SeasonService.PatchVideoGameAsync(Id, selectedVideoGameId);
             season = await SeasonService.GetByIdAsync(Id);
-            videoGameMessage = "Video game updated.";
+            videoGameMessage = Lang.Get("season.videoGameUpdated");
             videoGameAlertClass = "alert-success";
         }
         catch (Exception ex)
@@ -157,7 +163,7 @@ public partial class SeasonDetail
         {
             await SeasonService.FinishAsync(Id);
             season = await SeasonService.GetByIdAsync(Id);
-            finishMessage = "Season finished successfully.";
+            finishMessage = Lang.Get("season.finishSuccess");
             finishAlertClass = "alert-success";
         }
         catch (Exception ex)
@@ -180,7 +186,7 @@ public partial class SeasonDetail
         {
             await SeasonService.ActivateAsync(Id);
             season = await SeasonService.GetByIdAsync(Id);
-            activateMessage = "Season activated successfully.";
+            activateMessage = Lang.Get("season.activateSuccess");
             activateAlertClass = "alert-success";
         }
         catch (Exception ex)
@@ -204,7 +210,7 @@ public partial class SeasonDetail
             configureModel.PlayerIds = selectedPlayerIds.ToList();
             await SeasonService.ConfigureAsync(Id, configureModel);
             season = await SeasonService.GetByIdAsync(Id);
-            configureMessage = "Configuration saved.";
+            configureMessage = Lang.Get("season.configSaved");
             configureAlertClass = "alert-success";
         }
         catch (Exception ex)
@@ -216,5 +222,10 @@ public partial class SeasonDetail
         {
             isConfiguring = false;
         }
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= HandleLanguageChange;
     }
 }

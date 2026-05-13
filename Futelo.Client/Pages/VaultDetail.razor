@@ -33,18 +33,18 @@
 }
 else if (vault == null)
 {
-    <p class="text-danger">Vault not found.</p>
+    <p class="text-danger">@Lang.Get("vault.notFound")</p>
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/dashboard" class="btn btn-outline-secondary btn-sm">Back</a>
+        <a href="/dashboard" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@vault.Name</h3>
     </div>
 
-    <p class="text-muted">Owner: @vault.OwnerDisplayName</p>
+    <p class="text-muted">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>
 
-    <h5 class="mt-4">Players</h5>
+    <h5 class="mt-4">@Lang.Get("vault.players")</h5>
     <ul class="list-group mb-4" style="max-width:420px">
         @foreach (var player in vault.Players)
         {
@@ -56,24 +56,24 @@ else
     </ul>
 
     <div class="d-flex gap-2 mb-4">
-        <a href="/vaults/@Id/ranking" class="btn btn-outline-secondary btn-sm">Ranking</a>
-        <a href="/vaults/@Id/scorers" class="btn btn-outline-secondary btn-sm">Scorers</a>
-        <a href="/vaults/@Id/records" class="btn btn-outline-secondary btn-sm">Records</a>
-        <a href="/vaults/@Id/palmares" class="btn btn-outline-secondary btn-sm">Palmarés</a>
-        <a href="/vaults/@Id/teams" class="btn btn-outline-secondary btn-sm">Teams</a>
-        <a href="/vaults/@Id/games" class="btn btn-outline-secondary btn-sm">Games</a>
+        <a href="/vaults/@Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
+        <a href="/vaults/@Id/scorers" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.scorers")</a>
+        <a href="/vaults/@Id/records" class="btn btn-outline-secondary btn-sm">@Lang.Get("vault.records")</a>
+        <a href="/vaults/@Id/palmares" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.palmares")</a>
+        <a href="/vaults/@Id/teams" class="btn btn-outline-secondary btn-sm">@Lang.Get("teams.title")</a>
+        <a href="/vaults/@Id/games" class="btn btn-outline-secondary btn-sm">@Lang.Get("games.title")</a>
     </div>
 
     <div class="d-flex align-items-center gap-3 mt-4 mb-2">
-        <h5 class="mb-0">Seasons</h5>
+        <h5 class="mb-0">@Lang.Get("vault.seasons")</h5>
         @if (isOwner)
         {
-            <a href="/vaults/@Id/seasons/create" class="btn btn-outline-primary btn-sm">+ New Season</a>
+            <a href="/vaults/@Id/seasons/create" class="btn btn-outline-primary btn-sm">+ @Lang.Get("vault.newSeason")</a>
         }
     </div>
     @if (seasons.Count == 0)
     {
-        <p class="empty-state">No seasons yet.</p>
+        <p class="empty-state">@Lang.Get("vault.noSeasons")</p>
     }
     else
     {
@@ -90,7 +90,7 @@ else
 
     @if (isAdmin)
     {
-        <h5>Invite Player</h5>
+        <h5>@Lang.Get("vault.invitePlayer")</h5>
         <EditForm Model="inviteModel" OnValidSubmit="HandleInvite" style="max-width:420px">
             <DataAnnotationsValidator />
             <div class="input-group mb-2">
@@ -100,7 +100,7 @@ else
                     <option value="@VaultRole.Admin">Admin</option>
                 </InputSelect>
                 <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
-                    @(isInviting ? "Generating..." : "Generate Link")
+                    @(isInviting ? Lang.Get("vault.generating") : Lang.Get("vault.generateLink"))
                 </button>
             </div>
         </EditForm>
@@ -109,7 +109,7 @@ else
         {
             <div class="input-group mt-2" style="max-width:420px">
                 <input class="form-control form-control-sm" readonly value="@inviteLink" />
-                <button class="btn btn-outline-secondary btn-sm" @onclick="CopyInviteLink">Copy</button>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="CopyInviteLink">@Lang.Get("common.copy")</button>
             </div>
         }
 

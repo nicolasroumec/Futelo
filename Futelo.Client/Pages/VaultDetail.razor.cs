@@ -1,3 +1,4 @@
+using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Vault;
 using Futelo.Shared.DTOs.Invitation;
@@ -10,11 +11,12 @@ using Microsoft.JSInterop;
 
 namespace Futelo.Client.Pages;
 
-public partial class VaultDetail
+public partial class VaultDetail : IDisposable
 {
     [Parameter] public int Id { get; set; }
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
+    [Inject] private ILanguageService Lang { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
@@ -34,6 +36,8 @@ public partial class VaultDetail
 
     protected override async Task OnInitializedAsync()
     {
+        Lang.OnChange += HandleLanguageChange;
+
         try
         {
             var authState = await AuthStateTask;
@@ -52,6 +56,8 @@ public partial class VaultDetail
             isLoading = false;
         }
     }
+
+    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private static string RoleBadgeClass(VaultRole role) => role switch
     {
@@ -86,5 +92,10 @@ public partial class VaultDetail
     {
         if (inviteLink is not null)
             await JS.InvokeVoidAsync("navigator.clipboard.writeText", inviteLink);
+    }
+
+    public void Dispose()
+    {
+        Lang.OnChange -= HandleLanguageChange;
     }
 }

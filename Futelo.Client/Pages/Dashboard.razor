@@ -4,8 +4,8 @@
 <PageTitle>Dashboard - Futelo</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>My Vaults</h3>
-    <a href="/vaults/create" class="btn btn-primary">New Vault</a>
+    <h3>@Lang.Get("dashboard.title")</h3>
+    <a href="/vaults/create" class="btn btn-primary">@Lang.Get("dashboard.newVault")</a>
 </div>
 
 @if (isLoading)
@@ -14,7 +14,7 @@
 }
 else if (vaults.Count == 0)
 {
-    <p class="empty-state">You don't have any vaults yet.</p>
+    <p class="empty-state">@Lang.Get("dashboard.empty")</p>
 }
 else
 {
@@ -25,11 +25,11 @@ else
                 <div class="card card-glass h-100">
                     <div class="card-body">
                         <h5 class="card-title">@vault.Name</h5>
-                        <p class="card-text text-muted">Owner: @vault.OwnerDisplayName</p>
-                        <p class="card-text"><small>@vault.Players.Count player(s)</small></p>
+                        <p class="card-text text-muted">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>
+                        <p class="card-text"><small>@vault.Players.Count @Lang.Get("dashboard.players")</small></p>
                     </div>
                     <div class="card-footer">
-                        <a href="/vaults/@vault.Id" class="btn btn-outline-primary btn-sm">Open</a>
+                        <a href="/vaults/@vault.Id" class="btn btn-outline-primary btn-sm">@Lang.Get("dashboard.open")</a>
                     </div>
                 </div>
             </div>

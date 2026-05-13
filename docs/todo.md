@@ -78,11 +78,11 @@ Sesiones 1–11 completas. Pendiente:
 - [x] Login — título, subtítulo, labels, botón, link a register
 - [x] Register — título, subtítulo, labels, botón, link a login
 
-#### Commit 4 — feat: i18n dashboard and vault pages
-- [ ] Dashboard (My Vaults, New Vault, empty state, Open)
-- [ ] VaultDetail (Players, Seasons, Invite Player, Generate Link, etc.)
-- [ ] SeasonDetail (Year, Video Game, Ranking, Finish Season, Players, etc.)
-- [ ] CreateVault / CreateSeason
+#### ✅ Commit 4 — feat: i18n dashboard and vault pages
+- [x] Dashboard (My Vaults, New Vault, empty state, Open)
+- [x] VaultDetail (Players, Seasons, Invite Player, Generate Link, etc.)
+- [x] SeasonDetail (Year, Video Game, Ranking, Finish Season, Players, etc.)
+- [x] CreateVault / CreateSeason
 
 #### Commit 5 — feat: i18n stats pages
 - [ ] GeneralRanking, Ranking, Scorers, Palmares
