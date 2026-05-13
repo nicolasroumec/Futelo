@@ -21,6 +21,22 @@ public partial class LeagueView : IDisposable
     private int awayScore;
     private RecordResultResponse? lastResult;
 
+    private int selectedMatchday;
+
+    private List<int> Matchdays => league?.Matches
+        .Select(m => m.Matchday)
+        .Distinct()
+        .OrderBy(d => d)
+        .ToList() ?? [];
+
+    private List<(string Name, int Count)> PendingByPlayer => league?.Matches
+        .Where(m => m.Status == "Pending")
+        .SelectMany(m => new[] { m.HomePlayerName, m.AwayPlayerName })
+        .GroupBy(n => n)
+        .Select(g => (g.Key, g.Count()))
+        .OrderByDescending(x => x.Item2)
+        .ToList() ?? [];
+
     protected override async Task OnInitializedAsync()
     {
         Lang.OnChange += HandleLanguageChange;
@@ -36,6 +52,7 @@ public partial class LeagueView : IDisposable
         try
         {
             league = await LeagueService.GetByIdAsync(Id);
+            AutoSelectMatchday();
         }
         catch (Exception ex)
         {
@@ -45,6 +62,18 @@ public partial class LeagueView : IDisposable
         {
             isLoading = false;
         }
+    }
+
+    private void AutoSelectMatchday()
+    {
+        if (league == null) return;
+        var days = Matchdays;
+        if (days.Count == 0) return;
+
+        var firstWithPending = days.FirstOrDefault(d =>
+            league.Matches.Any(m => m.Matchday == d && m.Status == "Pending"));
+
+        selectedMatchday = firstWithPending != 0 ? firstWithPending : days[^1];
     }
 
     private void SelectMatch(int matchId)

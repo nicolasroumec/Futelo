@@ -121,54 +121,83 @@ else
             </div>
         }
 
-        <h5>@Lang.Get("league.fixture")</h5>
-        @foreach (var matchday in league.Matches.GroupBy(m => m.Matchday).OrderBy(g => g.Key))
+        @* Pending matches by player *@
+        @if (PendingByPlayer.Count > 0)
         {
-            <div class="mb-3">
-                <div class="fw-semibold text-muted small mb-1">@Lang.Get("league.matchday") @matchday.Key</div>
-                @foreach (var match in matchday)
+            <div class="pending-summary mb-4">
+                <span class="pending-summary__label">@Lang.Get("league.pendingByPlayer"):</span>
+                @foreach (var (name, count) in PendingByPlayer)
                 {
-                    <div class="card mb-2" style="max-width:480px">
-                        <div class="card-body py-2 px-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span>@match.HomePlayerName</span>
-                                @if (match.Status == "Played")
-                                {
-                                    <span class="fw-bold mx-2">@match.HomeScore – @match.AwayScore</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted mx-2">vs</span>
-                                }
-                                <span>@match.AwayPlayerName</span>
-                                @if (match.Status == "Pending" && league.Status == "Active")
-                                {
-                                    <button class="btn btn-sm btn-outline-primary ms-3"
-                                            @onclick="() => SelectMatch(match.Id)">
-                                        @(recordingMatchId == match.Id ? Lang.Get("common.cancel") : Lang.Get("league.enterResult"))
-                                    </button>
-                                }
-                            </div>
-
-                            @if (recordingMatchId == match.Id)
-                            {
-                                <div class="d-flex align-items-center gap-2 mt-2">
-                                    <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
-                                           placeholder="Home" @bind="homeScore" />
-                                    <span>–</span>
-                                    <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
-                                           placeholder="Away" @bind="awayScore" />
-                                    <button class="btn btn-sm btn-success" disabled="@isWorking"
-                                            @onclick="HandleRecordResult">
-                                        @(isWorking ? "..." : Lang.Get("common.save"))
-                                    </button>
-                                </div>
-                            }
-                        </div>
-                    </div>
+                    <span class="pending-summary__chip">@name <strong>@count</strong></span>
                 }
             </div>
         }
+
+        <h5>@Lang.Get("league.fixture")</h5>
+
+        @* Matchday tabs *@
+        @if (Matchdays.Count > 1)
+        {
+            <div class="matchday-tabs mb-3">
+                @foreach (var day in Matchdays)
+                {
+                    var hasPending = league.Matches.Any(m => m.Matchday == day && m.Status == "Pending");
+                    <button class="matchday-tab @(selectedMatchday == day ? "matchday-tab--active" : "") @(hasPending ? "matchday-tab--has-pending" : "")"
+                            @onclick="() => { selectedMatchday = day; recordingMatchId = null; }">
+                        @day
+                        @if (hasPending)
+                        {
+                            <span class="matchday-tab__dot"></span>
+                        }
+                    </button>
+                }
+            </div>
+        }
+
+        @* Matches for selected matchday *@
+        <div class="mb-3">
+            @foreach (var match in league.Matches.Where(m => m.Matchday == selectedMatchday))
+            {
+                <div class="match-card @(match.Status == "Played" ? "match-card--played" : "match-card--pending") mb-2" style="max-width:480px">
+                    <div class="card-body py-2 px-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="match-card__player">@match.HomePlayerName</span>
+                            @if (match.Status == "Played")
+                            {
+                                <span class="match-card__score fw-bold mx-2">@match.HomeScore – @match.AwayScore</span>
+                            }
+                            else
+                            {
+                                <span class="match-card__vs text-muted mx-2">vs</span>
+                            }
+                            <span class="match-card__player">@match.AwayPlayerName</span>
+                            @if (match.Status == "Pending" && league.Status == "Active")
+                            {
+                                <button class="btn btn-sm btn-outline-primary ms-3"
+                                        @onclick="() => SelectMatch(match.Id)">
+                                    @(recordingMatchId == match.Id ? Lang.Get("common.cancel") : Lang.Get("league.enterResult"))
+                                </button>
+                            }
+                        </div>
+
+                        @if (recordingMatchId == match.Id)
+                        {
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                       placeholder="Home" @bind="homeScore" />
+                                <span>–</span>
+                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                                       placeholder="Away" @bind="awayScore" />
+                                <button class="btn btn-sm btn-success" disabled="@isWorking"
+                                        @onclick="HandleRecordResult">
+                                    @(isWorking ? "..." : Lang.Get("common.save"))
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
 
         @if (league.Status == "Active" && league.Matches.All(m => m.Status == "Pending"))
         {

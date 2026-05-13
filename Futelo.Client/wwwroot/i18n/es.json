@@ -164,6 +164,7 @@
   "league.generateFixture": "Generar Fixture",
   "league.noResults": "Sin resultados aún.",
   "league.matchday": "Fecha",
+  "league.pendingByPlayer": "Pendientes",
 
   "cup.bracket": "Cuadro",
   "cup.enterResult": "Ingresar resultado",
