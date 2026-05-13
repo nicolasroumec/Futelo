@@ -1,13 +1,15 @@
 using Futelo.Client.Services.Cup;
+using Futelo.Client.Services.Language;
 using Futelo.Shared.DTOs.Cup;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Cup;
 
-public partial class CupView
+public partial class CupView : IDisposable
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ICupService CupService { get; set; } = null!;
+    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private CupResponse? cup;
     private bool isLoading = true;
@@ -29,7 +31,13 @@ public partial class CupView
     private int? otherLegAwayScore;
     private RecordCupResultResponse? lastResult;
 
-    protected override async Task OnInitializedAsync() => await LoadAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnChange += HandleLanguageChange;
+        await LoadAsync();
+    }
+
+    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task LoadAsync()
     {
@@ -73,7 +81,6 @@ public partial class CupView
             recordingAwayId = awayId;
             recordingAwayName = match.AwayPlayerName;
 
-            // For H&A: track the other leg to know when aggregate could be tied
             recordingIsLeg2HomeAndAway = cup.IsHomeAndAway && match.Leg == 2;
             otherLegHomeScore = null;
             otherLegAwayScore = null;
@@ -90,7 +97,6 @@ public partial class CupView
         errorMessage = null;
     }
 
-    // Show penalty fields when: single-leg and score is tied, OR H&A leg2 and aggregate could be tied
     private bool ShowPenaltyFields
     {
         get
@@ -99,10 +105,7 @@ public partial class CupView
                 return homeScore == awayScore;
 
             if (!recordingIsLeg2HomeAndAway) return false;
-
             if (otherLegHomeScore == null) return false;
-            // leg1: Home=A, Away=B. leg2: Home=B, Away=A
-            // A goals = leg1Home + leg2Away(=awayScore), B goals = leg1Away + leg2Home(=homeScore)
             int aGoals = otherLegHomeScore.Value + awayScore;
             int bGoals = (otherLegAwayScore ?? 0) + homeScore;
             return aGoals == bGoals;
@@ -158,9 +161,6 @@ public partial class CupView
         }
     }
 
-    // Groups matches in a round into ties.
-    // For single-leg: each match is its own tie.
-    // For home-and-away: consecutive pairs (leg1, leg2) form a tie.
     private List<List<CupMatchResponse>> GetTies(CupRoundResponse round)
     {
         var ordered = round.Matches.OrderBy(m => m.Id).ToList();
@@ -200,4 +200,6 @@ public partial class CupView
         string sign = p.EloChange >= 0 ? "+" : "";
         return $"{p.DisplayName}   {p.EloBefore} → {p.EloAfter} ({sign}{p.EloChange})  {arrow} #{p.RankAfter}";
     }
+
+    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

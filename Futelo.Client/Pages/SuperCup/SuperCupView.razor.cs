@@ -1,13 +1,15 @@
+using Futelo.Client.Services.Language;
 using Futelo.Client.Services.SuperCup;
 using Futelo.Shared.DTOs.SuperCup;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.SuperCup;
 
-public partial class SuperCupView
+public partial class SuperCupView : IDisposable
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ISuperCupService SuperCupService { get; set; } = null!;
+    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private SuperCupResponse? superCup;
     private bool isLoading = true;
@@ -27,7 +29,13 @@ public partial class SuperCupView
     private bool recordingIsLeg2;
     private RecordSuperCupResultResponse? lastResult;
 
-    protected override async Task OnInitializedAsync() => await LoadAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnChange += HandleLanguageChange;
+        await LoadAsync();
+    }
+
+    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task LoadAsync()
     {
@@ -84,7 +92,6 @@ public partial class SuperCupView
             var leg1 = ordered[0];
             if (leg1.HomeScore == null) return false;
 
-            // Player1 = leg1.Home, Player2 = leg1.Away
             int p1Goals = (leg1.HomeScore ?? 0) + awayScore;
             int p2Goals = (leg1.AwayScore ?? 0) + homeScore;
             return p1Goals == p2Goals;
@@ -156,4 +163,6 @@ public partial class SuperCupView
         string sign = p.EloChange >= 0 ? "+" : "";
         return $"{p.DisplayName}   {p.EloBefore} → {p.EloAfter} ({sign}{p.EloChange})  {arrow} #{p.RankAfter}";
     }
+
+    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

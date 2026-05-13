@@ -88,10 +88,10 @@ Sesiones 1–11 completas. Pendiente:
 - [x] GeneralRanking, Ranking, Scorers, Palmares
 - [x] GamesRanking, TeamPanel, VaultRecords
 
-#### Commit 6 — feat: i18n player and competition pages
-- [ ] PlayerProfile (Stats, Recent form, Current streak, ELO History, etc.)
-- [ ] HeadToHead (Match History, headers de tabla)
-- [ ] LeagueView, CupView, SuperCupView (Standings, Fixture, Enter Result, etc.)
+#### ✅ Commit 6 — feat: i18n player and competition pages
+- [x] PlayerProfile (Stats, Recent form, Current streak, ELO History, etc.)
+- [x] HeadToHead (Match History, headers de tabla)
+- [x] LeagueView, CupView, SuperCupView (Standings, Fixture, Enter Result, etc.)
 
 #### Commit 7 — feat: i18n teams, games and shared components
 - [ ] Teams, Games (CRUD forms y labels)

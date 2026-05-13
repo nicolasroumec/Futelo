@@ -38,12 +38,12 @@
 }
 else if (stats == null)
 {
-    <p class="text-danger">Player not found.</p>
+    <p class="text-danger">@Lang.Get("player.notFound")</p>
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <PlayerAvatar Name="@stats.DisplayName" Size="40" />
         <h3 class="mb-0">@stats.DisplayName</h3>
         <span class="badge bg-secondary">ELO @_elo</span>
@@ -54,12 +54,17 @@ else
         <div class="alert alert-danger mb-3">@errorMessage</div>
     }
 
-    <h5>Stats</h5>
+    <h5>@Lang.Get("player.stats")</h5>
     <div class="table-responsive mb-2" style="max-width:480px">
         <table class="table table-sm table-bordered align-middle">
             <thead class="table-dark">
                 <tr>
-                    <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
+                    <th>@Lang.Get("stats.played")</th>
+                    <th>@Lang.Get("stats.wins")</th>
+                    <th>@Lang.Get("stats.draws")</th>
+                    <th>@Lang.Get("stats.losses")</th>
+                    <th>@Lang.Get("league.goalsFor")</th>
+                    <th>@Lang.Get("league.goalsAgainst")</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,7 +85,7 @@ else
         var winRate = stats.Won * 100 / stats.Played;
         <div class="mb-3" style="max-width:480px">
             <div class="d-flex justify-content-between mb-1">
-                <span class="small text-muted">Win rate</span>
+                <span class="small text-muted">@Lang.Get("player.winRate")</span>
                 <span class="small fw-semibold">@winRate%</span>
             </div>
             <div class="win-rate-track">
@@ -92,7 +97,7 @@ else
     @if (recentForm.Count > 0)
     {
         <div class="mb-4">
-            <div class="text-muted small mb-1">Recent form</div>
+            <div class="text-muted small mb-1">@Lang.Get("player.recentForm")</div>
             <div class="d-flex gap-1">
                 @for (int i = 0; i < recentForm.Count; i++)
                 {
@@ -109,22 +114,22 @@ else
 
     <div class="d-flex gap-4 mb-4">
         <div>
-            <div class="text-muted small mb-1">Current streak</div>
+            <div class="text-muted small mb-1">@Lang.Get("player.currentStreak")</div>
             <span class="badge @StreakBadgeClass() fs-6">@StreakLabel()</span>
         </div>
         <div>
-            <div class="text-muted small mb-1">Best win streak</div>
+            <div class="text-muted small mb-1">@Lang.Get("stats.bestWinStreak")</div>
             <span class="badge bg-success fs-6">@stats.BestWinStreak W</span>
         </div>
         <div>
-            <div class="text-muted small mb-1">Best unbeaten run</div>
+            <div class="text-muted small mb-1">@Lang.Get("stats.bestUnbeatenRun")</div>
             <span class="badge bg-primary fs-6">@stats.BestUnbeatenStreak</span>
         </div>
     </div>
 
     @if (eloHistory.Count > 0)
     {
-        <h5>ELO History</h5>
+        <h5>@Lang.Get("player.eloHistory")</h5>
         <div class="mb-4" style="max-width:560px">
             <canvas id="elo-chart"></canvas>
         </div>
@@ -132,12 +137,18 @@ else
 
     @if (stats.TopTeams.Count > 0)
     {
-        <h5>Top Teams</h5>
+        <h5>@Lang.Get("player.topTeams")</h5>
         <div class="table-responsive mb-4" style="max-width:560px">
             <table class="table table-sm table-bordered align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
+                        <th>@Lang.Get("stats.team")</th>
+                        <th>@Lang.Get("stats.played")</th>
+                        <th>@Lang.Get("stats.wins")</th>
+                        <th>@Lang.Get("stats.draws")</th>
+                        <th>@Lang.Get("stats.losses")</th>
+                        <th>@Lang.Get("league.goalsFor")</th>
+                        <th>@Lang.Get("league.goalsAgainst")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -160,12 +171,18 @@ else
 
     @if (stats.GameStats.Count > 0)
     {
-        <h5>Performance by Game</h5>
+        <h5>@Lang.Get("player.performance")</h5>
         <div class="table-responsive mb-4" style="max-width:560px">
             <table class="table table-sm table-bordered align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Game</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th>
+                        <th>@Lang.Get("stats.game")</th>
+                        <th>@Lang.Get("stats.played")</th>
+                        <th>@Lang.Get("stats.wins")</th>
+                        <th>@Lang.Get("stats.draws")</th>
+                        <th>@Lang.Get("stats.losses")</th>
+                        <th>@Lang.Get("league.goalsFor")</th>
+                        <th>@Lang.Get("league.goalsAgainst")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -188,7 +205,7 @@ else
 
     @if (opponents.Count > 0)
     {
-        <h5>Head to Head</h5>
+        <h5>@Lang.Get("headToHead.title")</h5>
         <div class="d-flex align-items-center gap-2" style="max-width:360px">
             <select class="form-select form-select-sm" @bind="selectedOpponentId">
                 @foreach (var p in opponents)
@@ -196,7 +213,7 @@ else
                     <option value="@p.PlayerId">@p.DisplayName</option>
                 }
             </select>
-            <button class="btn btn-outline-primary btn-sm" @onclick="NavigateToH2H">Compare</button>
+            <button class="btn btn-outline-primary btn-sm" @onclick="NavigateToH2H">@Lang.Get("player.compare")</button>
         </div>
     }
 }

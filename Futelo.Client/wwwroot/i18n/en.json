@@ -133,6 +133,9 @@
   "player.matchesPlayed": "Matches Played",
   "player.bestStreak": "Best Streak",
   "player.performance": "Performance by Game",
+  "player.topTeams": "Top Teams",
+  "player.compare": "Compare",
+  "player.notFound": "Player not found.",
 
   "headToHead.title": "Head to Head",
   "headToHead.matchHistory": "Match History",
@@ -141,6 +144,10 @@
   "headToHead.away": "Away",
   "headToHead.date": "Date",
   "headToHead.result": "Result",
+  "headToHead.score": "Score",
+  "headToHead.wins": "wins",
+  "headToHead.draws": "Draws",
+  "headToHead.notFound": "Data not found.",
 
   "league.standings": "Standings",
   "league.fixture": "Fixture",
@@ -151,7 +158,12 @@
   "league.goalsAgainst": "GA",
   "league.goalDiff": "GD",
   "league.start": "Start League",
-  "league.reshuffle": "Reshuffle",
+  "league.reshuffle": "Reshuffle Fixture",
+  "league.notFound": "League not found.",
+  "league.generating": "Starting...",
+  "league.generateFixture": "Generate Fixture",
+  "league.noResults": "No results yet.",
+  "league.matchday": "Matchday",
 
   "cup.bracket": "Bracket",
   "cup.enterResult": "Enter Result",
@@ -160,11 +172,22 @@
   "cup.firstLeg": "First Leg",
   "cup.secondLeg": "Second Leg",
   "cup.penalties": "Penalties",
+  "cup.notFound": "Cup not found.",
+  "cup.generating": "Generating...",
+  "cup.generateBracket": "Generate Bracket",
+  "cup.tieDecided": "Tie decided",
+  "cup.leg": "Leg",
+  "cup.winnersOnPenalties": "Winner on penalties",
+  "cup.aggregate": "Aggregate",
 
   "superCup.title": "Super Cup",
   "superCup.enterResult": "Enter Result",
   "superCup.start": "Start Super Cup",
   "superCup.champion": "Champion",
+  "superCup.notFound": "SuperCup not found.",
+  "superCup.participantsInfo": "Participants will be determined automatically from the League and Cup champions.",
+  "superCup.starting": "Starting...",
+  "superCup.finished": "SuperCup finished!",
 
   "teams.title": "Teams",
   "teams.newTeam": "New Team",
@@ -201,5 +224,7 @@
   "common.actions": "Actions",
   "common.noResults": "No results found.",
   "common.yes": "Yes",
-  "common.no": "No"
+  "common.no": "No",
+  "common.resultRecorded": "Result recorded",
+  "common.select": "-- select --"
 }

@@ -133,6 +133,9 @@
   "player.matchesPlayed": "Partidos jugados",
   "player.bestStreak": "Mejor racha",
   "player.performance": "Rendimiento por juego",
+  "player.topTeams": "Equipos más usados",
+  "player.compare": "Comparar",
+  "player.notFound": "Jugador no encontrado.",
 
   "headToHead.title": "Cara a cara",
   "headToHead.matchHistory": "Historial de partidos",
@@ -141,6 +144,10 @@
   "headToHead.away": "Visitante",
   "headToHead.date": "Fecha",
   "headToHead.result": "Resultado",
+  "headToHead.score": "Resultado",
+  "headToHead.wins": "victorias",
+  "headToHead.draws": "Empates",
+  "headToHead.notFound": "Datos no encontrados.",
 
   "league.standings": "Tabla de posiciones",
   "league.fixture": "Fixture",
@@ -151,7 +158,12 @@
   "league.goalsAgainst": "GC",
   "league.goalDiff": "DG",
   "league.start": "Iniciar Liga",
-  "league.reshuffle": "Remezclar",
+  "league.reshuffle": "Remezclar Fixture",
+  "league.notFound": "Liga no encontrada.",
+  "league.generating": "Generando...",
+  "league.generateFixture": "Generar Fixture",
+  "league.noResults": "Sin resultados aún.",
+  "league.matchday": "Fecha",
 
   "cup.bracket": "Cuadro",
   "cup.enterResult": "Ingresar resultado",
@@ -160,11 +172,22 @@
   "cup.firstLeg": "Ida",
   "cup.secondLeg": "Vuelta",
   "cup.penalties": "Penales",
+  "cup.notFound": "Copa no encontrada.",
+  "cup.generating": "Generando...",
+  "cup.generateBracket": "Generar Cuadro",
+  "cup.tieDecided": "Eliminatoria resuelta",
+  "cup.leg": "Partido",
+  "cup.winnersOnPenalties": "Ganador por penales",
+  "cup.aggregate": "Global",
 
   "superCup.title": "Supercopa",
   "superCup.enterResult": "Ingresar resultado",
   "superCup.start": "Iniciar Supercopa",
   "superCup.champion": "Campeón",
+  "superCup.notFound": "Supercopa no encontrada.",
+  "superCup.participantsInfo": "Los participantes se determinarán automáticamente a partir de los campeones de la Liga y la Copa.",
+  "superCup.starting": "Iniciando...",
+  "superCup.finished": "¡Supercopa finalizada!",
 
   "teams.title": "Equipos",
   "teams.newTeam": "Nuevo equipo",
@@ -201,5 +224,7 @@
   "common.actions": "Acciones",
   "common.noResults": "Sin resultados.",
   "common.yes": "Sí",
-  "common.no": "No"
+  "common.no": "No",
+  "common.resultRecorded": "Resultado registrado",
+  "common.select": "-- seleccionar --"
 }

@@ -35,17 +35,17 @@
 }
 else if (league == null)
 {
-    <p class="text-danger">League not found.</p>
+    <p class="text-danger">@Lang.Get("league.notFound")</p>
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/seasons/@league.SeasonId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <a href="/seasons/@league.SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@league.Name</h3>
         <span class="badge bg-secondary">@league.Status</span>
         @if (league.IsHomeAndAway)
         {
-            <span class="badge bg-info text-dark">Home &amp; Away</span>
+            <span class="badge bg-info text-dark">@Lang.Get("season.homeAndAway")</span>
         }
         @if (league.Status == "Finished" && league.ChampionName != null)
         {
@@ -61,15 +61,15 @@ else
     @if (league.Status == "NotStarted")
     {
         <button class="btn btn-success mb-4" disabled="@isWorking" @onclick="HandleStart">
-            @(isWorking ? "Starting..." : "Generate Fixture")
+            @(isWorking ? Lang.Get("league.generating") : Lang.Get("league.generateFixture"))
         </button>
     }
     else
     {
-        <h5 class="mt-2">Standings</h5>
+        <h5 class="mt-2">@Lang.Get("league.standings")</h5>
         @if (league.Standings.Count == 0)
         {
-            <p class="empty-state">No results yet.</p>
+            <p class="empty-state">@Lang.Get("league.noResults")</p>
         }
         else
         {
@@ -78,15 +78,15 @@ else
                     <thead class="table-dark">
                         <tr>
                             <th>#</th>
-                            <th>Player</th>
-                            <th>P</th>
-                            <th>W</th>
-                            <th>D</th>
-                            <th>L</th>
-                            <th>GF</th>
-                            <th>GA</th>
-                            <th>GD</th>
-                            <th>Pts</th>
+                            <th>@Lang.Get("stats.player")</th>
+                            <th>@Lang.Get("stats.played")</th>
+                            <th>@Lang.Get("stats.wins")</th>
+                            <th>@Lang.Get("stats.draws")</th>
+                            <th>@Lang.Get("stats.losses")</th>
+                            <th>@Lang.Get("league.goalsFor")</th>
+                            <th>@Lang.Get("league.goalsAgainst")</th>
+                            <th>@Lang.Get("league.goalDiff")</th>
+                            <th>@Lang.Get("league.points")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,17 +115,17 @@ else
         @if (lastResult != null)
         {
             <div class="alert alert-success mb-4" style="max-width:420px">
-                <strong>Result recorded</strong>
+                <strong>@Lang.Get("common.resultRecorded")</strong>
                 <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
                 <div>@FormatEloChange(lastResult.Away)</div>
             </div>
         }
 
-        <h5>Fixture</h5>
+        <h5>@Lang.Get("league.fixture")</h5>
         @foreach (var matchday in league.Matches.GroupBy(m => m.Matchday).OrderBy(g => g.Key))
         {
             <div class="mb-3">
-                <div class="fw-semibold text-muted small mb-1">Matchday @matchday.Key</div>
+                <div class="fw-semibold text-muted small mb-1">@Lang.Get("league.matchday") @matchday.Key</div>
                 @foreach (var match in matchday)
                 {
                     <div class="card mb-2" style="max-width:480px">
@@ -145,7 +145,7 @@ else
                                 {
                                     <button class="btn btn-sm btn-outline-primary ms-3"
                                             @onclick="() => SelectMatch(match.Id)">
-                                        @(recordingMatchId == match.Id ? "Cancel" : "Enter Result")
+                                        @(recordingMatchId == match.Id ? Lang.Get("common.cancel") : Lang.Get("league.enterResult"))
                                     </button>
                                 }
                             </div>
@@ -160,7 +160,7 @@ else
                                            placeholder="Away" @bind="awayScore" />
                                     <button class="btn btn-sm btn-success" disabled="@isWorking"
                                             @onclick="HandleRecordResult">
-                                        @(isWorking ? "..." : "Save")
+                                        @(isWorking ? "..." : Lang.Get("common.save"))
                                     </button>
                                 </div>
                             }
@@ -173,7 +173,7 @@ else
         @if (league.Status == "Active" && league.Matches.All(m => m.Status == "Pending"))
         {
             <button class="btn btn-outline-secondary btn-sm mt-2" disabled="@isWorking" @onclick="HandleReshuffle">
-                @(isWorking ? "..." : "Reshuffle Fixture")
+                @(isWorking ? "..." : Lang.Get("league.reshuffle"))
             </button>
         }
     }
