@@ -10,8 +10,8 @@
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
-        <h3 class="mb-0">Top Scorers</h3>
+        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+        <h3 class="mb-0">@Lang.Get("stats.topScorers")</h3>
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -20,7 +20,7 @@ else
     }
     else if (rows.Count == 0)
     {
-        <p class="empty-state">No matches played yet.</p>
+        <p class="empty-state">@Lang.Get("stats.noMatches")</p>
     }
     else
     {
@@ -29,8 +29,8 @@ else
                 <thead class="table-dark">
                     <tr>
                         <th>#</th>
-                        <th>Player</th>
-                        <th>Goals</th>
+                        <th>@Lang.Get("stats.player")</th>
+                        <th>@Lang.Get("stats.goals")</th>
                     </tr>
                 </thead>
                 <tbody>

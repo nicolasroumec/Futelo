@@ -1,13 +1,15 @@
+using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Stats;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Stats;
 
-public partial class GamesRanking
+public partial class GamesRanking : IDisposable
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
+    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private List<GameStatsEntry> games = [];
     private bool isLoading = true;
@@ -15,6 +17,7 @@ public partial class GamesRanking
 
     protected override async Task OnInitializedAsync()
     {
+        Lang.OnChange += HandleLanguageChange;
         try
         {
             games = await StatsService.GetGamesRankingAsync(VaultId);
@@ -28,4 +31,8 @@ public partial class GamesRanking
             isLoading = false;
         }
     }
+
+    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

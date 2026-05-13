@@ -1,13 +1,15 @@
+using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Stats;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Stats;
 
-public partial class TeamPanel
+public partial class TeamPanel : IDisposable
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
+    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private List<TeamPanelRow> rows = [];
     private bool isLoading = true;
@@ -15,6 +17,7 @@ public partial class TeamPanel
 
     protected override async Task OnInitializedAsync()
     {
+        Lang.OnChange += HandleLanguageChange;
         try
         {
             rows = await StatsService.GetTeamPanelAsync(VaultId);
@@ -28,4 +31,8 @@ public partial class TeamPanel
             isLoading = false;
         }
     }
+
+    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

@@ -10,8 +10,8 @@
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
-        <h3 class="mb-0">Palmarés</h3>
+        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+        <h3 class="mb-0">@Lang.Get("stats.palmares")</h3>
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -20,7 +20,7 @@ else
     }
     else if (rows.Count == 0)
     {
-        <p class="empty-state">No finished seasons yet.</p>
+        <p class="empty-state">@Lang.Get("stats.noFinishedSeasons")</p>
     }
     else
     {
@@ -28,11 +28,11 @@ else
             <table class="table table-sm table-bordered align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Year</th>
-                        <th>Season</th>
-                        <th>League</th>
-                        <th>Cup</th>
-                        <th>SuperCup</th>
+                        <th>@Lang.Get("season.year")</th>
+                        <th>@Lang.Get("stats.season")</th>
+                        <th>@Lang.Get("createSeason.league")</th>
+                        <th>@Lang.Get("createSeason.cup")</th>
+                        <th>@Lang.Get("createSeason.superCup")</th>
                     </tr>
                 </thead>
                 <tbody>

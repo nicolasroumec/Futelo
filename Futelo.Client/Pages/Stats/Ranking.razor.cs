@@ -1,14 +1,16 @@
+using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Stats;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Stats;
 
-public partial class Ranking
+public partial class Ranking : IDisposable
 {
     [Parameter] public int VaultId { get; set; }
     [Parameter] public int SeasonId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
+    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private List<RankingRow> rows = [];
     private bool isLoading = true;
@@ -16,6 +18,7 @@ public partial class Ranking
 
     protected override async Task OnInitializedAsync()
     {
+        Lang.OnChange += HandleLanguageChange;
         try
         {
             rows = await StatsService.GetRankingAsync(SeasonId, VaultId);
@@ -29,4 +32,8 @@ public partial class Ranking
             isLoading = false;
         }
     }
+
+    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

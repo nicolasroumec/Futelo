@@ -84,9 +84,9 @@ Sesiones 1–11 completas. Pendiente:
 - [x] SeasonDetail (Year, Video Game, Ranking, Finish Season, Players, etc.)
 - [x] CreateVault / CreateSeason
 
-#### Commit 5 — feat: i18n stats pages
-- [ ] GeneralRanking, Ranking, Scorers, Palmares
-- [ ] GamesRanking, TeamPanel, VaultRecords
+#### ✅ Commit 5 — feat: i18n stats pages
+- [x] GeneralRanking, Ranking, Scorers, Palmares
+- [x] GamesRanking, TeamPanel, VaultRecords
 
 #### Commit 6 — feat: i18n player and competition pages
 - [ ] PlayerProfile (Stats, Recent form, Current streak, ELO History, etc.)
