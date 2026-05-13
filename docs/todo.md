@@ -93,9 +93,9 @@ Sesiones 1–11 completas. Pendiente:
 - [x] HeadToHead (Match History, headers de tabla)
 - [x] LeagueView, CupView, SuperCupView (Standings, Fixture, Enter Result, etc.)
 
-#### Commit 7 — feat: i18n teams, games and shared components
-- [ ] Teams, Games (CRUD forms y labels)
-- [ ] Empty states, error messages, skeleton labels
+#### ✅ Commit 7 — feat: i18n teams, games and shared components
+- [x] Teams, Games (CRUD forms y labels)
+- [x] Empty states, error messages, skeleton labels
 
 ---
 
