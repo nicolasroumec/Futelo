@@ -63,16 +63,16 @@ Sesiones 1–11 completas. Pendiente:
 
 ### Sprint 7 — i18n
 
-#### Commit 1 — feat: add i18n infrastructure (LanguageService + resource files)
-- [ ] Definir interfaz `ILanguageService` con método `Get(string key)`
-- [ ] Crear archivos de recursos `en.json` y `es.json` en `wwwroot/i18n/`
-- [ ] Implementar `LanguageService` que carga el JSON y expone el diccionario
-- [ ] Registrar el servicio en `Program.cs`
-- [ ] Persistir idioma seleccionado en localStorage
+#### ✅ Commit 1 — feat: add i18n infrastructure (LanguageService + resource files)
+- [x] Definir interfaz `ILanguageService` con método `Get(string key)`
+- [x] Crear archivos de recursos `en.json` y `es.json` en `wwwroot/i18n/`
+- [x] Implementar `LanguageService` que carga el JSON y expone el diccionario
+- [x] Registrar el servicio en `Program.cs`
+- [x] Persistir idioma seleccionado en localStorage
 
-#### Commit 2 — feat: i18n shared components and navbar
-- [ ] Componente `LanguageSwitcher` en la sidebar (toggle ES / EN)
-- [ ] Strings del NavMenu (Dashboard, Teams, Games, Logout, Login, Register)
+#### ✅ Commit 2 — feat: i18n shared components and navbar
+- [x] Componente `LanguageSwitcher` en la sidebar (toggle ES / EN)
+- [x] Strings del NavMenu (Dashboard, Teams, Games, Logout, Login, Register)
 
 #### Commit 3 — feat: i18n auth pages
 - [ ] Login — título, subtítulo, labels, botón, link a register

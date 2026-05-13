@@ -1,15 +1,11 @@
 using Futelo.Client.Services.Language;
 using Microsoft.AspNetCore.Components;
 
-namespace Futelo.Client.Layout;
+namespace Futelo.Client.Shared;
 
-public partial class NavMenu : IDisposable
+public partial class LanguageSwitcher : IDisposable
 {
     [Inject] private ILanguageService Lang { get; set; } = default!;
-
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     protected override void OnInitialized()
     {
@@ -18,10 +14,11 @@ public partial class NavMenu : IDisposable
 
     private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+    private Task SetSpanishAsync() => Lang.SetLanguageAsync("es");
+    private Task SetEnglishAsync() => Lang.SetLanguageAsync("en");
+
+    private string GetButtonClass(string language) =>
+        language == Lang.CurrentLanguage ? "lang-btn lang-btn--active" : "lang-btn";
 
     public void Dispose()
     {

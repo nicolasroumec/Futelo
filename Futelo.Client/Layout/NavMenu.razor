@@ -15,37 +15,39 @@
 
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/dashboard">
-                        Dashboard
+                        @Lang.Get("nav.dashboard")
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/teams">
-                        Teams
+                        @Lang.Get("nav.teams")
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/games">
-                        Games
+                        @Lang.Get("nav.games")
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/logout">
-                        Logout
+                        @Lang.Get("nav.logout")
                     </NavLink>
                 </div>
             </Authorized>
             <NotAuthorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/login">
-                        Login
+                        @Lang.Get("nav.login")
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/register">
-                        Register
+                        @Lang.Get("nav.register")
                     </NavLink>
                 </div>
             </NotAuthorized>
         </AuthorizeView>
+
+        <LanguageSwitcher />
     </nav>
 </div>
