@@ -5,6 +5,7 @@ using Futelo.Client;
 using Futelo.Client.Services.Auth;
 using Futelo.Client.Services.Invitation;
 using Futelo.Client.Services.Cup;
+using Futelo.Client.Services.Language;
 using Futelo.Client.Services.League;
 using Futelo.Client.Services.SuperCup;
 using Futelo.Client.Services.Season;
@@ -43,4 +44,13 @@ builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IVideoGameService, VideoGameService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 
-await builder.Build().RunAsync();
+builder.Services.AddSingleton<ILanguageService>(sp =>
+{
+    var js = sp.GetRequiredService<Microsoft.JSInterop.IJSRuntime>();
+    var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+    return new LanguageService(http, js);
+});
+
+var host = builder.Build();
+await host.Services.GetRequiredService<ILanguageService>().InitializeAsync();
+await host.RunAsync();

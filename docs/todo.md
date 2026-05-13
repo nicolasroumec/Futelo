@@ -62,12 +62,40 @@ Sesiones 1–11 completas. Pendiente:
 ---
 
 ### Sprint 7 — i18n
-`feat: add i18n ES/EN with language switcher`
 
-- [ ] Mecanismo de traducción (archivos de recursos o diccionarios)
-- [ ] Extraer todos los strings hardcodeados de los componentes
-- [ ] Componente `LanguageSwitcher` en la navbar
+#### Commit 1 — feat: add i18n infrastructure (LanguageService + resource files)
+- [ ] Definir interfaz `ILanguageService` con método `Get(string key)`
+- [ ] Crear archivos de recursos `en.json` y `es.json` en `wwwroot/i18n/`
+- [ ] Implementar `LanguageService` que carga el JSON y expone el diccionario
+- [ ] Registrar el servicio en `Program.cs`
 - [ ] Persistir idioma seleccionado en localStorage
+
+#### Commit 2 — feat: i18n shared components and navbar
+- [ ] Componente `LanguageSwitcher` en la sidebar (toggle ES / EN)
+- [ ] Strings del NavMenu (Dashboard, Teams, Games, Logout, Login, Register)
+
+#### Commit 3 — feat: i18n auth pages
+- [ ] Login — título, subtítulo, labels, botón, link a register
+- [ ] Register — título, subtítulo, labels, botón, link a login
+
+#### Commit 4 — feat: i18n dashboard and vault pages
+- [ ] Dashboard (My Vaults, New Vault, empty state, Open)
+- [ ] VaultDetail (Players, Seasons, Invite Player, Generate Link, etc.)
+- [ ] SeasonDetail (Year, Video Game, Ranking, Finish Season, Players, etc.)
+- [ ] CreateVault / CreateSeason
+
+#### Commit 5 — feat: i18n stats pages
+- [ ] GeneralRanking, Ranking, Scorers, Palmares
+- [ ] GamesRanking, TeamPanel, VaultRecords
+
+#### Commit 6 — feat: i18n player and competition pages
+- [ ] PlayerProfile (Stats, Recent form, Current streak, ELO History, etc.)
+- [ ] HeadToHead (Match History, headers de tabla)
+- [ ] LeagueView, CupView, SuperCupView (Standings, Fixture, Enter Result, etc.)
+
+#### Commit 7 — feat: i18n teams, games and shared components
+- [ ] Teams, Games (CRUD forms y labels)
+- [ ] Empty states, error messages, skeleton labels
 
 ---
 
