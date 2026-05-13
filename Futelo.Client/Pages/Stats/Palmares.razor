@@ -5,7 +5,13 @@
 
 @if (isLoading)
 {
-    <SkeletonTable Columns="5" Rows="3" />
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="skeleton-block" style="width:3.5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:140px;height:1.75rem"></div>
+    </div>
+    <div class="skeleton-block mb-4" style="max-width:480px;height:80px;border-radius:.75rem"></div>
+    <div class="skeleton-block mb-3" style="max-width:560px;height:110px;border-radius:.75rem"></div>
+    <div class="skeleton-block mb-3" style="max-width:560px;height:110px;border-radius:.75rem"></div>
 }
 else
 {
@@ -24,30 +30,64 @@ else
     }
     else
     {
-        <div class="table-responsive" style="max-width:640px">
-            <table class="table table-sm table-bordered align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>@Lang.Get("season.year")</th>
-                        <th>@Lang.Get("stats.season")</th>
-                        <th>@Lang.Get("createSeason.league")</th>
-                        <th>@Lang.Get("createSeason.cup")</th>
-                        <th>@Lang.Get("createSeason.superCup")</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var row in rows)
+        @* All-time titles leaderboard *@
+        @if (TitlesByPlayer.Count > 0)
+        {
+            <div class="title-board mb-4">
+                <div class="title-board__header">@Lang.Get("stats.allTimeTitles")</div>
+                @foreach (var (name, count) in TitlesByPlayer)
+                {
+                    <div class="title-board__row">
+                        <span class="title-board__name">@name</span>
+                        <div class="title-board__bar-track">
+                            <div class="title-board__bar-fill"
+                                 style="width:@(MaxTitles > 0 ? count * 100 / MaxTitles : 0)%"></div>
+                        </div>
+                        <span class="title-board__count">@count</span>
+                    </div>
+                }
+            </div>
+        }
+
+        @* Season trophy cards (newest first) *@
+        @foreach (var row in rows.OrderByDescending(r => r.Year).ThenByDescending(r => r.SeasonId))
+        {
+            var treble = GetTrebleWinner(row);
+            var doublee = GetDoubleWinner(row);
+
+            <div class="season-trophy-card mb-3">
+                <div class="season-trophy-card__header">
+                    <div>
+                        <span class="season-trophy-card__year">@row.Year</span>
+                        <span class="season-trophy-card__name">@row.SeasonName</span>
+                    </div>
+                    @if (treble != null)
                     {
-                        <tr>
-                            <td>@row.Year</td>
-                            <td>@row.SeasonName</td>
-                            <td>@(row.LeagueChampion ?? "-")</td>
-                            <td>@(row.CupChampion ?? "-")</td>
-                            <td>@(row.SuperCupChampion ?? "-")</td>
-                        </tr>
+                        <span class="feat-badge feat-badge--treble">@Lang.Get("stats.treble")</span>
                     }
-                </tbody>
-            </table>
-        </div>
+                    else if (doublee != null)
+                    {
+                        <span class="feat-badge feat-badge--double">@Lang.Get("stats.double")</span>
+                    }
+                </div>
+                <div class="trophy-slots">
+                    <div class="trophy-slot @(row.LeagueChampion != null ? "trophy-slot--won" : "trophy-slot--empty")">
+                        <span class="trophy-slot__icon">🏆</span>
+                        <span class="trophy-slot__label">@Lang.Get("createSeason.league")</span>
+                        <span class="trophy-slot__winner">@(row.LeagueChampion ?? "—")</span>
+                    </div>
+                    <div class="trophy-slot @(row.CupChampion != null ? "trophy-slot--won" : "trophy-slot--empty")">
+                        <span class="trophy-slot__icon">🥇</span>
+                        <span class="trophy-slot__label">@Lang.Get("createSeason.cup")</span>
+                        <span class="trophy-slot__winner">@(row.CupChampion ?? "—")</span>
+                    </div>
+                    <div class="trophy-slot @(row.SuperCupChampion != null ? "trophy-slot--won" : "trophy-slot--empty")">
+                        <span class="trophy-slot__icon">⭐</span>
+                        <span class="trophy-slot__label">@Lang.Get("createSeason.superCup")</span>
+                        <span class="trophy-slot__winner">@(row.SuperCupChampion ?? "—")</span>
+                    </div>
+                </div>
+            </div>
+        }
     }
 }

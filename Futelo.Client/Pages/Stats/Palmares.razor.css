@@ -1,0 +1,161 @@
+/* All-time titles leaderboard */
+.title-board {
+    max-width: 480px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: .75rem;
+    padding: 1rem 1.25rem;
+}
+
+.title-board__header {
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: .75rem;
+}
+
+.title-board__row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: .5rem;
+}
+
+.title-board__row:last-child {
+    margin-bottom: 0;
+}
+
+.title-board__name {
+    width: 120px;
+    font-size: .875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--color-text);
+}
+
+.title-board__bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--color-surface-2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.title-board__bar-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: 3px;
+    transition: width .4s ease;
+}
+
+.title-board__count {
+    width: 1.5rem;
+    text-align: right;
+    font-size: .875rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+/* Season trophy card */
+.season-trophy-card {
+    max-width: 560px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: .75rem;
+    overflow: hidden;
+}
+
+.season-trophy-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .6rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-2);
+}
+
+.season-trophy-card__year {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-right: .5rem;
+}
+
+.season-trophy-card__name {
+    font-size: .85rem;
+    color: var(--color-text-muted);
+}
+
+/* Trophy slots grid */
+.trophy-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.trophy-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: .875rem .5rem;
+    gap: .25rem;
+    border-right: 1px solid var(--color-border);
+}
+
+.trophy-slot:last-child {
+    border-right: none;
+}
+
+.trophy-slot__icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.trophy-slot__label {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.trophy-slot__winner {
+    font-size: .9rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--color-text);
+}
+
+.trophy-slot--empty .trophy-slot__icon {
+    opacity: .2;
+}
+
+.trophy-slot--empty .trophy-slot__winner {
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+/* Feat badges */
+.feat-badge {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: .2rem .55rem;
+    border-radius: 1rem;
+}
+
+.feat-badge--treble {
+    background: rgba(250, 204, 21, .15);
+    border: 1px solid rgba(250, 204, 21, .4);
+    color: #FACC15;
+}
+
+.feat-badge--double {
+    background: rgba(34, 197, 94, .12);
+    border: 1px solid rgba(34, 197, 94, .3);
+    color: var(--color-primary);
+}
