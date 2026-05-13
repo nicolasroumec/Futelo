@@ -127,6 +127,38 @@ else
         </div>
     </div>
 
+    @if (stats.Titles.Count > 0)
+    {
+        <div class="mb-4">
+            <div class="text-muted small mb-2">@Lang.Get("player.titles") (@stats.Titles.Count)</div>
+            <div class="d-flex flex-wrap gap-2 mb-2">
+                @foreach (var comp in new[] { "League", "Cup", "SuperCup" })
+                {
+                    var count = stats.Titles.Count(t => t.Competition == comp);
+                    if (count == 0) continue;
+                    var isActive = selectedTitleCompetition == comp;
+                    <button class="title-chip title-chip--@comp.ToLower() @(isActive ? "title-chip--active" : "")"
+                            @onclick="() => selectedTitleCompetition = isActive ? null : comp">
+                        @TitleIcon(comp) @Lang.Get(TitleI18nKey(comp)) ×@count
+                    </button>
+                }
+            </div>
+
+            @if (selectedTitleCompetition != null)
+            {
+                <div class="title-detail">
+                    @foreach (var t in stats.Titles.Where(t => t.Competition == selectedTitleCompetition).OrderByDescending(t => t.Year))
+                    {
+                        <div class="title-detail__row">
+                            <span class="title-detail__year">@t.Year</span>
+                            <span class="title-detail__season">@t.SeasonName</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
     @if (eloHistory.Count > 0)
     {
         <h5>@Lang.Get("player.eloHistory")</h5>

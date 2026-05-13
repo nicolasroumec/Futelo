@@ -19,6 +19,7 @@ public class PlayerStatsResponse
     public int BestUnbeatenStreak { get; set; }
     public List<TeamUsageRow> TopTeams { get; set; } = [];
     public List<VideoGameStatsRow> GameStats { get; set; } = [];
+    public List<PlayerTitleEntry> Titles { get; set; } = [];
 }
 
 public class TeamUsageRow

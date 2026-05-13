@@ -24,6 +24,7 @@ public partial class PlayerProfile : IDisposable
     private List<RecentFormEntry> recentForm = [];
     private List<VaultPlayerResponse> opponents = [];
     private string selectedOpponentId = string.Empty;
+    private string? selectedTitleCompetition;
     private bool isLoading = true;
     private bool chartRendered = false;
     private bool countersAnimated = false;
@@ -132,6 +133,22 @@ public partial class PlayerProfile : IDisposable
             _ => "bg-secondary"
         };
     }
+
+    private static string TitleIcon(string competition) => competition switch
+    {
+        "League"   => "🏆",
+        "Cup"      => "🥇",
+        "SuperCup" => "⭐",
+        _          => "🏅"
+    };
+
+    private static string TitleI18nKey(string competition) => competition switch
+    {
+        "League"   => "createSeason.league",
+        "Cup"      => "createSeason.cup",
+        "SuperCup" => "createSeason.superCup",
+        _          => competition
+    };
 
     private static string FormBadgeClass(MatchResult result) => result switch
     {

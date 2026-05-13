@@ -17,4 +17,5 @@ public interface IStatsRepository
     Task<List<Match>> GetAllPlayedMatchesWithVideoGameInVaultAsync(int vaultId);
     Task<List<Match>> GetPlayerLastNMatchesAsync(string playerId, int vaultId, int n);
     Task<Match?> GetTopScoringMatchInVaultAsync(int vaultId);
+    Task<List<Models.Season>> GetPlayerTitleSeasonsInVaultAsync(string playerId, int vaultId);
 }

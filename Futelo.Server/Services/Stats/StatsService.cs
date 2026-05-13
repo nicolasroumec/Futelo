@@ -36,6 +36,18 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
 
         var (currentStreak, bestWinStreak, bestUnbeatenStreak, currentStreakType) = ComputeStreaks(matches, playerId);
 
+        var titleSeasons = await statsRepository.GetPlayerTitleSeasonsInVaultAsync(playerId, vaultId);
+        var titles = new List<PlayerTitleEntry>();
+        foreach (var s in titleSeasons)
+        {
+            if (s.League?.ChampionId == playerId)
+                titles.Add(new PlayerTitleEntry { SeasonId = s.Id, SeasonName = s.Name, Year = s.Year, Competition = "League" });
+            if (s.Cup?.ChampionId == playerId)
+                titles.Add(new PlayerTitleEntry { SeasonId = s.Id, SeasonName = s.Name, Year = s.Year, Competition = "Cup" });
+            if (s.SuperCup?.ChampionId == playerId)
+                titles.Add(new PlayerTitleEntry { SeasonId = s.Id, SeasonName = s.Name, Year = s.Year, Competition = "SuperCup" });
+        }
+
         var topTeams = matches
             .Select(m => new
             {
@@ -121,7 +133,8 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             BestWinStreak = bestWinStreak,
             BestUnbeatenStreak = bestUnbeatenStreak,
             TopTeams = topTeams,
-            GameStats = gameStats
+            GameStats = gameStats,
+            Titles = titles
         };
     }
 

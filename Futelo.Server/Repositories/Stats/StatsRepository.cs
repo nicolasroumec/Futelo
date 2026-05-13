@@ -133,6 +133,21 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
+    public async Task<List<Models.Season>> GetPlayerTitleSeasonsInVaultAsync(string playerId, int vaultId)
+        => await context.Seasons
+            .Where(s => s.VaultId == vaultId)
+            .Where(s =>
+                (s.League != null && s.League.ChampionId == playerId) ||
+                (s.Cup != null && s.Cup.ChampionId == playerId) ||
+                (s.SuperCup != null && s.SuperCup.ChampionId == playerId))
+            .Include(s => s.League)
+            .Include(s => s.Cup)
+            .Include(s => s.SuperCup)
+            .OrderByDescending(s => s.Year)
+            .ThenByDescending(s => s.Id)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
+
     public async Task<Match?> GetTopScoringMatchInVaultAsync(int vaultId)
         => await context.Matches
             .Where(m => m.Status == MatchStatus.Played)
