@@ -186,3 +186,21 @@ article.content {
 .sidebar .nav-link.active::before {
   transform: scaleY(1);
 }
+
+.sidebar .nav-scrollable .nav {
+  justify-content: space-between;
+}
+
+.nav-main {
+  flex: 1;
+}
+
+.nav-footer {
+  padding-bottom: 0.75rem;
+}
+
+.nav-footer-divider {
+  border-color: var(--color-border);
+  opacity: 1;
+  margin: 0.5rem 0;
+}

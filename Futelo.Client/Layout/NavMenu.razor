@@ -8,46 +8,53 @@
 </div>
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="nav flex-column">
+    <nav class="nav flex-column h-100">
+        <div class="nav-main">
+            <AuthorizeView>
+                <Authorized>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/dashboard">
+                            @Lang.Get("nav.dashboard")
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/teams">
+                            @Lang.Get("nav.teams")
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/games">
+                            @Lang.Get("nav.games")
+                        </NavLink>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/login">
+                            @Lang.Get("nav.login")
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/register">
+                            @Lang.Get("nav.register")
+                        </NavLink>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+
+            <LanguageSwitcher />
+        </div>
+
         <AuthorizeView>
             <Authorized>
-                <div class="px-3 mt-2 mb-1 text-white-50 small">@context.User.Identity?.Name</div>
-
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/dashboard">
-                        @Lang.Get("nav.dashboard")
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/teams">
-                        @Lang.Get("nav.teams")
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/games">
-                        @Lang.Get("nav.games")
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/logout">
+                <div class="nav-footer px-3">
+                    <hr class="nav-footer-divider" />
+                    <div class="text-white-50 small mb-1">@context.User.Identity?.Name</div>
+                    <NavLink class="nav-link px-0" href="/logout">
                         @Lang.Get("nav.logout")
                     </NavLink>
                 </div>
             </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/login">
-                        @Lang.Get("nav.login")
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/register">
-                        @Lang.Get("nav.register")
-                    </NavLink>
-                </div>
-            </NotAuthorized>
         </AuthorizeView>
-
-        <LanguageSwitcher />
     </nav>
 </div>
