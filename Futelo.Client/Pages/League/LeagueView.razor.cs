@@ -30,10 +30,6 @@ public partial class LeagueView : IDisposable
     private int selectedMatchday;
 
     private int? editingMatchId;
-    private int? editHomeTeamId;
-    private int? editAwayTeamId;
-    private int? editVideoGameId;
-    private bool isPatching;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
 
@@ -166,9 +162,9 @@ public partial class LeagueView : IDisposable
         }
     }
 
-    private async Task OpenEditMatch(MatchResponse match)
+    private async Task ToggleEditMatch(int matchId)
     {
-        if (editingMatchId == match.Id)
+        if (editingMatchId == matchId)
         {
             editingMatchId = null;
             return;
@@ -187,27 +183,17 @@ public partial class LeagueView : IDisposable
             catch { }
         }
 
-        editingMatchId = match.Id;
-        editHomeTeamId = match.HomeTeamId;
-        editAwayTeamId = match.AwayTeamId;
-        editVideoGameId = match.VideoGameId;
+        editingMatchId = matchId;
         recordingMatchId = null;
         errorMessage = null;
     }
 
-    private async Task HandlePatchMatch()
+    private async Task HandlePatchMatch(PatchMatchRequest request)
     {
         if (editingMatchId == null) return;
-        isPatching = true;
         errorMessage = null;
         try
         {
-            var request = new PatchMatchRequest
-            {
-                HomeTeamId = editHomeTeamId,
-                AwayTeamId = editAwayTeamId,
-                VideoGameId = editVideoGameId
-            };
             await LeagueService.PatchMatchAsync(Id, editingMatchId.Value, request);
             editingMatchId = null;
             await LoadAsync();
@@ -215,10 +201,6 @@ public partial class LeagueView : IDisposable
         catch (Exception ex)
         {
             errorMessage = ex.Message;
-        }
-        finally
-        {
-            isPatching = false;
         }
     }
 

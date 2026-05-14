@@ -1,0 +1,16 @@
+.match-edit-btn {
+    opacity: 0;
+    transition: opacity .15s;
+    font-size: .8rem;
+    color: var(--color-text-muted);
+}
+
+/* Show button when the parent match card is hovered */
+:host-context(.match-card:hover) .match-edit-btn,
+:host-context(.card:hover) .match-edit-btn {
+    opacity: 1;
+}
+
+.match-edit-form {
+    margin-top: .25rem;
+}

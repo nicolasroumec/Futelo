@@ -1,0 +1,76 @@
+@using Futelo.Shared.DTOs.League
+@using Futelo.Shared.DTOs.Team
+@using Futelo.Shared.DTOs.VideoGame
+
+@if (HomeTeamName != null || AwayTeamName != null || VideoGameName != null)
+{
+    <div class="match-meta d-flex gap-3 mt-1">
+        @if (HomeTeamName != null)
+        {
+            <small class="text-muted">@HomeTeamName</small>
+        }
+        @if (VideoGameName != null)
+        {
+            <small class="text-muted fst-italic">@VideoGameName</small>
+        }
+        @if (AwayTeamName != null)
+        {
+            <small class="text-muted">@AwayTeamName</small>
+        }
+    </div>
+}
+
+@if (CanEdit)
+{
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-sm btn-link match-edit-btn p-0"
+                title="@Lang.Get("league.editMatch")"
+                @onclick="HandleToggle">
+            ✏
+        </button>
+    </div>
+
+    @if (IsEditing)
+    {
+        <div class="match-edit-form border-top pt-2 mt-1">
+            <div class="d-flex flex-wrap gap-2 align-items-end">
+                <div>
+                    <label class="form-label form-label-sm mb-1">@HomePlayerName</label>
+                    <select class="form-select form-select-sm" style="width:140px" @bind="editHomeTeamIdStr">
+                        <option value="">@Lang.Get("common.none")</option>
+                        @foreach (var t in Teams)
+                        {
+                            <option value="@t.Id">@t.Name</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label form-label-sm mb-1">@Lang.Get("season.videoGame")</label>
+                    <select class="form-select form-select-sm" style="width:140px" @bind="editVideoGameIdStr">
+                        <option value="">@Lang.Get("common.none")</option>
+                        @foreach (var vg in VideoGames)
+                        {
+                            <option value="@vg.Id">@vg.Name</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label form-label-sm mb-1">@AwayPlayerName</label>
+                    <select class="form-select form-select-sm" style="width:140px" @bind="editAwayTeamIdStr">
+                        <option value="">@Lang.Get("common.none")</option>
+                        @foreach (var t in Teams)
+                        {
+                            <option value="@t.Id">@t.Name</option>
+                        }
+                    </select>
+                </div>
+                <button class="btn btn-sm btn-primary" disabled="@isSaving" @onclick="HandleSave">
+                    @(isSaving ? "..." : Lang.Get("common.save"))
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="HandleCancel">
+                    @Lang.Get("common.cancel")
+                </button>
+            </div>
+        </div>
+    }
+}

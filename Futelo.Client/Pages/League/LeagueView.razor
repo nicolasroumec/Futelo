@@ -171,42 +171,14 @@ else
                                 <span class="match-card__vs text-muted mx-2">vs</span>
                             }
                             <span class="match-card__player">@match.AwayPlayerName</span>
-                            <div class="d-flex gap-1 ms-3">
                                 @if (match.Status == "Pending" && league.Status == "Active")
-                                {
-                                    <button class="btn btn-sm btn-outline-primary"
-                                            @onclick="() => SelectMatch(match.Id)">
-                                        @(recordingMatchId == match.Id ? Lang.Get("common.cancel") : Lang.Get("league.enterResult"))
-                                    </button>
-                                }
-                                @if (league.CanEdit && league.Status != "NotStarted")
-                                {
-                                    <button class="btn btn-sm btn-outline-secondary match-edit-btn"
-                                            title="@Lang.Get("league.editMatch")"
-                                            @onclick="() => OpenEditMatch(match)">
-                                        ✏
-                                    </button>
-                                }
-                            </div>
+                            {
+                                <button class="btn btn-sm btn-outline-primary ms-3"
+                                        @onclick="() => SelectMatch(match.Id)">
+                                    @(recordingMatchId == match.Id ? Lang.Get("common.cancel") : Lang.Get("league.enterResult"))
+                                </button>
+                            }
                         </div>
-
-                        @if (match.HomeTeamName != null || match.AwayTeamName != null || match.VideoGameName != null)
-                        {
-                            <div class="d-flex gap-3 mt-1">
-                                @if (match.HomeTeamName != null)
-                                {
-                                    <small class="text-muted">@match.HomeTeamName</small>
-                                }
-                                @if (match.VideoGameName != null)
-                                {
-                                    <small class="text-muted fst-italic">@match.VideoGameName</small>
-                                }
-                                @if (match.AwayTeamName != null)
-                                {
-                                    <small class="text-muted">@match.AwayTeamName</small>
-                                }
-                            </div>
-                        }
 
                         @if (recordingMatchId == match.Id)
                         {
@@ -223,54 +195,22 @@ else
                             </div>
                         }
 
-                        @if (editingMatchId == match.Id)
-                        {
-                            <div class="mt-2 match-edit-form">
-                                <div class="d-flex flex-wrap gap-2 align-items-end">
-                                    <div>
-                                        <label class="form-label form-label-sm mb-1">@match.HomePlayerName</label>
-                                        <select class="form-select form-select-sm" style="width:140px"
-                                                @bind="editHomeTeamId">
-                                            <option value="">@Lang.Get("common.none")</option>
-                                            @foreach (var t in teams)
-                                            {
-                                                <option value="@t.Id">@t.Name</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="form-label form-label-sm mb-1">@Lang.Get("season.videoGame")</label>
-                                        <select class="form-select form-select-sm" style="width:140px"
-                                                @bind="editVideoGameId">
-                                            <option value="">@Lang.Get("common.none")</option>
-                                            @foreach (var vg in videoGames)
-                                            {
-                                                <option value="@vg.Id">@vg.Name</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="form-label form-label-sm mb-1">@match.AwayPlayerName</label>
-                                        <select class="form-select form-select-sm" style="width:140px"
-                                                @bind="editAwayTeamId">
-                                            <option value="">@Lang.Get("common.none")</option>
-                                            @foreach (var t in teams)
-                                            {
-                                                <option value="@t.Id">@t.Name</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    <button class="btn btn-sm btn-primary" disabled="@isPatching"
-                                            @onclick="HandlePatchMatch">
-                                        @(isPatching ? "..." : Lang.Get("common.save"))
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-secondary"
-                                            @onclick="() => editingMatchId = null">
-                                        @Lang.Get("common.cancel")
-                                    </button>
-                                </div>
-                            </div>
-                        }
+                        <MatchEditPanel
+                            CanEdit="@(league.CanEdit && league.Status != "NotStarted")"
+                            IsEditing="editingMatchId == match.Id"
+                            HomePlayerName="@match.HomePlayerName"
+                            AwayPlayerName="@match.AwayPlayerName"
+                            HomeTeamId="match.HomeTeamId"
+                            AwayTeamId="match.AwayTeamId"
+                            VideoGameId="match.VideoGameId"
+                            HomeTeamName="@match.HomeTeamName"
+                            AwayTeamName="@match.AwayTeamName"
+                            VideoGameName="@match.VideoGameName"
+                            Teams="teams"
+                            VideoGames="videoGames"
+                            OnToggle="() => ToggleEditMatch(match.Id)"
+                            OnSave="HandlePatchMatch"
+                            OnCancel="() => editingMatchId = null" />
                     </div>
                 </div>
             }
