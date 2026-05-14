@@ -8,4 +8,5 @@ public interface ILeagueService
     Task StartAsync(int id);
     Task ReshuffleAsync(int id);
     Task<RecordResultResponse> RecordResultAsync(int leagueId, int matchId, RecordResultRequest request);
+    Task PatchMatchAsync(int leagueId, int matchId, PatchMatchRequest request);
 }

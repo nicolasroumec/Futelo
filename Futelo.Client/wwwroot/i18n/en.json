@@ -169,6 +169,9 @@
   "league.noResults": "No results yet.",
   "league.matchday": "Matchday",
   "league.pendingByPlayer": "Pending",
+  "league.editMatch": "Edit match",
+  "league.homeTeam": "Home team",
+  "league.awayTeam": "Away team",
 
   "cup.bracket": "Bracket",
   "cup.enterResult": "Enter Result",

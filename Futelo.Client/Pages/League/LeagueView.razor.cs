@@ -1,6 +1,10 @@
 using Futelo.Client.Services.Language;
 using Futelo.Client.Services.League;
+using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.VideoGames;
 using Futelo.Shared.DTOs.League;
+using Futelo.Shared.DTOs.Team;
+using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.League;
@@ -9,6 +13,8 @@ public partial class LeagueView : IDisposable
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ILeagueService LeagueService { get; set; } = null!;
+    [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private LeagueResponse? league;
@@ -22,6 +28,14 @@ public partial class LeagueView : IDisposable
     private RecordResultResponse? lastResult;
 
     private int selectedMatchday;
+
+    private int? editingMatchId;
+    private int? editHomeTeamId;
+    private int? editAwayTeamId;
+    private int? editVideoGameId;
+    private bool isPatching;
+    private List<TeamResponse> teams = [];
+    private List<VideoGameResponse> videoGames = [];
 
     private List<int> Matchdays => league?.Matches
         .Select(m => m.Matchday)
@@ -149,6 +163,62 @@ public partial class LeagueView : IDisposable
         finally
         {
             isWorking = false;
+        }
+    }
+
+    private async Task OpenEditMatch(MatchResponse match)
+    {
+        if (editingMatchId == match.Id)
+        {
+            editingMatchId = null;
+            return;
+        }
+
+        if (teams.Count == 0 || videoGames.Count == 0)
+        {
+            try
+            {
+                var t = TeamService.GetAllAsync();
+                var vg = VideoGameService.GetAllAsync();
+                await Task.WhenAll(t, vg);
+                teams = t.Result;
+                videoGames = vg.Result;
+            }
+            catch { }
+        }
+
+        editingMatchId = match.Id;
+        editHomeTeamId = match.HomeTeamId;
+        editAwayTeamId = match.AwayTeamId;
+        editVideoGameId = match.VideoGameId;
+        recordingMatchId = null;
+        errorMessage = null;
+    }
+
+    private async Task HandlePatchMatch()
+    {
+        if (editingMatchId == null) return;
+        isPatching = true;
+        errorMessage = null;
+        try
+        {
+            var request = new PatchMatchRequest
+            {
+                HomeTeamId = editHomeTeamId,
+                AwayTeamId = editAwayTeamId,
+                VideoGameId = editVideoGameId
+            };
+            await LeagueService.PatchMatchAsync(Id, editingMatchId.Value, request);
+            editingMatchId = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isPatching = false;
         }
     }
 

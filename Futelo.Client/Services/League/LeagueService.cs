@@ -40,4 +40,14 @@ public class LeagueService(HttpClient http) : ILeagueService
         return await response.Content.ReadFromJsonAsync<RecordResultResponse>()
             ?? throw new InvalidOperationException("Invalid server response.");
     }
+
+    public async Task PatchMatchAsync(int leagueId, int matchId, PatchMatchRequest request)
+    {
+        var response = await http.PatchAsJsonAsync($"api/leagues/{leagueId}/matches/{matchId}", request);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to update match." : error);
+        }
+    }
 }

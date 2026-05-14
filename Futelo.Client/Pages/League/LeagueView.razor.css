@@ -98,3 +98,21 @@
     color: var(--color-primary);
     margin-left: .2rem;
 }
+
+/* Edit match button — subtle, only visible on hover */
+.match-edit-btn {
+    opacity: 0;
+    transition: opacity .15s;
+    padding: .1rem .4rem;
+    font-size: .8rem;
+    line-height: 1.4;
+}
+
+.match-card:hover .match-edit-btn {
+    opacity: 1;
+}
+
+.match-edit-form {
+    border-top: 1px solid var(--color-border);
+    padding-top: .5rem;
+}
