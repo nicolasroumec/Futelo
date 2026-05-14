@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Futelo.Shared.DTOs.Stats;
+using Futelo.Shared.DTOs.Vault;
 
 namespace Futelo.Client.Services.Stats;
 
@@ -49,6 +50,14 @@ public class StatsService(HttpClient http) : IStatsService
     public async Task<List<RecentFormEntry>> GetRecentFormAsync(int vaultId, string playerId)
         => await http.GetFromJsonAsync<List<RecentFormEntry>>($"api/stats/vaults/{vaultId}/players/{playerId}/recent-form")
             ?? [];
+
+    public async Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(int vaultId, string playerId, int limit = 5)
+        => await http.GetFromJsonAsync<List<RecentMatchResponse>>($"api/stats/vaults/{vaultId}/players/{playerId}/recent-matches?limit={limit}")
+            ?? [];
+
+    public async Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(int vaultId, string playerId, int page = 1, int pageSize = 10)
+        => await http.GetFromJsonAsync<MatchHistoryPageResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/matches?page={page}&pageSize={pageSize}")
+            ?? new MatchHistoryPageResponse { Page = page, PageSize = pageSize };
 
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId)
     {

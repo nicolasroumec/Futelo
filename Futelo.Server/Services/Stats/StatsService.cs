@@ -1,6 +1,7 @@
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Stats;
 using Futelo.Shared.DTOs.Stats;
+using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Stats;
@@ -485,6 +486,74 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
                 PlayedAt = m.PlayedAt
             };
         }).ToList();
+    }
+
+    public async Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(string playerId, int vaultId, string requesterId, int limit)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+        var matches = await statsRepository.GetPlayerRecentMatchesAsync(playerId, vaultId, limit);
+        return matches.Select(MapToRecentMatch).ToList();
+    }
+
+    public async Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(string playerId, int vaultId, string requesterId, int page, int pageSize)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+        var skip = (page - 1) * pageSize;
+        var totalCount = await statsRepository.CountPlayerMatchesAsync(playerId, vaultId);
+        var items = await statsRepository.GetPlayerMatchesPageAsync(playerId, vaultId, skip, pageSize);
+        return new MatchHistoryPageResponse
+        {
+            Items = items.Select(MapToRecentMatch).ToList(),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    private static RecentMatchResponse MapToRecentMatch(Match m)
+    {
+        string competitionType, competitionName, seasonName;
+        if (m.League != null)
+        {
+            competitionType = "League";
+            competitionName = m.League.Name;
+            seasonName = m.League.Season.Name;
+        }
+        else if (m.CupRound != null)
+        {
+            competitionType = "Cup";
+            competitionName = m.CupRound.Cup.Name;
+            seasonName = m.CupRound.Cup.Season.Name;
+        }
+        else
+        {
+            competitionType = "SuperCup";
+            competitionName = m.SuperCup!.Name;
+            seasonName = m.SuperCup.Season.Name;
+        }
+
+        return new RecentMatchResponse
+        {
+            Id = m.Id,
+            HomePlayerId = m.HomePlayerId ?? string.Empty,
+            HomePlayerName = m.HomePlayer?.DisplayName ?? string.Empty,
+            AwayPlayerId = m.AwayPlayerId ?? string.Empty,
+            AwayPlayerName = m.AwayPlayer?.DisplayName ?? string.Empty,
+            HomeScore = m.HomeScore,
+            AwayScore = m.AwayScore,
+            WonOnPenaltiesId = m.WonOnPenaltiesId,
+            HomePenaltyScore = m.HomePenaltyScore,
+            AwayPenaltyScore = m.AwayPenaltyScore,
+            HomeTeamName = m.HomeTeam?.Name,
+            AwayTeamName = m.AwayTeam?.Name,
+            VideoGameName = m.VideoGame?.Name,
+            PlayedAt = m.PlayedAt,
+            CompetitionType = competitionType,
+            CompetitionName = competitionName,
+            SeasonName = seasonName
+        };
     }
 
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, string requesterId)

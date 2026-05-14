@@ -148,6 +148,48 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
+    public async Task<List<Match>> GetPlayerRecentMatchesAsync(string playerId, int vaultId, int limit)
+        => await PlayerMatchesRichQuery(playerId, vaultId)
+            .Take(limit)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
+
+    public async Task<List<Match>> GetPlayerMatchesPageAsync(string playerId, int vaultId, int skip, int take)
+        => await PlayerMatchesRichQuery(playerId, vaultId)
+            .Skip(skip)
+            .Take(take)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
+
+    public async Task<int> CountPlayerMatchesAsync(string playerId, int vaultId)
+        => await context.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .Where(m => m.HomePlayerId == playerId || m.AwayPlayerId == playerId)
+            .Where(m =>
+                (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
+                (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
+                (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId))
+            .CountAsync();
+
+    private IQueryable<Match> PlayerMatchesRichQuery(string playerId, int vaultId)
+        => context.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .Where(m => m.HomePlayerId == playerId || m.AwayPlayerId == playerId)
+            .Where(m =>
+                (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
+                (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
+                (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId))
+            .Include(m => m.HomePlayer)
+            .Include(m => m.AwayPlayer)
+            .Include(m => m.WonOnPenalties)
+            .Include(m => m.HomeTeam)
+            .Include(m => m.AwayTeam)
+            .Include(m => m.VideoGame)
+            .Include(m => m.League).ThenInclude(l => l!.Season)
+            .Include(m => m.CupRound).ThenInclude(cr => cr!.Cup).ThenInclude(c => c.Season)
+            .Include(m => m.SuperCup).ThenInclude(sc => sc!.Season)
+            .OrderByDescending(m => m.PlayedAt);
+
     public async Task<Match?> GetTopScoringMatchInVaultAsync(int vaultId)
         => await context.Matches
             .Where(m => m.Status == MatchStatus.Played)

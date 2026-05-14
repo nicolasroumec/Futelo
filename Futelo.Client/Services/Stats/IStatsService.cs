@@ -1,4 +1,5 @@
 using Futelo.Shared.DTOs.Stats;
+using Futelo.Shared.DTOs.Vault;
 
 namespace Futelo.Client.Services.Stats;
 
@@ -15,5 +16,7 @@ public interface IStatsService
     Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId);
     Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId);
     Task<List<RecentFormEntry>> GetRecentFormAsync(int vaultId, string playerId);
+    Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(int vaultId, string playerId, int limit = 5);
+    Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(int vaultId, string playerId, int page = 1, int pageSize = 10);
     Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId);
 }

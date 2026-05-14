@@ -22,6 +22,7 @@ public partial class PlayerProfile : IDisposable
     private PlayerStatsResponse? stats;
     private List<EloHistoryPoint> eloHistory = [];
     private List<RecentFormEntry> recentForm = [];
+    private List<RecentMatchResponse> recentMatches = [];
     private List<VaultPlayerResponse> opponents = [];
     private string selectedOpponentId = string.Empty;
     private string? selectedTitleCompetition;
@@ -41,6 +42,7 @@ public partial class PlayerProfile : IDisposable
             stats = await StatsService.GetPlayerStatsAsync(PlayerId, VaultId);
             eloHistory = await StatsService.GetEloHistoryAsync(VaultId, PlayerId);
             recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId);
+            recentMatches = await StatsService.GetPlayerRecentMatchesAsync(VaultId, PlayerId);
             var vault = await VaultService.GetByIdAsync(VaultId);
             opponents = vault.Players.Where(p => p.PlayerId != PlayerId).ToList();
             if (opponents.Count > 0)
@@ -163,6 +165,14 @@ public partial class PlayerProfile : IDisposable
         MatchResult.Loss => "L",
         _                => "D"
     };
+
+    private static string MatchScore(RecentMatchResponse m)
+    {
+        var score = $"{m.HomeScore} - {m.AwayScore}";
+        if (m.WonOnPenaltiesId is not null)
+            score += $" ({m.HomePenaltyScore}-{m.AwayPenaltyScore} pen.)";
+        return score;
+    }
 
     public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }
