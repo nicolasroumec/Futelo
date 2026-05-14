@@ -8,4 +8,5 @@ public interface ILeagueService
     Task GenerateFixtureAsync(int leagueId, string userId);
     Task RegenerateFixtureAsync(int leagueId, string userId);
     Task<RecordResultResponse> RecordResultAsync(int leagueId, int matchId, int homeScore, int awayScore, string userId);
+    Task PatchMatchAsync(int leagueId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId);
 }

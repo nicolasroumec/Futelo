@@ -17,6 +17,9 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             ? []
             : ComputeStandings(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players);
 
+        var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
+
         return new LeagueResponse
         {
             Id = league.Id,
@@ -28,6 +31,7 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             ChampionName = league.ChampionId != null
                 ? league.Season.Players.FirstOrDefault(sp => sp.PlayerId == league.ChampionId)?.Player.DisplayName
                 : null,
+            CanEdit = canEdit,
             Matches = league.Matches
                 .OrderBy(m => m.Leg).ThenBy(m => m.Id)
                 .Select(m => new MatchResponse
@@ -41,7 +45,13 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
                     AwayScore = m.AwayScore,
                     Status = m.Status.ToString(),
                     Matchday = m.Leg,
-                    PlayedAt = m.PlayedAt
+                    PlayedAt = m.PlayedAt,
+                    HomeTeamId = m.HomeTeamId,
+                    HomeTeamName = m.HomeTeam?.Name,
+                    AwayTeamId = m.AwayTeamId,
+                    AwayTeamName = m.AwayTeam?.Name,
+                    VideoGameId = m.VideoGameId,
+                    VideoGameName = m.VideoGame?.Name
                 }).ToList(),
             Standings = standings
         };
@@ -288,6 +298,22 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
         });
 
         return rows;
+    }
+
+    public async Task PatchMatchAsync(int leagueId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
+    {
+        var league = await leagueRepository.GetByIdAsync(leagueId);
+        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException("League not found.");
+
+        var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException("Only vault admins and editors can edit matches.");
+
+        if (league.Matches.All(m => m.Id != matchId))
+            throw new KeyNotFoundException("Match not found.");
+
+        await leagueRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
     }
 
     private static (int change, int newElo) ComputeElo(int myElo, int opponentElo, double result, int goalDiff)

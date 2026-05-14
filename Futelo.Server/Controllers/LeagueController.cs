@@ -63,6 +63,24 @@ public class LeagueController(ILeagueService leagueService) : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/matches/{matchId}")]
+    public async Task<IActionResult> PatchMatch(int id, int matchId, PatchMatchRequest request)
+    {
+        try
+        {
+            await leagueService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
     [HttpPut("{id}/matches/{matchId}/result")]
     public async Task<IActionResult> RecordResult(int id, int matchId, RecordResultRequest request)
     {
