@@ -13,7 +13,9 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
             throw new KeyNotFoundException("SuperCup not found.");
 
-        return MapToResponse(superCup);
+        var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
+        return MapToResponse(superCup, canEdit);
     }
 
     public async Task StartAsync(int superCupId, string userId)
@@ -249,7 +251,24 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
         };
     }
 
-    private static SuperCupResponse MapToResponse(Models.SuperCup superCup)
+    public async Task PatchMatchAsync(int superCupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
+    {
+        var superCup = await superCupRepository.GetByIdAsync(superCupId);
+        if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException("SuperCup not found.");
+
+        var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException("Only vault admins and editors can edit matches.");
+
+        var match = superCup.Matches.FirstOrDefault(m => m.Id == matchId);
+        if (match == null)
+            throw new KeyNotFoundException("Match not found.");
+
+        await superCupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
+    }
+
+    private static SuperCupResponse MapToResponse(Models.SuperCup superCup, bool canEdit = false)
     {
         var seasonPlayerMap = superCup.Season.Players
             .ToDictionary(sp => sp.PlayerId, sp => sp.Player.DisplayName);
@@ -261,6 +280,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
             Name = superCup.Name,
             Status = superCup.Status.ToString(),
             IsHomeAndAway = superCup.IsHomeAndAway,
+            CanEdit = canEdit,
             Player1Id = superCup.Player1Id,
             Player1Name = superCup.Player1Id != null
                 ? seasonPlayerMap.GetValueOrDefault(superCup.Player1Id)
@@ -293,7 +313,13 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
                     AwayPenaltyScore = m.AwayPenaltyScore,
                     Status = m.Status.ToString(),
                     Leg = m.Leg,
-                    PlayedAt = m.PlayedAt
+                    PlayedAt = m.PlayedAt,
+                    HomeTeamId = m.HomeTeamId,
+                    HomeTeamName = m.HomeTeam?.Name,
+                    AwayTeamId = m.AwayTeamId,
+                    AwayTeamName = m.AwayTeam?.Name,
+                    VideoGameId = m.VideoGameId,
+                    VideoGameName = m.VideoGame?.Name
                 }).ToList()
         };
     }

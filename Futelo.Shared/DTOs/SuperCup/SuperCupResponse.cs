@@ -13,5 +13,6 @@ public class SuperCupResponse
     public string? Player2Name { get; set; }
     public string? ChampionId { get; set; }
     public string? ChampionName { get; set; }
+    public bool CanEdit { get; set; }
     public List<SuperCupMatchResponse> Matches { get; set; } = [];
 }

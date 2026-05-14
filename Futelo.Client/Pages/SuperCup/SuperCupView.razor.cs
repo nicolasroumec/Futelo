@@ -1,7 +1,12 @@
 using Futelo.Client.Services.Language;
 using Futelo.Client.Services.SuperCup;
+using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
+using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.SuperCup;
+using Futelo.Shared.DTOs.Team;
+using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.SuperCup;
@@ -10,6 +15,8 @@ public partial class SuperCupView : IDisposable
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ISuperCupService SuperCupService { get; set; } = null!;
+    [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private SuperCupResponse? superCup;
@@ -24,6 +31,10 @@ public partial class SuperCupView : IDisposable
     private int? otherLegHomeScore;
     private int? otherLegAwayScore;
     private RecordSuperCupResultResponse? lastResult;
+
+    private int? editingMatchId;
+    private List<TeamResponse> teams = [];
+    private List<VideoGameResponse> videoGames = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -120,6 +131,48 @@ public partial class SuperCupView : IDisposable
         finally
         {
             isRecording = false;
+        }
+    }
+
+    private async Task ToggleEditMatch(int matchId)
+    {
+        if (editingMatchId == matchId)
+        {
+            editingMatchId = null;
+            return;
+        }
+
+        if (teams.Count == 0 || videoGames.Count == 0)
+        {
+            try
+            {
+                var t = TeamService.GetAllAsync();
+                var vg = VideoGameService.GetAllAsync();
+                await Task.WhenAll(t, vg);
+                teams = t.Result;
+                videoGames = vg.Result;
+            }
+            catch { }
+        }
+
+        editingMatchId = matchId;
+        recordingMatchId = null;
+        errorMessage = null;
+    }
+
+    private async Task HandlePatchMatch(PatchMatchRequest request)
+    {
+        if (editingMatchId == null) return;
+        errorMessage = null;
+        try
+        {
+            await SuperCupService.PatchMatchAsync(Id, editingMatchId.Value, request);
+            editingMatchId = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
         }
     }
 

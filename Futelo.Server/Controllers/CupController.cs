@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Futelo.Server.Services.Cup;
 using Futelo.Shared.DTOs.Cup;
+using Futelo.Shared.DTOs.League;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -70,6 +71,24 @@ public class CupController(ICupService cupService) : ControllerBase
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPatch("{id}/matches/{matchId}")]
+    public async Task<IActionResult> PatchMatch(int id, int matchId, PatchMatchRequest request)
+    {
+        try
+        {
+            await cupService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, UserId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
         }
     }
 }

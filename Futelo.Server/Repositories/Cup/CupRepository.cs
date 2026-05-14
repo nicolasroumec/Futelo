@@ -16,6 +16,9 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
             .Include(c => c.Players).ThenInclude(cp => cp.Player)
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.HomePlayer)
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.AwayPlayer)
+            .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.HomeTeam)
+            .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.AwayTeam)
+            .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.VideoGame)
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -126,6 +129,16 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
             }
         }
 
+        await SaveChangesAsync();
+    }
+
+    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId)
+    {
+        var match = await Context.Set<Match>().FindAsync(matchId);
+        if (match == null) return;
+        match.HomeTeamId = homeTeamId;
+        match.AwayTeamId = awayTeamId;
+        match.VideoGameId = videoGameId;
         await SaveChangesAsync();
     }
 }

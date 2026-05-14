@@ -9,5 +9,6 @@ public class CupResponse
     public bool IsHomeAndAway { get; set; }
     public string? ChampionId { get; set; }
     public string? ChampionName { get; set; }
+    public bool CanEdit { get; set; }
     public List<CupRoundResponse> Rounds { get; set; } = [];
 }

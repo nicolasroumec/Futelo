@@ -13,7 +13,9 @@ public class CupService(ICupRepository cupRepository) : ICupService
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
             throw new KeyNotFoundException("Cup not found.");
 
-        return MapToResponse(cup);
+        var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
+        return MapToResponse(cup, canEdit);
     }
 
     public async Task GenerateBracketAsync(int cupId, string userId)
@@ -416,7 +418,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
         return positions;
     }
 
-    private static CupResponse MapToResponse(Models.Cup cup)
+    private static CupResponse MapToResponse(Models.Cup cup, bool canEdit = false)
     {
         var seasonPlayerMap = cup.Season.Players
             .ToDictionary(sp => sp.PlayerId, sp => sp.Player.DisplayName);
@@ -432,6 +434,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
             ChampionName = cup.ChampionId != null
                 ? seasonPlayerMap.GetValueOrDefault(cup.ChampionId)
                 : null,
+            CanEdit = canEdit,
             Rounds = cup.Rounds
                 .OrderBy(r => r.RoundNumber)
                 .Select(r => new CupRoundResponse
@@ -459,10 +462,33 @@ public class CupService(ICupRepository cupRepository) : ICupService
                             AwayPenaltyScore = m.AwayPenaltyScore,
                             Status = m.Status.ToString(),
                             Leg = m.Leg,
-                            PlayedAt = m.PlayedAt
+                            PlayedAt = m.PlayedAt,
+                            HomeTeamId = m.HomeTeamId,
+                            HomeTeamName = m.HomeTeam?.Name,
+                            AwayTeamId = m.AwayTeamId,
+                            AwayTeamName = m.AwayTeam?.Name,
+                            VideoGameId = m.VideoGameId,
+                            VideoGameName = m.VideoGame?.Name
                         }).ToList()
                 }).ToList()
         };
+    }
+
+    public async Task PatchMatchAsync(int cupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
+    {
+        var cup = await cupRepository.GetByIdAsync(cupId);
+        if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException("Cup not found.");
+
+        var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException("Only vault admins and editors can edit matches.");
+
+        var match = cup.Rounds.SelectMany(r => r.Matches).FirstOrDefault(m => m.Id == matchId);
+        if (match == null)
+            throw new KeyNotFoundException("Match not found.");
+
+        await cupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
     }
 
     private static (int change, int newElo) ComputeElo(int myElo, int opponentElo, double result, int goalDiff, int k)

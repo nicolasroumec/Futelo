@@ -140,6 +140,23 @@ else
                                     OnSave="HandleRecordResult"
                                     OnCancel="() => recordingMatchId = null" />
                             }
+
+                            <MatchEditPanel
+                                CanEdit="@(cup.CanEdit && cup.Status == "Active")"
+                                IsEditing="editingMatchId == match.Id"
+                                HomePlayerName="@match.HomePlayerName"
+                                AwayPlayerName="@match.AwayPlayerName"
+                                HomeTeamId="match.HomeTeamId"
+                                AwayTeamId="match.AwayTeamId"
+                                VideoGameId="match.VideoGameId"
+                                HomeTeamName="@match.HomeTeamName"
+                                AwayTeamName="@match.AwayTeamName"
+                                VideoGameName="@match.VideoGameName"
+                                Teams="teams"
+                                VideoGames="videoGames"
+                                OnToggle="() => ToggleEditMatch(match.Id)"
+                                OnSave="HandlePatchMatch"
+                                OnCancel="() => editingMatchId = null" />
                         }
 
                         @if (cup.IsHomeAndAway && tie.All(m => m.Status == "Played"))

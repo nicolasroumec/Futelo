@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Futelo.Shared.DTOs.Cup;
+using Futelo.Shared.DTOs.League;
 
 namespace Futelo.Client.Services.Cup;
 
@@ -29,5 +30,12 @@ public class CupService(HttpClient http) : ICupService
         }
         return await response.Content.ReadFromJsonAsync<RecordCupResultResponse>()
             ?? throw new InvalidOperationException("Invalid server response.");
+    }
+
+    public async Task PatchMatchAsync(int cupId, int matchId, PatchMatchRequest request)
+    {
+        var response = await http.PatchAsJsonAsync($"api/cups/{cupId}/matches/{matchId}", request);
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException("Failed to patch match.");
     }
 }
