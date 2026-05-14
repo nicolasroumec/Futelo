@@ -23,6 +23,7 @@ public partial class VaultDetail : IDisposable
 
     private VaultResponse? vault;
     private List<SeasonResponse> seasons = [];
+    private List<RecentMatchResponse> recentMatches = [];
     private bool isOwner;
     private bool isAdmin;
     private bool isLoading = true;
@@ -45,7 +46,11 @@ public partial class VaultDetail : IDisposable
             vault = await VaultService.GetByIdAsync(Id);
             isOwner = vault.OwnerId == userId;
             isAdmin = vault.Players.Any(p => p.PlayerId == userId && p.Role == VaultRole.Admin);
-            seasons = await SeasonService.GetByVaultAsync(Id);
+            var seasonsTask = SeasonService.GetByVaultAsync(Id);
+            var recentMatchesTask = VaultService.GetRecentMatchesAsync(Id, 5);
+            await Task.WhenAll(seasonsTask, recentMatchesTask);
+            seasons = seasonsTask.Result;
+            recentMatches = recentMatchesTask.Result;
         }
         catch (Exception ex)
         {
@@ -65,6 +70,14 @@ public partial class VaultDetail : IDisposable
         VaultRole.Editor => "bg-warning text-dark",
         _ => "bg-secondary"
     };
+
+    private static string MatchScore(RecentMatchResponse m)
+    {
+        var score = $"{m.HomeScore} - {m.AwayScore}";
+        if (m.WonOnPenaltiesId is not null)
+            score += $" ({m.HomePenaltyScore}-{m.AwayPenaltyScore} pen.)";
+        return score;
+    }
 
     private async Task HandleInvite()
     {

@@ -65,6 +65,35 @@ else
     </div>
 
     <div class="d-flex align-items-center gap-3 mt-4 mb-2">
+        <h5 class="mb-0">@Lang.Get("vault.recentMatches")</h5>
+        <a href="/vaults/@Id/matches" class="btn btn-outline-secondary btn-sm">@Lang.Get("vault.fullHistory")</a>
+    </div>
+    @if (recentMatches.Count == 0)
+    {
+        <p class="empty-state">@Lang.Get("stats.noMatches")</p>
+    }
+    else
+    {
+        <div class="recent-matches mb-4">
+            @foreach (var m in recentMatches)
+            {
+                <div class="recent-match-row">
+                    <span class="recent-match-competition text-muted small">@m.SeasonName · @m.CompetitionName</span>
+                    <div class="recent-match-body">
+                        <span class="recent-match-player text-end">@m.HomePlayerName@(m.HomeTeamName is not null ? $" ({m.HomeTeamName})" : "")</span>
+                        <span class="recent-match-score fw-bold">@MatchScore(m)</span>
+                        <span class="recent-match-player">@m.AwayPlayerName@(m.AwayTeamName is not null ? $" ({m.AwayTeamName})" : "")</span>
+                    </div>
+                    @if (m.VideoGameName is not null)
+                    {
+                        <span class="recent-match-game text-muted small">@m.VideoGameName</span>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    <div class="d-flex align-items-center gap-3 mt-4 mb-2">
         <h5 class="mb-0">@Lang.Get("vault.seasons")</h5>
         @if (isOwner)
         {

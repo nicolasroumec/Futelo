@@ -79,6 +79,34 @@ public class VaultController(IVaultService vaultService, IInvitationService invi
         }
     }
 
+    [HttpGet("{id}/matches")]
+    public async Task<IActionResult> GetMatchHistory(int id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            var result = await vaultService.GetMatchHistoryAsync(id, UserId, page, pageSize);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpGet("{id}/recent-matches")]
+    public async Task<IActionResult> GetRecentMatches(int id, [FromQuery] int limit = 10)
+    {
+        try
+        {
+            var matches = await vaultService.GetRecentMatchesAsync(id, UserId, limit);
+            return Ok(matches);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     [HttpPost("{id}/invite")]
     public async Task<IActionResult> Invite(int id, InviteRequest request)
     {

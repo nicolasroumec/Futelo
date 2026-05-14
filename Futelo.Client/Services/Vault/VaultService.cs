@@ -13,6 +13,13 @@ public class VaultService(HttpClient http) : IVaultService
         => await http.GetFromJsonAsync<VaultResponse>($"api/vaults/{id}")
             ?? throw new KeyNotFoundException($"Vault {id} not found.");
 
+    public async Task<List<RecentMatchResponse>> GetRecentMatchesAsync(int vaultId, int limit = 10)
+        => await http.GetFromJsonAsync<List<RecentMatchResponse>>($"api/vaults/{vaultId}/recent-matches?limit={limit}") ?? [];
+
+    public async Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int vaultId, int page = 1, int pageSize = 10)
+        => await http.GetFromJsonAsync<MatchHistoryPageResponse>($"api/vaults/{vaultId}/matches?page={page}&pageSize={pageSize}")
+            ?? new MatchHistoryPageResponse { Page = page, PageSize = pageSize };
+
     public async Task<VaultResponse> CreateAsync(CreateVaultRequest request)
     {
         var response = await http.PostAsJsonAsync("api/vaults", request);

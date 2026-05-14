@@ -413,6 +413,55 @@
    UTILITIES
    ============================================= */
 
+/* =============================================
+   RECENT MATCHES
+   ============================================= */
+
+.recent-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 540px;
+}
+
+.recent-match-row {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.recent-match-body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.recent-match-player.text-end {
+  text-align: right;
+}
+
+.recent-match-score {
+  text-align: center;
+  white-space: nowrap;
+  color: var(--color-primary);
+  font-size: 0.95rem;
+}
+
+.recent-match-competition,
+.recent-match-game {
+  font-size: 0.75rem;
+}
+
+/* =============================================
+   UTILITIES
+   ============================================= */
+
 .text-muted   { color: var(--color-text-muted) !important; }
 .text-primary { color: var(--color-primary) !important; }
 .text-success { color: var(--color-success) !important; }
