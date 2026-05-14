@@ -57,8 +57,8 @@ else
 
     @if (cup.Status == "NotStarted")
     {
-        <button class="btn btn-success mb-4" disabled="@isWorking" @onclick="HandleStart">
-            @(isWorking ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
+        <button class="btn btn-success mb-4" disabled="@isLoading" @onclick="HandleStart">
+            @(isLoading ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
         </button>
     }
     else
@@ -126,41 +126,19 @@ else
 
                             @if (recordingMatchId == match.Id)
                             {
-                                <div class="mt-2 border-top pt-2">
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
-                                               placeholder="Home" @bind="homeScore" />
-                                        <span>–</span>
-                                        <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
-                                               placeholder="Away" @bind="awayScore" />
-                                    </div>
-                                    @if (ShowPenaltyFields)
-                                    {
-                                        <div class="mb-2">
-                                            <label class="form-label small mb-1">@Lang.Get("cup.winnersOnPenalties")</label>
-                                            <select class="form-select form-select-sm" style="max-width:200px"
-                                                    @bind="wonOnPenaltiesId">
-                                                <option value="">@Lang.Get("common.select")</option>
-                                                <option value="@recordingHomeId">@recordingHomeName</option>
-                                                <option value="@recordingAwayId">@recordingAwayName</option>
-                                            </select>
-                                        </div>
-                                        @if (!string.IsNullOrEmpty(wonOnPenaltiesId))
-                                        {
-                                            <div class="d-flex align-items-center gap-2 mb-2">
-                                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
-                                                       placeholder="Pen H" @bind="homePenaltyScore" />
-                                                <span>–</span>
-                                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
-                                                       placeholder="Pen A" @bind="awayPenaltyScore" />
-                                            </div>
-                                        }
-                                    }
-                                    <button class="btn btn-sm btn-success" disabled="@isWorking"
-                                            @onclick="HandleRecordResult">
-                                        @(isWorking ? "..." : Lang.Get("common.save"))
-                                    </button>
-                                </div>
+                                <MatchResultForm
+                                    HasPenalties="true"
+                                    IsHomeAndAway="cup.IsHomeAndAway"
+                                    IsLeg2="recordingIsLeg2"
+                                    OtherLegHomeScore="otherLegHomeScore"
+                                    OtherLegAwayScore="otherLegAwayScore"
+                                    HomePlayerId="@recordingHomeId"
+                                    HomePlayerName="@match.HomePlayerName"
+                                    AwayPlayerId="@recordingAwayId"
+                                    AwayPlayerName="@match.AwayPlayerName"
+                                    IsSaving="isRecording"
+                                    OnSave="HandleRecordResult"
+                                    OnCancel="() => recordingMatchId = null" />
                             }
                         }
 

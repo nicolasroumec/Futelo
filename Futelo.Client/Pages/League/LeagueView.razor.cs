@@ -2,6 +2,7 @@ using Futelo.Client.Services.Language;
 using Futelo.Client.Services.League;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.VideoGames;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.VideoGame;
@@ -23,8 +24,7 @@ public partial class LeagueView : IDisposable
     private string? errorMessage;
 
     private int? recordingMatchId;
-    private int homeScore;
-    private int awayScore;
+    private bool isRecording;
     private RecordResultResponse? lastResult;
 
     private int selectedMatchday;
@@ -89,15 +89,12 @@ public partial class LeagueView : IDisposable
     private void SelectMatch(int matchId)
     {
         if (recordingMatchId == matchId)
-        {
             recordingMatchId = null;
-        }
         else
         {
             recordingMatchId = matchId;
-            homeScore = 0;
-            awayScore = 0;
             lastResult = null;
+            editingMatchId = null;
         }
         errorMessage = null;
     }
@@ -140,14 +137,14 @@ public partial class LeagueView : IDisposable
         }
     }
 
-    private async Task HandleRecordResult()
+    private async Task HandleRecordResult(MatchResultInput input)
     {
         if (recordingMatchId == null) return;
-        isWorking = true;
+        isRecording = true;
         errorMessage = null;
         try
         {
-            var request = new RecordResultRequest { HomeScore = homeScore, AwayScore = awayScore };
+            var request = new RecordResultRequest { HomeScore = input.HomeScore, AwayScore = input.AwayScore };
             lastResult = await LeagueService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;
             await LoadAsync();
@@ -158,7 +155,7 @@ public partial class LeagueView : IDisposable
         }
         finally
         {
-            isWorking = false;
+            isRecording = false;
         }
     }
 

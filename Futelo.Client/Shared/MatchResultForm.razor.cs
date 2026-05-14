@@ -1,0 +1,62 @@
+using Futelo.Client.Services.Language;
+using Microsoft.AspNetCore.Components;
+
+namespace Futelo.Client.Shared;
+
+public record MatchResultInput(
+    int HomeScore,
+    int AwayScore,
+    string? WonOnPenaltiesId,
+    int? HomePenaltyScore,
+    int? AwayPenaltyScore);
+
+public partial class MatchResultForm
+{
+    [Inject] private ILanguageService Lang { get; set; } = null!;
+
+    [Parameter] public bool HasPenalties { get; set; }
+    [Parameter] public bool IsHomeAndAway { get; set; }
+    [Parameter] public bool IsLeg2 { get; set; }
+    [Parameter] public int? OtherLegHomeScore { get; set; }
+    [Parameter] public int? OtherLegAwayScore { get; set; }
+    [Parameter] public string HomePlayerId { get; set; } = string.Empty;
+    [Parameter] public string HomePlayerName { get; set; } = string.Empty;
+    [Parameter] public string AwayPlayerId { get; set; } = string.Empty;
+    [Parameter] public string AwayPlayerName { get; set; } = string.Empty;
+    [Parameter] public bool IsSaving { get; set; }
+    [Parameter] public EventCallback<MatchResultInput> OnSave { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private int homeScore;
+    private int awayScore;
+    private string wonOnPenaltiesId = string.Empty;
+    private int? homePenaltyScore;
+    private int? awayPenaltyScore;
+
+    private bool ShowPenaltyFields
+    {
+        get
+        {
+            if (!IsHomeAndAway)
+                return homeScore == awayScore;
+
+            if (!IsLeg2 || OtherLegHomeScore == null) return false;
+            int aGoals = OtherLegHomeScore.Value + awayScore;
+            int bGoals = (OtherLegAwayScore ?? 0) + homeScore;
+            return aGoals == bGoals;
+        }
+    }
+
+    private async Task HandleSave()
+    {
+        bool hasPenalties = HasPenalties && ShowPenaltyFields && !string.IsNullOrEmpty(wonOnPenaltiesId);
+        await OnSave.InvokeAsync(new MatchResultInput(
+            homeScore,
+            awayScore,
+            hasPenalties ? wonOnPenaltiesId : null,
+            hasPenalties ? homePenaltyScore : null,
+            hasPenalties ? awayPenaltyScore : null));
+    }
+
+    private void HandleCancel() => OnCancel.InvokeAsync();
+}

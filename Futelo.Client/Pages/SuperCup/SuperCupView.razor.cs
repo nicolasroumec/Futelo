@@ -1,5 +1,6 @@
 using Futelo.Client.Services.Language;
 using Futelo.Client.Services.SuperCup;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.SuperCup;
 using Microsoft.AspNetCore.Components;
 
@@ -13,20 +14,15 @@ public partial class SuperCupView : IDisposable
 
     private SuperCupResponse? superCup;
     private bool isLoading = true;
-    private bool isWorking;
+    private bool isRecording;
     private string? errorMessage;
 
     private int? recordingMatchId;
-    private int homeScore;
-    private int awayScore;
-    private string wonOnPenaltiesId = string.Empty;
-    private int? homePenaltyScore;
-    private int? awayPenaltyScore;
     private string recordingHomeId = string.Empty;
-    private string recordingHomeName = string.Empty;
     private string recordingAwayId = string.Empty;
-    private string recordingAwayName = string.Empty;
     private bool recordingIsLeg2;
+    private int? otherLegHomeScore;
+    private int? otherLegAwayScore;
     private RecordSuperCupResultResponse? lastResult;
 
     protected override async Task OnInitializedAsync()
@@ -64,43 +60,24 @@ public partial class SuperCupView : IDisposable
         }
 
         recordingMatchId = matchId;
-        homeScore = 0;
-        awayScore = 0;
-        wonOnPenaltiesId = string.Empty;
-        homePenaltyScore = null;
-        awayPenaltyScore = null;
         lastResult = null;
         recordingHomeId = homeId;
-        recordingHomeName = homeName;
         recordingAwayId = awayId;
-        recordingAwayName = awayName;
         recordingIsLeg2 = superCup!.IsHomeAndAway && leg == 2;
-        errorMessage = null;
-    }
-
-    private bool ShowPenaltyFields
-    {
-        get
+        otherLegHomeScore = null;
+        otherLegAwayScore = null;
+        if (recordingIsLeg2 && superCup.Matches.Count >= 2)
         {
-            if (!superCup!.IsHomeAndAway)
-                return homeScore == awayScore;
-
-            if (!recordingIsLeg2) return false;
-
-            var ordered = superCup.Matches.OrderBy(m => m.Id).ToList();
-            if (ordered.Count < 2) return false;
-            var leg1 = ordered[0];
-            if (leg1.HomeScore == null) return false;
-
-            int p1Goals = (leg1.HomeScore ?? 0) + awayScore;
-            int p2Goals = (leg1.AwayScore ?? 0) + homeScore;
-            return p1Goals == p2Goals;
+            var leg1 = superCup.Matches.OrderBy(m => m.Id).First();
+            otherLegHomeScore = leg1.HomeScore;
+            otherLegAwayScore = leg1.AwayScore;
         }
+        errorMessage = null;
     }
 
     private async Task HandleStart()
     {
-        isWorking = true;
+        isLoading = true;
         errorMessage = null;
         try
         {
@@ -113,25 +90,24 @@ public partial class SuperCupView : IDisposable
         }
         finally
         {
-            isWorking = false;
+            isLoading = false;
         }
     }
 
-    private async Task HandleRecordResult()
+    private async Task HandleRecordResult(MatchResultInput input)
     {
         if (recordingMatchId == null) return;
-        isWorking = true;
+        isRecording = true;
         errorMessage = null;
         try
         {
-            bool hasPenalties = ShowPenaltyFields && !string.IsNullOrEmpty(wonOnPenaltiesId);
             var request = new RecordSuperCupResultRequest
             {
-                HomeScore = homeScore,
-                AwayScore = awayScore,
-                WonOnPenaltiesId = hasPenalties ? wonOnPenaltiesId : null,
-                HomePenaltyScore = hasPenalties ? homePenaltyScore : null,
-                AwayPenaltyScore = hasPenalties ? awayPenaltyScore : null
+                HomeScore = input.HomeScore,
+                AwayScore = input.AwayScore,
+                WonOnPenaltiesId = input.WonOnPenaltiesId,
+                HomePenaltyScore = input.HomePenaltyScore,
+                AwayPenaltyScore = input.AwayPenaltyScore
             };
             lastResult = await SuperCupService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;
@@ -143,7 +119,7 @@ public partial class SuperCupView : IDisposable
         }
         finally
         {
-            isWorking = false;
+            isRecording = false;
         }
     }
 

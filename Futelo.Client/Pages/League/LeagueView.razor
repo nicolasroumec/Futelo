@@ -182,17 +182,14 @@ else
 
                         @if (recordingMatchId == match.Id)
                         {
-                            <div class="d-flex align-items-center gap-2 mt-2">
-                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
-                                       placeholder="Home" @bind="homeScore" />
-                                <span>–</span>
-                                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
-                                       placeholder="Away" @bind="awayScore" />
-                                <button class="btn btn-sm btn-success" disabled="@isWorking"
-                                        @onclick="HandleRecordResult">
-                                    @(isWorking ? "..." : Lang.Get("common.save"))
-                                </button>
-                            </div>
+                            <MatchResultForm
+                                HomePlayerId="@match.HomePlayerId"
+                                HomePlayerName="@match.HomePlayerName"
+                                AwayPlayerId="@match.AwayPlayerId"
+                                AwayPlayerName="@match.AwayPlayerName"
+                                IsSaving="isRecording"
+                                OnSave="HandleRecordResult"
+                                OnCancel="() => recordingMatchId = null" />
                         }
 
                         <MatchEditPanel

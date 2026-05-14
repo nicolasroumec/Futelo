@@ -1,5 +1,6 @@
 using Futelo.Client.Services.Cup;
 using Futelo.Client.Services.Language;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Cup;
 using Microsoft.AspNetCore.Components;
 
@@ -13,20 +14,13 @@ public partial class CupView : IDisposable
 
     private CupResponse? cup;
     private bool isLoading = true;
-    private bool isWorking;
+    private bool isRecording;
     private string? errorMessage;
 
     private int? recordingMatchId;
-    private int homeScore;
-    private int awayScore;
-    private string wonOnPenaltiesId = string.Empty;
-    private int? homePenaltyScore;
-    private int? awayPenaltyScore;
     private string recordingHomeId = string.Empty;
-    private string recordingHomeName = string.Empty;
     private string recordingAwayId = string.Empty;
-    private string recordingAwayName = string.Empty;
-    private bool recordingIsLeg2HomeAndAway;
+    private bool recordingIsLeg2;
     private int? otherLegHomeScore;
     private int? otherLegAwayScore;
     private RecordCupResultResponse? lastResult;
@@ -62,59 +56,35 @@ public partial class CupView : IDisposable
         if (recordingMatchId == matchId)
         {
             recordingMatchId = null;
+            return;
         }
-        else
+
+        recordingMatchId = matchId;
+        lastResult = null;
+        recordingHomeId = homeId;
+        recordingAwayId = awayId;
+
+        var match = cup!.Rounds.SelectMany(r => r.Matches).First(m => m.Id == matchId);
+        recordingIsLeg2 = cup.IsHomeAndAway && match.Leg == 2;
+        otherLegHomeScore = null;
+        otherLegAwayScore = null;
+
+        if (recordingIsLeg2)
         {
-            recordingMatchId = matchId;
-            homeScore = 0;
-            awayScore = 0;
-            wonOnPenaltiesId = string.Empty;
-            homePenaltyScore = null;
-            awayPenaltyScore = null;
-            lastResult = null;
-
-            var match = cup!.Rounds
-                .SelectMany(r => r.Matches)
-                .First(m => m.Id == matchId);
-            recordingHomeId = homeId;
-            recordingHomeName = match.HomePlayerName;
-            recordingAwayId = awayId;
-            recordingAwayName = match.AwayPlayerName;
-
-            recordingIsLeg2HomeAndAway = cup.IsHomeAndAway && match.Leg == 2;
-            otherLegHomeScore = null;
-            otherLegAwayScore = null;
-            if (recordingIsLeg2HomeAndAway)
-            {
-                var round = cup.Rounds.First(r => r.Matches.Any(m => m.Id == matchId));
-                var ordered = round.Matches.OrderBy(m => m.Id).ToList();
-                int idx = ordered.FindIndex(m => m.Id == matchId);
-                var leg1 = ordered[idx - 1];
-                otherLegHomeScore = leg1.HomeScore;
-                otherLegAwayScore = leg1.AwayScore;
-            }
+            var round = cup.Rounds.First(r => r.Matches.Any(m => m.Id == matchId));
+            var ordered = round.Matches.OrderBy(m => m.Id).ToList();
+            int idx = ordered.FindIndex(m => m.Id == matchId);
+            var leg1 = ordered[idx - 1];
+            otherLegHomeScore = leg1.HomeScore;
+            otherLegAwayScore = leg1.AwayScore;
         }
+
         errorMessage = null;
-    }
-
-    private bool ShowPenaltyFields
-    {
-        get
-        {
-            if (!cup!.IsHomeAndAway)
-                return homeScore == awayScore;
-
-            if (!recordingIsLeg2HomeAndAway) return false;
-            if (otherLegHomeScore == null) return false;
-            int aGoals = otherLegHomeScore.Value + awayScore;
-            int bGoals = (otherLegAwayScore ?? 0) + homeScore;
-            return aGoals == bGoals;
-        }
     }
 
     private async Task HandleStart()
     {
-        isWorking = true;
+        isLoading = true;
         errorMessage = null;
         try
         {
@@ -127,25 +97,24 @@ public partial class CupView : IDisposable
         }
         finally
         {
-            isWorking = false;
+            isLoading = false;
         }
     }
 
-    private async Task HandleRecordResult()
+    private async Task HandleRecordResult(MatchResultInput input)
     {
         if (recordingMatchId == null) return;
-        isWorking = true;
+        isRecording = true;
         errorMessage = null;
         try
         {
-            bool hasPenalties = ShowPenaltyFields && !string.IsNullOrEmpty(wonOnPenaltiesId);
             var request = new RecordCupResultRequest
             {
-                HomeScore = homeScore,
-                AwayScore = awayScore,
-                WonOnPenaltiesId = hasPenalties ? wonOnPenaltiesId : null,
-                HomePenaltyScore = hasPenalties ? homePenaltyScore : null,
-                AwayPenaltyScore = hasPenalties ? awayPenaltyScore : null
+                HomeScore = input.HomeScore,
+                AwayScore = input.AwayScore,
+                WonOnPenaltiesId = input.WonOnPenaltiesId,
+                HomePenaltyScore = input.HomePenaltyScore,
+                AwayPenaltyScore = input.AwayPenaltyScore
             };
             lastResult = await CupService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;
@@ -157,7 +126,7 @@ public partial class CupView : IDisposable
         }
         finally
         {
-            isWorking = false;
+            isRecording = false;
         }
     }
 
