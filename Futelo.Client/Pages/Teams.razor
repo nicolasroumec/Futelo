@@ -37,7 +37,7 @@
 
 @if (isLoading)
 {
-    <SkeletonList Items="4" />
+    <SkeletonCards Count="6" Columns="3" />
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -49,16 +49,20 @@ else if (teams.Count == 0)
 }
 else
 {
-    <ul class="list-group" style="max-width:400px">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var team in teams)
         {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                @team.Name
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => EditTeam(team)">@Lang.Get("common.edit")</button>
-                    <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteTeam(team.Id)">@Lang.Get("common.delete")</button>
+            <div class="col">
+                <div class="card card-glass h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-0">@team.Name</h5>
+                    </div>
+                    <div class="card-footer d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="() => EditTeam(team)">@Lang.Get("common.edit")</button>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteTeam(team.Id)">@Lang.Get("common.delete")</button>
+                    </div>
                 </div>
-            </li>
+            </div>
         }
-    </ul>
+    </div>
 }
