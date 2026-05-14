@@ -33,7 +33,7 @@ public partial class Login : IDisposable
         try
         {
             await AuthService.LoginAsync(model);
-            Nav.NavigateTo(ReturnUrl ?? "/");
+            Nav.NavigateTo(ReturnUrl ?? "/dashboard");
         }
         catch (Exception ex)
         {
