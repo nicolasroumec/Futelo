@@ -39,7 +39,7 @@ else
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/seasons/@cup.SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@cup.Name</h3>
-        <span class="badge bg-secondary">@cup.Status</span>
+        <span class="badge @BadgeHelper.StatusBadgeClass(cup.Status)">@cup.Status</span>
         @if (cup.IsHomeAndAway)
         {
             <span class="badge bg-info text-dark">@Lang.Get("season.homeAndAway")</span>

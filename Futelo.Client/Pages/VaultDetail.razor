@@ -82,7 +82,7 @@ else
             {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <a href="/seasons/@s.Id" class="text-decoration-none">@s.Name (@s.Year)</a>
-                    <span class="badge bg-secondary">@s.Status</span>
+                    <span class="badge @BadgeHelper.StatusBadgeClass(s.Status)">@s.Status</span>
                 </li>
             }
         </ul>

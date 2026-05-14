@@ -37,7 +37,7 @@ else
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/vaults/@season.VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@season.Name</h3>
-        <span class="badge bg-secondary">@season.Status</span>
+        <span class="badge @BadgeHelper.StatusBadgeClass(season.Status)">@season.Status</span>
     </div>
 
     <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
