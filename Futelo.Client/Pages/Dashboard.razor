@@ -14,7 +14,13 @@
 }
 else if (vaults.Count == 0)
 {
-    <p class="empty-state">@Lang.Get("dashboard.empty")</p>
+    <div class="card card-glass text-center py-5" style="max-width:480px">
+        <div class="card-body">
+            <h4 class="card-title mb-2">@Lang.Get("dashboard.emptyTitle")</h4>
+            <p class="card-text mb-4">@Lang.Get("dashboard.emptySubtitle")</p>
+            <a href="/vaults/create" class="btn btn-primary">@Lang.Get("dashboard.newVault")</a>
+        </div>
+    </div>
 }
 else
 {

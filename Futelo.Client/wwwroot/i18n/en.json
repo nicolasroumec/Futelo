@@ -28,6 +28,8 @@
   "dashboard.title": "My Vaults",
   "dashboard.newVault": "New Vault",
   "dashboard.empty": "No vaults yet. Create your first one!",
+  "dashboard.emptyTitle": "No vaults yet",
+  "dashboard.emptySubtitle": "Create your first vault to start tracking matches, seasons, and stats.",
   "dashboard.open": "Open",
   "dashboard.owner": "Owner",
   "dashboard.players": "players",
