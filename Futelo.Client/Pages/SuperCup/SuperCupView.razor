@@ -136,7 +136,7 @@ else
                     }
 
                     <MatchEditPanel
-                        CanEdit="@(superCup.CanEdit && superCup.Status == "Active")"
+                        CanEdit="@(superCup.CanEdit && superCup.Status != "NotStarted")"
                         IsEditing="editingMatchId == match.Id"
                         HomePlayerName="@match.HomePlayerName"
                         AwayPlayerName="@match.AwayPlayerName"
