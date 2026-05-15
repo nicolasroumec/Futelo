@@ -581,6 +581,53 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         };
     }
 
+    public async Task<PlayerRecordsResponse> GetPlayerRecordsAsync(string playerId, int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException("Vault not found.");
+
+        var matches = await statsRepository.GetPlayerMatchesWithOpponentsInVaultAsync(playerId, vaultId);
+        var eloHistory = await statsRepository.GetPlayerEloHistoryInVaultAsync(playerId, vaultId);
+
+        MatchRecordEntry? bestWin = null;
+        MatchRecordEntry? worstDefeat = null;
+        int bestWinDiff = -1;
+        int worstDefeatDiff = -1;
+
+        foreach (var m in matches)
+        {
+            bool isHome = m.HomePlayerId == playerId;
+            int myScore = isHome ? (m.HomeScore ?? 0) : (m.AwayScore ?? 0);
+            int oppScore = isHome ? (m.AwayScore ?? 0) : (m.HomeScore ?? 0);
+            int diff = Math.Abs(myScore - oppScore);
+            string opponentName = (isHome ? m.AwayPlayer : m.HomePlayer)?.DisplayName ?? string.Empty;
+
+            if (myScore > oppScore && diff > bestWinDiff)
+            {
+                bestWinDiff = diff;
+                bestWin = new MatchRecordEntry { OpponentName = opponentName, MyScore = myScore, OpponentScore = oppScore, PlayedAt = m.PlayedAt };
+            }
+            else if (oppScore > myScore && diff > worstDefeatDiff)
+            {
+                worstDefeatDiff = diff;
+                worstDefeat = new MatchRecordEntry { OpponentName = opponentName, MyScore = myScore, OpponentScore = oppScore, PlayedAt = m.PlayedAt };
+            }
+        }
+
+        int peakElo = eloHistory.Count > 0 ? eloHistory.Max(e => e.EloAfter) : 0;
+        int bestEloGain = eloHistory.Count > 0
+            ? eloHistory.Where(e => e.EloChange > 0).Select(e => e.EloChange).DefaultIfEmpty(0).Max()
+            : 0;
+
+        return new PlayerRecordsResponse
+        {
+            BestWin = bestWin,
+            WorstDefeat = worstDefeat,
+            PeakElo = peakElo,
+            BestEloGain = bestEloGain
+        };
+    }
+
     private static (int current, int bestWin, int bestUnbeaten, StreakType currentType) ComputeStreaks(List<Match> matches, string playerId)
     {
         var sorted = matches

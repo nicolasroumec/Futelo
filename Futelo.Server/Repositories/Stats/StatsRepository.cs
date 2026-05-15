@@ -190,6 +190,19 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .Include(m => m.SuperCup).ThenInclude(sc => sc!.Season)
             .OrderByDescending(m => m.PlayedAt);
 
+    public async Task<List<Match>> GetPlayerMatchesWithOpponentsInVaultAsync(string playerId, int vaultId)
+        => await context.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .Where(m => m.HomePlayerId == playerId || m.AwayPlayerId == playerId)
+            .Where(m =>
+                (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
+                (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
+                (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId))
+            .Include(m => m.HomePlayer)
+            .Include(m => m.AwayPlayer)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
+
     public async Task<Match?> GetTopScoringMatchInVaultAsync(int vaultId)
         => await context.Matches
             .Where(m => m.Status == MatchStatus.Played)

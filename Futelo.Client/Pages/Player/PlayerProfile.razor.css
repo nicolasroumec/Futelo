@@ -133,3 +133,44 @@
 .title-detail__season {
     color: var(--color-text-muted);
 }
+
+/* ── Personal records grid ── */
+
+.records-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: .75rem;
+    max-width: 560px;
+}
+
+.record-card {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: .6rem .9rem;
+}
+
+.record-card--win {
+    border-color: rgba(34, 197, 94, .35);
+    background: rgba(34, 197, 94, .06);
+}
+
+.record-card--loss {
+    border-color: rgba(239, 68, 68, .35);
+    background: rgba(239, 68, 68, .06);
+}
+
+.record-card__label {
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--color-text-muted);
+    margin-bottom: .2rem;
+}
+
+.record-card__value {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--color-text);
+}

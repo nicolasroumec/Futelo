@@ -148,6 +148,11 @@
   "player.titles": "Titles",
   "player.compare": "Compare",
   "player.notFound": "Player not found.",
+  "player.records": "Personal Records",
+  "player.bestWin": "Best Win",
+  "player.worstDefeat": "Worst Defeat",
+  "player.peakElo": "Peak ELO",
+  "player.bestEloGain": "Best ELO Gain",
 
   "headToHead.title": "Head to Head",
   "headToHead.matchHistory": "Match History",

@@ -194,6 +194,20 @@ public class StatsController(IStatsService statsService) : ControllerBase
         }
     }
 
+    [HttpGet("vaults/{vaultId}/players/{playerId}/records")]
+    public async Task<IActionResult> GetPlayerRecords(int vaultId, string playerId)
+    {
+        try
+        {
+            var records = await statsService.GetPlayerRecordsAsync(playerId, vaultId, UserId);
+            return Ok(records);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
     [HttpGet("vaults/{vaultId}/records/top-scoring-match")]
     public async Task<IActionResult> GetTopScoringMatch(int vaultId)
     {

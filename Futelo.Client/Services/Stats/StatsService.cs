@@ -45,6 +45,9 @@ public class StatsService(HttpClient http) : ApiService(http), IStatsService
     public Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(int vaultId, string playerId, int page = 1, int pageSize = 10, CancellationToken ct = default)
         => GetAsync<MatchHistoryPageResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/matches?page={page}&pageSize={pageSize}", ct);
 
+    public Task<PlayerRecordsResponse> GetPlayerRecordsAsync(int vaultId, string playerId, CancellationToken ct = default)
+        => GetAsync<PlayerRecordsResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/records", ct);
+
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, CancellationToken ct = default)
     {
         var response = await Http.GetAsync($"api/stats/vaults/{vaultId}/records/top-scoring-match", ct);

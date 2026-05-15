@@ -19,6 +19,7 @@ public partial class PlayerProfile : LocalizedComponentBase
     [Inject] private IJSRuntime JS { get; set; } = null!;
 
     private PlayerStatsResponse? stats;
+    private PlayerRecordsResponse? records;
     private List<EloHistoryPoint> eloHistory = [];
     private List<RecentFormEntry> recentForm = [];
     private List<RecentMatchResponse> recentMatches = [];
@@ -41,6 +42,7 @@ public partial class PlayerProfile : LocalizedComponentBase
             eloHistory = await StatsService.GetEloHistoryAsync(VaultId, PlayerId, ComponentToken);
             recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId, ComponentToken);
             recentMatches = await StatsService.GetPlayerRecentMatchesAsync(VaultId, PlayerId, ct: ComponentToken);
+            records = await StatsService.GetPlayerRecordsAsync(VaultId, PlayerId, ComponentToken);
             var vault = await VaultService.GetByIdAsync(VaultId, ComponentToken);
             opponents = vault.Players.Where(p => p.PlayerId != PlayerId).ToList();
             if (opponents.Count > 0)
@@ -169,5 +171,12 @@ public partial class PlayerProfile : LocalizedComponentBase
         if (m.WonOnPenaltiesId is not null)
             score += $" ({m.HomePenaltyScore}-{m.AwayPenaltyScore} pen.)";
         return score;
+    }
+
+    private static string RecordMatchLabel(MatchRecordEntry entry)
+    {
+        var date = entry.PlayedAt.HasValue ? entry.PlayedAt.Value.ToString("dd/MM/yy") : string.Empty;
+        return $"{entry.MyScore} - {entry.OpponentScore} vs {entry.OpponentName}" +
+               (date.Length > 0 ? $" · {date}" : string.Empty);
     }
 }

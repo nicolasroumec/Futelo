@@ -160,6 +160,41 @@ else
         </div>
     }
 
+    @if (records != null && (records.BestWin != null || records.WorstDefeat != null || records.PeakElo > 0))
+    {
+        <h5 class="mt-2">@Lang.Get("player.records")</h5>
+        <div class="records-grid mb-4">
+            @if (records.BestWin != null)
+            {
+                <div class="record-card record-card--win">
+                    <div class="record-card__label">@Lang.Get("player.bestWin")</div>
+                    <div class="record-card__value">@RecordMatchLabel(records.BestWin)</div>
+                </div>
+            }
+            @if (records.WorstDefeat != null)
+            {
+                <div class="record-card record-card--loss">
+                    <div class="record-card__label">@Lang.Get("player.worstDefeat")</div>
+                    <div class="record-card__value">@RecordMatchLabel(records.WorstDefeat)</div>
+                </div>
+            }
+            @if (records.PeakElo > 0)
+            {
+                <div class="record-card">
+                    <div class="record-card__label">@Lang.Get("player.peakElo")</div>
+                    <div class="record-card__value">@records.PeakElo</div>
+                </div>
+            }
+            @if (records.BestEloGain > 0)
+            {
+                <div class="record-card">
+                    <div class="record-card__label">@Lang.Get("player.bestEloGain")</div>
+                    <div class="record-card__value">+@records.BestEloGain</div>
+                </div>
+            }
+        </div>
+    }
+
     @if (eloHistory.Count > 0)
     {
         <h5>@Lang.Get("player.eloHistory")</h5>
