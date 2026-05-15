@@ -126,11 +126,11 @@ Ver roadmap para detalle completo.
 
 ---
 
-### Sprint A2 — Lógica de negocio compartida (~2h) 🔴 ALTA
+### Sprint A2 — Lógica de negocio compartida (~2h) ✅ COMPLETO
 
-- [ ] Extraer `EloCalculator` como clase estática en `Futelo.Server/Services/`
+- [x] Extraer `EloCalculator` como clase estática en `Futelo.Server/Helpers/`
   - `refactor: extract shared EloCalculator from League/Cup/SuperCup services`
-- [ ] Reemplazar los 3 usos duplicados de ELO por llamadas a `EloCalculator`
+- [x] Reemplazar los 3 usos duplicados de ELO por llamadas a `EloCalculator`
   - `refactor: replace inline ELO logic with EloCalculator in all competition services`
 
 ---
@@ -163,9 +163,9 @@ Ver roadmap para detalle completo.
 
 - [ ] Extraer `SeasonPlayerManager`, `SeasonCompetitionConfig`, `SeasonTeamSelector` de `SeasonDetail`
   - `refactor: decompose SeasonDetail into focused sub-components`
-- [ ] Extraer `FixtureGenerator` de `LeagueService`
+- [x] Extraer `FixtureGenerator` de `LeagueService` → `Futelo.Server/Helpers/`
   - `refactor: extract FixtureGenerator from LeagueService`
-- [ ] Extraer `StandingsCalculator` de `LeagueService`
+- [x] Extraer `StandingsCalculator` de `LeagueService` → `Futelo.Server/Helpers/`
   - `refactor: extract StandingsCalculator from LeagueService`
 - [ ] Descomponer `RecordResultAsync` en métodos privados
   - `refactor: break down RecordResultAsync into focused private methods`
