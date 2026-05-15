@@ -1,3 +1,4 @@
+using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.SuperCup;
 using Futelo.Shared.DTOs.SuperCup;
@@ -122,13 +123,13 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
             awayResult = 1.0 - homeResult;
         }
 
-        var (homeSeasonChange, homeNewSeasonElo) = ComputeElo(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k);
-        var (awaySeasonChange, awayNewSeasonElo) = ComputeElo(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k);
+        var (homeSeasonChange, homeNewSeasonElo) = EloCalculator.Compute(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k);
+        var (awaySeasonChange, awayNewSeasonElo) = EloCalculator.Compute(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k);
 
         int homeHistElo = homesp.Player.EloRating;
         int awayHistElo = awaysp.Player.EloRating;
-        var (homeHistChange, homeNewHistElo) = ComputeElo(homeHistElo, awayHistElo, homeResult, goalDiff, k);
-        var (awayHistChange, awayNewHistElo) = ComputeElo(awayHistElo, homeHistElo, awayResult, goalDiff, k);
+        var (homeHistChange, homeNewHistElo) = EloCalculator.Compute(homeHistElo, awayHistElo, homeResult, goalDiff, k);
+        var (awayHistChange, awayNewHistElo) = EloCalculator.Compute(awayHistElo, homeHistElo, awayResult, goalDiff, k);
 
         var seasonElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.SeasonElo);
         int homeSeasonRankBefore = seasonElos.Count(kv => kv.Value > homesp.SeasonElo) + 1;
@@ -324,11 +325,4 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
         };
     }
 
-    private static (int change, int newElo) ComputeElo(int myElo, int opponentElo, double result, int goalDiff, int k)
-    {
-        double expected = 1.0 / (1.0 + Math.Pow(10, (opponentElo - myElo) / 400.0));
-        double multiplier = goalDiff >= 3 ? 1.5 : goalDiff == 2 ? 1.2 : 1.0;
-        int change = (int)Math.Round(k * multiplier * (result - expected), MidpointRounding.AwayFromZero);
-        return (change, myElo + change);
-    }
 }
