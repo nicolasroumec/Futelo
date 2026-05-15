@@ -339,10 +339,28 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
                 bestUnbeatenRecord = new RecordEntry { PlayerId = playerId!, DisplayName = playerUser.DisplayName, Value = bestUnbeaten };
         }
 
+        var eloHistories = await statsRepository.GetAllHistoricalEloInVaultAsync(vaultId);
+
+        RecordEntry? peakEloRecord = null;
+        RecordEntry? bestEloGainRecord = null;
+
+        if (eloHistories.Count > 0)
+        {
+            var peakEntry = eloHistories.MaxBy(e => e.EloAfter);
+            if (peakEntry != null)
+                peakEloRecord = new RecordEntry { PlayerId = peakEntry.PlayerId, DisplayName = peakEntry.Player.DisplayName, Value = peakEntry.EloAfter };
+
+            var gainEntry = eloHistories.Where(e => e.EloChange > 0).MaxBy(e => e.EloChange);
+            if (gainEntry != null)
+                bestEloGainRecord = new RecordEntry { PlayerId = gainEntry.PlayerId, DisplayName = gainEntry.Player.DisplayName, Value = gainEntry.EloChange };
+        }
+
         return new VaultRecordsResponse
         {
             BestWinStreak = bestWinRecord,
-            BestUnbeatenStreak = bestUnbeatenRecord
+            BestUnbeatenStreak = bestUnbeatenRecord,
+            PeakElo = peakEloRecord,
+            BestEloGain = bestEloGainRecord
         };
     }
 

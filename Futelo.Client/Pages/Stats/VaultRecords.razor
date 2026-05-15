@@ -48,7 +48,7 @@ else
     {
         <div class="alert alert-danger mb-3">@errorMessage</div>
     }
-    else if (records?.BestWinStreak == null && records?.BestUnbeatenStreak == null)
+    else if (records?.BestWinStreak == null && records?.BestUnbeatenStreak == null && records?.PeakElo == null)
     {
         <p class="empty-state">@Lang.Get("stats.noMatches")</p>
     }
@@ -81,6 +81,36 @@ else
                                 @records.BestUnbeatenStreak.DisplayName
                             </a>
                             <span class="badge bg-primary fs-5">@records.BestUnbeatenStreak.Value</span>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (records!.PeakElo != null)
+            {
+                <div class="card card-glass">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">@Lang.Get("stats.peakElo")</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <a href="/vaults/@VaultId/players/@records.PeakElo.PlayerId"
+                               class="fw-semibold text-decoration-none fs-5">
+                                @records.PeakElo.DisplayName
+                            </a>
+                            <span class="badge bg-secondary fs-5">@records.PeakElo.Value</span>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (records!.BestEloGain != null)
+            {
+                <div class="card card-glass">
+                    <div class="card-body">
+                        <div class="text-muted small mb-1">@Lang.Get("stats.bestEloGain")</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <a href="/vaults/@VaultId/players/@records.BestEloGain.PlayerId"
+                               class="fw-semibold text-decoration-none fs-5">
+                                @records.BestEloGain.DisplayName
+                            </a>
+                            <span class="badge bg-info fs-5">+@records.BestEloGain.Value</span>
                         </div>
                     </div>
                 </div>

@@ -190,6 +190,13 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .Include(m => m.SuperCup).ThenInclude(sc => sc!.Season)
             .OrderByDescending(m => m.PlayedAt);
 
+    public async Task<List<EloHistory>> GetAllHistoricalEloInVaultAsync(int vaultId)
+        => await context.EloHistories
+            .Where(e => !e.IsSeasonElo && e.Season.VaultId == vaultId)
+            .Include(e => e.Player)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
+
     public async Task<List<Match>> GetPlayerMatchesWithOpponentsInVaultAsync(string playerId, int vaultId)
         => await context.Matches
             .Where(m => m.Status == MatchStatus.Played)

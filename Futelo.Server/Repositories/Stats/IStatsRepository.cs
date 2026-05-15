@@ -22,4 +22,5 @@ public interface IStatsRepository
     Task<Match?> GetTopScoringMatchInVaultAsync(int vaultId);
     Task<List<Models.Season>> GetPlayerTitleSeasonsInVaultAsync(string playerId, int vaultId);
     Task<List<Match>> GetPlayerMatchesWithOpponentsInVaultAsync(string playerId, int vaultId);
+    Task<List<EloHistory>> GetAllHistoricalEloInVaultAsync(int vaultId);
 }

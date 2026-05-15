@@ -129,6 +129,8 @@
   "stats.bestUnbeatenRun": "Best Unbeaten Run",
   "stats.topScoringMatch": "Top Scoring Match",
   "stats.goalsLabel": "goals",
+  "stats.peakElo": "Peak ELO",
+  "stats.bestEloGain": "Best ELO Gain (Single Match)",
   "stats.noPlayers": "No players in this vault.",
   "stats.noPlayersInSeason": "No players in this season.",
   "stats.noMatches": "No matches played yet.",
