@@ -157,15 +157,15 @@ Ver roadmap para detalle completo.
 
 ---
 
-### Sprint A5 — Refactors de tamaño (~4h) 🟡 MEDIA
+### Sprint A5 — Refactors de tamaño (~4h) ✅ COMPLETO
 
-- [ ] Extraer `SeasonPlayerManager`, `SeasonCompetitionConfig`, `SeasonTeamSelector` de `SeasonDetail`
+- [x] Extraer `SeasonPlayerManager`, `SeasonCompetitionConfig`, `SeasonTeamSelector` de `SeasonDetail`
   - `refactor: decompose SeasonDetail into focused sub-components`
 - [x] Extraer `FixtureGenerator` de `LeagueService` → `Futelo.Server/Helpers/`
   - `refactor: extract FixtureGenerator from LeagueService`
 - [x] Extraer `StandingsCalculator` de `LeagueService` → `Futelo.Server/Helpers/`
   - `refactor: extract StandingsCalculator from LeagueService`
-- [ ] Descomponer `RecordResultAsync` en métodos privados
+- [x] Descomponer `RecordResultAsync` en métodos privados
   - `refactor: break down RecordResultAsync into focused private methods`
 
 ---

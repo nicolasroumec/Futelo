@@ -132,71 +132,9 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);
         var awaysp = seasonPlayers.First(sp => sp.PlayerId == match.AwayPlayerId);
 
-        double homeResult = homeScore > awayScore ? 1.0 : homeScore == awayScore ? 0.5 : 0.0;
-        double awayResult = 1.0 - homeResult;
-        int goalDiff = Math.Abs(homeScore - awayScore);
-
-        var (homeSeasonChange, homeNewSeasonElo) = EloCalculator.Compute(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k: 32);
-        var (awaySeasonChange, awayNewSeasonElo) = EloCalculator.Compute(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k: 32);
-
-        int homeHistElo = homesp.Player.EloRating;
-        int awayHistElo = awaysp.Player.EloRating;
-        var (homeHistChange, homeNewHistElo) = EloCalculator.Compute(homeHistElo, awayHistElo, homeResult, goalDiff, k: 32);
-        var (awayHistChange, awayNewHistElo) = EloCalculator.Compute(awayHistElo, homeHistElo, awayResult, goalDiff, k: 32);
-
-        var seasonElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.SeasonElo);
-        int homeSeasonRankBefore = seasonElos.Count(kv => kv.Value > homesp.SeasonElo) + 1;
-        int awaySeasonRankBefore = seasonElos.Count(kv => kv.Value > awaysp.SeasonElo) + 1;
-
-        seasonElos[match.HomePlayerId] = homeNewSeasonElo;
-        seasonElos[match.AwayPlayerId] = awayNewSeasonElo;
-        int homeSeasonRankAfter = seasonElos.Count(kv => kv.Value > homeNewSeasonElo) + 1;
-        int awaySeasonRankAfter = seasonElos.Count(kv => kv.Value > awayNewSeasonElo) + 1;
-
-        var histElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.Player.EloRating);
-        int homeHistRankBefore = histElos.Count(kv => kv.Value > homeHistElo) + 1;
-        int awayHistRankBefore = histElos.Count(kv => kv.Value > awayHistElo) + 1;
-
-        histElos[match.HomePlayerId] = homeNewHistElo;
-        histElos[match.AwayPlayerId] = awayNewHistElo;
-        int homeHistRankAfter = histElos.Count(kv => kv.Value > homeNewHistElo) + 1;
-        int awayHistRankAfter = histElos.Count(kv => kv.Value > awayNewHistElo) + 1;
-
-        var now = DateTime.UtcNow;
-        var histories = new List<EloHistory>
-        {
-            new() { PlayerId = match.HomePlayerId, MatchId = matchId, SeasonId = league.SeasonId, EloBefore = homesp.SeasonElo, EloAfter = homeNewSeasonElo, EloChange = homeSeasonChange, RankBefore = homeSeasonRankBefore, RankAfter = homeSeasonRankAfter, IsSeasonElo = true, CreatedAt = now },
-            new() { PlayerId = match.HomePlayerId, MatchId = matchId, SeasonId = league.SeasonId, EloBefore = homeHistElo, EloAfter = homeNewHistElo, EloChange = homeHistChange, RankBefore = homeHistRankBefore, RankAfter = homeHistRankAfter, IsSeasonElo = false, CreatedAt = now },
-            new() { PlayerId = match.AwayPlayerId, MatchId = matchId, SeasonId = league.SeasonId, EloBefore = awaysp.SeasonElo, EloAfter = awayNewSeasonElo, EloChange = awaySeasonChange, RankBefore = awaySeasonRankBefore, RankAfter = awaySeasonRankAfter, IsSeasonElo = true, CreatedAt = now },
-            new() { PlayerId = match.AwayPlayerId, MatchId = matchId, SeasonId = league.SeasonId, EloBefore = awayHistElo, EloAfter = awayNewHistElo, EloChange = awayHistChange, RankBefore = awayHistRankBefore, RankAfter = awayHistRankAfter, IsSeasonElo = false, CreatedAt = now },
-        };
-
-        bool leagueFinished = league.Matches.Count(m => m.Status == MatchStatus.Pending) == 1;
-
-        Dictionary<string, int> finalPositions = [];
-        if (leagueFinished)
-        {
-            var allPlayedWithNew = league.Matches
-                .Where(m => m.Status == MatchStatus.Played)
-                .Append(new Match
-                {
-                    HomePlayerId = match.HomePlayerId,
-                    AwayPlayerId = match.AwayPlayerId,
-                    HomeScore = homeScore,
-                    AwayScore = awayScore,
-                    Status = MatchStatus.Played
-                })
-                .ToList();
-
-            var finalStandings = StandingsCalculator.Compute(allPlayedWithNew, league.Players);
-            finalPositions = finalStandings
-                .Select((row, i) => (row.PlayerId, Position: i + 1))
-                .ToDictionary(x => x.PlayerId, x => x.Position);
-        }
-
-        string? championId = leagueFinished
-            ? finalPositions.FirstOrDefault(x => x.Value == 1).Key
-            : null;
+        var (homeResult, awayResult, goalDiff) = ComputeOutcome(homeScore, awayScore);
+        var elo = ComputeEloBlock(homesp, awaysp, seasonPlayers, matchId, league.SeasonId, homeResult, awayResult, goalDiff);
+        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore);
 
         await leagueRepository.SaveMatchResultAsync(new MatchResultData
         {
@@ -206,12 +144,12 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             LeagueId = leagueId,
             SeasonId = league.SeasonId,
             HomePlayerId = match.HomePlayerId,
-            HomeNewSeasonElo = homeNewSeasonElo,
-            HomeNewHistoricalElo = homeNewHistElo,
+            HomeNewSeasonElo = elo.HomeNewSeasonElo,
+            HomeNewHistoricalElo = elo.HomeNewHistElo,
             AwayPlayerId = match.AwayPlayerId,
-            AwayNewSeasonElo = awayNewSeasonElo,
-            AwayNewHistoricalElo = awayNewHistElo,
-            EloHistories = histories,
+            AwayNewSeasonElo = elo.AwayNewSeasonElo,
+            AwayNewHistoricalElo = elo.AwayNewHistElo,
+            EloHistories = elo.Histories,
             LeagueFinished = leagueFinished,
             ChampionId = championId,
             FinalLeaguePositions = finalPositions,
@@ -227,20 +165,20 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
                 PlayerId = match.HomePlayerId,
                 DisplayName = homesp.Player.DisplayName,
                 EloBefore = homesp.SeasonElo,
-                EloAfter = homeNewSeasonElo,
-                EloChange = homeSeasonChange,
-                RankBefore = homeSeasonRankBefore,
-                RankAfter = homeSeasonRankAfter
+                EloAfter = elo.HomeNewSeasonElo,
+                EloChange = elo.HomeSeasonChange,
+                RankBefore = elo.HomeSeasonRankBefore,
+                RankAfter = elo.HomeSeasonRankAfter
             },
             Away = new EloChangeResult
             {
                 PlayerId = match.AwayPlayerId,
                 DisplayName = awaysp.Player.DisplayName,
                 EloBefore = awaysp.SeasonElo,
-                EloAfter = awayNewSeasonElo,
-                EloChange = awaySeasonChange,
-                RankBefore = awaySeasonRankBefore,
-                RankAfter = awaySeasonRankAfter
+                EloAfter = elo.AwayNewSeasonElo,
+                EloChange = elo.AwaySeasonChange,
+                RankBefore = elo.AwaySeasonRankBefore,
+                RankAfter = elo.AwaySeasonRankAfter
             }
         };
     }
@@ -261,4 +199,96 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
         await leagueRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
     }
 
+    private static (double homeResult, double awayResult, int goalDiff) ComputeOutcome(int homeScore, int awayScore)
+    {
+        double homeResult = homeScore > awayScore ? 1.0 : homeScore == awayScore ? 0.5 : 0.0;
+        return (homeResult, 1.0 - homeResult, Math.Abs(homeScore - awayScore));
+    }
+
+    private static EloBlock ComputeEloBlock(
+        SeasonPlayer homesp, SeasonPlayer awaysp,
+        List<SeasonPlayer> seasonPlayers,
+        int matchId, int seasonId,
+        double homeResult, double awayResult, int goalDiff)
+    {
+        var (homeSeasonChange, homeNewSeasonElo) = EloCalculator.Compute(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k: 32);
+        var (awaySeasonChange, awayNewSeasonElo) = EloCalculator.Compute(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k: 32);
+
+        int homeHistElo = homesp.Player.EloRating;
+        int awayHistElo = awaysp.Player.EloRating;
+        var (homeHistChange, homeNewHistElo) = EloCalculator.Compute(homeHistElo, awayHistElo, homeResult, goalDiff, k: 32);
+        var (awayHistChange, awayNewHistElo) = EloCalculator.Compute(awayHistElo, homeHistElo, awayResult, goalDiff, k: 32);
+
+        var seasonElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.SeasonElo);
+        int homeSeasonRankBefore = seasonElos.Count(kv => kv.Value > homesp.SeasonElo) + 1;
+        int awaySeasonRankBefore = seasonElos.Count(kv => kv.Value > awaysp.SeasonElo) + 1;
+        seasonElos[homesp.PlayerId] = homeNewSeasonElo;
+        seasonElos[awaysp.PlayerId] = awayNewSeasonElo;
+        int homeSeasonRankAfter = seasonElos.Count(kv => kv.Value > homeNewSeasonElo) + 1;
+        int awaySeasonRankAfter = seasonElos.Count(kv => kv.Value > awayNewSeasonElo) + 1;
+
+        var histElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.Player.EloRating);
+        int homeHistRankBefore = histElos.Count(kv => kv.Value > homeHistElo) + 1;
+        int awayHistRankBefore = histElos.Count(kv => kv.Value > awayHistElo) + 1;
+        histElos[homesp.PlayerId] = homeNewHistElo;
+        histElos[awaysp.PlayerId] = awayNewHistElo;
+        int homeHistRankAfter = histElos.Count(kv => kv.Value > homeNewHistElo) + 1;
+        int awayHistRankAfter = histElos.Count(kv => kv.Value > awayNewHistElo) + 1;
+
+        var now = DateTime.UtcNow;
+        var histories = new List<EloHistory>
+        {
+            new() { PlayerId = homesp.PlayerId, MatchId = matchId, SeasonId = seasonId, EloBefore = homesp.SeasonElo, EloAfter = homeNewSeasonElo, EloChange = homeSeasonChange, RankBefore = homeSeasonRankBefore, RankAfter = homeSeasonRankAfter, IsSeasonElo = true, CreatedAt = now },
+            new() { PlayerId = homesp.PlayerId, MatchId = matchId, SeasonId = seasonId, EloBefore = homeHistElo, EloAfter = homeNewHistElo, EloChange = homeHistChange, RankBefore = homeHistRankBefore, RankAfter = homeHistRankAfter, IsSeasonElo = false, CreatedAt = now },
+            new() { PlayerId = awaysp.PlayerId, MatchId = matchId, SeasonId = seasonId, EloBefore = awaysp.SeasonElo, EloAfter = awayNewSeasonElo, EloChange = awaySeasonChange, RankBefore = awaySeasonRankBefore, RankAfter = awaySeasonRankAfter, IsSeasonElo = true, CreatedAt = now },
+            new() { PlayerId = awaysp.PlayerId, MatchId = matchId, SeasonId = seasonId, EloBefore = awayHistElo, EloAfter = awayNewHistElo, EloChange = awayHistChange, RankBefore = awayHistRankBefore, RankAfter = awayHistRankAfter, IsSeasonElo = false, CreatedAt = now },
+        };
+
+        return new EloBlock(
+            homeSeasonChange, homeNewSeasonElo,
+            awaySeasonChange, awayNewSeasonElo,
+            homeSeasonRankBefore, homeSeasonRankAfter,
+            awaySeasonRankBefore, awaySeasonRankAfter,
+            homeNewHistElo, awayNewHistElo,
+            histories
+        );
+    }
+
+    private static (bool leagueFinished, Dictionary<string, int> finalPositions, string? championId) DetectFinish(
+        IEnumerable<Match> allMatches, IEnumerable<LeaguePlayer> leaguePlayers,
+        string homePlayerId, string awayPlayerId, int homeScore, int awayScore)
+    {
+        var matchList = allMatches.ToList();
+        if (matchList.Count(m => m.Status == MatchStatus.Pending) != 1)
+            return (false, [], null);
+
+        var allPlayed = matchList
+            .Where(m => m.Status == MatchStatus.Played)
+            .Append(new Match
+            {
+                HomePlayerId = homePlayerId,
+                AwayPlayerId = awayPlayerId,
+                HomeScore = homeScore,
+                AwayScore = awayScore,
+                Status = MatchStatus.Played
+            })
+            .ToList();
+
+        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers);
+        var finalPositions = finalStandings
+            .Select((row, i) => (row.PlayerId, Position: i + 1))
+            .ToDictionary(x => x.PlayerId, x => x.Position);
+        string? championId = finalPositions.FirstOrDefault(x => x.Value == 1).Key;
+
+        return (true, finalPositions, championId);
+    }
+
+    private sealed record EloBlock(
+        int HomeSeasonChange, int HomeNewSeasonElo,
+        int AwaySeasonChange, int AwayNewSeasonElo,
+        int HomeSeasonRankBefore, int HomeSeasonRankAfter,
+        int AwaySeasonRankBefore, int AwaySeasonRankAfter,
+        int HomeNewHistElo, int AwayNewHistElo,
+        List<EloHistory> Histories
+    );
 }

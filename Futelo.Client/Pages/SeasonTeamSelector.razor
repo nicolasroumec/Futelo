@@ -1,0 +1,16 @@
+@inherits LocalizedComponentBase
+
+<div class="d-flex align-items-center gap-2 mt-2">
+    <select class="form-select form-select-sm"
+            value="@(_selectedTeamId?.ToString() ?? "")"
+            @onchange="OnSelectChange">
+        <option value="">@Lang.Get("season.noTeam")</option>
+        @foreach (var team in Teams)
+        {
+            <option value="@team.Id">@team.Name</option>
+        }
+    </select>
+    <button class="btn btn-outline-secondary btn-sm" @onclick="HandleSave">
+        @Lang.Get("common.save")
+    </button>
+</div>

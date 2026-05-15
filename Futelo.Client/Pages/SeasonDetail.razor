@@ -1,4 +1,4 @@
-﻿@page "/seasons/{id:int}"
+@page "/seasons/{id:int}"
 @inherits LocalizedComponentBase
 @attribute [Authorize]
 
@@ -158,28 +158,16 @@ else
         <ul class="list-group mb-4" style="max-width:520px">
             @foreach (var p in season.Players)
             {
-                <li class="list-group-item">
+                <li class="list-group-item" @key="@p.PlayerId">
                     <div class="d-flex justify-content-between align-items-center">
                         <span>@p.DisplayName</span>
                         <span class="badge bg-light text-dark">ELO @p.SeasonElo</span>
                     </div>
                     @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
                     {
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            <select class="form-select form-select-sm"
-                                    value="@(playerTeamSelections.TryGetValue(p.PlayerId, out var t) ? t?.ToString() ?? "" : "")"
-                                    @onchange="e => { playerTeamSelections[p.PlayerId] = string.IsNullOrEmpty(e.Value?.ToString()) ? null : int.Parse(e.Value.ToString()!); }">
-                                <option value="">@Lang.Get("season.noTeam")</option>
-                                @foreach (var team in teams)
-                                {
-                                    <option value="@team.Id">@team.Name</option>
-                                }
-                            </select>
-                            <button class="btn btn-outline-secondary btn-sm"
-                                    @onclick="() => HandleSetPlayerTeam(p.PlayerId)">
-                                @Lang.Get("common.save")
-                            </button>
-                        </div>
+                        <SeasonTeamSelector InitialTeamId="@p.TeamId"
+                                            Teams="@teams"
+                                            OnSave="@(teamId => HandleSetPlayerTeam(p.PlayerId, teamId))" />
                     }
                     else if (!string.IsNullOrEmpty(p.TeamName))
                     {
@@ -194,64 +182,9 @@ else
     {
         <h5 class="mt-4">@Lang.Get("season.configureSeason")</h5>
 
-        <div class="mb-3" style="max-width:420px">
-            <label class="form-label fw-semibold">@Lang.Get("season.players")</label>
-            @foreach (var vp in vaultPlayers)
-            {
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="p_@vp.PlayerId"
-                           checked="@selectedPlayerIds.Contains(vp.PlayerId)"
-                           @onchange="e => TogglePlayer(vp.PlayerId, (bool)e.Value!)" />
-                    <label class="form-check-label" for="p_@vp.PlayerId">@vp.DisplayName</label>
-                </div>
-            }
-        </div>
+        <SeasonPlayerManager VaultPlayers="@vaultPlayers" SelectedPlayerIds="@selectedPlayerIds" />
 
-        <div class="mb-3">
-            <label class="form-label fw-semibold">@Lang.Get("season.competitions")</label>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="chkLeague"
-                       @bind="configureModel.HasLeague" />
-                <label class="form-check-label" for="chkLeague">@Lang.Get("createSeason.league")</label>
-            </div>
-            @if (configureModel.HasLeague)
-            {
-                <div class="ms-3 mb-2">
-                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="@Lang.Get("season.leagueNamePlaceholder")" @bind="configureModel.LeagueName" />
-                </div>
-                <div class="form-check ms-3">
-                    <input class="form-check-input" type="checkbox" id="chkLeagueH2H"
-                           @bind="configureModel.LeagueIsHomeAndAway" />
-                    <label class="form-check-label" for="chkLeagueH2H">@Lang.Get("season.homeAndAway")</label>
-                </div>
-            }
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="chkCup"
-                       @bind="configureModel.HasCup" />
-                <label class="form-check-label" for="chkCup">@Lang.Get("createSeason.cup")</label>
-            </div>
-            @if (configureModel.HasCup)
-            {
-                <div class="ms-3 mb-2">
-                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="@Lang.Get("season.cupNamePlaceholder")" @bind="configureModel.CupName" />
-                </div>
-            }
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="chkSuperCup"
-                       @bind="configureModel.HasSuperCup"
-                       disabled="@(!configureModel.HasLeague || !configureModel.HasCup)" />
-                <label class="form-check-label" for="chkSuperCup">@Lang.Get("createSeason.superCup")</label>
-            </div>
-            @if (configureModel.HasSuperCup)
-            {
-                <div class="ms-3 mb-2">
-                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="@Lang.Get("season.superCupNamePlaceholder")" @bind="configureModel.SuperCupName" />
-                </div>
-            }
-        </div>
+        <SeasonCompetitionConfig Model="@configureModel" />
 
         @if (!string.IsNullOrEmpty(configureMessage))
         {
@@ -262,18 +195,18 @@ else
             @(isConfiguring ? Lang.Get("common.saving") : Lang.Get("season.saveConfig"))
         </button>
 
-    @if (season.Players.Count >= 2 && (season.HasLeague || season.HasCup))
-    {
-        <div class="mt-3">
-            @if (!string.IsNullOrEmpty(activateMessage))
-            {
-                <div class="alert @activateAlertClass mb-2" style="max-width:420px">@activateMessage</div>
-            }
-            <button class="btn btn-success" disabled="@isActivating" @onclick="HandleActivate">
-                @(isActivating ? Lang.Get("season.activating") : Lang.Get("season.startSeason"))
-            </button>
-        </div>
-    }
+        @if (season.Players.Count >= 2 && (season.HasLeague || season.HasCup))
+        {
+            <div class="mt-3">
+                @if (!string.IsNullOrEmpty(activateMessage))
+                {
+                    <div class="alert @activateAlertClass mb-2" style="max-width:420px">@activateMessage</div>
+                }
+                <button class="btn btn-success" disabled="@isActivating" @onclick="HandleActivate">
+                    @(isActivating ? Lang.Get("season.activating") : Lang.Get("season.startSeason"))
+                </button>
+            </div>
+        }
     }
 }
 

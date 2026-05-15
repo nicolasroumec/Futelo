@@ -26,7 +26,6 @@ public partial class SeasonDetail : LocalizedComponentBase
     private List<VaultPlayerResponse> vaultPlayers = [];
     private List<VideoGameResponse> videoGames = [];
     private List<TeamResponse> teams = [];
-    private Dictionary<string, int?> playerTeamSelections = [];
     private HashSet<string> selectedPlayerIds = [];
     private ConfigureSeasonRequest configureModel = new();
     private int? selectedVideoGameId;
@@ -70,7 +69,6 @@ public partial class SeasonDetail : LocalizedComponentBase
             teams = await TeamService.GetAllAsync(ComponentToken);
             selectedVideoGameId = season.VideoGameId;
             selectedPlayerIds = season.Players.Select(p => p.PlayerId).ToHashSet();
-            playerTeamSelections = season.Players.ToDictionary(p => p.PlayerId, p => p.TeamId);
             configureModel.HasLeague = season.HasLeague;
             configureModel.LeagueName = season.LeagueName;
             configureModel.LeagueIsHomeAndAway = season.LeagueIsHomeAndAway;
@@ -106,14 +104,12 @@ public partial class SeasonDetail : LocalizedComponentBase
         }
     }
 
-    private async Task HandleSetPlayerTeam(string playerId)
+    private async Task HandleSetPlayerTeam(string playerId, int? teamId)
     {
         try
         {
-            var teamId = playerTeamSelections.TryGetValue(playerId, out var t) ? t : null;
             await SeasonService.SetPlayerTeamAsync(Id, playerId, teamId);
             season = await SeasonService.GetByIdAsync(Id);
-            playerTeamSelections = season.Players.ToDictionary(p => p.PlayerId, p => p.TeamId);
         }
         catch (Exception ex)
         {
@@ -142,12 +138,6 @@ public partial class SeasonDetail : LocalizedComponentBase
         {
             isPatchingVideoGame = false;
         }
-    }
-
-    private void TogglePlayer(string playerId, bool selected)
-    {
-        if (selected) selectedPlayerIds.Add(playerId);
-        else selectedPlayerIds.Remove(playerId);
     }
 
     private async Task HandleFinish()
