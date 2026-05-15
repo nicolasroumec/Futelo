@@ -5,8 +5,8 @@ namespace Futelo.Client.Services.Cup;
 
 public class CupService(HttpClient http) : ApiService(http), ICupService
 {
-    public Task<CupResponse> GetByIdAsync(int id)
-        => GetAsync<CupResponse>($"api/cups/{id}");
+    public Task<CupResponse> GetByIdAsync(int id, CancellationToken ct = default)
+        => GetAsync<CupResponse>($"api/cups/{id}", ct);
 
     public Task StartAsync(int id)
         => PostAsync($"api/cups/{id}/start");

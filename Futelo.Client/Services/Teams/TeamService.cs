@@ -4,8 +4,8 @@ namespace Futelo.Client.Services.Teams;
 
 public class TeamService(HttpClient http) : ApiService(http), ITeamService
 {
-    public Task<List<TeamResponse>> GetAllAsync()
-        => GetListAsync<TeamResponse>("api/teams");
+    public Task<List<TeamResponse>> GetAllAsync(CancellationToken ct = default)
+        => GetListAsync<TeamResponse>("api/teams", ct);
 
     public Task<TeamResponse> CreateAsync(CreateTeamRequest request)
         => PostAsync<TeamResponse>("api/teams", request);

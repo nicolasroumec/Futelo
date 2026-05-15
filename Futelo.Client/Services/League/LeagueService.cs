@@ -4,8 +4,8 @@ namespace Futelo.Client.Services.League;
 
 public class LeagueService(HttpClient http) : ApiService(http), ILeagueService
 {
-    public Task<LeagueResponse> GetByIdAsync(int id)
-        => GetAsync<LeagueResponse>($"api/leagues/{id}");
+    public Task<LeagueResponse> GetByIdAsync(int id, CancellationToken ct = default)
+        => GetAsync<LeagueResponse>($"api/leagues/{id}", ct);
 
     public Task StartAsync(int id)
         => PostAsync($"api/leagues/{id}/start");

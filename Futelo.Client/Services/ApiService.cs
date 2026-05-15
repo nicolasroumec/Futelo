@@ -6,12 +6,12 @@ public abstract class ApiService(HttpClient http)
 {
     protected readonly HttpClient Http = http;
 
-    protected async Task<T> GetAsync<T>(string url)
-        => await Http.GetFromJsonAsync<T>(url)
+    protected async Task<T> GetAsync<T>(string url, CancellationToken ct = default)
+        => await Http.GetFromJsonAsync<T>(url, ct)
             ?? throw new InvalidOperationException("Empty server response.");
 
-    protected async Task<List<T>> GetListAsync<T>(string url)
-        => await Http.GetFromJsonAsync<List<T>>(url) ?? [];
+    protected async Task<List<T>> GetListAsync<T>(string url, CancellationToken ct = default)
+        => await Http.GetFromJsonAsync<List<T>>(url, ct) ?? [];
 
     protected async Task<T> PostAsync<T>(string url, object body)
     {

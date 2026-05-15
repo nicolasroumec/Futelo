@@ -5,8 +5,8 @@ namespace Futelo.Client.Services.SuperCup;
 
 public class SuperCupService(HttpClient http) : ApiService(http), ISuperCupService
 {
-    public Task<SuperCupResponse> GetByIdAsync(int id)
-        => GetAsync<SuperCupResponse>($"api/supercups/{id}");
+    public Task<SuperCupResponse> GetByIdAsync(int id, CancellationToken ct = default)
+        => GetAsync<SuperCupResponse>($"api/supercups/{id}", ct);
 
     public Task StartAsync(int id)
         => PostAsync($"api/supercups/{id}/start");

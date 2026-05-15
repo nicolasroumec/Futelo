@@ -5,17 +5,17 @@ namespace Futelo.Client.Services.Vault;
 
 public class VaultService(HttpClient http) : ApiService(http), IVaultService
 {
-    public Task<List<VaultResponse>> GetAllAsync()
-        => GetListAsync<VaultResponse>("api/vaults");
+    public Task<List<VaultResponse>> GetAllAsync(CancellationToken ct = default)
+        => GetListAsync<VaultResponse>("api/vaults", ct);
 
-    public Task<VaultResponse> GetByIdAsync(int id)
-        => GetAsync<VaultResponse>($"api/vaults/{id}");
+    public Task<VaultResponse> GetByIdAsync(int id, CancellationToken ct = default)
+        => GetAsync<VaultResponse>($"api/vaults/{id}", ct);
 
-    public Task<List<RecentMatchResponse>> GetRecentMatchesAsync(int vaultId, int limit = 10)
-        => GetListAsync<RecentMatchResponse>($"api/vaults/{vaultId}/recent-matches?limit={limit}");
+    public Task<List<RecentMatchResponse>> GetRecentMatchesAsync(int vaultId, int limit = 10, CancellationToken ct = default)
+        => GetListAsync<RecentMatchResponse>($"api/vaults/{vaultId}/recent-matches?limit={limit}", ct);
 
-    public Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int vaultId, int page = 1, int pageSize = 10)
-        => GetAsync<MatchHistoryPageResponse>($"api/vaults/{vaultId}/matches?page={page}&pageSize={pageSize}");
+    public Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int vaultId, int page = 1, int pageSize = 10, CancellationToken ct = default)
+        => GetAsync<MatchHistoryPageResponse>($"api/vaults/{vaultId}/matches?page={page}&pageSize={pageSize}", ct);
 
     public Task<VaultResponse> CreateAsync(CreateVaultRequest request)
         => PostAsync<VaultResponse>("api/vaults", request);

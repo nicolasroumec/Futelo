@@ -4,7 +4,7 @@ namespace Futelo.Client.Services.League;
 
 public interface ILeagueService
 {
-    Task<LeagueResponse> GetByIdAsync(int id);
+    Task<LeagueResponse> GetByIdAsync(int id, CancellationToken ct = default);
     Task StartAsync(int id);
     Task ReshuffleAsync(int id);
     Task<RecordResultResponse> RecordResultAsync(int leagueId, int matchId, RecordResultRequest request);

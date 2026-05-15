@@ -7,6 +7,9 @@ public abstract class LocalizedComponentBase : ComponentBase, IDisposable
 {
     [Inject] protected ILanguageService Lang { get; set; } = null!;
 
+    private readonly CancellationTokenSource _cts = new();
+    protected CancellationToken ComponentToken => _cts.Token;
+
     protected override void OnInitialized()
     {
         Lang.OnChange += OnLanguageChanged;
@@ -16,6 +19,8 @@ public abstract class LocalizedComponentBase : ComponentBase, IDisposable
 
     public virtual void Dispose()
     {
+        _cts.Cancel();
+        _cts.Dispose();
         Lang.OnChange -= OnLanguageChanged;
     }
 }

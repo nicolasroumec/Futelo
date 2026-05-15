@@ -4,8 +4,8 @@ namespace Futelo.Client.Services.Season;
 
 public interface ISeasonService
 {
-    Task<List<SeasonResponse>> GetByVaultAsync(int vaultId);
-    Task<SeasonResponse> GetByIdAsync(int id);
+    Task<List<SeasonResponse>> GetByVaultAsync(int vaultId, CancellationToken ct = default);
+    Task<SeasonResponse> GetByIdAsync(int id, CancellationToken ct = default);
     Task<SeasonResponse> CreateAsync(CreateSeasonRequest request);
     Task ConfigureAsync(int id, ConfigureSeasonRequest request);
     Task ActivateAsync(int id);

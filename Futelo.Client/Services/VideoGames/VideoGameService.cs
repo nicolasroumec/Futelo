@@ -4,8 +4,8 @@ namespace Futelo.Client.Services.VideoGames;
 
 public class VideoGameService(HttpClient http) : ApiService(http), IVideoGameService
 {
-    public Task<List<VideoGameResponse>> GetAllAsync()
-        => GetListAsync<VideoGameResponse>("api/videogames");
+    public Task<List<VideoGameResponse>> GetAllAsync(CancellationToken ct = default)
+        => GetListAsync<VideoGameResponse>("api/videogames", ct);
 
     public Task<VideoGameResponse> CreateAsync(CreateVideoGameRequest request)
         => PostAsync<VideoGameResponse>("api/videogames", request);

@@ -4,11 +4,11 @@ namespace Futelo.Client.Services.Season;
 
 public class SeasonService(HttpClient http) : ApiService(http), ISeasonService
 {
-    public Task<List<SeasonResponse>> GetByVaultAsync(int vaultId)
-        => GetListAsync<SeasonResponse>($"api/seasons?vaultId={vaultId}");
+    public Task<List<SeasonResponse>> GetByVaultAsync(int vaultId, CancellationToken ct = default)
+        => GetListAsync<SeasonResponse>($"api/seasons?vaultId={vaultId}", ct);
 
-    public Task<SeasonResponse> GetByIdAsync(int id)
-        => GetAsync<SeasonResponse>($"api/seasons/{id}");
+    public Task<SeasonResponse> GetByIdAsync(int id, CancellationToken ct = default)
+        => GetAsync<SeasonResponse>($"api/seasons/{id}", ct);
 
     public Task<SeasonResponse> CreateAsync(CreateSeasonRequest request)
         => PostAsync<SeasonResponse>("api/seasons", request);
