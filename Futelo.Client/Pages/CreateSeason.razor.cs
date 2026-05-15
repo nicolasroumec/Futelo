@@ -1,18 +1,17 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.VideoGames;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class CreateSeason : IDisposable
+public partial class CreateSeason : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
 
     private CreateSeasonRequest model = new();
@@ -22,13 +21,10 @@ public partial class CreateSeason : IDisposable
 
     protected override async Task OnParametersSetAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
         model.VaultId = VaultId;
         model.Year = DateTime.UtcNow.Year;
         videoGames = await VideoGameService.GetAllAsync();
     }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task HandleCreate()
     {
@@ -48,10 +44,5 @@ public partial class CreateSeason : IDisposable
         {
             isLoading = false;
         }
-    }
-
-    public void Dispose()
-    {
-        Lang.OnChange -= HandleLanguageChange;
     }
 }

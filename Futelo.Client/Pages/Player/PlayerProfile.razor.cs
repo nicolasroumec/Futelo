@@ -1,6 +1,6 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Stats;
 using Futelo.Client.Services.Vault;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.Enums;
@@ -9,13 +9,12 @@ using Microsoft.JSInterop;
 
 namespace Futelo.Client.Pages.Player;
 
-public partial class PlayerProfile : IDisposable
+public partial class PlayerProfile : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Parameter] public string PlayerId { get; set; } = string.Empty;
     [Inject] private IStatsService StatsService { get; set; } = null!;
     [Inject] private IVaultService VaultService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
 
@@ -36,7 +35,6 @@ public partial class PlayerProfile : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
         try
         {
             stats = await StatsService.GetPlayerStatsAsync(PlayerId, VaultId);
@@ -57,8 +55,6 @@ public partial class PlayerProfile : IDisposable
             isLoading = false;
         }
     }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -173,6 +169,4 @@ public partial class PlayerProfile : IDisposable
             score += $" ({m.HomePenaltyScore}-{m.AwayPenaltyScore} pen.)";
         return score;
     }
-
-    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

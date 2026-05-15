@@ -1,14 +1,13 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Team;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class Teams : IDisposable
+public partial class Teams : LocalizedComponentBase
 {
     [Inject] private ITeamService TeamService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private List<TeamResponse> teams = [];
     private bool isLoading = true;
@@ -22,11 +21,8 @@ public partial class Teams : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
         await LoadTeams();
     }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task LoadTeams()
     {
@@ -104,6 +100,4 @@ public partial class Teams : IDisposable
             errorMessage = ex.Message;
         }
     }
-
-    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

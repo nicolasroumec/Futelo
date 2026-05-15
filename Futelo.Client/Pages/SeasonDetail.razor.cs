@@ -1,8 +1,8 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.VideoGames;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.Vault;
@@ -12,14 +12,13 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Futelo.Client.Pages;
 
-public partial class SeasonDetail : IDisposable
+public partial class SeasonDetail : LocalizedComponentBase
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
@@ -56,8 +55,6 @@ public partial class SeasonDetail : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
-
         try
         {
             var authState = await AuthStateTask;
@@ -91,8 +88,6 @@ public partial class SeasonDetail : IDisposable
             isLoading = false;
         }
     }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task HandleDelete()
     {
@@ -222,10 +217,5 @@ public partial class SeasonDetail : IDisposable
         {
             isConfiguring = false;
         }
-    }
-
-    public void Dispose()
-    {
-        Lang.OnChange -= HandleLanguageChange;
     }
 }

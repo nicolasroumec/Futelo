@@ -109,3 +109,89 @@ Sesiones 1–11 completas. Pendiente:
 
 ## Sesión 13 — Pulido y despliegue
 Ver roadmap para detalle completo.
+
+---
+
+## Auditoría técnica — Deuda técnica (2026-05-14)
+
+### Sprint A1 — Arquitectura base (~5h) ✅ COMPLETO
+
+- [x] Crear `LocalizedComponentBase` en `Futelo.Client/Shared/`
+- [x] Migrar las 23 páginas a heredar de `LocalizedComponentBase`
+- [x] Crear `HttpExtensions.EnsureSuccessAsync` en `Futelo.Client/Services/`
+- [x] Crear `ApiService` base y hacer que los 9 servicios cliente hereden de él
+- [x] Implementar `AuthTokenHandler` con redirect automático al expirar el JWT
+
+**Commit:** `refactor: sprint A1 — LocalizedComponentBase, ApiService, HttpExtensions, 401 redirect`
+
+---
+
+### Sprint A2 — Lógica de negocio compartida (~2h) 🔴 ALTA
+
+- [ ] Extraer `EloCalculator` como clase estática en `Futelo.Server/Services/`
+  - `refactor: extract shared EloCalculator from League/Cup/SuperCup services`
+- [ ] Reemplazar los 3 usos duplicados de ELO por llamadas a `EloCalculator`
+  - `refactor: replace inline ELO logic with EloCalculator in all competition services`
+
+---
+
+### Sprint A3 — Tests (~4h) 🔴 ALTA
+
+- [ ] Crear proyecto `Futelo.Tests` con xUnit
+  - `chore: add Futelo.Tests project with xUnit`
+- [ ] Tests para `EloCalculator` (casos normales, underdog, favorito, multiplicadores)
+  - `test: add EloCalculator unit tests`
+- [ ] Tests para `FixtureGenerator` (par/impar, ida y vuelta, bye)
+  - `test: add FixtureGenerator unit tests`
+- [ ] Tests para `StandingsCalculator` (puntos, diferencia de goles, orden)
+  - `test: add StandingsCalculator unit tests`
+
+---
+
+### Sprint A4 — Performance (~2h) 🟡 MEDIA/ALTA
+
+- [ ] Auditar todos los repositories y agregar `AsNoTracking()` en queries de solo lectura
+  - `perf: add AsNoTracking to all read-only repository queries`
+- [ ] Verificar y completar `Include()` faltantes en repositories
+  - `fix: add missing Include() calls to prevent N+1 queries`
+- [ ] Agregar `CancellationToken` en los servicios cliente y componentes con carga larga
+  - `refactor: add CancellationToken support to client services and components`
+
+---
+
+### Sprint A5 — Refactors de tamaño (~4h) 🟡 MEDIA
+
+- [ ] Extraer `SeasonPlayerManager`, `SeasonCompetitionConfig`, `SeasonTeamSelector` de `SeasonDetail`
+  - `refactor: decompose SeasonDetail into focused sub-components`
+- [ ] Extraer `FixtureGenerator` de `LeagueService`
+  - `refactor: extract FixtureGenerator from LeagueService`
+- [ ] Extraer `StandingsCalculator` de `LeagueService`
+  - `refactor: extract StandingsCalculator from LeagueService`
+- [ ] Descomponer `RecordResultAsync` en métodos privados
+  - `refactor: break down RecordResultAsync into focused private methods`
+
+---
+
+### Sprint A6 — Seguridad (~3h) 🟡 MEDIA
+
+- [ ] Agregar rate limiting en endpoints de auth (`/login`, `/register`)
+  - `feat: add rate limiting to auth endpoints`
+- [ ] Implementar refresh tokens
+  - `feat: implement refresh token support for long-lived sessions`
+- [ ] Restringir CORS a origen único para producción
+  - `fix: restrict CORS to single origin for production`
+
+---
+
+### Sprint A7 — UX y calidad (~3h) 🟢 BAJA
+
+- [ ] Crear componente `EmptyState.razor` reutilizable y reemplazar todos los `<p class="empty-state">`
+  - `feat: add reusable EmptyState component and migrate all empty states`
+- [ ] Agregar ARIA labels en botones de acción
+  - `fix: add ARIA labels to action buttons for accessibility`
+- [ ] Agregar `ILogger<T>` en todos los servicios del servidor
+  - `feat: add structured logging to all server services`
+- [ ] Crear `ErrorMessages.cs` en Shared y reemplazar strings hardcodeados
+  - `refactor: centralize error message strings in ErrorMessages`
+- [ ] Implementar caching en `VideoGameService` y `TeamService` para catálogos estáticos
+  - `feat: add in-memory cache to VideoGameService and TeamService`

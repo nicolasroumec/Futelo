@@ -1,15 +1,14 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Stats;
 
-public partial class Palmares : IDisposable
+public partial class Palmares : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private List<PalmaresSeasonRow> rows = [];
     private bool isLoading = true;
@@ -27,7 +26,6 @@ public partial class Palmares : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
         try
         {
             rows = await StatsService.GetPalmaresAsync(VaultId);
@@ -41,8 +39,6 @@ public partial class Palmares : IDisposable
             isLoading = false;
         }
     }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private static string? GetTrebleWinner(PalmaresSeasonRow row)
     {
@@ -64,6 +60,4 @@ public partial class Palmares : IDisposable
             .Select(g => g.Key)
             .FirstOrDefault();
     }
-
-    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

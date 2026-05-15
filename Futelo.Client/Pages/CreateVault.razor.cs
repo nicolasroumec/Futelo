@@ -1,26 +1,18 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Vault;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Vault;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class CreateVault : IDisposable
+public partial class CreateVault : LocalizedComponentBase
 {
     [Inject] private IVaultService VaultService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
 
     private CreateVaultRequest model = new();
     private string? errorMessage;
     private bool isLoading;
-
-    protected override void OnInitialized()
-    {
-        Lang.OnChange += HandleLanguageChange;
-    }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task HandleCreate()
     {
@@ -40,10 +32,5 @@ public partial class CreateVault : IDisposable
         {
             isLoading = false;
         }
-    }
-
-    public void Dispose()
-    {
-        Lang.OnChange -= HandleLanguageChange;
     }
 }

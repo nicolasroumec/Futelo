@@ -1,14 +1,13 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Vault;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Vault;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class Dashboard : IDisposable
+public partial class Dashboard : LocalizedComponentBase
 {
     [Inject] private IVaultService VaultService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private List<VaultResponse> vaults = [];
     private bool isLoading = true;
@@ -16,8 +15,6 @@ public partial class Dashboard : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
-
         try
         {
             vaults = await VaultService.GetAllAsync();
@@ -30,12 +27,5 @@ public partial class Dashboard : IDisposable
         {
             isLoading = false;
         }
-    }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
-
-    public void Dispose()
-    {
-        Lang.OnChange -= HandleLanguageChange;
     }
 }

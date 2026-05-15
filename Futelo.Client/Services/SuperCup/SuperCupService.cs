@@ -1,41 +1,19 @@
-using System.Net.Http.Json;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.SuperCup;
 
 namespace Futelo.Client.Services.SuperCup;
 
-public class SuperCupService(HttpClient http) : ISuperCupService
+public class SuperCupService(HttpClient http) : ApiService(http), ISuperCupService
 {
-    public async Task<SuperCupResponse> GetByIdAsync(int id)
-        => await http.GetFromJsonAsync<SuperCupResponse>($"api/supercups/{id}")
-            ?? throw new KeyNotFoundException($"SuperCup {id} not found.");
+    public Task<SuperCupResponse> GetByIdAsync(int id)
+        => GetAsync<SuperCupResponse>($"api/supercups/{id}");
 
-    public async Task StartAsync(int id)
-    {
-        var response = await http.PostAsync($"api/supercups/{id}/start", null);
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to start SuperCup." : error);
-        }
-    }
+    public Task StartAsync(int id)
+        => PostAsync($"api/supercups/{id}/start");
 
-    public async Task<RecordSuperCupResultResponse> RecordResultAsync(int superCupId, int matchId, RecordSuperCupResultRequest request)
-    {
-        var response = await http.PutAsJsonAsync($"api/supercups/{superCupId}/matches/{matchId}/result", request);
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to record result." : error);
-        }
-        return await response.Content.ReadFromJsonAsync<RecordSuperCupResultResponse>()
-            ?? throw new InvalidOperationException("Invalid server response.");
-    }
+    public Task<RecordSuperCupResultResponse> RecordResultAsync(int superCupId, int matchId, RecordSuperCupResultRequest request)
+        => PutAsync<RecordSuperCupResultResponse>($"api/supercups/{superCupId}/matches/{matchId}/result", request);
 
-    public async Task PatchMatchAsync(int superCupId, int matchId, PatchMatchRequest request)
-    {
-        var response = await http.PatchAsJsonAsync($"api/supercups/{superCupId}/matches/{matchId}", request);
-        if (!response.IsSuccessStatusCode)
-            throw new InvalidOperationException("Failed to patch match.");
-    }
+    public Task PatchMatchAsync(int superCupId, int matchId, PatchMatchRequest request)
+        => PatchAsync($"api/supercups/{superCupId}/matches/{matchId}", request);
 }

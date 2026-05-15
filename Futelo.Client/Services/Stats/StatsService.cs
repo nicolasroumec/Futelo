@@ -4,66 +4,52 @@ using Futelo.Shared.DTOs.Vault;
 
 namespace Futelo.Client.Services.Stats;
 
-public class StatsService(HttpClient http) : IStatsService
+public class StatsService(HttpClient http) : ApiService(http), IStatsService
 {
-    public async Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId)
-        => await http.GetFromJsonAsync<PlayerStatsResponse>($"api/stats/vaults/{vaultId}/players/{playerId}")
-            ?? throw new KeyNotFoundException("Player stats not found.");
+    public Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId)
+        => GetAsync<PlayerStatsResponse>($"api/stats/vaults/{vaultId}/players/{playerId}");
 
-    public async Task<HeadToHeadResponse> GetHeadToHeadAsync(string player1Id, string player2Id, int vaultId)
-        => await http.GetFromJsonAsync<HeadToHeadResponse>(
-                $"api/stats/vaults/{vaultId}/h2h?player1Id={player1Id}&player2Id={player2Id}")
-            ?? throw new KeyNotFoundException("Head to head data not found.");
+    public Task<HeadToHeadResponse> GetHeadToHeadAsync(string player1Id, string player2Id, int vaultId)
+        => GetAsync<HeadToHeadResponse>($"api/stats/vaults/{vaultId}/h2h?player1Id={player1Id}&player2Id={player2Id}");
 
-    public async Task<List<RankingRow>> GetGeneralRankingAsync(int vaultId)
-        => await http.GetFromJsonAsync<List<RankingRow>>($"api/stats/vaults/{vaultId}/ranking")
-            ?? [];
+    public Task<List<RankingRow>> GetGeneralRankingAsync(int vaultId)
+        => GetListAsync<RankingRow>($"api/stats/vaults/{vaultId}/ranking");
 
-    public async Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId)
-        => await http.GetFromJsonAsync<List<RankingRow>>($"api/stats/vaults/{vaultId}/seasons/{seasonId}/ranking")
-            ?? [];
+    public Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId)
+        => GetListAsync<RankingRow>($"api/stats/vaults/{vaultId}/seasons/{seasonId}/ranking");
 
-    public async Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId)
-        => await http.GetFromJsonAsync<List<PalmaresSeasonRow>>($"api/stats/vaults/{vaultId}/palmares")
-            ?? [];
+    public Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId)
+        => GetListAsync<PalmaresSeasonRow>($"api/stats/vaults/{vaultId}/palmares");
 
-    public async Task<List<EloHistoryPoint>> GetEloHistoryAsync(int vaultId, string playerId)
-        => await http.GetFromJsonAsync<List<EloHistoryPoint>>($"api/stats/vaults/{vaultId}/players/{playerId}/elo-history")
-            ?? [];
+    public Task<List<EloHistoryPoint>> GetEloHistoryAsync(int vaultId, string playerId)
+        => GetListAsync<EloHistoryPoint>($"api/stats/vaults/{vaultId}/players/{playerId}/elo-history");
 
-    public async Task<List<ScorerRow>> GetScorersAsync(int vaultId)
-        => await http.GetFromJsonAsync<List<ScorerRow>>($"api/stats/vaults/{vaultId}/scorers")
-            ?? [];
+    public Task<List<ScorerRow>> GetScorersAsync(int vaultId)
+        => GetListAsync<ScorerRow>($"api/stats/vaults/{vaultId}/scorers");
 
-    public async Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId)
-        => await http.GetFromJsonAsync<VaultRecordsResponse>($"api/stats/vaults/{vaultId}/records")
-            ?? new VaultRecordsResponse();
+    public Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId)
+        => GetAsync<VaultRecordsResponse>($"api/stats/vaults/{vaultId}/records");
 
-    public async Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId)
-        => await http.GetFromJsonAsync<List<TeamPanelRow>>($"api/stats/vaults/{vaultId}/teams")
-            ?? [];
+    public Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId)
+        => GetListAsync<TeamPanelRow>($"api/stats/vaults/{vaultId}/teams");
 
-    public async Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId)
-        => await http.GetFromJsonAsync<List<GameStatsEntry>>($"api/stats/vaults/{vaultId}/games")
-            ?? [];
+    public Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId)
+        => GetListAsync<GameStatsEntry>($"api/stats/vaults/{vaultId}/games");
 
-    public async Task<List<RecentFormEntry>> GetRecentFormAsync(int vaultId, string playerId)
-        => await http.GetFromJsonAsync<List<RecentFormEntry>>($"api/stats/vaults/{vaultId}/players/{playerId}/recent-form")
-            ?? [];
+    public Task<List<RecentFormEntry>> GetRecentFormAsync(int vaultId, string playerId)
+        => GetListAsync<RecentFormEntry>($"api/stats/vaults/{vaultId}/players/{playerId}/recent-form");
 
-    public async Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(int vaultId, string playerId, int limit = 5)
-        => await http.GetFromJsonAsync<List<RecentMatchResponse>>($"api/stats/vaults/{vaultId}/players/{playerId}/recent-matches?limit={limit}")
-            ?? [];
+    public Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(int vaultId, string playerId, int limit = 5)
+        => GetListAsync<RecentMatchResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/recent-matches?limit={limit}");
 
-    public async Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(int vaultId, string playerId, int page = 1, int pageSize = 10)
-        => await http.GetFromJsonAsync<MatchHistoryPageResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/matches?page={page}&pageSize={pageSize}")
-            ?? new MatchHistoryPageResponse { Page = page, PageSize = pageSize };
+    public Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(int vaultId, string playerId, int page = 1, int pageSize = 10)
+        => GetAsync<MatchHistoryPageResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/matches?page={page}&pageSize={pageSize}");
 
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId)
     {
-        var response = await http.GetAsync($"api/stats/vaults/{vaultId}/records/top-scoring-match");
+        var response = await Http.GetAsync($"api/stats/vaults/{vaultId}/records/top-scoring-match");
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
-        response.EnsureSuccessStatusCode();
+        await response.EnsureSuccessAsync();
         return await response.Content.ReadFromJsonAsync<TopScoringMatchResponse>();
     }
 }

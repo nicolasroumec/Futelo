@@ -1,15 +1,14 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Stats;
 
-public partial class VaultRecords : IDisposable
+public partial class VaultRecords : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private VaultRecordsResponse? records;
     private TopScoringMatchResponse? topScoringMatch;
@@ -18,7 +17,6 @@ public partial class VaultRecords : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
         try
         {
             records = await StatsService.GetVaultRecordsAsync(VaultId);
@@ -33,8 +31,4 @@ public partial class VaultRecords : IDisposable
             isLoading = false;
         }
     }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
-
-    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

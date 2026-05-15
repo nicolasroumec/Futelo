@@ -1,30 +1,18 @@
-using System.Net.Http.Json;
 using Futelo.Shared.DTOs.VideoGame;
 
 namespace Futelo.Client.Services.VideoGames;
 
-public class VideoGameService(HttpClient http) : IVideoGameService
+public class VideoGameService(HttpClient http) : ApiService(http), IVideoGameService
 {
-    public async Task<List<VideoGameResponse>> GetAllAsync()
-        => await http.GetFromJsonAsync<List<VideoGameResponse>>("api/videogames") ?? [];
+    public Task<List<VideoGameResponse>> GetAllAsync()
+        => GetListAsync<VideoGameResponse>("api/videogames");
 
-    public async Task<VideoGameResponse> CreateAsync(CreateVideoGameRequest request)
-    {
-        var response = await http.PostAsJsonAsync("api/videogames", request);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<VideoGameResponse>()
-            ?? throw new InvalidOperationException("Invalid server response.");
-    }
+    public Task<VideoGameResponse> CreateAsync(CreateVideoGameRequest request)
+        => PostAsync<VideoGameResponse>("api/videogames", request);
 
-    public async Task UpdateAsync(int id, CreateVideoGameRequest request)
-    {
-        var response = await http.PutAsJsonAsync($"api/videogames/{id}", request);
-        response.EnsureSuccessStatusCode();
-    }
+    public Task UpdateAsync(int id, CreateVideoGameRequest request)
+        => PutAsync($"api/videogames/{id}", request);
 
-    public async Task DeleteAsync(int id)
-    {
-        var response = await http.DeleteAsync($"api/videogames/{id}");
-        response.EnsureSuccessStatusCode();
-    }
+    public Task DeleteAsync(int id)
+        => DeleteAsync($"api/videogames/{id}");
 }

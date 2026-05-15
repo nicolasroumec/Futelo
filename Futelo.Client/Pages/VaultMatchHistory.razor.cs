@@ -1,15 +1,14 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.Vault;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Vault;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class VaultMatchHistory : IDisposable
+public partial class VaultMatchHistory : LocalizedComponentBase
 {
     [Parameter] public int Id { get; set; }
     [Inject] private IVaultService VaultService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private MatchHistoryPageResponse history = new() { Page = 1, PageSize = 10 };
     private int currentPage = 1;
@@ -18,7 +17,6 @@ public partial class VaultMatchHistory : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
         await LoadPage(1);
     }
 
@@ -44,18 +42,11 @@ public partial class VaultMatchHistory : IDisposable
     private Task PrevPage() => LoadPage(currentPage - 1);
     private Task NextPage() => LoadPage(currentPage + 1);
 
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
-
     private static string MatchScore(RecentMatchResponse m)
     {
         var score = $"{m.HomeScore} - {m.AwayScore}";
         if (m.WonOnPenaltiesId is not null)
             score += $" ({m.HomePenaltyScore}-{m.AwayPenaltyScore} pen.)";
         return score;
-    }
-
-    public void Dispose()
-    {
-        Lang.OnChange -= HandleLanguageChange;
     }
 }

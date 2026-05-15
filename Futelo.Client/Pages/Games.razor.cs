@@ -1,14 +1,13 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.VideoGames;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class Games : IDisposable
+public partial class Games : LocalizedComponentBase
 {
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private List<VideoGameResponse> games = [];
     private bool isLoading = true;
@@ -22,11 +21,8 @@ public partial class Games : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
         await LoadGames();
     }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task LoadGames()
     {
@@ -104,6 +100,4 @@ public partial class Games : IDisposable
             errorMessage = ex.Message;
         }
     }
-
-    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }

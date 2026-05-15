@@ -1,4 +1,3 @@
-using Futelo.Client.Services.Language;
 using Futelo.Client.Services.League;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.VideoGames;
@@ -10,13 +9,12 @@ using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.League;
 
-public partial class LeagueView : IDisposable
+public partial class LeagueView : LocalizedComponentBase
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ILeagueService LeagueService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
-    [Inject] private ILanguageService Lang { get; set; } = null!;
 
     private LeagueResponse? league;
     private bool isLoading = true;
@@ -49,11 +47,8 @@ public partial class LeagueView : IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Lang.OnChange += HandleLanguageChange;
         await LoadAsync();
     }
-
-    private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
 
     private async Task LoadAsync()
     {
@@ -207,6 +202,4 @@ public partial class LeagueView : IDisposable
         string sign = p.EloChange >= 0 ? "+" : "";
         return $"{p.DisplayName}   {p.EloBefore} → {p.EloAfter} ({sign}{p.EloChange})  {arrow} #{p.RankAfter}";
     }
-
-    public void Dispose() => Lang.OnChange -= HandleLanguageChange;
 }
