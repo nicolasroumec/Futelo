@@ -39,8 +39,36 @@ else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/dashboard" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <h3 class="mb-0">@vault.Name</h3>
+        @if (isEditingName)
+        {
+            <div class="d-flex align-items-center gap-2">
+                <input class="form-control form-control-sm" style="max-width:260px"
+                       @bind="editName" @bind:event="oninput"
+                       maxlength="50" disabled="@isSavingName" />
+                <button class="btn btn-primary btn-sm" @onclick="SaveNameAsync" disabled="@(isSavingName || editName.Length < 3)">
+                    @(isSavingName ? Lang.Get("common.saving") : Lang.Get("common.save"))
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="CancelEditName" disabled="@isSavingName">
+                    @Lang.Get("common.cancel")
+                </button>
+            </div>
+        }
+        else
+        {
+            <h3 class="mb-0">@vault.Name</h3>
+            @if (isAdmin)
+            {
+                <button class="btn btn-outline-secondary btn-sm" @onclick="StartEditName" title="@Lang.Get("vault.rename")">
+                    @Lang.Get("common.edit")
+                </button>
+            }
+        }
     </div>
+
+    @if (!string.IsNullOrEmpty(nameMessage))
+    {
+        <div class="alert @nameAlertClass py-1 mb-3">@nameMessage</div>
+    }
 
     <p class="text-muted">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>
 

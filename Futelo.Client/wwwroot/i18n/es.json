@@ -51,6 +51,8 @@
   "vault.noSeasons": "Sin temporadas aún.",
   "vault.notFound": "Vault no encontrado.",
   "vault.owner": "Propietario",
+  "vault.rename": "Renombrar vault",
+  "vault.renameSuccess": "Nombre actualizado.",
 
   "createVault.title": "Nuevo Vault",
   "createVault.name": "Nombre del vault",

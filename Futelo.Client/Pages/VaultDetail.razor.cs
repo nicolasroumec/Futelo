@@ -29,6 +29,12 @@ public partial class VaultDetail : IDisposable
     private bool isLoading = true;
     private string? errorMessage;
 
+    private bool isEditingName;
+    private string editName = string.Empty;
+    private bool isSavingName;
+    private string? nameMessage;
+    private string nameAlertClass = "alert-success";
+
     private InviteRequest inviteModel = new();
     private bool isInviting;
     private string? inviteLink;
@@ -63,6 +69,45 @@ public partial class VaultDetail : IDisposable
     }
 
     private void HandleLanguageChange() => InvokeAsync(StateHasChanged);
+
+    private void StartEditName()
+    {
+        editName = vault!.Name;
+        nameMessage = null;
+        isEditingName = true;
+    }
+
+    private void CancelEditName()
+    {
+        isEditingName = false;
+    }
+
+    private async Task SaveNameAsync()
+    {
+        if (string.IsNullOrWhiteSpace(editName) || editName.Length < 3 || editName.Length > 50)
+            return;
+
+        isSavingName = true;
+        nameMessage = null;
+
+        try
+        {
+            await VaultService.UpdateAsync(Id, new UpdateVaultRequest { Name = editName });
+            vault!.Name = editName;
+            isEditingName = false;
+            nameMessage = Lang.Get("vault.renameSuccess");
+            nameAlertClass = "alert-success";
+        }
+        catch (Exception ex)
+        {
+            nameMessage = ex.Message;
+            nameAlertClass = "alert-danger";
+        }
+        finally
+        {
+            isSavingName = false;
+        }
+    }
 
     private static string RoleBadgeClass(VaultRole role) => role switch
     {
