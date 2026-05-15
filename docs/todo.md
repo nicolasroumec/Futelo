@@ -135,15 +135,15 @@ Ver roadmap para detalle completo.
 
 ---
 
-### Sprint A3 — Tests (~4h) 🔴 ALTA
+### Sprint A3 — Tests (~4h) ✅ COMPLETO
 
-- [ ] Crear proyecto `Futelo.Tests` con xUnit
+- [x] Crear proyecto `Futelo.Tests` con xUnit
   - `chore: add Futelo.Tests project with xUnit`
-- [ ] Tests para `EloCalculator` (casos normales, underdog, favorito, multiplicadores)
+- [x] Tests para `EloCalculator` (casos normales, underdog, favorito, multiplicadores, K)
   - `test: add EloCalculator unit tests`
-- [ ] Tests para `FixtureGenerator` (par/impar, ida y vuelta, bye)
+- [x] Tests para `FixtureGenerator` (par/impar, ida y vuelta, bye, pares únicos)
   - `test: add FixtureGenerator unit tests`
-- [ ] Tests para `StandingsCalculator` (puntos, diferencia de goles, orden)
+- [x] Tests para `StandingsCalculator` (puntos, GD, GF, H2H, alfabético)
   - `test: add StandingsCalculator unit tests`
 
 ---
