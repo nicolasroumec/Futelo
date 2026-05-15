@@ -46,15 +46,16 @@ public partial class VaultDetail : LocalizedComponentBase
         {
             var authState = await AuthStateTask;
             var userId = authState.User.FindFirst("sub")?.Value;
-            vault = await VaultService.GetByIdAsync(Id);
+            vault = await VaultService.GetByIdAsync(Id, ComponentToken);
             isOwner = vault.OwnerId == userId;
             isAdmin = vault.Players.Any(p => p.PlayerId == userId && p.Role == VaultRole.Admin);
-            var seasonsTask = SeasonService.GetByVaultAsync(Id);
-            var recentMatchesTask = VaultService.GetRecentMatchesAsync(Id, 5);
+            var seasonsTask = SeasonService.GetByVaultAsync(Id, ComponentToken);
+            var recentMatchesTask = VaultService.GetRecentMatchesAsync(Id, 5, ComponentToken);
             await Task.WhenAll(seasonsTask, recentMatchesTask);
             seasons = seasonsTask.Result;
             recentMatches = recentMatchesTask.Result;
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

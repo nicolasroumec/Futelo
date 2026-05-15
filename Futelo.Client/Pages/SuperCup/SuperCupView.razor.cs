@@ -45,8 +45,9 @@ public partial class SuperCupView : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            superCup = await SuperCupService.GetByIdAsync(Id);
+            superCup = await SuperCupService.GetByIdAsync(Id, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

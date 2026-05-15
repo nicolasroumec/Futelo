@@ -23,7 +23,7 @@ public partial class CreateSeason : LocalizedComponentBase
     {
         model.VaultId = VaultId;
         model.Year = DateTime.UtcNow.Year;
-        videoGames = await VideoGameService.GetAllAsync();
+        videoGames = await VideoGameService.GetAllAsync(ComponentToken);
     }
 
     private async Task HandleCreate()

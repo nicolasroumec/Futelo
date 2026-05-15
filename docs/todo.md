@@ -148,14 +148,12 @@ Ver roadmap para detalle completo.
 
 ---
 
-### Sprint A4 — Performance (~2h) 🟡 MEDIA/ALTA
+### Sprint A4 — Performance (~2h) ✅ COMPLETO
 
-- [ ] Auditar todos los repositories y agregar `AsNoTracking()` en queries de solo lectura
-  - `perf: add AsNoTracking to all read-only repository queries`
-- [ ] Verificar y completar `Include()` faltantes en repositories
-  - `fix: add missing Include() calls to prevent N+1 queries`
-- [ ] Agregar `CancellationToken` en los servicios cliente y componentes con carga larga
-  - `refactor: add CancellationToken support to client services and components`
+- [x] Auditar todos los repositories — `AsNoTracking()` e `Include()` ya correctos en toda la base de datos; `BaseRepository` usa `AsNoTrackingWithIdentityResolution` globalmente
+- [x] Agregar `CancellationToken` en los servicios cliente y componentes con carga larga
+  - `refactor: add CancellationToken support to client services and base component`
+  - `refactor: pass ComponentToken to all service calls in components`
 
 ---
 

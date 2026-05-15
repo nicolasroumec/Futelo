@@ -20,8 +20,9 @@ public partial class HeadToHead : LocalizedComponentBase
     {
         try
         {
-            h2h = await StatsService.GetHeadToHeadAsync(Player1Id, Player2Id, VaultId);
+            h2h = await StatsService.GetHeadToHeadAsync(Player1Id, Player2Id, VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

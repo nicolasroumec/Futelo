@@ -60,14 +60,14 @@ public partial class SeasonDetail : LocalizedComponentBase
             var authState = await AuthStateTask;
             var userId = authState.User.FindFirst("sub")?.Value;
 
-            season = await SeasonService.GetByIdAsync(Id);
+            season = await SeasonService.GetByIdAsync(Id, ComponentToken);
 
-            var vault = await VaultService.GetByIdAsync(season.VaultId);
+            var vault = await VaultService.GetByIdAsync(season.VaultId, ComponentToken);
             vaultPlayers = vault.Players;
             isOwner = vault.OwnerId == userId;
 
-            videoGames = await VideoGameService.GetAllAsync();
-            teams = await TeamService.GetAllAsync();
+            videoGames = await VideoGameService.GetAllAsync(ComponentToken);
+            teams = await TeamService.GetAllAsync(ComponentToken);
             selectedVideoGameId = season.VideoGameId;
             selectedPlayerIds = season.Players.Select(p => p.PlayerId).ToHashSet();
             playerTeamSelections = season.Players.ToDictionary(p => p.PlayerId, p => p.TeamId);
@@ -79,6 +79,7 @@ public partial class SeasonDetail : LocalizedComponentBase
             configureModel.HasSuperCup = season.HasSuperCup;
             configureModel.SuperCupName = season.SuperCupName;
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

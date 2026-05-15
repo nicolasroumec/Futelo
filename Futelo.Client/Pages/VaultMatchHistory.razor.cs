@@ -26,9 +26,10 @@ public partial class VaultMatchHistory : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            history = await VaultService.GetMatchHistoryAsync(Id, page);
+            history = await VaultService.GetMatchHistoryAsync(Id, page, ct: ComponentToken);
             currentPage = page;
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

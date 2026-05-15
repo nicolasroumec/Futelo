@@ -28,8 +28,9 @@ public partial class Palmares : LocalizedComponentBase
     {
         try
         {
-            rows = await StatsService.GetPalmaresAsync(VaultId);
+            rows = await StatsService.GetPalmaresAsync(VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

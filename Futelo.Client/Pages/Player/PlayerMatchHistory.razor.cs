@@ -27,9 +27,10 @@ public partial class PlayerMatchHistory : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            history = await StatsService.GetPlayerMatchHistoryAsync(VaultId, PlayerId, page);
+            history = await StatsService.GetPlayerMatchHistoryAsync(VaultId, PlayerId, page, ct: ComponentToken);
             currentPage = page;
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

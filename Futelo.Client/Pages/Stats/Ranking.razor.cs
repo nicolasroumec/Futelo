@@ -19,8 +19,9 @@ public partial class Ranking : LocalizedComponentBase
     {
         try
         {
-            rows = await StatsService.GetRankingAsync(SeasonId, VaultId);
+            rows = await StatsService.GetRankingAsync(SeasonId, VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

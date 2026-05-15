@@ -56,9 +56,10 @@ public partial class LeagueView : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            league = await LeagueService.GetByIdAsync(Id);
+            league = await LeagueService.GetByIdAsync(Id, ComponentToken);
             AutoSelectMatchday();
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

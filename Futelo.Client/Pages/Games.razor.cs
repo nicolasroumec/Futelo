@@ -30,8 +30,9 @@ public partial class Games : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            games = await VideoGameService.GetAllAsync();
+            games = await VideoGameService.GetAllAsync(ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

@@ -19,9 +19,10 @@ public partial class VaultRecords : LocalizedComponentBase
     {
         try
         {
-            records = await StatsService.GetVaultRecordsAsync(VaultId);
-            topScoringMatch = await StatsService.GetTopScoringMatchAsync(VaultId);
+            records = await StatsService.GetVaultRecordsAsync(VaultId, ComponentToken);
+            topScoringMatch = await StatsService.GetTopScoringMatchAsync(VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

@@ -37,15 +37,16 @@ public partial class PlayerProfile : LocalizedComponentBase
     {
         try
         {
-            stats = await StatsService.GetPlayerStatsAsync(PlayerId, VaultId);
-            eloHistory = await StatsService.GetEloHistoryAsync(VaultId, PlayerId);
-            recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId);
-            recentMatches = await StatsService.GetPlayerRecentMatchesAsync(VaultId, PlayerId);
-            var vault = await VaultService.GetByIdAsync(VaultId);
+            stats = await StatsService.GetPlayerStatsAsync(PlayerId, VaultId, ComponentToken);
+            eloHistory = await StatsService.GetEloHistoryAsync(VaultId, PlayerId, ComponentToken);
+            recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId, ComponentToken);
+            recentMatches = await StatsService.GetPlayerRecentMatchesAsync(VaultId, PlayerId, ct: ComponentToken);
+            var vault = await VaultService.GetByIdAsync(VaultId, ComponentToken);
             opponents = vault.Players.Where(p => p.PlayerId != PlayerId).ToList();
             if (opponents.Count > 0)
                 selectedOpponentId = opponents[0].PlayerId;
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

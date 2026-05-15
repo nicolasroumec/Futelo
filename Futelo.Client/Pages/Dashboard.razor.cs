@@ -17,8 +17,9 @@ public partial class Dashboard : LocalizedComponentBase
     {
         try
         {
-            vaults = await VaultService.GetAllAsync();
+            vaults = await VaultService.GetAllAsync(ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

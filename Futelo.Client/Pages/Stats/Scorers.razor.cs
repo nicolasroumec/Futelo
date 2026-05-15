@@ -18,8 +18,9 @@ public partial class Scorers : LocalizedComponentBase
     {
         try
         {
-            rows = await StatsService.GetScorersAsync(VaultId);
+            rows = await StatsService.GetScorersAsync(VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

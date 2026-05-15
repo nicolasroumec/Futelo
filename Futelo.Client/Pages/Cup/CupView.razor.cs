@@ -45,8 +45,9 @@ public partial class CupView : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            cup = await CupService.GetByIdAsync(Id);
+            cup = await CupService.GetByIdAsync(Id, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

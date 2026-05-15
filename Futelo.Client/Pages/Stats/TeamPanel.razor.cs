@@ -18,8 +18,9 @@ public partial class TeamPanel : LocalizedComponentBase
     {
         try
         {
-            rows = await StatsService.GetTeamPanelAsync(VaultId);
+            rows = await StatsService.GetTeamPanelAsync(VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

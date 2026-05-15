@@ -30,8 +30,9 @@ public partial class Teams : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            teams = await TeamService.GetAllAsync();
+            teams = await TeamService.GetAllAsync(ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
