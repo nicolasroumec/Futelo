@@ -6,6 +6,8 @@ public class PlayerRecordsResponse
     public MatchRecordEntry? WorstDefeat { get; set; }
     public int PeakElo { get; set; }
     public int BestEloGain { get; set; }
+    public int LongestTop1Reign { get; set; }
+    public int TotalMatchesAtTop1 { get; set; }
 }
 
 public class MatchRecordEntry

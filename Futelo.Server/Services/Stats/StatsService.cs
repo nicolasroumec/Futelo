@@ -355,12 +355,27 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
                 bestEloGainRecord = new RecordEntry { PlayerId = gainEntry.PlayerId, DisplayName = gainEntry.Player.DisplayName, Value = gainEntry.EloChange };
         }
 
+        var reignStats = ComputeTop1Reigns(eloHistories);
+
+        RecordEntry? longestReignRecord = null;
+        RecordEntry? totalTop1Record = null;
+
+        foreach (var (pid, (displayName, bestStreak, total)) in reignStats)
+        {
+            if (longestReignRecord == null || bestStreak > longestReignRecord.Value)
+                longestReignRecord = new RecordEntry { PlayerId = pid, DisplayName = displayName, Value = bestStreak };
+            if (totalTop1Record == null || total > totalTop1Record.Value)
+                totalTop1Record = new RecordEntry { PlayerId = pid, DisplayName = displayName, Value = total };
+        }
+
         return new VaultRecordsResponse
         {
             BestWinStreak = bestWinRecord,
             BestUnbeatenStreak = bestUnbeatenRecord,
             PeakElo = peakEloRecord,
-            BestEloGain = bestEloGainRecord
+            BestEloGain = bestEloGainRecord,
+            LongestTop1Reign = longestReignRecord,
+            TotalMatchesAtTop1 = totalTop1Record
         };
     }
 
@@ -606,6 +621,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
 
         var matches = await statsRepository.GetPlayerMatchesWithOpponentsInVaultAsync(playerId, vaultId);
         var eloHistory = await statsRepository.GetPlayerEloHistoryInVaultAsync(playerId, vaultId);
+        var allEloHistory = await statsRepository.GetAllHistoricalEloInVaultAsync(vaultId);
 
         MatchRecordEntry? bestWin = null;
         MatchRecordEntry? worstDefeat = null;
@@ -637,13 +653,62 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             ? eloHistory.Where(e => e.EloChange > 0).Select(e => e.EloChange).DefaultIfEmpty(0).Max()
             : 0;
 
+        var reignStats = ComputeTop1Reigns(allEloHistory);
+        int longestReign = 0, totalAtTop1 = 0;
+        if (reignStats.TryGetValue(playerId, out var playerReign))
+        {
+            longestReign = playerReign.BestStreak;
+            totalAtTop1 = playerReign.Total;
+        }
+
         return new PlayerRecordsResponse
         {
             BestWin = bestWin,
             WorstDefeat = worstDefeat,
             PeakElo = peakElo,
-            BestEloGain = bestEloGain
+            BestEloGain = bestEloGain,
+            LongestTop1Reign = longestReign,
+            TotalMatchesAtTop1 = totalAtTop1
         };
+    }
+
+    private static Dictionary<string, (string DisplayName, int BestStreak, int Total)> ComputeTop1Reigns(List<EloHistory> eloHistories)
+    {
+        var stats = new Dictionary<string, (string DisplayName, int BestStreak, int Total)>();
+        var currentStreak = new Dictionary<string, int>();
+        string? currentTop1 = null;
+
+        foreach (var matchGroup in eloHistories.OrderBy(e => e.MatchId).GroupBy(e => e.MatchId))
+        {
+            var top1Entry = matchGroup.FirstOrDefault(e => e.RankAfter == 1);
+            var newTop1 = top1Entry?.PlayerId ?? currentTop1;
+
+            if (newTop1 == null) continue;
+
+            if (!stats.ContainsKey(newTop1))
+            {
+                if (top1Entry == null) continue;
+                stats[newTop1] = (top1Entry.Player.DisplayName, 0, 0);
+            }
+
+            if (newTop1 != currentTop1)
+            {
+                if (currentTop1 != null)
+                    currentStreak[currentTop1] = 0;
+                currentStreak[newTop1] = 1;
+                currentTop1 = newTop1;
+            }
+            else
+            {
+                currentStreak[newTop1] = currentStreak.GetValueOrDefault(newTop1) + 1;
+            }
+
+            int streak = currentStreak[newTop1];
+            var prev = stats[newTop1];
+            stats[newTop1] = (prev.DisplayName, Math.Max(prev.BestStreak, streak), prev.Total + 1);
+        }
+
+        return stats;
     }
 
     private static (int current, int bestWin, int bestUnbeaten, StreakType currentType) ComputeStreaks(List<Match> matches, string playerId)
