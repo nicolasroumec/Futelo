@@ -131,6 +131,8 @@
   "stats.goalsLabel": "goals",
   "stats.peakElo": "Peak ELO",
   "stats.bestEloGain": "Best ELO Gain (Single Match)",
+  "stats.longestTop1Reign": "Longest Streak at #1",
+  "stats.totalMatchesAtTop1": "Most Matches at #1",
   "stats.noPlayers": "No players in this vault.",
   "stats.noPlayersInSeason": "No players in this season.",
   "stats.noMatches": "No matches played yet.",

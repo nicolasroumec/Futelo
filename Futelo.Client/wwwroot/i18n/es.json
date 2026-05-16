@@ -131,6 +131,8 @@
   "stats.goalsLabel": "goles",
   "stats.peakElo": "Pico de ELO",
   "stats.bestEloGain": "Mejor subida de ELO (en un partido)",
+  "stats.longestTop1Reign": "Mayor racha en el #1",
+  "stats.totalMatchesAtTop1": "Más partidos en el #1",
   "stats.noPlayers": "Sin jugadores en este vault.",
   "stats.noPlayersInSeason": "Sin jugadores en esta temporada.",
   "stats.noMatches": "Sin partidos jugados aún.",
