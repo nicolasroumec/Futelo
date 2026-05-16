@@ -95,40 +95,20 @@ else
                                 {
                                     <span class="badge bg-secondary mb-1" style="font-size:.7rem">@Lang.Get("cup.leg") @match.Leg</span>
                                 }
-                                <div class="match-layout">
-                                    <span class="@(string.IsNullOrEmpty(match.HomePlayerId) ? "text-muted" : "")">
-                                        @match.HomePlayerName
-                                    </span>
-                                    @if (match.Status == "Played")
-                                    {
-                                        <span class="fw-bold text-center">
-                                            @match.HomeScore – @match.AwayScore
-                                            @if (match.WonOnPenaltiesId != null)
-                                            {
-                                                <span class="text-muted small">
-                                                    (@(match.HomePenaltyScore)–@(match.AwayPenaltyScore) pen)
-                                                </span>
-                                            }
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted text-center">vs</span>
-                                    }
-                                    <span class="@(string.IsNullOrEmpty(match.AwayPlayerId) ? "text-muted" : "") text-end">
-                                        @match.AwayPlayerName
-                                    </span>
-                                    @if (match.HomeTeamName != null || match.AwayTeamName != null)
-                                    {
-                                        <span class="match-meta__item">@match.HomeTeamName</span>
-                                        <span></span>
-                                        <span class="match-meta__item text-end">@match.AwayTeamName</span>
-                                    }
-                                </div>
-                                @if (match.VideoGameName != null)
-                                {
-                                    <div class="match-meta__game">@match.VideoGameName</div>
-                                }
+                                <MatchDisplay
+                                    HomePlayerName="@match.HomePlayerName"
+                                    HomePlayerMuted="@string.IsNullOrEmpty(match.HomePlayerId)"
+                                    AwayPlayerName="@match.AwayPlayerName"
+                                    AwayPlayerMuted="@string.IsNullOrEmpty(match.AwayPlayerId)"
+                                    HomeTeamName="@match.HomeTeamName"
+                                    AwayTeamName="@match.AwayTeamName"
+                                    VideoGameName="@match.VideoGameName"
+                                    HomeScore="@match.HomeScore"
+                                    AwayScore="@match.AwayScore"
+                                    IsPlayed="@(match.Status == "Played")"
+                                    WonOnPenaltiesId="@match.WonOnPenaltiesId"
+                                    HomePenaltyScore="@match.HomePenaltyScore"
+                                    AwayPenaltyScore="@match.AwayPenaltyScore" />
 
                                 @if (recordingMatchId == match.Id)
                                 {

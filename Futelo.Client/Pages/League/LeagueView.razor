@@ -164,28 +164,15 @@ else
                      style="max-width:480px"
                      @onclick="() => HandleMatchClick(match.Id)">
                     <div class="card-body py-2 px-3">
-                        <div class="match-layout">
-                            <span class="match-card__player">@match.HomePlayerName</span>
-                            @if (match.Status == "Played")
-                            {
-                                <span class="match-card__score fw-bold text-center">@match.HomeScore – @match.AwayScore</span>
-                            }
-                            else
-                            {
-                                <span class="match-card__vs text-muted text-center">vs</span>
-                            }
-                            <span class="match-card__player text-end">@match.AwayPlayerName</span>
-                            @if (match.HomeTeamName != null || match.AwayTeamName != null)
-                            {
-                                <span class="match-meta__item">@match.HomeTeamName</span>
-                                <span></span>
-                                <span class="match-meta__item text-end">@match.AwayTeamName</span>
-                            }
-                        </div>
-                        @if (match.VideoGameName != null)
-                        {
-                            <div class="match-meta__game">@match.VideoGameName</div>
-                        }
+                        <MatchDisplay
+                            HomePlayerName="@match.HomePlayerName"
+                            AwayPlayerName="@match.AwayPlayerName"
+                            HomeTeamName="@match.HomeTeamName"
+                            AwayTeamName="@match.AwayTeamName"
+                            VideoGameName="@match.VideoGameName"
+                            HomeScore="@match.HomeScore"
+                            AwayScore="@match.AwayScore"
+                            IsPlayed="@(match.Status == "Played")" />
 
                         @if (recordingMatchId == match.Id)
                         {

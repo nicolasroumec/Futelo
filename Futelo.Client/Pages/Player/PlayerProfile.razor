@@ -286,15 +286,18 @@ else
             {
                 <div class="recent-match-row">
                     <span class="recent-match-competition text-muted small">@m.SeasonName · @m.CompetitionName</span>
-                    <div class="recent-match-body">
-                        <span class="recent-match-player text-end">@m.HomePlayerName@(m.HomeTeamName is not null ? $" ({m.HomeTeamName})" : "")</span>
-                        <span class="recent-match-score fw-bold">@MatchScore(m)</span>
-                        <span class="recent-match-player">@m.AwayPlayerName@(m.AwayTeamName is not null ? $" ({m.AwayTeamName})" : "")</span>
-                    </div>
-                    @if (m.VideoGameName is not null)
-                    {
-                        <span class="recent-match-game text-muted small">@m.VideoGameName</span>
-                    }
+                    <MatchDisplay
+                        HomePlayerName="@m.HomePlayerName"
+                        AwayPlayerName="@m.AwayPlayerName"
+                        HomeTeamName="@m.HomeTeamName"
+                        AwayTeamName="@m.AwayTeamName"
+                        VideoGameName="@m.VideoGameName"
+                        HomeScore="@m.HomeScore"
+                        AwayScore="@m.AwayScore"
+                        IsPlayed="true"
+                        WonOnPenaltiesId="@m.WonOnPenaltiesId"
+                        HomePenaltyScore="@m.HomePenaltyScore"
+                        AwayPenaltyScore="@m.AwayPenaltyScore" />
                 </div>
             }
         </div>
