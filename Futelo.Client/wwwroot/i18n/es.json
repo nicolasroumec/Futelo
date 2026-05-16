@@ -157,6 +157,8 @@
   "player.worstDefeat": "Peor derrota",
   "player.peakElo": "Pico de ELO",
   "player.bestEloGain": "Mejor subida de ELO",
+  "player.longestTop1Reign": "Mayor racha en el #1",
+  "player.totalMatchesAtTop1": "Total de partidos en el #1",
 
   "headToHead.title": "Cara a cara",
   "headToHead.matchHistory": "Historial de partidos",
