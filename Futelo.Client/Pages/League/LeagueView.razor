@@ -162,7 +162,7 @@ else
                 var isEditable = league.CanEdit && league.Status != "NotStarted";
                 <div class="match-card @(match.Status == "Played" ? "match-card--played" : "match-card--pending") @(isEditable ? "match-card--editable" : "") mb-2"
                      style="max-width:480px"
-                     @onclick="() => TryToggleEdit(match.Id)">
+                     @onclick="() => HandleMatchClick(match.Id)">
                     <div class="card-body py-2 px-3">
                         <div class="match-layout">
                             <span class="match-card__player">@match.HomePlayerName</span>
@@ -185,17 +185,6 @@ else
                         @if (match.VideoGameName != null)
                         {
                             <div class="match-meta__game">@match.VideoGameName</div>
-                        }
-
-                        @if (match.Status == "Pending" && league.Status == "Active")
-                        {
-                            <div class="mt-2">
-                                <button class="btn btn-sm btn-outline-primary"
-                                        @onclick:stopPropagation="true"
-                                        @onclick="() => SelectMatch(match.Id)">
-                                    @(recordingMatchId == match.Id ? Lang.Get("common.cancel") : Lang.Get("league.enterResult"))
-                                </button>
-                            </div>
                         }
 
                         @if (recordingMatchId == match.Id)

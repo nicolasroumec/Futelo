@@ -90,7 +90,7 @@ else
                             var isEditable = cup.CanEdit && cup.Status != "NotStarted";
                             <div class="@(tie.Count > 1 ? "mb-2" : "") @(isEditable ? "match-card--editable" : "")"
                                  style="@(isEditable ? "cursor:pointer" : "")"
-                                 @onclick="() => TryToggleEdit(match.Id)">
+                                 @onclick="() => HandleMatchClick(match.Id)">
                                 @if (cup.IsHomeAndAway)
                                 {
                                     <span class="badge bg-secondary mb-1" style="font-size:.7rem">@Lang.Get("cup.leg") @match.Leg</span>
@@ -128,19 +128,6 @@ else
                                 @if (match.VideoGameName != null)
                                 {
                                     <div class="match-meta__game">@match.VideoGameName</div>
-                                }
-
-                                @if (match.Status == "Pending" && cup.Status == "Active"
-                                    && !string.IsNullOrEmpty(match.HomePlayerId)
-                                    && !string.IsNullOrEmpty(match.AwayPlayerId))
-                                {
-                                    <div class="mt-2">
-                                        <button class="btn btn-sm btn-outline-primary"
-                                                @onclick:stopPropagation="true"
-                                                @onclick="() => SelectMatch(match.Id, match.HomePlayerId, match.AwayPlayerId)">
-                                            @(recordingMatchId == match.Id ? Lang.Get("common.cancel") : Lang.Get("cup.enterResult"))
-                                        </button>
-                                    </div>
                                 }
 
                                 @if (recordingMatchId == match.Id)

@@ -137,8 +137,16 @@ public partial class CupView : LocalizedComponentBase
         }
     }
 
-    private Task TryToggleEdit(int matchId)
-        => (cup!.CanEdit && cup.Status != "NotStarted") ? ToggleEditMatch(matchId) : Task.CompletedTask;
+    private async Task HandleMatchClick(int matchId)
+    {
+        if (!cup!.CanEdit || cup.Status == "NotStarted") return;
+        var match = cup.Rounds.SelectMany(r => r.Matches).First(m => m.Id == matchId);
+        if (match.Status == "Pending" && cup.Status == "Active"
+            && !string.IsNullOrEmpty(match.HomePlayerId) && !string.IsNullOrEmpty(match.AwayPlayerId))
+            SelectMatch(matchId, match.HomePlayerId, match.AwayPlayerId);
+        else
+            await ToggleEditMatch(matchId);
+    }
 
     private async Task ToggleEditMatch(int matchId)
     {

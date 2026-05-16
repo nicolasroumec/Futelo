@@ -155,8 +155,15 @@ public partial class LeagueView : LocalizedComponentBase
         }
     }
 
-    private Task TryToggleEdit(int matchId)
-        => (league!.CanEdit && league.Status != "NotStarted") ? ToggleEditMatch(matchId) : Task.CompletedTask;
+    private async Task HandleMatchClick(int matchId)
+    {
+        if (!league!.CanEdit || league.Status == "NotStarted") return;
+        var match = league.Matches.First(m => m.Id == matchId);
+        if (match.Status == "Pending" && league.Status == "Active")
+            SelectMatch(matchId);
+        else
+            await ToggleEditMatch(matchId);
+    }
 
     private async Task ToggleEditMatch(int matchId)
     {
