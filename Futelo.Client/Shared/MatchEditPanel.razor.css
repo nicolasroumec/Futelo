@@ -1,18 +1,3 @@
-.match-edit-host {
-    display: block;
-}
-
-.match-edit-btn {
-    opacity: 0;
-    transition: opacity .15s;
-    font-size: .8rem;
-    color: var(--color-text-muted);
-}
-
-.match-edit-host:hover .match-edit-btn {
-    opacity: 1;
-}
-
 .match-edit-form {
     margin-top: .25rem;
 }

@@ -159,54 +159,68 @@ else
         <div class="mb-3">
             @foreach (var match in league.Matches.Where(m => m.Matchday == selectedMatchday))
             {
-                <div class="match-card @(match.Status == "Played" ? "match-card--played" : "match-card--pending") mb-2" style="max-width:480px">
+                var isEditable = league.CanEdit && league.Status != "NotStarted";
+                <div class="match-card @(match.Status == "Played" ? "match-card--played" : "match-card--pending") @(isEditable ? "match-card--editable" : "") mb-2"
+                     style="max-width:480px"
+                     @onclick="() => TryToggleEdit(match.Id)">
                     <div class="card-body py-2 px-3">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="match-layout">
                             <span class="match-card__player">@match.HomePlayerName</span>
                             @if (match.Status == "Played")
                             {
-                                <span class="match-card__score fw-bold mx-2">@match.HomeScore – @match.AwayScore</span>
+                                <span class="match-card__score fw-bold text-center">@match.HomeScore – @match.AwayScore</span>
                             }
                             else
                             {
-                                <span class="match-card__vs text-muted mx-2">vs</span>
+                                <span class="match-card__vs text-muted text-center">vs</span>
                             }
-                            <span class="match-card__player">@match.AwayPlayerName</span>
-                                @if (match.Status == "Pending" && league.Status == "Active")
+                            <span class="match-card__player text-end">@match.AwayPlayerName</span>
+                            @if (match.HomeTeamName != null || match.AwayTeamName != null)
                             {
-                                <button class="btn btn-sm btn-outline-primary ms-3"
+                                <span class="match-meta__item">@match.HomeTeamName</span>
+                                <span></span>
+                                <span class="match-meta__item text-end">@match.AwayTeamName</span>
+                            }
+                        </div>
+                        @if (match.VideoGameName != null)
+                        {
+                            <div class="match-meta__game">@match.VideoGameName</div>
+                        }
+
+                        @if (match.Status == "Pending" && league.Status == "Active")
+                        {
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-primary"
+                                        @onclick:stopPropagation="true"
                                         @onclick="() => SelectMatch(match.Id)">
                                     @(recordingMatchId == match.Id ? Lang.Get("common.cancel") : Lang.Get("league.enterResult"))
                                 </button>
-                            }
-                        </div>
+                            </div>
+                        }
 
                         @if (recordingMatchId == match.Id)
                         {
-                            <MatchResultForm
-                                HomePlayerId="@match.HomePlayerId"
-                                HomePlayerName="@match.HomePlayerName"
-                                AwayPlayerId="@match.AwayPlayerId"
-                                AwayPlayerName="@match.AwayPlayerName"
-                                IsSaving="isRecording"
-                                OnSave="HandleRecordResult"
-                                OnCancel="() => recordingMatchId = null" />
+                            <div @onclick:stopPropagation="true" @onclick="() => {}">
+                                <MatchResultForm
+                                    HomePlayerId="@match.HomePlayerId"
+                                    HomePlayerName="@match.HomePlayerName"
+                                    AwayPlayerId="@match.AwayPlayerId"
+                                    AwayPlayerName="@match.AwayPlayerName"
+                                    IsSaving="isRecording"
+                                    OnSave="HandleRecordResult"
+                                    OnCancel="() => recordingMatchId = null" />
+                            </div>
                         }
 
                         <MatchEditPanel
-                            CanEdit="@(league.CanEdit && league.Status != "NotStarted")"
                             IsEditing="editingMatchId == match.Id"
                             HomePlayerName="@match.HomePlayerName"
                             AwayPlayerName="@match.AwayPlayerName"
                             HomeTeamId="match.HomeTeamId"
                             AwayTeamId="match.AwayTeamId"
                             VideoGameId="match.VideoGameId"
-                            HomeTeamName="@match.HomeTeamName"
-                            AwayTeamName="@match.AwayTeamName"
-                            VideoGameName="@match.VideoGameName"
                             Teams="teams"
                             VideoGames="videoGames"
-                            OnToggle="() => ToggleEditMatch(match.Id)"
                             OnSave="HandlePatchMatch"
                             OnCancel="() => editingMatchId = null" />
                     </div>

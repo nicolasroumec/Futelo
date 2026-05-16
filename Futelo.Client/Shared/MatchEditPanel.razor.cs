@@ -10,19 +10,14 @@ public partial class MatchEditPanel
 {
     [Inject] private ILanguageService Lang { get; set; } = null!;
 
-    [Parameter] public bool CanEdit { get; set; }
     [Parameter] public bool IsEditing { get; set; }
     [Parameter] public string HomePlayerName { get; set; } = string.Empty;
     [Parameter] public string AwayPlayerName { get; set; } = string.Empty;
     [Parameter] public int? HomeTeamId { get; set; }
     [Parameter] public int? AwayTeamId { get; set; }
     [Parameter] public int? VideoGameId { get; set; }
-    [Parameter] public string? HomeTeamName { get; set; }
-    [Parameter] public string? AwayTeamName { get; set; }
-    [Parameter] public string? VideoGameName { get; set; }
     [Parameter] public List<TeamResponse> Teams { get; set; } = [];
     [Parameter] public List<VideoGameResponse> VideoGames { get; set; } = [];
-    [Parameter] public EventCallback OnToggle { get; set; }
     [Parameter] public EventCallback<PatchMatchRequest> OnSave { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 
@@ -42,8 +37,6 @@ public partial class MatchEditPanel
         }
         wasEditing = IsEditing;
     }
-
-    private void HandleToggle() => OnToggle.InvokeAsync();
 
     private async Task HandleSave()
     {

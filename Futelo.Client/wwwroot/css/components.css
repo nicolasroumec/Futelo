@@ -414,6 +414,30 @@
    ============================================= */
 
 /* =============================================
+   MATCH LAYOUT (shared: league, cup, supercup)
+   ============================================= */
+
+.match-layout {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.1rem 0.5rem;
+}
+
+.match-meta__item {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.match-meta__game {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+    text-align: center;
+    margin-top: 0.1rem;
+}
+
+/* =============================================
    RECENT MATCHES
    ============================================= */
 

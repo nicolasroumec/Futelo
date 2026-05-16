@@ -58,6 +58,14 @@
     opacity: .72;
 }
 
+.match-card--editable {
+    cursor: pointer;
+}
+
+.match-card--editable:hover {
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
 .match-card__player {
     font-size: .9rem;
 }
