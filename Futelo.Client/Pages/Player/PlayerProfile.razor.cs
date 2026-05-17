@@ -70,7 +70,7 @@ public partial class PlayerProfile : LocalizedComponentBase
         if (!isLoading && !chartRendered && eloHistory.Count > 0)
         {
             chartRendered = true;
-            var labels = eloHistory.Select(p => p.Date.ToString("dd/MM/yy")).ToArray();
+            var labels = Enumerable.Range(0, eloHistory.Count).Select(i => i.ToString()).ToArray();
             var data = eloHistory.Select(p => p.Elo).ToArray();
             await JS.InvokeVoidAsync("renderEloChart", "elo-chart", labels, data);
         }

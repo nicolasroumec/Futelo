@@ -193,3 +193,121 @@ Ver roadmap para detalle completo.
   - `refactor: centralize error message strings in ErrorMessages`
 - [ ] Implementar caching en `VideoGameService` y `TeamService` para catálogos estáticos
   - `feat: add in-memory cache to VideoGameService and TeamService`
+
+---
+
+## Sesión 12 (rama `12-design-system`) — Desktop layout + UX
+
+### ✅ Completado en esta sesión
+
+- [x] Componente `MatchDisplay` unificado — reemplaza el bloque match en League, Cup, SuperCup, y todas las páginas de historial
+- [x] Click en partido abre resultado/edición (sprint 2 de diseño)
+- [x] `MatchEditPanel` reorganizado para reflejar jerarquía de la card
+- [x] Récords ELO: `LongestTop1Reign` + `TotalMatchesAtTop1` en vault y perfil de jugador
+- [x] Desktop layout baseline — `max-width` global en pantallas muy anchas, override de constraints angostos en columnas Bootstrap
+- [x] LeagueView — layout de dos columnas en desktop (standings | fixture)
+- [x] PlayerProfile — layout de dos columnas en desktop (stats/forma/títulos | récords/gráfico ELO)
+- [x] VaultDetail — layout de dos columnas en desktop (jugadores/temporadas | partidos recientes)
+- [x] CupView — ties en grid de dos columnas en desktop
+- [x] VaultRecords — cards en grid de dos columnas
+
+---
+
+### 🔴 Fix urgente — pendiente
+
+#### Fix 1: Tablas demasiado anchas en desktop
+**Problema:** El override `max-width: none !important` en `.table-responsive` es demasiado agresivo. Tablas de 3 columnas (Ranking, Goleadores) se estiran a ~1200px.
+**Solución:** Cambiar el selector para que solo aplique dentro de columnas Bootstrap (`[class*="col-"] .table-responsive`), no globalmente.
+**Archivos:** `Futelo.Client/wwwroot/css/components.css`
+**Commit:** `fix: scope table-responsive desktop override to bootstrap columns only`
+
+#### Fix 2: Gráfico ELO — eje X por número de partido en lugar de fecha
+**Problema:** Partidos jugados el mismo día muestran fechas repetidas en el eje X del gráfico.
+**Solución:** Cambiar labels a número secuencial ("Inicio", "1", "2"...). Solo una línea en el `.razor.cs`.
+**Archivos:** `Futelo.Client/Pages/Player/PlayerProfile.razor.cs` (línea ~73)
+**Commit:** `fix: use match number instead of date on ELO history chart`
+
+---
+
+### 🟡 Reorganización de información
+
+#### Mejora 1: Fusionar Goleadores en la página de Ranking General
+**Problema:** `/vaults/{id}/scorers` es una página de solo 3 columnas. No justifica existir sola.
+**Solución:** Agregar sección de goleadores en `GeneralRanking.razor`, debajo del ranking de ELO. Eliminar el botón "Scorers" de VaultDetail (quedan 5 botones).
+**Archivos:**
+- `Futelo.Client/Pages/Stats/GeneralRanking.razor` + `.cs` — agregar llamada a scorers y sección
+- `Futelo.Client/Pages/VaultDetail.razor` — eliminar botón Scorers
+- `Futelo.Client/Pages/Stats/Scorers.razor` — se puede eliminar
+**Commit:** `feat: merge scorers into general ranking page`
+
+#### Mejora 2: Mostrar ELO en la lista de jugadores del VaultDetail
+**Problema:** La lista de jugadores solo muestra Nombre + Rol. No hay datos de ELO a simple vista.
+**Solución:** Mostrar el ELO histórico al lado del nombre (badge pequeño). Verificar si `VaultPlayerResponse` ya incluye `EloRating`; si no, agregarlo.
+**Archivos:**
+- `Futelo.Shared/DTOs/Vault/VaultDetailResponse.cs` — verificar/agregar `EloRating` en `VaultPlayerResponse`
+- `Futelo.Server/Repositories/Vault/VaultRepository.cs` — incluir ELO si falta
+- `Futelo.Client/Pages/VaultDetail.razor` — mostrar badge de ELO
+**Commit:** `feat: show player ELO in vault detail player list`
+
+#### Mejora 3: Enriquecer SeasonDetail
+**Problema:** En temporada activa/finalizada, el usuario solo ve año, videojuego, badges y lista de jugadores. No hay resultados ni standings inline.
+**Solución:** Agregar debajo de los jugadores: mini tabla de posiciones de la liga (top 3) y últimos 3 resultados de cualquier competencia de la temporada.
+**Archivos:**
+- `Futelo.Shared/DTOs/Season/SeasonDetailResponse.cs` — agregar `RecentMatches` y `TopStandings`
+- `Futelo.Server/Services/Season/SeasonService.cs` — poblar nuevos campos
+- `Futelo.Client/Pages/SeasonDetail.razor` — mostrar nueva sección
+**Commit:** `feat: show recent results and mini standings in season detail`
+
+#### Mejora 4: H2H histórico en SuperCupView
+**Problema:** La SuperCopa enfrenta dos jugadores pero no muestra contexto histórico entre ellos.
+**Solución:** Agregar un panel con el H2H entre los dos jugadores (partidos, victorias, empates). Reutiliza el endpoint `GetHeadToHeadAsync` existente.
+**Archivos:**
+- `Futelo.Client/Pages/SuperCup/SuperCupView.razor` — agregar sección H2H
+- `Futelo.Client/Pages/SuperCup/SuperCupView.razor.cs` — llamar `GetHeadToHeadAsync` con los dos jugadores
+**Commit:** `feat: show head-to-head history in supercup view`
+
+---
+
+### 🟢 Mejoras de layout desktop
+
+#### Layout 1: GamesRanking — grid de dos columnas
+**Problema:** Múltiples tablas apiladas verticalmente. En desktop con varios juegos queda muy larga.
+**Solución:** Mostrar las tablas en grid de dos columnas en desktop (`col-lg-6` por juego).
+**Archivos:** `Futelo.Client/Pages/Stats/GamesRanking.razor`
+**Commit:** `style: two-column desktop layout for games ranking`
+
+#### Layout 2: SeasonDetail — dos columnas en desktop
+**Problema:** Vista de temporada activa es una columna larga.
+**Solución:** Columna izquierda: info + jugadores. Columna derecha: mini standings + últimos resultados (requiere Mejora 3 implementada).
+**Archivos:** `Futelo.Client/Pages/SeasonDetail.razor`
+**Commit:** `style: two-column desktop layout for season detail`
+
+---
+
+### 🔵 Features nuevas
+
+#### Feature 1: Filtros en páginas de historial
+**Problema:** VaultMatchHistory y PlayerMatchHistory solo paginan. Sin filtro por competencia.
+**Solución:** Selector de tipo (Liga / Copa / Supercopa / Todas) como query param. Requiere cambios en endpoint y repositorio.
+**Archivos:**
+- `Futelo.Client/Pages/VaultMatchHistory.razor` + `.cs`
+- `Futelo.Client/Pages/Player/PlayerMatchHistory.razor` + `.cs`
+- `Futelo.Server/Repositories/Stats/StatsRepository.cs` — parámetro de filtro
+- `Futelo.Server/Services/Stats/StatsService.cs` — pasar filtro
+**Commit:** `feat: add competition filter to match history pages`
+
+---
+
+### 📋 Orden sugerido de implementación
+
+| # | Tarea | Prioridad | Tamaño |
+|---|-------|-----------|--------|
+| 1 | Fix tablas anchas | 🔴 Urgente | XS |
+| 2 | Fix gráfico ELO | 🔴 Urgente | XS |
+| 3 | Fusionar Ranking + Goleadores | 🟡 Alto | S |
+| 4 | ELO en lista de jugadores | 🟡 Alto | S |
+| 5 | GamesRanking dos columnas | 🟢 Medio | XS |
+| 6 | H2H en SuperCupView | 🟡 Alto | M |
+| 7 | SeasonDetail enriquecido | 🟡 Alto | M |
+| 8 | SeasonDetail dos columnas | 🟢 Medio | S |
+| 9 | Filtros en historial | 🔵 Nuevo | L |

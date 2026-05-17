@@ -505,8 +505,8 @@
     max-width: none !important;
   }
 
-  /* Table wrappers used in league, player profile, etc. */
-  .table-responsive {
+  /* Table wrappers inside Bootstrap columns — column width already constrains them */
+  [class*="col-"] .table-responsive {
     max-width: none !important;
   }
 }
