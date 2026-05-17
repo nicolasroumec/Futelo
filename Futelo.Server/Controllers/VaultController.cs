@@ -80,11 +80,11 @@ public class VaultController(IVaultService vaultService, IInvitationService invi
     }
 
     [HttpGet("{id}/matches")]
-    public async Task<IActionResult> GetMatchHistory(int id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetMatchHistory(int id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? competitionType = null)
     {
         try
         {
-            var result = await vaultService.GetMatchHistoryAsync(id, UserId, page, pageSize);
+            var result = await vaultService.GetMatchHistoryAsync(id, UserId, page, pageSize, competitionType);
             return Ok(result);
         }
         catch (KeyNotFoundException)

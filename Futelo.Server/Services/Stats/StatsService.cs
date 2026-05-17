@@ -529,13 +529,13 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         return matches.Select(MapToRecentMatch).ToList();
     }
 
-    public async Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(string playerId, int vaultId, string requesterId, int page, int pageSize)
+    public async Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(string playerId, int vaultId, string requesterId, int page, int pageSize, string? competitionType = null)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
             throw new KeyNotFoundException("Vault not found.");
         var skip = (page - 1) * pageSize;
-        var totalCount = await statsRepository.CountPlayerMatchesAsync(playerId, vaultId);
-        var items = await statsRepository.GetPlayerMatchesPageAsync(playerId, vaultId, skip, pageSize);
+        var totalCount = await statsRepository.CountPlayerMatchesAsync(playerId, vaultId, competitionType);
+        var items = await statsRepository.GetPlayerMatchesPageAsync(playerId, vaultId, skip, pageSize, competitionType);
         return new MatchHistoryPageResponse
         {
             Items = items.Select(MapToRecentMatch).ToList(),

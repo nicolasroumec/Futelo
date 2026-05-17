@@ -12,6 +12,7 @@ public partial class VaultMatchHistory : LocalizedComponentBase
 
     private MatchHistoryPageResponse history = new() { Page = 1, PageSize = 10 };
     private int currentPage = 1;
+    private string? activeFilter;
     private bool isLoading = true;
     private string? errorMessage;
 
@@ -26,7 +27,7 @@ public partial class VaultMatchHistory : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            history = await VaultService.GetMatchHistoryAsync(Id, page, ct: ComponentToken);
+            history = await VaultService.GetMatchHistoryAsync(Id, page, competitionType: activeFilter, ct: ComponentToken);
             currentPage = page;
         }
         catch (OperationCanceledException) { }
@@ -38,6 +39,12 @@ public partial class VaultMatchHistory : LocalizedComponentBase
         {
             isLoading = false;
         }
+    }
+
+    private Task SetFilter(string? filter)
+    {
+        activeFilter = filter;
+        return LoadPage(1);
     }
 
     private Task PrevPage() => LoadPage(currentPage - 1);

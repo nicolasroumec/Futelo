@@ -32,6 +32,13 @@ else
         <h3 class="mb-0">@Lang.Get("vault.matchHistory")</h3>
     </div>
 
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-sm @(activeFilter == null ? "btn-primary" : "btn-outline-secondary")" @onclick="() => SetFilter(null)">@Lang.Get("filter.all")</button>
+        <button class="btn btn-sm @(activeFilter == "League" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("League")'>@Lang.Get("filter.league")</button>
+        <button class="btn btn-sm @(activeFilter == "Cup" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("Cup")'>@Lang.Get("filter.cup")</button>
+        <button class="btn btn-sm @(activeFilter == "SuperCup" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("SuperCup")'>@Lang.Get("filter.superCup")</button>
+    </div>
+
     @if (history.TotalCount == 0)
     {
         <p class="empty-state">@Lang.Get("stats.noMatches")</p>

@@ -17,7 +17,7 @@ public interface IStatsService
     Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId, string requesterId);
     Task<List<RecentFormEntry>> GetRecentFormAsync(string playerId, int vaultId, string requesterId);
     Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(string playerId, int vaultId, string requesterId, int limit);
-    Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(string playerId, int vaultId, string requesterId, int page, int pageSize);
+    Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(string playerId, int vaultId, string requesterId, int page, int pageSize, string? competitionType = null);
     Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, string requesterId);
     Task<PlayerRecordsResponse> GetPlayerRecordsAsync(string playerId, int vaultId, string requesterId);
 }

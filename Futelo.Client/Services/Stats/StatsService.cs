@@ -42,8 +42,12 @@ public class StatsService(HttpClient http) : ApiService(http), IStatsService
     public Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(int vaultId, string playerId, int limit = 5, CancellationToken ct = default)
         => GetListAsync<RecentMatchResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/recent-matches?limit={limit}", ct);
 
-    public Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(int vaultId, string playerId, int page = 1, int pageSize = 10, CancellationToken ct = default)
-        => GetAsync<MatchHistoryPageResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/matches?page={page}&pageSize={pageSize}", ct);
+    public Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(int vaultId, string playerId, int page = 1, int pageSize = 10, string? competitionType = null, CancellationToken ct = default)
+    {
+        var url = $"api/stats/vaults/{vaultId}/players/{playerId}/matches?page={page}&pageSize={pageSize}";
+        if (!string.IsNullOrEmpty(competitionType)) url += $"&competitionType={competitionType}";
+        return GetAsync<MatchHistoryPageResponse>(url, ct);
+    }
 
     public Task<PlayerRecordsResponse> GetPlayerRecordsAsync(int vaultId, string playerId, CancellationToken ct = default)
         => GetAsync<PlayerRecordsResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/records", ct);

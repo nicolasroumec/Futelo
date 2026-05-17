@@ -47,23 +47,25 @@ public class VaultRepository(FuteloContext context) : BaseRepository<Models.Vaul
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
-    public async Task<List<Match>> GetMatchesPageAsync(int vaultId, int skip, int take)
-        => await VaultMatchesQuery(vaultId)
+    public async Task<List<Match>> GetMatchesPageAsync(int vaultId, int skip, int take, string? competitionType = null)
+        => await ApplyCompetitionFilter(VaultMatchesQuery(vaultId), competitionType)
             .Skip(skip)
             .Take(take)
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
-    public async Task<int> CountMatchesAsync(int vaultId)
-        => await Context.Set<Match>()
-            .Where(m =>
-                m.Status == MatchStatus.Played &&
-                (
-                    (m.League != null && m.League.Season.VaultId == vaultId) ||
-                    (m.CupRound != null && m.CupRound.Cup.Season.VaultId == vaultId) ||
-                    (m.SuperCup != null && m.SuperCup.Season.VaultId == vaultId)
-                )
-            )
+    public async Task<int> CountMatchesAsync(int vaultId, string? competitionType = null)
+        => await ApplyCompetitionFilter(
+                Context.Set<Match>()
+                    .Where(m =>
+                        m.Status == MatchStatus.Played &&
+                        (
+                            (m.League != null && m.League.Season.VaultId == vaultId) ||
+                            (m.CupRound != null && m.CupRound.Cup.Season.VaultId == vaultId) ||
+                            (m.SuperCup != null && m.SuperCup.Season.VaultId == vaultId)
+                        )
+                    ),
+                competitionType)
             .CountAsync();
 
     private IQueryable<Match> VaultMatchesQuery(int vaultId)
@@ -86,6 +88,15 @@ public class VaultRepository(FuteloContext context) : BaseRepository<Models.Vaul
                 )
             )
             .OrderByDescending(m => m.PlayedAt);
+
+    private static IQueryable<Match> ApplyCompetitionFilter(IQueryable<Match> query, string? competitionType)
+        => competitionType switch
+        {
+            "League" => query.Where(m => m.LeagueId != null),
+            "Cup" => query.Where(m => m.CupRoundId != null),
+            "SuperCup" => query.Where(m => m.SuperCupId != null),
+            _ => query
+        };
 
     public async Task AddPlayerAsync(VaultPlayer player)
     {

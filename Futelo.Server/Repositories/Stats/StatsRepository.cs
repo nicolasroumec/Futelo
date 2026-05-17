@@ -154,21 +154,23 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
-    public async Task<List<Match>> GetPlayerMatchesPageAsync(string playerId, int vaultId, int skip, int take)
-        => await PlayerMatchesRichQuery(playerId, vaultId)
+    public async Task<List<Match>> GetPlayerMatchesPageAsync(string playerId, int vaultId, int skip, int take, string? competitionType = null)
+        => await ApplyCompetitionFilter(PlayerMatchesRichQuery(playerId, vaultId), competitionType)
             .Skip(skip)
             .Take(take)
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
-    public async Task<int> CountPlayerMatchesAsync(string playerId, int vaultId)
-        => await context.Matches
-            .Where(m => m.Status == MatchStatus.Played)
-            .Where(m => m.HomePlayerId == playerId || m.AwayPlayerId == playerId)
-            .Where(m =>
-                (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
-                (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
-                (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId))
+    public async Task<int> CountPlayerMatchesAsync(string playerId, int vaultId, string? competitionType = null)
+        => await ApplyCompetitionFilter(
+                context.Matches
+                    .Where(m => m.Status == MatchStatus.Played)
+                    .Where(m => m.HomePlayerId == playerId || m.AwayPlayerId == playerId)
+                    .Where(m =>
+                        (m.LeagueId != null && m.League!.Season.VaultId == vaultId) ||
+                        (m.CupRoundId != null && m.CupRound!.Cup.Season.VaultId == vaultId) ||
+                        (m.SuperCupId != null && m.SuperCup!.Season.VaultId == vaultId)),
+                competitionType)
             .CountAsync();
 
     private IQueryable<Match> PlayerMatchesRichQuery(string playerId, int vaultId)
@@ -189,6 +191,15 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .Include(m => m.CupRound).ThenInclude(cr => cr!.Cup).ThenInclude(c => c.Season)
             .Include(m => m.SuperCup).ThenInclude(sc => sc!.Season)
             .OrderByDescending(m => m.PlayedAt);
+
+    private static IQueryable<Match> ApplyCompetitionFilter(IQueryable<Match> query, string? competitionType)
+        => competitionType switch
+        {
+            "League" => query.Where(m => m.LeagueId != null),
+            "Cup" => query.Where(m => m.CupRoundId != null),
+            "SuperCup" => query.Where(m => m.SuperCupId != null),
+            _ => query
+        };
 
     public async Task<List<EloHistory>> GetAllHistoricalEloInVaultAsync(int vaultId)
         => await context.EloHistories

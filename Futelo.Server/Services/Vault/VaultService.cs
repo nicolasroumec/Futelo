@@ -65,14 +65,14 @@ public class VaultService(IVaultRepository repository) : IVaultService
         return matches.Select(MapToRecentMatch).ToList();
     }
 
-    public async Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int id, string userId, int page, int pageSize)
+    public async Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int id, string userId, int page, int pageSize, string? competitionType = null)
     {
         var vault = await repository.GetByIdAsync(id);
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
             throw new KeyNotFoundException("Vault not found.");
         var skip = (page - 1) * pageSize;
-        var totalCount = await repository.CountMatchesAsync(id);
-        var items = await repository.GetMatchesPageAsync(id, skip, pageSize);
+        var totalCount = await repository.CountMatchesAsync(id, competitionType);
+        var items = await repository.GetMatchesPageAsync(id, skip, pageSize, competitionType);
         return new MatchHistoryPageResponse
         {
             Items = items.Select(MapToRecentMatch).ToList(),

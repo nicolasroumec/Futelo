@@ -167,11 +167,11 @@ public class StatsController(IStatsService statsService) : ControllerBase
     }
 
     [HttpGet("vaults/{vaultId}/players/{playerId}/matches")]
-    public async Task<IActionResult> GetPlayerMatchHistory(int vaultId, string playerId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetPlayerMatchHistory(int vaultId, string playerId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? competitionType = null)
     {
         try
         {
-            var result = await statsService.GetPlayerMatchHistoryAsync(playerId, vaultId, UserId, page, pageSize);
+            var result = await statsService.GetPlayerMatchHistoryAsync(playerId, vaultId, UserId, page, pageSize, competitionType);
             return Ok(result);
         }
         catch (KeyNotFoundException)

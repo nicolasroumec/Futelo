@@ -14,8 +14,12 @@ public class VaultService(HttpClient http) : ApiService(http), IVaultService
     public Task<List<RecentMatchResponse>> GetRecentMatchesAsync(int vaultId, int limit = 10, CancellationToken ct = default)
         => GetListAsync<RecentMatchResponse>($"api/vaults/{vaultId}/recent-matches?limit={limit}", ct);
 
-    public Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int vaultId, int page = 1, int pageSize = 10, CancellationToken ct = default)
-        => GetAsync<MatchHistoryPageResponse>($"api/vaults/{vaultId}/matches?page={page}&pageSize={pageSize}", ct);
+    public Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int vaultId, int page = 1, int pageSize = 10, string? competitionType = null, CancellationToken ct = default)
+    {
+        var url = $"api/vaults/{vaultId}/matches?page={page}&pageSize={pageSize}";
+        if (!string.IsNullOrEmpty(competitionType)) url += $"&competitionType={competitionType}";
+        return GetAsync<MatchHistoryPageResponse>(url, ct);
+    }
 
     public Task<VaultResponse> CreateAsync(CreateVaultRequest request)
         => PostAsync<VaultResponse>("api/vaults", request);
