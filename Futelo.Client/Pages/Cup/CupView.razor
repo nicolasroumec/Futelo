@@ -66,7 +66,7 @@ else
     {
         @if (lastResult != null)
         {
-            <div class="alert alert-success mb-4" style="max-width:420px">
+            <div class="alert alert-success mb-4">
                 <strong>@Lang.Get("common.resultRecorded")</strong>
                 @if (lastResult.TieDecided)
                 {
@@ -80,79 +80,82 @@ else
         @foreach (var round in cup.Rounds)
         {
             <h5 class="mt-3">@round.Name</h5>
-
-            @foreach (var tie in GetTies(round))
-            {
-                <div class="card mb-3" style="max-width:520px">
-                    <div class="card-body py-2 px-3">
-                        @foreach (var match in tie)
-                        {
-                            var isEditable = cup.CanEdit && cup.Status != "NotStarted";
-                            <div class="@(tie.Count > 1 ? "mb-2" : "") @(isEditable ? "match-card--editable" : "")"
-                                 style="@(isEditable ? "cursor:pointer" : "")"
-                                 @onclick="() => HandleMatchClick(match.Id)">
-                                @if (cup.IsHomeAndAway)
+            <div class="row g-3 mb-2">
+                @foreach (var tie in GetTies(round))
+                {
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-body py-2 px-3">
+                                @foreach (var match in tie)
                                 {
-                                    <span class="badge bg-secondary mb-1" style="font-size:.7rem">@Lang.Get("cup.leg") @match.Leg</span>
-                                }
-                                <MatchDisplay
-                                    HomePlayerName="@match.HomePlayerName"
-                                    HomePlayerMuted="@string.IsNullOrEmpty(match.HomePlayerId)"
-                                    AwayPlayerName="@match.AwayPlayerName"
-                                    AwayPlayerMuted="@string.IsNullOrEmpty(match.AwayPlayerId)"
-                                    HomeTeamName="@match.HomeTeamName"
-                                    AwayTeamName="@match.AwayTeamName"
-                                    VideoGameName="@match.VideoGameName"
-                                    HomeScore="@match.HomeScore"
-                                    AwayScore="@match.AwayScore"
-                                    IsPlayed="@(match.Status == "Played")"
-                                    WonOnPenaltiesId="@match.WonOnPenaltiesId"
-                                    HomePenaltyScore="@match.HomePenaltyScore"
-                                    AwayPenaltyScore="@match.AwayPenaltyScore" />
-
-                                @if (recordingMatchId == match.Id)
-                                {
-                                    <div @onclick:stopPropagation="true" @onclick="() => {}">
-                                        <MatchResultForm
-                                            HasPenalties="true"
-                                            IsHomeAndAway="cup.IsHomeAndAway"
-                                            IsLeg2="recordingIsLeg2"
-                                            OtherLegHomeScore="otherLegHomeScore"
-                                            OtherLegAwayScore="otherLegAwayScore"
-                                            HomePlayerId="@recordingHomeId"
+                                    var isEditable = cup.CanEdit && cup.Status != "NotStarted";
+                                    <div class="@(tie.Count > 1 ? "mb-2" : "") @(isEditable ? "match-card--editable" : "")"
+                                         style="@(isEditable ? "cursor:pointer" : "")"
+                                         @onclick="() => HandleMatchClick(match.Id)">
+                                        @if (cup.IsHomeAndAway)
+                                        {
+                                            <span class="badge bg-secondary mb-1" style="font-size:.7rem">@Lang.Get("cup.leg") @match.Leg</span>
+                                        }
+                                        <MatchDisplay
                                             HomePlayerName="@match.HomePlayerName"
-                                            AwayPlayerId="@recordingAwayId"
+                                            HomePlayerMuted="@string.IsNullOrEmpty(match.HomePlayerId)"
                                             AwayPlayerName="@match.AwayPlayerName"
-                                            IsSaving="isRecording"
-                                            OnSave="HandleRecordResult"
-                                            OnCancel="() => recordingMatchId = null" />
+                                            AwayPlayerMuted="@string.IsNullOrEmpty(match.AwayPlayerId)"
+                                            HomeTeamName="@match.HomeTeamName"
+                                            AwayTeamName="@match.AwayTeamName"
+                                            VideoGameName="@match.VideoGameName"
+                                            HomeScore="@match.HomeScore"
+                                            AwayScore="@match.AwayScore"
+                                            IsPlayed="@(match.Status == "Played")"
+                                            WonOnPenaltiesId="@match.WonOnPenaltiesId"
+                                            HomePenaltyScore="@match.HomePenaltyScore"
+                                            AwayPenaltyScore="@match.AwayPenaltyScore" />
+
+                                        @if (recordingMatchId == match.Id)
+                                        {
+                                            <div @onclick:stopPropagation="true" @onclick="() => {}">
+                                                <MatchResultForm
+                                                    HasPenalties="true"
+                                                    IsHomeAndAway="cup.IsHomeAndAway"
+                                                    IsLeg2="recordingIsLeg2"
+                                                    OtherLegHomeScore="otherLegHomeScore"
+                                                    OtherLegAwayScore="otherLegAwayScore"
+                                                    HomePlayerId="@recordingHomeId"
+                                                    HomePlayerName="@match.HomePlayerName"
+                                                    AwayPlayerId="@recordingAwayId"
+                                                    AwayPlayerName="@match.AwayPlayerName"
+                                                    IsSaving="isRecording"
+                                                    OnSave="HandleRecordResult"
+                                                    OnCancel="() => recordingMatchId = null" />
+                                            </div>
+                                        }
+
+                                        <MatchEditPanel
+                                            IsEditing="editingMatchId == match.Id"
+                                            HomePlayerName="@match.HomePlayerName"
+                                            AwayPlayerName="@match.AwayPlayerName"
+                                            HomeTeamId="match.HomeTeamId"
+                                            AwayTeamId="match.AwayTeamId"
+                                            VideoGameId="match.VideoGameId"
+                                            Teams="teams"
+                                            VideoGames="videoGames"
+                                            OnSave="HandlePatchMatch"
+                                            OnCancel="() => editingMatchId = null" />
                                     </div>
                                 }
 
-                                <MatchEditPanel
-                                    IsEditing="editingMatchId == match.Id"
-                                    HomePlayerName="@match.HomePlayerName"
-                                    AwayPlayerName="@match.AwayPlayerName"
-                                    HomeTeamId="match.HomeTeamId"
-                                    AwayTeamId="match.AwayTeamId"
-                                    VideoGameId="match.VideoGameId"
-                                    Teams="teams"
-                                    VideoGames="videoGames"
-                                    OnSave="HandlePatchMatch"
-                                    OnCancel="() => editingMatchId = null" />
+                                @if (cup.IsHomeAndAway && tie.All(m => m.Status == "Played"))
+                                {
+                                    var agg = ComputeAggregate(tie);
+                                    <div class="text-muted small mt-1 border-top pt-1">
+                                        @Lang.Get("cup.aggregate"): @agg.homeName @agg.homeGoals – @agg.awayGoals @agg.awayName
+                                    </div>
+                                }
                             </div>
-                        }
-
-                        @if (cup.IsHomeAndAway && tie.All(m => m.Status == "Played"))
-                        {
-                            var agg = ComputeAggregate(tie);
-                            <div class="text-muted small mt-1 border-top pt-1">
-                                @Lang.Get("cup.aggregate"): @agg.homeName @agg.homeGoals – @agg.awayGoals @agg.awayName
-                            </div>
-                        }
+                        </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         }
     }
 }

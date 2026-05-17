@@ -55,172 +55,181 @@ else
         <div class="alert alert-danger mb-3">@errorMessage</div>
     }
 
-    <h5>@Lang.Get("player.stats")</h5>
-    <div class="table-responsive mb-2" style="max-width:480px">
-        <table class="table table-sm table-bordered align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>@Lang.Get("stats.played")</th>
-                    <th>@Lang.Get("stats.wins")</th>
-                    <th>@Lang.Get("stats.draws")</th>
-                    <th>@Lang.Get("stats.losses")</th>
-                    <th>@Lang.Get("league.goalsFor")</th>
-                    <th>@Lang.Get("league.goalsAgainst")</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>@_played</td>
-                    <td>@_won</td>
-                    <td>@_drawn</td>
-                    <td>@_lost</td>
-                    <td>@_gf</td>
-                    <td>@_ga</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    @if (stats.Played > 0)
-    {
-        var winRate = stats.Won * 100 / stats.Played;
-        <div class="mb-3" style="max-width:480px">
-            <div class="d-flex justify-content-between mb-1">
-                <span class="small text-muted">@Lang.Get("player.winRate")</span>
-                <span class="small fw-semibold">@winRate%</span>
-            </div>
-            <div class="win-rate-track">
-                <div class="win-rate-fill" style="--wr:@winRate%"></div>
-            </div>
-        </div>
-    }
-
-    @if (recentForm.Count > 0)
-    {
-        <div class="mb-4">
-            <div class="text-muted small mb-1">@Lang.Get("player.recentForm")</div>
-            <div class="d-flex gap-1">
-                @for (int i = 0; i < recentForm.Count; i++)
-                {
-                    var entry = recentForm[i];
-                    <span class="form-block @FormBadgeClass(entry.Result)"
-                          style="animation-delay:@(i * 0.06)s"
-                          title="@entry.OpponentDisplayName @entry.GoalsFor-@entry.GoalsAgainst">
-                        @FormBadgeLabel(entry.Result)
-                    </span>
-                }
-            </div>
-        </div>
-    }
-
-    <div class="d-flex gap-4 mb-4">
-        <div>
-            <div class="text-muted small mb-1">@Lang.Get("player.currentStreak")</div>
-            <span class="badge @StreakBadgeClass() fs-6">@StreakLabel()</span>
-        </div>
-        <div>
-            <div class="text-muted small mb-1">@Lang.Get("stats.bestWinStreak")</div>
-            <span class="badge bg-success fs-6">@stats.BestWinStreak W</span>
-        </div>
-        <div>
-            <div class="text-muted small mb-1">@Lang.Get("stats.bestUnbeatenRun")</div>
-            <span class="badge bg-primary fs-6">@stats.BestUnbeatenStreak</span>
-        </div>
-    </div>
-
-    @if (stats.Titles.Count > 0)
-    {
-        <div class="mb-4">
-            <div class="text-muted small mb-2">@Lang.Get("player.titles") (@stats.Titles.Count)</div>
-            <div class="d-flex flex-wrap gap-2 mb-2">
-                @foreach (var comp in new[] { "League", "Cup", "SuperCup" })
-                {
-                    var count = stats.Titles.Count(t => t.Competition == comp);
-                    if (count == 0) continue;
-                    var isActive = selectedTitleCompetition == comp;
-                    <button class="title-chip title-chip--@comp.ToLower() @(isActive ? "title-chip--active" : "")"
-                            @onclick="() => selectedTitleCompetition = isActive ? null : comp">
-                        @TitleIcon(comp) @Lang.Get(TitleI18nKey(comp)) ×@count
-                    </button>
-                }
+    <div class="row g-4">
+        @* LEFT — Stats, form, streaks, titles *@
+        <div class="col-lg-5">
+            <h5>@Lang.Get("player.stats")</h5>
+            <div class="table-responsive mb-2">
+                <table class="table table-sm table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>@Lang.Get("stats.played")</th>
+                            <th>@Lang.Get("stats.wins")</th>
+                            <th>@Lang.Get("stats.draws")</th>
+                            <th>@Lang.Get("stats.losses")</th>
+                            <th>@Lang.Get("league.goalsFor")</th>
+                            <th>@Lang.Get("league.goalsAgainst")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>@_played</td>
+                            <td>@_won</td>
+                            <td>@_drawn</td>
+                            <td>@_lost</td>
+                            <td>@_gf</td>
+                            <td>@_ga</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            @if (selectedTitleCompetition != null)
+            @if (stats.Played > 0)
             {
-                <div class="title-detail">
-                    @foreach (var t in stats.Titles.Where(t => t.Competition == selectedTitleCompetition).OrderByDescending(t => t.Year))
+                var winRate = stats.Won * 100 / stats.Played;
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="small text-muted">@Lang.Get("player.winRate")</span>
+                        <span class="small fw-semibold">@winRate%</span>
+                    </div>
+                    <div class="win-rate-track">
+                        <div class="win-rate-fill" style="--wr:@winRate%"></div>
+                    </div>
+                </div>
+            }
+
+            @if (recentForm.Count > 0)
+            {
+                <div class="mb-4">
+                    <div class="text-muted small mb-1">@Lang.Get("player.recentForm")</div>
+                    <div class="d-flex gap-1">
+                        @for (int i = 0; i < recentForm.Count; i++)
+                        {
+                            var entry = recentForm[i];
+                            <span class="form-block @FormBadgeClass(entry.Result)"
+                                  style="animation-delay:@(i * 0.06)s"
+                                  title="@entry.OpponentDisplayName @entry.GoalsFor-@entry.GoalsAgainst">
+                                @FormBadgeLabel(entry.Result)
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="d-flex gap-4 mb-4">
+                <div>
+                    <div class="text-muted small mb-1">@Lang.Get("player.currentStreak")</div>
+                    <span class="badge @StreakBadgeClass() fs-6">@StreakLabel()</span>
+                </div>
+                <div>
+                    <div class="text-muted small mb-1">@Lang.Get("stats.bestWinStreak")</div>
+                    <span class="badge bg-success fs-6">@stats.BestWinStreak W</span>
+                </div>
+                <div>
+                    <div class="text-muted small mb-1">@Lang.Get("stats.bestUnbeatenRun")</div>
+                    <span class="badge bg-primary fs-6">@stats.BestUnbeatenStreak</span>
+                </div>
+            </div>
+
+            @if (stats.Titles.Count > 0)
+            {
+                <div class="mb-4">
+                    <div class="text-muted small mb-2">@Lang.Get("player.titles") (@stats.Titles.Count)</div>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        @foreach (var comp in new[] { "League", "Cup", "SuperCup" })
+                        {
+                            var count = stats.Titles.Count(t => t.Competition == comp);
+                            if (count == 0) continue;
+                            var isActive = selectedTitleCompetition == comp;
+                            <button class="title-chip title-chip--@comp.ToLower() @(isActive ? "title-chip--active" : "")"
+                                    @onclick="() => selectedTitleCompetition = isActive ? null : comp">
+                                @TitleIcon(comp) @Lang.Get(TitleI18nKey(comp)) ×@count
+                            </button>
+                        }
+                    </div>
+
+                    @if (selectedTitleCompetition != null)
                     {
-                        <div class="title-detail__row">
-                            <span class="title-detail__year">@t.Year</span>
-                            <span class="title-detail__season">@t.SeasonName</span>
+                        <div class="title-detail">
+                            @foreach (var t in stats.Titles.Where(t => t.Competition == selectedTitleCompetition).OrderByDescending(t => t.Year))
+                            {
+                                <div class="title-detail__row">
+                                    <span class="title-detail__year">@t.Year</span>
+                                    <span class="title-detail__season">@t.SeasonName</span>
+                                </div>
+                            }
                         </div>
                     }
                 </div>
             }
         </div>
-    }
 
-    @if (records != null && (records.BestWin != null || records.WorstDefeat != null || records.PeakElo > 0 || records.LongestTop1Reign > 0))
-    {
-        <h5 class="mt-2">@Lang.Get("player.records")</h5>
-        <div class="records-grid mb-4">
-            @if (records.BestWin != null)
+        @* RIGHT — Records, ELO chart *@
+        <div class="col-lg-7">
+            @if (records != null && (records.BestWin != null || records.WorstDefeat != null || records.PeakElo > 0 || records.LongestTop1Reign > 0))
             {
-                <div class="record-card record-card--win">
-                    <div class="record-card__label">@Lang.Get("player.bestWin")</div>
-                    <div class="record-card__value">@RecordMatchLabel(records.BestWin)</div>
+                <h5 class="mt-2">@Lang.Get("player.records")</h5>
+                <div class="records-grid mb-4">
+                    @if (records.BestWin != null)
+                    {
+                        <div class="record-card record-card--win">
+                            <div class="record-card__label">@Lang.Get("player.bestWin")</div>
+                            <div class="record-card__value">@RecordMatchLabel(records.BestWin)</div>
+                        </div>
+                    }
+                    @if (records.WorstDefeat != null)
+                    {
+                        <div class="record-card record-card--loss">
+                            <div class="record-card__label">@Lang.Get("player.worstDefeat")</div>
+                            <div class="record-card__value">@RecordMatchLabel(records.WorstDefeat)</div>
+                        </div>
+                    }
+                    @if (records.PeakElo > 0)
+                    {
+                        <div class="record-card">
+                            <div class="record-card__label">@Lang.Get("player.peakElo")</div>
+                            <div class="record-card__value">@records.PeakElo</div>
+                        </div>
+                    }
+                    @if (records.BestEloGain > 0)
+                    {
+                        <div class="record-card">
+                            <div class="record-card__label">@Lang.Get("player.bestEloGain")</div>
+                            <div class="record-card__value">+@records.BestEloGain</div>
+                        </div>
+                    }
+                    @if (records.LongestTop1Reign > 0)
+                    {
+                        <div class="record-card">
+                            <div class="record-card__label">@Lang.Get("player.longestTop1Reign")</div>
+                            <div class="record-card__value">@records.LongestTop1Reign</div>
+                        </div>
+                    }
+                    @if (records.TotalMatchesAtTop1 > 0)
+                    {
+                        <div class="record-card">
+                            <div class="record-card__label">@Lang.Get("player.totalMatchesAtTop1")</div>
+                            <div class="record-card__value">@records.TotalMatchesAtTop1</div>
+                        </div>
+                    }
                 </div>
             }
-            @if (records.WorstDefeat != null)
+
+            @if (eloHistory.Count > 0)
             {
-                <div class="record-card record-card--loss">
-                    <div class="record-card__label">@Lang.Get("player.worstDefeat")</div>
-                    <div class="record-card__value">@RecordMatchLabel(records.WorstDefeat)</div>
-                </div>
-            }
-            @if (records.PeakElo > 0)
-            {
-                <div class="record-card">
-                    <div class="record-card__label">@Lang.Get("player.peakElo")</div>
-                    <div class="record-card__value">@records.PeakElo</div>
-                </div>
-            }
-            @if (records.BestEloGain > 0)
-            {
-                <div class="record-card">
-                    <div class="record-card__label">@Lang.Get("player.bestEloGain")</div>
-                    <div class="record-card__value">+@records.BestEloGain</div>
-                </div>
-            }
-            @if (records.LongestTop1Reign > 0)
-            {
-                <div class="record-card">
-                    <div class="record-card__label">@Lang.Get("player.longestTop1Reign")</div>
-                    <div class="record-card__value">@records.LongestTop1Reign</div>
-                </div>
-            }
-            @if (records.TotalMatchesAtTop1 > 0)
-            {
-                <div class="record-card">
-                    <div class="record-card__label">@Lang.Get("player.totalMatchesAtTop1")</div>
-                    <div class="record-card__value">@records.TotalMatchesAtTop1</div>
+                <h5>@Lang.Get("player.eloHistory")</h5>
+                <div class="mb-4">
+                    <canvas id="elo-chart"></canvas>
                 </div>
             }
         </div>
-    }
+    </div>
 
-    @if (eloHistory.Count > 0)
-    {
-        <h5>@Lang.Get("player.eloHistory")</h5>
-        <div class="mb-4" style="max-width:560px">
-            <canvas id="elo-chart"></canvas>
-        </div>
-    }
-
+    @* FULL WIDTH — Top teams, game stats, recent matches *@
     @if (stats.TopTeams.Count > 0)
     {
         <h5>@Lang.Get("player.topTeams")</h5>
-        <div class="table-responsive mb-4" style="max-width:560px">
+        <div class="table-responsive mb-4">
             <table class="table table-sm table-bordered align-middle">
                 <thead class="table-dark">
                     <tr>
@@ -254,7 +263,7 @@ else
     @if (stats.GameStats.Count > 0)
     {
         <h5>@Lang.Get("player.performance")</h5>
-        <div class="table-responsive mb-4" style="max-width:560px">
+        <div class="table-responsive mb-4">
             <table class="table table-sm table-bordered align-middle">
                 <thead class="table-dark">
                     <tr>

@@ -67,148 +67,152 @@ else
     }
     else
     {
-        <h5 class="mt-2">@Lang.Get("league.standings")</h5>
-        @if (league.Standings.Count == 0)
-        {
-            <p class="empty-state">@Lang.Get("league.noResults")</p>
-        }
-        else
-        {
-            <div class="table-responsive mb-4" style="max-width:620px">
-                <table class="table table-sm table-bordered align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>@Lang.Get("stats.player")</th>
-                            <th>@Lang.Get("stats.played")</th>
-                            <th>@Lang.Get("stats.wins")</th>
-                            <th>@Lang.Get("stats.draws")</th>
-                            <th>@Lang.Get("stats.losses")</th>
-                            <th>@Lang.Get("league.goalsFor")</th>
-                            <th>@Lang.Get("league.goalsAgainst")</th>
-                            <th>@Lang.Get("league.goalDiff")</th>
-                            <th>@Lang.Get("league.points")</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{ int pos = 1; }
-                        @foreach (var row in league.Standings)
-                        {
-                            <tr>
-                                <td>@pos</td>
-                                <td>@row.DisplayName</td>
-                                <td>@row.Played</td>
-                                <td>@row.Won</td>
-                                <td>@row.Drawn</td>
-                                <td>@row.Lost</td>
-                                <td>@row.GoalsFor</td>
-                                <td>@row.GoalsAgainst</td>
-                                <td>@(row.GoalDifference > 0 ? $"+{row.GoalDifference}" : row.GoalDifference.ToString())</td>
-                                <td><strong>@row.Points</strong></td>
-                            </tr>
-                            pos++;
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-
-        @if (lastResult != null)
-        {
-            <div class="alert alert-success mb-4" style="max-width:420px">
-                <strong>@Lang.Get("common.resultRecorded")</strong>
-                <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
-                <div>@FormatEloChange(lastResult.Away)</div>
-            </div>
-        }
-
-        @* Pending matches by player *@
-        @if (PendingByPlayer.Count > 0)
-        {
-            <div class="pending-summary mb-4">
-                <span class="pending-summary__label">@Lang.Get("league.pendingByPlayer"):</span>
-                @foreach (var (name, count) in PendingByPlayer)
+        <div class="row g-4">
+            @* LEFT — Standings *@
+            <div class="col-lg-5">
+                <h5 class="mt-2">@Lang.Get("league.standings")</h5>
+                @if (league.Standings.Count == 0)
                 {
-                    <span class="pending-summary__chip">@name <strong>@count</strong></span>
+                    <p class="empty-state">@Lang.Get("league.noResults")</p>
+                }
+                else
+                {
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>@Lang.Get("stats.player")</th>
+                                    <th>@Lang.Get("stats.played")</th>
+                                    <th>@Lang.Get("stats.wins")</th>
+                                    <th>@Lang.Get("stats.draws")</th>
+                                    <th>@Lang.Get("stats.losses")</th>
+                                    <th>@Lang.Get("league.goalsFor")</th>
+                                    <th>@Lang.Get("league.goalsAgainst")</th>
+                                    <th>@Lang.Get("league.goalDiff")</th>
+                                    <th>@Lang.Get("league.points")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int pos = 1; }
+                                @foreach (var row in league.Standings)
+                                {
+                                    <tr>
+                                        <td>@pos</td>
+                                        <td>@row.DisplayName</td>
+                                        <td>@row.Played</td>
+                                        <td>@row.Won</td>
+                                        <td>@row.Drawn</td>
+                                        <td>@row.Lost</td>
+                                        <td>@row.GoalsFor</td>
+                                        <td>@row.GoalsAgainst</td>
+                                        <td>@(row.GoalDifference > 0 ? $"+{row.GoalDifference}" : row.GoalDifference.ToString())</td>
+                                        <td><strong>@row.Points</strong></td>
+                                    </tr>
+                                    pos++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                @if (PendingByPlayer.Count > 0)
+                {
+                    <div class="pending-summary mb-3">
+                        <span class="pending-summary__label">@Lang.Get("league.pendingByPlayer"):</span>
+                        @foreach (var (name, count) in PendingByPlayer)
+                        {
+                            <span class="pending-summary__chip">@name <strong>@count</strong></span>
+                        }
+                    </div>
                 }
             </div>
-        }
 
-        <h5>@Lang.Get("league.fixture")</h5>
+            @* RIGHT — Fixture *@
+            <div class="col-lg-7">
+                <h5 class="mt-2">@Lang.Get("league.fixture")</h5>
 
-        @* Matchday tabs *@
-        @if (Matchdays.Count > 1)
-        {
-            <div class="matchday-tabs mb-3">
-                @foreach (var day in Matchdays)
+                @if (lastResult != null)
                 {
-                    var hasPending = league.Matches.Any(m => m.Matchday == day && m.Status == "Pending");
-                    <button class="matchday-tab @(selectedMatchday == day ? "matchday-tab--active" : "") @(hasPending ? "matchday-tab--has-pending" : "")"
-                            @onclick="() => { selectedMatchday = day; recordingMatchId = null; }">
-                        @day
-                        @if (hasPending)
+                    <div class="alert alert-success mb-3">
+                        <strong>@Lang.Get("common.resultRecorded")</strong>
+                        <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
+                        <div>@FormatEloChange(lastResult.Away)</div>
+                    </div>
+                }
+
+                @if (Matchdays.Count > 1)
+                {
+                    <div class="matchday-tabs mb-3">
+                        @foreach (var day in Matchdays)
                         {
-                            <span class="matchday-tab__dot"></span>
+                            var hasPending = league.Matches.Any(m => m.Matchday == day && m.Status == "Pending");
+                            <button class="matchday-tab @(selectedMatchday == day ? "matchday-tab--active" : "") @(hasPending ? "matchday-tab--has-pending" : "")"
+                                    @onclick="() => { selectedMatchday = day; recordingMatchId = null; }">
+                                @day
+                                @if (hasPending)
+                                {
+                                    <span class="matchday-tab__dot"></span>
+                                }
+                            </button>
                         }
+                    </div>
+                }
+
+                <div class="mb-3">
+                    @foreach (var match in league.Matches.Where(m => m.Matchday == selectedMatchday))
+                    {
+                        var isEditable = league.CanEdit && league.Status != "NotStarted";
+                        <div class="match-card @(match.Status == "Played" ? "match-card--played" : "match-card--pending") @(isEditable ? "match-card--editable" : "") mb-2"
+                             @onclick="() => HandleMatchClick(match.Id)">
+                            <div class="card-body py-2 px-3">
+                                <MatchDisplay
+                                    HomePlayerName="@match.HomePlayerName"
+                                    AwayPlayerName="@match.AwayPlayerName"
+                                    HomeTeamName="@match.HomeTeamName"
+                                    AwayTeamName="@match.AwayTeamName"
+                                    VideoGameName="@match.VideoGameName"
+                                    HomeScore="@match.HomeScore"
+                                    AwayScore="@match.AwayScore"
+                                    IsPlayed="@(match.Status == "Played")" />
+
+                                @if (recordingMatchId == match.Id)
+                                {
+                                    <div @onclick:stopPropagation="true" @onclick="() => {}">
+                                        <MatchResultForm
+                                            HomePlayerId="@match.HomePlayerId"
+                                            HomePlayerName="@match.HomePlayerName"
+                                            AwayPlayerId="@match.AwayPlayerId"
+                                            AwayPlayerName="@match.AwayPlayerName"
+                                            IsSaving="isRecording"
+                                            OnSave="HandleRecordResult"
+                                            OnCancel="() => recordingMatchId = null" />
+                                    </div>
+                                }
+
+                                <MatchEditPanel
+                                    IsEditing="editingMatchId == match.Id"
+                                    HomePlayerName="@match.HomePlayerName"
+                                    AwayPlayerName="@match.AwayPlayerName"
+                                    HomeTeamId="match.HomeTeamId"
+                                    AwayTeamId="match.AwayTeamId"
+                                    VideoGameId="match.VideoGameId"
+                                    Teams="teams"
+                                    VideoGames="videoGames"
+                                    OnSave="HandlePatchMatch"
+                                    OnCancel="() => editingMatchId = null" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (league.Status == "Active" && league.Matches.All(m => m.Status == "Pending"))
+                {
+                    <button class="btn btn-outline-secondary btn-sm" disabled="@isWorking" @onclick="HandleReshuffle">
+                        @(isWorking ? "..." : Lang.Get("league.reshuffle"))
                     </button>
                 }
             </div>
-        }
-
-        @* Matches for selected matchday *@
-        <div class="mb-3">
-            @foreach (var match in league.Matches.Where(m => m.Matchday == selectedMatchday))
-            {
-                var isEditable = league.CanEdit && league.Status != "NotStarted";
-                <div class="match-card @(match.Status == "Played" ? "match-card--played" : "match-card--pending") @(isEditable ? "match-card--editable" : "") mb-2"
-                     style="max-width:480px"
-                     @onclick="() => HandleMatchClick(match.Id)">
-                    <div class="card-body py-2 px-3">
-                        <MatchDisplay
-                            HomePlayerName="@match.HomePlayerName"
-                            AwayPlayerName="@match.AwayPlayerName"
-                            HomeTeamName="@match.HomeTeamName"
-                            AwayTeamName="@match.AwayTeamName"
-                            VideoGameName="@match.VideoGameName"
-                            HomeScore="@match.HomeScore"
-                            AwayScore="@match.AwayScore"
-                            IsPlayed="@(match.Status == "Played")" />
-
-                        @if (recordingMatchId == match.Id)
-                        {
-                            <div @onclick:stopPropagation="true" @onclick="() => {}">
-                                <MatchResultForm
-                                    HomePlayerId="@match.HomePlayerId"
-                                    HomePlayerName="@match.HomePlayerName"
-                                    AwayPlayerId="@match.AwayPlayerId"
-                                    AwayPlayerName="@match.AwayPlayerName"
-                                    IsSaving="isRecording"
-                                    OnSave="HandleRecordResult"
-                                    OnCancel="() => recordingMatchId = null" />
-                            </div>
-                        }
-
-                        <MatchEditPanel
-                            IsEditing="editingMatchId == match.Id"
-                            HomePlayerName="@match.HomePlayerName"
-                            AwayPlayerName="@match.AwayPlayerName"
-                            HomeTeamId="match.HomeTeamId"
-                            AwayTeamId="match.AwayTeamId"
-                            VideoGameId="match.VideoGameId"
-                            Teams="teams"
-                            VideoGames="videoGames"
-                            OnSave="HandlePatchMatch"
-                            OnCancel="() => editingMatchId = null" />
-                    </div>
-                </div>
-            }
         </div>
-
-        @if (league.Status == "Active" && league.Matches.All(m => m.Status == "Pending"))
-        {
-            <button class="btn btn-outline-secondary btn-sm mt-2" disabled="@isWorking" @onclick="HandleReshuffle">
-                @(isWorking ? "..." : Lang.Get("league.reshuffle"))
-            </button>
-        }
     }
 }
