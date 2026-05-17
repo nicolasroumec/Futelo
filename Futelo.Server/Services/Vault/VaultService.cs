@@ -137,7 +137,8 @@ public class VaultService(IVaultRepository repository) : IVaultService
             PlayerId = p.PlayerId,
             DisplayName = p.Player.DisplayName,
             JoinedAt = p.JoinedAt,
-            Role = p.Role
+            Role = p.Role,
+            EloRating = p.Player.EloRating
         }).ToList()
     };
 }

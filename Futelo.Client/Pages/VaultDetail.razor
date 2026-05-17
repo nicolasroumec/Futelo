@@ -75,7 +75,6 @@ else
 
     <div class="d-flex flex-wrap gap-2 mb-4">
         <a href="/vaults/@Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
-        <a href="/vaults/@Id/scorers" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.scorers")</a>
         <a href="/vaults/@Id/records" class="btn btn-outline-secondary btn-sm">@Lang.Get("vault.records")</a>
         <a href="/vaults/@Id/palmares" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.palmares")</a>
         <a href="/vaults/@Id/teams" class="btn btn-outline-secondary btn-sm">@Lang.Get("teams.title")</a>
@@ -91,7 +90,10 @@ else
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <a href="/vaults/@Id/players/@player.PlayerId" class="text-decoration-none">@player.DisplayName</a>
-                        <span class="badge @RoleBadgeClass(player.Role)">@player.Role</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary">@player.EloRating</span>
+                            <span class="badge @RoleBadgeClass(player.Role)">@player.Role</span>
+                        </div>
                     </li>
                 }
             </ul>

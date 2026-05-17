@@ -11,6 +11,7 @@ public partial class GeneralRanking : LocalizedComponentBase
     [Inject] private IStatsService StatsService { get; set; } = null!;
 
     private List<RankingRow> rows = [];
+    private List<ScorerRow> scorers = [];
     private bool isLoading = true;
     private string? errorMessage;
 
@@ -18,7 +19,11 @@ public partial class GeneralRanking : LocalizedComponentBase
     {
         try
         {
-            rows = await StatsService.GetGeneralRankingAsync(VaultId, ComponentToken);
+            var rankingTask = StatsService.GetGeneralRankingAsync(VaultId, ComponentToken);
+            var scorersTask = StatsService.GetScorersAsync(VaultId, ComponentToken);
+            await Task.WhenAll(rankingTask, scorersTask);
+            rows = rankingTask.Result;
+            scorers = scorersTask.Result;
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)

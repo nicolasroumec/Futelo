@@ -215,13 +215,13 @@ Ver roadmap para detalle completo.
 
 ### 🔴 Fix urgente — pendiente
 
-#### Fix 1: Tablas demasiado anchas en desktop
+#### ✅ Fix 1: Tablas demasiado anchas en desktop
 **Problema:** El override `max-width: none !important` en `.table-responsive` es demasiado agresivo. Tablas de 3 columnas (Ranking, Goleadores) se estiran a ~1200px.
 **Solución:** Cambiar el selector para que solo aplique dentro de columnas Bootstrap (`[class*="col-"] .table-responsive`), no globalmente.
 **Archivos:** `Futelo.Client/wwwroot/css/components.css`
 **Commit:** `fix: scope table-responsive desktop override to bootstrap columns only`
 
-#### Fix 2: Gráfico ELO — eje X por número de partido en lugar de fecha
+#### ✅ Fix 2: Gráfico ELO — eje X por número de partido en lugar de fecha
 **Problema:** Partidos jugados el mismo día muestran fechas repetidas en el eje X del gráfico.
 **Solución:** Cambiar labels a número secuencial ("Inicio", "1", "2"...). Solo una línea en el `.razor.cs`.
 **Archivos:** `Futelo.Client/Pages/Player/PlayerProfile.razor.cs` (línea ~73)
@@ -231,7 +231,7 @@ Ver roadmap para detalle completo.
 
 ### 🟡 Reorganización de información
 
-#### Mejora 1: Fusionar Goleadores en la página de Ranking General
+#### ✅ Mejora 1: Fusionar Goleadores en la página de Ranking General
 **Problema:** `/vaults/{id}/scorers` es una página de solo 3 columnas. No justifica existir sola.
 **Solución:** Agregar sección de goleadores en `GeneralRanking.razor`, debajo del ranking de ELO. Eliminar el botón "Scorers" de VaultDetail (quedan 5 botones).
 **Archivos:**
