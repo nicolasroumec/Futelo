@@ -1,3 +1,4 @@
+using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Season;
 using Futelo.Server.Repositories.Vault;
@@ -179,6 +180,48 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             SeasonElo = p.SeasonElo,
             TeamId = p.TeamId,
             TeamName = p.Team?.Name
-        }).ToList()
+        }).ToList(),
+        RecentMatches = BuildRecentMatches(season),
+        TopStandings = BuildTopStandings(season)
     };
+
+    private static List<SeasonRecentMatchRow> BuildRecentMatches(Models.Season season)
+    {
+        var played = new List<(int Id, string Home, string Away, int HS, int AS, string Comp)>();
+
+        if (season.League != null)
+            foreach (var m in season.League.Matches.Where(m => m.Status == MatchStatus.Played))
+                played.Add((m.Id, m.HomePlayer?.DisplayName ?? "?", m.AwayPlayer?.DisplayName ?? "?",
+                    m.HomeScore ?? 0, m.AwayScore ?? 0, season.League.Name));
+
+        if (season.Cup != null)
+            foreach (var round in season.Cup.Rounds)
+                foreach (var m in round.Matches.Where(m => m.Status == MatchStatus.Played))
+                    played.Add((m.Id, m.HomePlayer?.DisplayName ?? "?", m.AwayPlayer?.DisplayName ?? "?",
+                        m.HomeScore ?? 0, m.AwayScore ?? 0, season.Cup.Name));
+
+        if (season.SuperCup != null)
+            foreach (var m in season.SuperCup.Matches.Where(m => m.Status == MatchStatus.Played))
+                played.Add((m.Id, m.HomePlayer?.DisplayName ?? "?", m.AwayPlayer?.DisplayName ?? "?",
+                    m.HomeScore ?? 0, m.AwayScore ?? 0, season.SuperCup.Name));
+
+        return played.OrderByDescending(m => m.Id).Take(3)
+            .Select(m => new SeasonRecentMatchRow
+            {
+                HomePlayerName = m.Home,
+                AwayPlayerName = m.Away,
+                HomeScore = m.HS,
+                AwayScore = m.AS,
+                Competition = m.Comp
+            }).ToList();
+    }
+
+    private static List<Futelo.Shared.DTOs.League.StandingRow> BuildTopStandings(Models.Season season)
+    {
+        if (season.League == null || season.League.Status == TournamentStatus.NotStarted)
+            return [];
+
+        var played = season.League.Matches.Where(m => m.Status == MatchStatus.Played).ToList();
+        return StandingsCalculator.Compute(played, season.League.Players).Take(3).ToList();
+    }
 }

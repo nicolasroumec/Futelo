@@ -148,35 +148,98 @@ else
         }
     </div>
 
-    <h5>@Lang.Get("season.players")</h5>
-    @if (season.Players.Count == 0)
-    {
-        <p class="empty-state">@Lang.Get("season.noPlayers")</p>
-    }
-    else
-    {
-        <ul class="list-group mb-4" style="max-width:520px">
-            @foreach (var p in season.Players)
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <h5>@Lang.Get("season.players")</h5>
+            @if (season.Players.Count == 0)
             {
-                <li class="list-group-item" @key="@p.PlayerId">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>@p.DisplayName</span>
-                        <span class="badge bg-light text-dark">ELO @p.SeasonElo</span>
-                    </div>
-                    @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
-                    {
-                        <SeasonTeamSelector InitialTeamId="@p.TeamId"
-                                            Teams="@teams"
-                                            OnSave="@(teamId => HandleSetPlayerTeam(p.PlayerId, teamId))" />
-                    }
-                    else if (!string.IsNullOrEmpty(p.TeamName))
-                    {
-                        <small class="text-muted">@p.TeamName</small>
-                    }
-                </li>
+                <p class="empty-state">@Lang.Get("season.noPlayers")</p>
             }
-        </ul>
-    }
+            else
+            {
+                <ul class="list-group mb-4">
+                    @foreach (var p in season.Players)
+                    {
+                        <li class="list-group-item" @key="@p.PlayerId">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>@p.DisplayName</span>
+                                <span class="badge bg-light text-dark">ELO @p.SeasonElo</span>
+                            </div>
+                            @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
+                            {
+                                <SeasonTeamSelector InitialTeamId="@p.TeamId"
+                                                    Teams="@teams"
+                                                    OnSave="@(teamId => HandleSetPlayerTeam(p.PlayerId, teamId))" />
+                            }
+                            else if (!string.IsNullOrEmpty(p.TeamName))
+                            {
+                                <small class="text-muted">@p.TeamName</small>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        @if (season.TopStandings.Count > 0 || season.RecentMatches.Count > 0)
+        {
+            <div class="col-lg-7">
+                @if (season.TopStandings.Count > 0)
+                {
+                    <h5>@Lang.Get("league.standings")</h5>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>@Lang.Get("stats.player")</th>
+                                    <th>@Lang.Get("stats.played")</th>
+                                    <th>@Lang.Get("stats.wins")</th>
+                                    <th>@Lang.Get("stats.draws")</th>
+                                    <th>@Lang.Get("stats.losses")</th>
+                                    <th>Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int pos = 1; }
+                                @foreach (var row in season.TopStandings)
+                                {
+                                    <tr class="@(pos == 1 ? "rank-gold" : "")">
+                                        <td>@pos</td>
+                                        <td>@row.DisplayName</td>
+                                        <td>@row.Played</td>
+                                        <td>@row.Won</td>
+                                        <td>@row.Drawn</td>
+                                        <td>@row.Lost</td>
+                                        <td><strong>@row.Points</strong></td>
+                                    </tr>
+                                    pos++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                @if (season.RecentMatches.Count > 0)
+                {
+                    <h5>@Lang.Get("vault.recentMatches")</h5>
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var m in season.RecentMatches)
+                        {
+                            <div class="recent-match-row">
+                                <div class="recent-match-body">
+                                    <span class="recent-match-player">@m.HomePlayerName</span>
+                                    <span class="recent-match-score">@m.HomeScore – @m.AwayScore</span>
+                                    <span class="recent-match-player text-end">@m.AwayPlayerName</span>
+                                </div>
+                                <div class="recent-match-competition text-muted">@m.Competition</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
 
     @if (isOwner && season.Status == "Draft")
     {
