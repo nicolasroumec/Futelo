@@ -157,5 +157,22 @@ else
                 @Lang.Get("cup.aggregate"): @superCup.Player1Name @agg.p1Goals – @agg.p2Goals @superCup.Player2Name
             </div>
         }
+
+        @if (h2h != null && h2h.Played > 0)
+        {
+            <div class="card mt-4" style="max-width:520px">
+                <div class="card-body">
+                    <h6 class="text-muted mb-3">@Lang.Get("headToHead.title")</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-semibold">@h2h.Player1DisplayName</span>
+                        <div class="text-center">
+                            <div class="fs-5 fw-bold">@h2h.Player1Wins – @h2h.Player2Wins</div>
+                            <div class="text-muted small">@h2h.Draws @Lang.Get("headToHead.draws") · @h2h.Played @Lang.Get("stats.played")</div>
+                        </div>
+                        <span class="fw-semibold">@h2h.Player2DisplayName</span>
+                    </div>
+                </div>
+            </div>
+        }
     }
 }

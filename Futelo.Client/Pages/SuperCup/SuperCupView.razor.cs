@@ -1,8 +1,10 @@
+using Futelo.Client.Services.Stats;
 using Futelo.Client.Services.SuperCup;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.League;
+using Futelo.Shared.DTOs.Stats;
 using Futelo.Shared.DTOs.SuperCup;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.VideoGame;
@@ -14,10 +16,12 @@ public partial class SuperCupView : LocalizedComponentBase
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ISuperCupService SuperCupService { get; set; } = null!;
+    [Inject] private IStatsService StatsService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
 
     private SuperCupResponse? superCup;
+    private HeadToHeadResponse? h2h;
     private bool isLoading = true;
     private bool isRecording;
     private string? errorMessage;
@@ -46,6 +50,10 @@ public partial class SuperCupView : LocalizedComponentBase
         try
         {
             superCup = await SuperCupService.GetByIdAsync(Id, ComponentToken);
+            if (superCup.Player1Id != null && superCup.Player2Id != null)
+            {
+                h2h = await StatsService.GetHeadToHeadAsync(superCup.Player1Id, superCup.Player2Id, superCup.VaultId, ComponentToken);
+            }
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)

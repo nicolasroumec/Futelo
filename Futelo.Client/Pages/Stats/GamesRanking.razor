@@ -25,44 +25,48 @@ else
     }
     else
     {
-        @foreach (var game in games)
-        {
-            <h5 class="mt-4">@game.VideoGameName</h5>
-            <div class="table-responsive mb-3" style="max-width:600px">
-                <table class="table table-sm table-bordered align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>@Lang.Get("stats.player")</th>
-                            <th>@Lang.Get("stats.played")</th>
-                            <th>@Lang.Get("stats.wins")</th>
-                            <th>@Lang.Get("stats.draws")</th>
-                            <th>@Lang.Get("stats.losses")</th>
-                            <th>@Lang.Get("league.goalsFor")</th>
-                            <th>@Lang.Get("league.goalsAgainst")</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var p in game.Players)
-                        {
-                            <tr>
-                                <td>@p.Position</td>
-                                <td>
-                                    <a href="/vaults/@VaultId/players/@p.PlayerId" class="text-decoration-none">
-                                        @p.DisplayName
-                                    </a>
-                                </td>
-                                <td>@p.Played</td>
-                                <td>@p.Won</td>
-                                <td>@p.Drawn</td>
-                                <td>@p.Lost</td>
-                                <td>@p.GoalsFor</td>
-                                <td>@p.GoalsAgainst</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
+        <div class="row g-4">
+            @foreach (var game in games)
+            {
+                <div class="col-lg-6">
+                    <h5>@game.VideoGameName</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>@Lang.Get("stats.player")</th>
+                                    <th>@Lang.Get("stats.played")</th>
+                                    <th>@Lang.Get("stats.wins")</th>
+                                    <th>@Lang.Get("stats.draws")</th>
+                                    <th>@Lang.Get("stats.losses")</th>
+                                    <th>@Lang.Get("league.goalsFor")</th>
+                                    <th>@Lang.Get("league.goalsAgainst")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in game.Players)
+                                {
+                                    <tr>
+                                        <td>@p.Position</td>
+                                        <td>
+                                            <a href="/vaults/@VaultId/players/@p.PlayerId" class="text-decoration-none">
+                                                @p.DisplayName
+                                            </a>
+                                        </td>
+                                        <td>@p.Played</td>
+                                        <td>@p.Won</td>
+                                        <td>@p.Drawn</td>
+                                        <td>@p.Lost</td>
+                                        <td>@p.GoalsFor</td>
+                                        <td>@p.GoalsAgainst</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
     }
 }

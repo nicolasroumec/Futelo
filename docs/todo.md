@@ -240,7 +240,7 @@ Ver roadmap para detalle completo.
 - `Futelo.Client/Pages/Stats/Scorers.razor` — se puede eliminar
 **Commit:** `feat: merge scorers into general ranking page`
 
-#### Mejora 2: Mostrar ELO en la lista de jugadores del VaultDetail
+#### ✅ Mejora 2: Mostrar ELO en la lista de jugadores del VaultDetail
 **Problema:** La lista de jugadores solo muestra Nombre + Rol. No hay datos de ELO a simple vista.
 **Solución:** Mostrar el ELO histórico al lado del nombre (badge pequeño). Verificar si `VaultPlayerResponse` ya incluye `EloRating`; si no, agregarlo.
 **Archivos:**
@@ -258,7 +258,7 @@ Ver roadmap para detalle completo.
 - `Futelo.Client/Pages/SeasonDetail.razor` — mostrar nueva sección
 **Commit:** `feat: show recent results and mini standings in season detail`
 
-#### Mejora 4: H2H histórico en SuperCupView
+#### ✅ Mejora 4: H2H histórico en SuperCupView
 **Problema:** La SuperCopa enfrenta dos jugadores pero no muestra contexto histórico entre ellos.
 **Solución:** Agregar un panel con el H2H entre los dos jugadores (partidos, victorias, empates). Reutiliza el endpoint `GetHeadToHeadAsync` existente.
 **Archivos:**
@@ -270,7 +270,7 @@ Ver roadmap para detalle completo.
 
 ### 🟢 Mejoras de layout desktop
 
-#### Layout 1: GamesRanking — grid de dos columnas
+#### ✅ Layout 1: GamesRanking — grid de dos columnas
 **Problema:** Múltiples tablas apiladas verticalmente. En desktop con varios juegos queda muy larga.
 **Solución:** Mostrar las tablas en grid de dos columnas en desktop (`col-lg-6` por juego).
 **Archivos:** `Futelo.Client/Pages/Stats/GamesRanking.razor`
