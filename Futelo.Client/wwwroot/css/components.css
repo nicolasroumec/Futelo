@@ -484,3 +484,29 @@
 .text-danger  { color: var(--color-danger) !important; }
 .text-warning { color: var(--color-warning) !important; }
 .text-info    { color: var(--color-info) !important; }
+
+/* =============================================
+   DESKTOP OVERRIDES (≥992px)
+   ============================================= */
+
+@media (min-width: 992px) {
+  /* Recent matches list — let it fill the column width */
+  .recent-matches {
+    max-width: none;
+  }
+
+  /* Empty states — no reason to be narrow on desktop */
+  .empty-state {
+    max-width: none;
+  }
+
+  /* Match cards — fill available column width */
+  .match-card {
+    max-width: none !important;
+  }
+
+  /* Table wrappers used in league, player profile, etc. */
+  .table-responsive {
+    max-width: none !important;
+  }
+}
