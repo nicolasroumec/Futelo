@@ -1,0 +1,11 @@
+@namespace Futelo.Client.Shared
+
+<div class="toast-container">
+    @foreach (var toast in _toasts)
+    {
+        <div class="toast-item toast-item--@toast.CssClass @(toast.Exiting ? "toast-item--exit" : "")">
+            <span class="toast-item__icon">@toast.Icon</span>
+            <span class="toast-item__text">@toast.Message.Text</span>
+        </div>
+    }
+</div>

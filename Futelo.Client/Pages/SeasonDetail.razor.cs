@@ -1,5 +1,6 @@
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
@@ -20,6 +21,7 @@ public partial class SeasonDetail : LocalizedComponentBase
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
@@ -39,14 +41,6 @@ public partial class SeasonDetail : LocalizedComponentBase
     private bool isDeleting;
     private bool confirmDelete;
     private string? errorMessage;
-    private string? configureMessage;
-    private string configureAlertClass = "alert-success";
-    private string? activateMessage;
-    private string activateAlertClass = "alert-success";
-    private string? finishMessage;
-    private string finishAlertClass = "alert-success";
-    private string? videoGameMessage;
-    private string videoGameAlertClass = "alert-success";
 
     private bool HasRightContent => season != null &&
         (season.TopStandings.Count > 0 || season.RecentMatches.Count > 0
@@ -118,26 +112,22 @@ public partial class SeasonDetail : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
     }
 
     private async Task HandlePatchVideoGame()
     {
         isPatchingVideoGame = true;
-        videoGameMessage = null;
-
         try
         {
             await SeasonService.PatchVideoGameAsync(Id, selectedVideoGameId);
             season = await SeasonService.GetByIdAsync(Id);
-            videoGameMessage = Lang.Get("season.videoGameUpdated");
-            videoGameAlertClass = "alert-success";
+            Toast.Show(Lang.Get("season.videoGameUpdated"));
         }
         catch (Exception ex)
         {
-            videoGameMessage = ex.Message;
-            videoGameAlertClass = "alert-danger";
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -148,19 +138,15 @@ public partial class SeasonDetail : LocalizedComponentBase
     private async Task HandleFinish()
     {
         isFinishing = true;
-        finishMessage = null;
-
         try
         {
             await SeasonService.FinishAsync(Id);
             season = await SeasonService.GetByIdAsync(Id);
-            finishMessage = Lang.Get("season.finishSuccess");
-            finishAlertClass = "alert-success";
+            Toast.Show(Lang.Get("season.finishSuccess"));
         }
         catch (Exception ex)
         {
-            finishMessage = ex.Message;
-            finishAlertClass = "alert-danger";
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -171,19 +157,15 @@ public partial class SeasonDetail : LocalizedComponentBase
     private async Task HandleActivate()
     {
         isActivating = true;
-        activateMessage = null;
-
         try
         {
             await SeasonService.ActivateAsync(Id);
             season = await SeasonService.GetByIdAsync(Id);
-            activateMessage = Lang.Get("season.activateSuccess");
-            activateAlertClass = "alert-success";
+            Toast.Show(Lang.Get("season.activateSuccess"));
         }
         catch (Exception ex)
         {
-            activateMessage = ex.Message;
-            activateAlertClass = "alert-danger";
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -194,20 +176,16 @@ public partial class SeasonDetail : LocalizedComponentBase
     private async Task HandleConfigure()
     {
         isConfiguring = true;
-        configureMessage = null;
-
         try
         {
             configureModel.PlayerIds = selectedPlayerIds.ToList();
             await SeasonService.ConfigureAsync(Id, configureModel);
             season = await SeasonService.GetByIdAsync(Id);
-            configureMessage = Lang.Get("season.configSaved");
-            configureAlertClass = "alert-success";
+            Toast.Show(Lang.Get("season.configSaved"));
         }
         catch (Exception ex)
         {
-            configureMessage = ex.Message;
-            configureAlertClass = "alert-danger";
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {

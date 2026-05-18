@@ -59,10 +59,6 @@ else
                 @(isPatchingVideoGame ? Lang.Get("common.saving") : Lang.Get("common.save"))
             </button>
         </div>
-        @if (!string.IsNullOrEmpty(videoGameMessage))
-        {
-            <div class="alert @videoGameAlertClass mb-3" style="max-width:420px">@videoGameMessage</div>
-        }
     }
 
     <div class="d-flex gap-2 mb-3">
@@ -99,11 +95,6 @@ else
             }
         }
     </div>
-
-    @if (!string.IsNullOrEmpty(finishMessage))
-    {
-        <div class="alert @finishAlertClass mb-3" style="max-width:420px">@finishMessage</div>
-    }
 
     @if (isOwner && season.Status == "Active" && !CanFinish)
     {
@@ -246,11 +237,6 @@ else
 
                     <SeasonCompetitionConfig Model="@configureModel" />
 
-                    @if (!string.IsNullOrEmpty(configureMessage))
-                    {
-                        <div class="alert @configureAlertClass" style="max-width:420px">@configureMessage</div>
-                    }
-
                     <button class="btn btn-primary" disabled="@isConfiguring" @onclick="HandleConfigure">
                         @(isConfiguring ? Lang.Get("common.saving") : Lang.Get("season.saveConfig"))
                     </button>
@@ -258,10 +244,6 @@ else
                     @if (season.Players.Count >= 2 && (season.HasLeague || season.HasCup))
                     {
                         <div class="mt-3">
-                            @if (!string.IsNullOrEmpty(activateMessage))
-                            {
-                                <div class="alert @activateAlertClass mb-2" style="max-width:420px">@activateMessage</div>
-                            }
                             <button class="btn btn-success" disabled="@isActivating" @onclick="HandleActivate">
                                 @(isActivating ? Lang.Get("season.activating") : Lang.Get("season.startSeason"))
                             </button>

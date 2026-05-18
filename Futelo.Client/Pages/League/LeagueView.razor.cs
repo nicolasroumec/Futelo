@@ -1,5 +1,6 @@
 using Futelo.Client.Services.League;
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
@@ -16,6 +17,7 @@ public partial class LeagueView : LocalizedComponentBase
     [Inject] private ILeagueService LeagueService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
 
     private LeagueResponse? league;
     private bool isLoading = true;
@@ -93,13 +95,11 @@ public partial class LeagueView : LocalizedComponentBase
             lastResult = null;
             editingMatchId = null;
         }
-        errorMessage = null;
     }
 
     private async Task HandleStart()
     {
         isWorking = true;
-        errorMessage = null;
         try
         {
             await LeagueService.StartAsync(Id);
@@ -107,7 +107,7 @@ public partial class LeagueView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -118,7 +118,6 @@ public partial class LeagueView : LocalizedComponentBase
     private async Task HandleReshuffle()
     {
         isWorking = true;
-        errorMessage = null;
         try
         {
             await LeagueService.ReshuffleAsync(Id);
@@ -126,7 +125,7 @@ public partial class LeagueView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -138,7 +137,6 @@ public partial class LeagueView : LocalizedComponentBase
     {
         if (recordingMatchId == null) return;
         isRecording = true;
-        errorMessage = null;
         try
         {
             var request = new RecordResultRequest { HomeScore = input.HomeScore, AwayScore = input.AwayScore };
@@ -148,7 +146,7 @@ public partial class LeagueView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -189,13 +187,11 @@ public partial class LeagueView : LocalizedComponentBase
 
         editingMatchId = matchId;
         recordingMatchId = null;
-        errorMessage = null;
     }
 
     private async Task HandlePatchMatch(PatchMatchRequest request)
     {
         if (editingMatchId == null) return;
-        errorMessage = null;
         try
         {
             await LeagueService.PatchMatchAsync(Id, editingMatchId.Value, request);
@@ -204,7 +200,7 @@ public partial class LeagueView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
     }
 

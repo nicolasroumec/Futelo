@@ -1,6 +1,7 @@
 using Futelo.Client.Services.Stats;
 using Futelo.Client.Services.SuperCup;
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
@@ -20,6 +21,7 @@ public partial class SuperCupView : LocalizedComponentBase
     [Inject] private IStatsService StatsService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
 
     private SuperCupResponse? superCup;
     private HeadToHeadResponse? h2h;
@@ -88,13 +90,11 @@ public partial class SuperCupView : LocalizedComponentBase
             otherLegHomeScore = leg1.HomeScore;
             otherLegAwayScore = leg1.AwayScore;
         }
-        errorMessage = null;
     }
 
     private async Task HandleStart()
     {
         isLoading = true;
-        errorMessage = null;
         try
         {
             await SuperCupService.StartAsync(Id);
@@ -102,7 +102,7 @@ public partial class SuperCupView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -114,7 +114,6 @@ public partial class SuperCupView : LocalizedComponentBase
     {
         if (recordingMatchId == null) return;
         isRecording = true;
-        errorMessage = null;
         try
         {
             var request = new RecordSuperCupResultRequest
@@ -131,7 +130,7 @@ public partial class SuperCupView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -162,13 +161,11 @@ public partial class SuperCupView : LocalizedComponentBase
 
         editingMatchId = matchId;
         recordingMatchId = null;
-        errorMessage = null;
     }
 
     private async Task HandlePatchMatch(PatchMatchRequest request)
     {
         if (editingMatchId == null) return;
-        errorMessage = null;
         try
         {
             await SuperCupService.PatchMatchAsync(Id, editingMatchId.Value, request);
@@ -177,7 +174,7 @@ public partial class SuperCupView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
     }
 

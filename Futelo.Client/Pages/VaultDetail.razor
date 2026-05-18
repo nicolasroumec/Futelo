@@ -66,11 +66,6 @@ else
         }
     </div>
 
-    @if (!string.IsNullOrEmpty(nameMessage))
-    {
-        <div class="alert @nameAlertClass py-1 mb-3">@nameMessage</div>
-    }
-
     <p class="text-muted">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>
 
     <div class="d-flex flex-wrap gap-2 mb-4">
@@ -147,10 +142,6 @@ else
                     </div>
                 }
 
-                @if (!string.IsNullOrEmpty(inviteMessage))
-                {
-                    <div class="alert @inviteAlertClass mt-2">@inviteMessage</div>
-                }
             }
         </div>
 

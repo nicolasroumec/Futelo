@@ -12,6 +12,7 @@ using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -43,6 +44,8 @@ builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IVideoGameService, VideoGameService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
+
+builder.Services.AddSingleton<IToastService, ToastService>();
 
 builder.Services.AddSingleton<ILanguageService>(sp =>
 {

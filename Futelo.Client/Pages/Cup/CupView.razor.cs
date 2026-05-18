@@ -1,5 +1,6 @@
 using Futelo.Client.Services.Cup;
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
@@ -17,6 +18,7 @@ public partial class CupView : LocalizedComponentBase
     [Inject] private ICupService CupService { get; set; } = null!;
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
 
     private CupResponse? cup;
     private bool isLoading = true;
@@ -86,14 +88,11 @@ public partial class CupView : LocalizedComponentBase
             otherLegHomeScore = leg1.HomeScore;
             otherLegAwayScore = leg1.AwayScore;
         }
-
-        errorMessage = null;
     }
 
     private async Task HandleStart()
     {
         isLoading = true;
-        errorMessage = null;
         try
         {
             await CupService.StartAsync(Id);
@@ -101,7 +100,7 @@ public partial class CupView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -113,7 +112,6 @@ public partial class CupView : LocalizedComponentBase
     {
         if (recordingMatchId == null) return;
         isRecording = true;
-        errorMessage = null;
         try
         {
             var request = new RecordCupResultRequest
@@ -130,7 +128,7 @@ public partial class CupView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -172,13 +170,11 @@ public partial class CupView : LocalizedComponentBase
 
         editingMatchId = matchId;
         recordingMatchId = null;
-        errorMessage = null;
     }
 
     private async Task HandlePatchMatch(PatchMatchRequest request)
     {
         if (editingMatchId == null) return;
-        errorMessage = null;
         try
         {
             await CupService.PatchMatchAsync(Id, editingMatchId.Value, request);
@@ -187,7 +183,7 @@ public partial class CupView : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
     }
 

@@ -1,4 +1,5 @@
 using Futelo.Client.Services.Season;
+using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Invitation;
@@ -16,6 +17,7 @@ public partial class VaultDetail : LocalizedComponentBase
     [Parameter] public int Id { get; set; }
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
@@ -31,14 +33,10 @@ public partial class VaultDetail : LocalizedComponentBase
     private bool isEditingName;
     private string editName = string.Empty;
     private bool isSavingName;
-    private string? nameMessage;
-    private string nameAlertClass = "alert-success";
 
     private InviteRequest inviteModel = new();
     private bool isInviting;
     private string? inviteLink;
-    private string? inviteMessage;
-    private string inviteAlertClass = "alert-success";
 
     protected override async Task OnInitializedAsync()
     {
@@ -69,7 +67,6 @@ public partial class VaultDetail : LocalizedComponentBase
     private void StartEditName()
     {
         editName = vault!.Name;
-        nameMessage = null;
         isEditingName = true;
     }
 
@@ -84,20 +81,16 @@ public partial class VaultDetail : LocalizedComponentBase
             return;
 
         isSavingName = true;
-        nameMessage = null;
-
         try
         {
             await VaultService.UpdateAsync(Id, new UpdateVaultRequest { Name = editName });
             vault!.Name = editName;
             isEditingName = false;
-            nameMessage = Lang.Get("vault.renameSuccess");
-            nameAlertClass = "alert-success";
+            Toast.Show(Lang.Get("vault.renameSuccess"));
         }
         catch (Exception ex)
         {
-            nameMessage = ex.Message;
-            nameAlertClass = "alert-danger";
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -124,8 +117,6 @@ public partial class VaultDetail : LocalizedComponentBase
     {
         isInviting = true;
         inviteLink = null;
-        inviteMessage = null;
-
         try
         {
             var result = await VaultService.InviteAsync(Id, inviteModel);
@@ -133,8 +124,7 @@ public partial class VaultDetail : LocalizedComponentBase
         }
         catch (Exception ex)
         {
-            inviteMessage = ex.Message;
-            inviteAlertClass = "alert-danger";
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
@@ -145,7 +135,9 @@ public partial class VaultDetail : LocalizedComponentBase
     private async Task CopyInviteLink()
     {
         if (inviteLink is not null)
+        {
             await JS.InvokeVoidAsync("navigator.clipboard.writeText", inviteLink);
+            Toast.Show(Lang.Get("vault.inviteLinkCopied"));
+        }
     }
-
 }

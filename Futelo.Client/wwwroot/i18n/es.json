@@ -58,6 +58,7 @@
   "vault.owner": "Propietario",
   "vault.rename": "Renombrar vault",
   "vault.renameSuccess": "Nombre actualizado.",
+  "vault.inviteLinkCopied": "Enlace copiado.",
 
   "createVault.title": "Nuevo Vault",
   "createVault.name": "Nombre del vault",
