@@ -38,7 +38,7 @@ else
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/vaults/@season.VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@season.Name</h3>
-        <span class="badge @BadgeHelper.StatusBadgeClass(season.Status)">@season.Status</span>
+        <span class="badge @BadgeHelper.StatusBadgeClass(season.Status)">@Lang.Get("season.status." + season.Status.ToLower())</span>
     </div>
 
     <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
@@ -202,7 +202,7 @@ else
                                     <th>@Lang.Get("stats.wins")</th>
                                     <th>@Lang.Get("stats.draws")</th>
                                     <th>@Lang.Get("stats.losses")</th>
-                                    <th>Pts</th>
+                                    <th>@Lang.Get("league.points")</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -232,12 +232,12 @@ else
                         @foreach (var m in season.RecentMatches)
                         {
                             <div class="recent-match-row">
-                                <div class="recent-match-body">
-                                    <span class="recent-match-player">@m.HomePlayerName</span>
-                                    <span class="recent-match-score">@m.HomeScore – @m.AwayScore</span>
-                                    <span class="recent-match-player text-end">@m.AwayPlayerName</span>
-                                </div>
-                                <div class="recent-match-competition text-muted">@m.Competition</div>
+                                <span class="recent-match-competition text-muted small">@m.Competition</span>
+                                <MatchDisplay HomePlayerName="@m.HomePlayerName"
+                                              AwayPlayerName="@m.AwayPlayerName"
+                                              HomeScore="@m.HomeScore"
+                                              AwayScore="@m.AwayScore"
+                                              IsPlayed="true" />
                             </div>
                         }
                     </div>
