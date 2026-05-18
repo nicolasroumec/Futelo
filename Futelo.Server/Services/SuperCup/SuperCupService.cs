@@ -108,7 +108,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
             throw new InvalidOperationException("Match participants are not yet determined.");
 
         // ELO
-        const int k = 16;
+        int k = EloCalculator.SuperCupK;
         var seasonPlayers = superCup.Season.Players.ToList();
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);
         var awaysp = seasonPlayers.First(sp => sp.PlayerId == match.AwayPlayerId);

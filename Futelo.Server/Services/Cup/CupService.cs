@@ -98,7 +98,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
         int totalRounds = allRounds.Count;
         int roundFromEnd = totalRounds - matchRound.RoundNumber;
         double kMultiplier = roundFromEnd switch { 0 => 1.5, 1 => 1.2, _ => 1.0 };
-        int k = (int)(24 * kMultiplier);
+        int k = (int)(EloCalculator.CupBaseK * kMultiplier);
 
         double homeResult = homeScore > awayScore ? 1.0 : homeScore == awayScore ? 0.5 : 0.0;
         double awayResult = 1.0 - homeResult;

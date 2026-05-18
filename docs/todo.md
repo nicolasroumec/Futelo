@@ -34,6 +34,77 @@ Todos los sprints de diseño, i18n, auditoría técnica (A1–A5), features de l
 
 ---
 
+### Sprint A8 — Toast global (~2h) 🟢 Baja
+
+Reemplaza los 2–5 pares `string message + string alertClass` por página por una llamada centralizada.
+
+- [ ] Crear `IToastService` en `Futelo.Client/Services/Toast/`
+  - `void Show(string message, ToastType type = ToastType.Success, int durationMs = 3000)`
+  - `event Action<ToastMessage> OnShow`
+- [ ] Implementar `ToastService` como singleton
+- [ ] Crear `ToastContainer.razor` + `.razor.css` en `Shared/`:
+  - Overlay fijo bottom-right, z-index alto
+  - Animación slide-in / fade-out
+  - Auto-dismiss por `durationMs`
+- [ ] Agregar `<ToastContainer />` en `MainLayout.razor`
+- [ ] Registrar `ToastService` en `Program.cs`
+- [ ] Migrar páginas: reemplazar `errorMessage`/`configureMessage`/etc. por `ToastService.Show()`
+  - Prioridad: `SeasonDetail`, `VaultDetail`, `LeagueView`, `CupView`, `SuperCupView`
+  - `refactor: replace inline alert messages with global toast service`
+
+---
+
+### Sprint A9 — Constantes ELO y CORS (~1h) 🟡 Media
+
+- [x] Agregar constantes en `EloCalculator`: `InitialElo`, `LeagueK`, `CupBaseK`, `SuperCupK`, `GoalDiff3x`, `GoalDiff2x`
+  - `refactor: extract EloConstants and replace magic numbers`
+- [ ] Reemplazar `1500` en `AppUser.cs`, `SeasonPlayer.cs`, `SeasonService.cs` → `EloCalculator.InitialElo`
+- [ ] Reemplazar K-factors en `LeagueService.cs`, `CupService.cs`, `SuperCupService.cs` → `EloCalculator.*K`
+- [ ] Mover CORS origins de `Program.cs` a `appsettings.json`
+  - `fix: move CORS allowed origins to appsettings.json`
+
+---
+
+### Sprint A10 — Status constants en Client (~1h) 🟡 Media
+
+- [ ] Crear `Futelo.Shared/CompetitionStatus.cs` y `Futelo.Shared/MatchStatus.cs` con string constants
+  - `refactor: add CompetitionStatus and MatchStatus constants to Shared`
+- [ ] Reemplazar magic strings en `BadgeHelper.cs`, `LeagueView.razor.cs`, `CupView.razor.cs`, `SuperCupView.razor.cs`, `SeasonDetail.razor.cs`
+- [ ] Localizar badges de estado en `LeagueView`, `CupView`, `SuperCupView` (mostrar "Activa" en vez de "Active")
+  - Agregar claves `competition.status.*` en `es.json` / `en.json`
+  - `refactor: replace status magic strings in client and localize competition badges`
+
+---
+
+### Sprint A11 — CSS color variables (~45min) 🟢 Baja
+
+- [ ] Agregar en `variables.css`:
+  - `--color-danger-text`, `--color-success-text`, `--color-warning-text`, `--color-info-text`
+  - `--color-bronze: #cd7f32`
+  - `--color-form: #C084FC`
+  - `refactor: add missing CSS variables for alert and component colors`
+- [ ] Reemplazar colores hardcodeados:
+  - `components.css` — textos de alert (`#fca5a5`, `#86efac`, `#fde68a`, `#93c5fd`)
+  - `GeneralRanking.razor.css` — podio (`#9AA4B2` → `var(--color-text-muted)`, `#cd7f32` → `var(--color-bronze)`)
+  - `PlayerProfile.razor.css` — (`#FACC15`, `#60A5FA`, `#C084FC`)
+  - `Palmares.razor.css` — `#FACC15`
+  - `app.css` — `#fca5a5`
+  - `refactor: replace hardcoded colors with CSS variables`
+
+---
+
+### Sprint A12 — Controller exception middleware (~1h) 🟢 Baja
+
+- [ ] Crear `Futelo.Server/Filters/ApiExceptionFilter.cs`:
+  - `KeyNotFoundException` → 404
+  - `UnauthorizedAccessException` → 403
+  - `InvalidOperationException` → 400 + mensaje
+- [ ] Registrar globalmente en `Program.cs`
+- [ ] Eliminar try-catch de los 10 controllers
+  - `refactor: add exception filter to eliminate try-catch boilerplate in controllers`
+
+---
+
 ## Sesión 13 — Light/Dark Mode
 Rama: `13-theme`
 

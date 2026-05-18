@@ -69,7 +69,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         {
             SeasonId = id,
             PlayerId = pid,
-            SeasonElo = 1500
+            SeasonElo = EloCalculator.InitialElo
         }).ToList();
 
         await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.HasCup, request.CupName, request.HasSuperCup, request.SuperCupName);
