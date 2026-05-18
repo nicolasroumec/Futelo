@@ -1,5 +1,6 @@
 {
   "nav.dashboard": "Dashboard",
+  "nav.config": "Config",
   "nav.teams": "Equipos",
   "nav.games": "Juegos",
   "nav.logout": "Cerrar sesión",

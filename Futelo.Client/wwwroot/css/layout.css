@@ -201,6 +201,30 @@ article.content {
   flex: 1;
 }
 
+/* Nav icons */
+.nav-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+/* Section label */
+.nav-section-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 0.9rem 1.5rem 0.2rem;
+  margin: 0;
+  opacity: 0.5;
+}
+
+/* Footer */
 .nav-footer {
   padding-bottom: 0.75rem;
 }
@@ -209,4 +233,24 @@ article.content {
   border-color: var(--color-border);
   opacity: 1;
   margin: 0.5rem 0;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0 0.5rem;
+}
+
+.nav-username {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-controls {
+  padding: 0.1rem 0 0.25rem;
 }

@@ -2,17 +2,16 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    padding: 0.5rem 1rem;
-    margin-top: auto;
+    padding: 0.25rem 0;
 }
 
 .lang-btn {
     background: none;
     border: none;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 0.75rem;
     font-weight: 600;
-    font-family: var(--font-ui);
+    font-family: var(--font-body);
     letter-spacing: 0.05em;
     cursor: pointer;
     padding: 0.25rem 0.35rem;
@@ -21,16 +20,16 @@
 }
 
 .lang-btn:hover {
-    color: var(--text-primary);
-    background: var(--surface-2);
+    color: var(--color-text);
+    background: var(--color-surface-2);
 }
 
 .lang-btn--active {
-    color: var(--accent);
+    color: var(--color-primary);
 }
 
 .lang-sep {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-size: 0.7rem;
     opacity: 0.4;
 }
