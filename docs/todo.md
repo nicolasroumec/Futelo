@@ -276,7 +276,7 @@ Ver roadmap para detalle completo.
 **Archivos:** `Futelo.Client/Pages/Stats/GamesRanking.razor`
 **Commit:** `style: two-column desktop layout for games ranking`
 
-#### Layout 2: SeasonDetail — dos columnas en desktop
+#### ✅ Layout 2: SeasonDetail — dos columnas en desktop
 **Problema:** Vista de temporada activa es una columna larga.
 **Solución:** Columna izquierda: info + jugadores. Columna derecha: mini standings + últimos resultados (requiere Mejora 3 implementada).
 **Archivos:** `Futelo.Client/Pages/SeasonDetail.razor`
