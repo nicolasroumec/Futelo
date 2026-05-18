@@ -54,24 +54,23 @@ Reemplaza los 2–5 pares `string message + string alertClass` por página por u
 
 ---
 
-### Sprint A9 — Constantes ELO y CORS (~1h) 🟡 Media
+### Sprint A9 — Constantes ELO y CORS (~1h) 🟡 Media ✅
 
 - [x] Agregar constantes en `EloCalculator`: `InitialElo`, `LeagueK`, `CupBaseK`, `SuperCupK`, `GoalDiff3x`, `GoalDiff2x`
-  - `refactor: extract EloConstants and replace magic numbers`
-- [ ] Reemplazar `1500` en `AppUser.cs`, `SeasonPlayer.cs`, `SeasonService.cs` → `EloCalculator.InitialElo`
-- [ ] Reemplazar K-factors en `LeagueService.cs`, `CupService.cs`, `SuperCupService.cs` → `EloCalculator.*K`
-- [ ] Mover CORS origins de `Program.cs` a `appsettings.json`
+- [x] Reemplazar `1500` en `AppUser.cs`, `SeasonPlayer.cs`, `SeasonService.cs` → `EloCalculator.InitialElo`
+- [x] Reemplazar K-factors en `LeagueService.cs`, `CupService.cs`, `SuperCupService.cs` → `EloCalculator.*K`
+  - `refactor: extract ELO constants into EloCalculator and replace all magic numbers`
+- [x] Mover CORS origins de `Program.cs` a `appsettings.Development.json`
   - `fix: move CORS allowed origins to appsettings.json`
 
 ---
 
-### Sprint A10 — Status constants en Client (~1h) 🟡 Media
+### Sprint A10 — Status constants en Client (~1h) 🟡 Media ✅
 
-- [ ] Crear `Futelo.Shared/CompetitionStatus.cs` y `Futelo.Shared/MatchStatus.cs` con string constants
-  - `refactor: add CompetitionStatus and MatchStatus constants to Shared`
-- [ ] Reemplazar magic strings en `BadgeHelper.cs`, `LeagueView.razor.cs`, `CupView.razor.cs`, `SuperCupView.razor.cs`, `SeasonDetail.razor.cs`
-- [ ] Localizar badges de estado en `LeagueView`, `CupView`, `SuperCupView` (mostrar "Activa" en vez de "Active")
-  - Agregar claves `competition.status.*` en `es.json` / `en.json`
+- [x] Crear `Futelo.Shared/CompetitionStatus.cs` y `Futelo.Shared/MatchStatus.cs` con string constants
+- [x] Reemplazar magic strings en `BadgeHelper.cs`, `LeagueView.razor.cs`, `CupView.razor.cs`, `SuperCupView.razor.cs`, `SeasonDetail.razor.cs`
+- [x] Localizar badges de estado en `LeagueView`, `CupView`, `SuperCupView` — claves `competition.status.*` en `es.json` / `en.json`
+- [x] Mover `hasRightContent` de `@{}` en `.razor` a propiedad en `.razor.cs` + fix `</div>` faltante en `SeasonDetail`
   - `refactor: replace status magic strings in client and localize competition badges`
 
 ---

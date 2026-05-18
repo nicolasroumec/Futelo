@@ -2,6 +2,7 @@ using Futelo.Client.Services.League;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
+using Futelo.Shared;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.VideoGame;
@@ -38,7 +39,7 @@ public partial class LeagueView : LocalizedComponentBase
         .ToList() ?? [];
 
     private List<(string Name, int Count)> PendingByPlayer => league?.Matches
-        .Where(m => m.Status == "Pending")
+        .Where(m => m.Status == MatchStatus.Pending)
         .SelectMany(m => new[] { m.HomePlayerName, m.AwayPlayerName })
         .GroupBy(n => n)
         .Select(g => (g.Key, g.Count()))
@@ -77,7 +78,7 @@ public partial class LeagueView : LocalizedComponentBase
         if (days.Count == 0) return;
 
         var firstWithPending = days.FirstOrDefault(d =>
-            league.Matches.Any(m => m.Matchday == d && m.Status == "Pending"));
+            league.Matches.Any(m => m.Matchday == d && m.Status == MatchStatus.Pending));
 
         selectedMatchday = firstWithPending != 0 ? firstWithPending : days[^1];
     }
@@ -157,9 +158,9 @@ public partial class LeagueView : LocalizedComponentBase
 
     private async Task HandleMatchClick(int matchId)
     {
-        if (!league!.CanEdit || league.Status == "NotStarted") return;
+        if (!league!.CanEdit || league.Status == CompetitionStatus.NotStarted) return;
         var match = league.Matches.First(m => m.Id == matchId);
-        if (match.Status == "Pending" && league.Status == "Active")
+        if (match.Status == MatchStatus.Pending && league.Status == CompetitionStatus.Active)
             SelectMatch(matchId);
         else
             await ToggleEditMatch(matchId);

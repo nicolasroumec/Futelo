@@ -3,6 +3,7 @@ using Futelo.Client.Services.SuperCup;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
+using Futelo.Shared;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Stats;
 using Futelo.Shared.DTOs.SuperCup;

@@ -148,13 +148,8 @@ else
         }
     </div>
 
-    @{
-        bool hasRightContent = season.TopStandings.Count > 0 || season.RecentMatches.Count > 0
-            || (isOwner && season.Status == "Draft");
-    }
-
     <div class="row g-4">
-        <div class="@(hasRightContent ? "col-lg-5" : "col-12")">
+        <div class="@(HasRightContent ? "col-lg-5" : "col-12")">
             <h5>@Lang.Get("season.players")</h5>
             @if (season.Players.Count == 0)
             {
@@ -186,7 +181,7 @@ else
             }
         </div>
 
-        @if (hasRightContent)
+        @if (HasRightContent)
         {
             <div class="col-lg-7">
                 @if (season.TopStandings.Count > 0)
@@ -275,6 +270,7 @@ else
                 }
             </div>
         }
+    </div>
 }
 
 @if (!string.IsNullOrEmpty(errorMessage))

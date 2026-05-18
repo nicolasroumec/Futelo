@@ -3,6 +3,7 @@ using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
+using Futelo.Shared;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.Vault;
@@ -47,10 +48,14 @@ public partial class SeasonDetail : LocalizedComponentBase
     private string? videoGameMessage;
     private string videoGameAlertClass = "alert-success";
 
+    private bool HasRightContent => season != null &&
+        (season.TopStandings.Count > 0 || season.RecentMatches.Count > 0
+            || (isOwner && season.Status == CompetitionStatus.Draft));
+
     private bool CanFinish => season != null &&
-        (!season.HasLeague || season.LeagueStatus == "Finished") &&
-        (!season.HasCup || season.CupStatus == "Finished") &&
-        (!season.HasSuperCup || season.SuperCupStatus == "Finished");
+        (!season.HasLeague || season.LeagueStatus == CompetitionStatus.Finished) &&
+        (!season.HasCup || season.CupStatus == CompetitionStatus.Finished) &&
+        (!season.HasSuperCup || season.SuperCupStatus == CompetitionStatus.Finished);
 
     protected override async Task OnInitializedAsync()
     {

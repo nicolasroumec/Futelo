@@ -27,12 +27,11 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevClient", policy =>
-        policy.WithOrigins(
-                  "https://localhost:7079", "http://localhost:5276",
-                  "https://localhost:60938", "http://localhost:60940")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod());
 });

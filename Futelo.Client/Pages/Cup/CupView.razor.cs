@@ -2,6 +2,7 @@ using Futelo.Client.Services.Cup;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
+using Futelo.Shared;
 using Futelo.Shared.DTOs.Cup;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Team;
@@ -139,9 +140,9 @@ public partial class CupView : LocalizedComponentBase
 
     private async Task HandleMatchClick(int matchId)
     {
-        if (!cup!.CanEdit || cup.Status == "NotStarted") return;
+        if (!cup!.CanEdit || cup.Status == CompetitionStatus.NotStarted) return;
         var match = cup.Rounds.SelectMany(r => r.Matches).First(m => m.Id == matchId);
-        if (match.Status == "Pending" && cup.Status == "Active"
+        if (match.Status == MatchStatus.Pending && cup.Status == CompetitionStatus.Active
             && !string.IsNullOrEmpty(match.HomePlayerId) && !string.IsNullOrEmpty(match.AwayPlayerId))
             SelectMatch(matchId, match.HomePlayerId, match.AwayPlayerId);
         else

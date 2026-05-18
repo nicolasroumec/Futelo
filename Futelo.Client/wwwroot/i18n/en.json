@@ -93,6 +93,10 @@
   "season.status.active": "Active",
   "season.status.finished": "Finished",
 
+  "competition.status.notstarted": "Not Started",
+  "competition.status.active": "Active",
+  "competition.status.finished": "Finished",
+
   "createSeason.title": "New Season",
   "createSeason.name": "Season Name",
   "createSeason.button": "Create",
