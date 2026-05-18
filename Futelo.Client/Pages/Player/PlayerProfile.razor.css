@@ -72,34 +72,34 @@
 .title-chip--league {
     background: rgba(250, 204, 21, .1);
     border-color: rgba(250, 204, 21, .35);
-    color: #FACC15;
+    color: var(--color-warning);
 }
 
 .title-chip--league.title-chip--active {
     background: rgba(250, 204, 21, .22);
-    border-color: #FACC15;
+    border-color: var(--color-warning);
 }
 
 .title-chip--cup {
     background: rgba(59, 130, 246, .1);
     border-color: rgba(59, 130, 246, .35);
-    color: #60A5FA;
+    color: var(--color-cup);
 }
 
 .title-chip--cup.title-chip--active {
     background: rgba(59, 130, 246, .22);
-    border-color: #60A5FA;
+    border-color: var(--color-cup);
 }
 
 .title-chip--supercup {
     background: rgba(168, 85, 247, .1);
     border-color: rgba(168, 85, 247, .35);
-    color: #C084FC;
+    color: var(--color-supercup);
 }
 
 .title-chip--supercup.title-chip--active {
     background: rgba(168, 85, 247, .22);
-    border-color: #C084FC;
+    border-color: var(--color-supercup);
 }
 
 /* Title detail panel */

@@ -75,19 +75,11 @@ Reemplaza los 2–5 pares `string message + string alertClass` por página por u
 
 ---
 
-### Sprint A11 — CSS color variables (~45min) 🟢 Baja
+### Sprint A11 — CSS color variables (~45min) 🟢 Baja ✅
 
-- [ ] Agregar en `variables.css`:
-  - `--color-danger-text`, `--color-success-text`, `--color-warning-text`, `--color-info-text`
-  - `--color-bronze: #cd7f32`
-  - `--color-form: #C084FC`
+- [x] Agregar en `variables.css`: `--color-danger-text`, `--color-success-text`, `--color-warning-text`, `--color-info-text`, `--color-bronze`, `--color-cup`, `--color-supercup`
   - `refactor: add missing CSS variables for alert and component colors`
-- [ ] Reemplazar colores hardcodeados:
-  - `components.css` — textos de alert (`#fca5a5`, `#86efac`, `#fde68a`, `#93c5fd`)
-  - `GeneralRanking.razor.css` — podio (`#9AA4B2` → `var(--color-text-muted)`, `#cd7f32` → `var(--color-bronze)`)
-  - `PlayerProfile.razor.css` — (`#FACC15`, `#60A5FA`, `#C084FC`)
-  - `Palmares.razor.css` — `#FACC15`
-  - `app.css` — `#fca5a5`
+- [x] Reemplazar colores hardcodeados en `components.css`, `app.css`, `GeneralRanking.razor.css`, `PlayerProfile.razor.css`, `Palmares.razor.css`
   - `refactor: replace hardcoded colors with CSS variables`
 
 ---

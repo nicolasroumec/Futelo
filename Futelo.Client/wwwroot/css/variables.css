@@ -12,6 +12,13 @@
   --color-danger: #EF4444;
   --color-warning: #FACC15;
   --color-info: #3B82F6;
+  --color-danger-text:  #fca5a5;
+  --color-success-text: #86efac;
+  --color-warning-text: #fde68a;
+  --color-info-text:    #93c5fd;
+  --color-bronze:       #cd7f32;
+  --color-cup:          #60A5FA;
+  --color-supercup:     #C084FC;
 
   /* Typography */
   --font-display: 'Barlow Condensed', sans-serif;

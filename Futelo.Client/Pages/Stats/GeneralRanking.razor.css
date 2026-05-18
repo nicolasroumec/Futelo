@@ -101,6 +101,6 @@
     border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
 
-.podium-base--first  { background-color: var(--color-warning); color: #000; height: 80px; }
-.podium-base--second { background-color: #9AA4B2;              color: #000; height: 60px; }
-.podium-base--third  { background-color: #cd7f32;              color: #000; height: 45px; }
+.podium-base--first  { background-color: var(--color-warning);    color: #000; height: 80px; }
+.podium-base--second { background-color: var(--color-text-muted); color: #000; height: 60px; }
+.podium-base--third  { background-color: var(--color-bronze);     color: #000; height: 45px; }

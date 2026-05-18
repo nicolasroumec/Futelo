@@ -151,7 +151,7 @@
 .feat-badge--treble {
     background: rgba(250, 204, 21, .15);
     border: 1px solid rgba(250, 204, 21, .4);
-    color: #FACC15;
+    color: var(--color-warning);
 }
 
 .feat-badge--double {
