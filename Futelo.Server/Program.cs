@@ -1,5 +1,6 @@
 using System.Text;
 using Futelo.Server.Data;
+using Futelo.Server.Filters;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Invitation;
 using Futelo.Server.Repositories.Cup;
@@ -80,7 +81,7 @@ builder.Services.AddScoped<ISuperCupService, SuperCupService>();
 builder.Services.AddScoped<IStatsRepository, StatsRepository>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.Filters.Add<ApiExceptionFilter>());
 
 var app = builder.Build();
 

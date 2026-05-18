@@ -17,78 +17,30 @@ public class SuperCupController(ISuperCupService superCupService) : ControllerBa
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var superCup = await superCupService.GetByIdAsync(id, UserId);
-            return Ok(superCup);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var superCup = await superCupService.GetByIdAsync(id, UserId);
+        return Ok(superCup);
     }
 
     [HttpPost("{id}/start")]
     public async Task<IActionResult> Start(int id)
     {
-        try
-        {
-            await superCupService.StartAsync(id, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await superCupService.StartAsync(id, UserId);
+        return NoContent();
     }
 
     [HttpPut("{id}/matches/{matchId}/result")]
     public async Task<IActionResult> RecordResult(int id, int matchId, RecordSuperCupResultRequest request)
     {
-        try
-        {
-            var result = await superCupService.RecordResultAsync(
-                id, matchId, request.HomeScore, request.AwayScore,
-                request.WonOnPenaltiesId, request.HomePenaltyScore, request.AwayPenaltyScore, UserId);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var result = await superCupService.RecordResultAsync(
+            id, matchId, request.HomeScore, request.AwayScore,
+            request.WonOnPenaltiesId, request.HomePenaltyScore, request.AwayPenaltyScore, UserId);
+        return Ok(result);
     }
 
     [HttpPatch("{id}/matches/{matchId}")]
     public async Task<IActionResult> PatchMatch(int id, int matchId, PatchMatchRequest request)
     {
-        try
-        {
-            await superCupService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        await superCupService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, UserId);
+        return NoContent();
     }
 }

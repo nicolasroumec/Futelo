@@ -25,15 +25,8 @@ public class VaultController(IVaultService vaultService, IInvitationService invi
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var vault = await vaultService.GetByIdAsync(id, UserId);
-            return Ok(vault);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var vault = await vaultService.GetByIdAsync(id, UserId);
+        return Ok(vault);
     }
 
     [HttpPost]
@@ -46,86 +39,35 @@ public class VaultController(IVaultService vaultService, IInvitationService invi
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateVaultRequest request)
     {
-        try
-        {
-            await vaultService.UpdateAsync(id, UserId, request);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        await vaultService.UpdateAsync(id, UserId, request);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await vaultService.DeleteAsync(id, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        await vaultService.DeleteAsync(id, UserId);
+        return NoContent();
     }
 
     [HttpGet("{id}/matches")]
     public async Task<IActionResult> GetMatchHistory(int id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? competitionType = null)
     {
-        try
-        {
-            var result = await vaultService.GetMatchHistoryAsync(id, UserId, page, pageSize, competitionType);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var result = await vaultService.GetMatchHistoryAsync(id, UserId, page, pageSize, competitionType);
+        return Ok(result);
     }
 
     [HttpGet("{id}/recent-matches")]
     public async Task<IActionResult> GetRecentMatches(int id, [FromQuery] int limit = 10)
     {
-        try
-        {
-            var matches = await vaultService.GetRecentMatchesAsync(id, UserId, limit);
-            return Ok(matches);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var matches = await vaultService.GetRecentMatchesAsync(id, UserId, limit);
+        return Ok(matches);
     }
 
     [HttpPost("{id}/invite")]
     public async Task<IActionResult> Invite(int id, InviteRequest request)
     {
-        try
-        {
-            var invitation = await invitationService.InviteAsync(id, UserId, request);
-            return Ok(invitation);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var invitation = await invitationService.InviteAsync(id, UserId, request);
+        return Ok(invitation);
     }
 }

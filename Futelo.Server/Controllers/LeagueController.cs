@@ -16,90 +16,35 @@ public class LeagueController(ILeagueService leagueService) : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var league = await leagueService.GetByIdAsync(id, UserId);
-            return Ok(league);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var league = await leagueService.GetByIdAsync(id, UserId);
+        return Ok(league);
     }
 
     [HttpPost("{id}/start")]
     public async Task<IActionResult> Start(int id)
     {
-        try
-        {
-            await leagueService.GenerateFixtureAsync(id, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await leagueService.GenerateFixtureAsync(id, UserId);
+        return NoContent();
     }
 
     [HttpPut("{id}/reshuffle")]
     public async Task<IActionResult> Reshuffle(int id)
     {
-        try
-        {
-            await leagueService.RegenerateFixtureAsync(id, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await leagueService.RegenerateFixtureAsync(id, UserId);
+        return NoContent();
     }
 
     [HttpPatch("{id}/matches/{matchId}")]
     public async Task<IActionResult> PatchMatch(int id, int matchId, PatchMatchRequest request)
     {
-        try
-        {
-            await leagueService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        await leagueService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, UserId);
+        return NoContent();
     }
 
     [HttpPut("{id}/matches/{matchId}/result")]
     public async Task<IActionResult> RecordResult(int id, int matchId, RecordResultRequest request)
     {
-        try
-        {
-            var result = await leagueService.RecordResultAsync(id, matchId, request.HomeScore, request.AwayScore, UserId);
-            return Ok(result);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var result = await leagueService.RecordResultAsync(id, matchId, request.HomeScore, request.AwayScore, UserId);
+        return Ok(result);
     }
 }

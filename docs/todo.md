@@ -84,14 +84,14 @@ Reemplaza los 2–5 pares `string message + string alertClass` por página por u
 
 ---
 
-### Sprint A12 — Controller exception middleware (~1h) 🟢 Baja
+### Sprint A12 — Controller exception middleware (~1h) 🟢 Baja ✅
 
-- [ ] Crear `Futelo.Server/Filters/ApiExceptionFilter.cs`:
+- [x] Crear `Futelo.Server/Filters/ApiExceptionFilter.cs`:
   - `KeyNotFoundException` → 404
   - `UnauthorizedAccessException` → 403
   - `InvalidOperationException` → 400 + mensaje
-- [ ] Registrar globalmente en `Program.cs`
-- [ ] Eliminar try-catch de los 10 controllers
+- [x] Registrar globalmente en `Program.cs`
+- [x] Eliminar try-catch de los 10 controllers (solo `AuthController.Login` conserva el suyo: retorna 401, no 403)
   - `refactor: add exception filter to eliminate try-catch boilerplate in controllers`
 
 ---

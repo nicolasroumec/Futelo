@@ -16,166 +16,63 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetByVault([FromQuery] int vaultId)
     {
-        try
-        {
-            var seasons = await seasonService.GetByVaultAsync(vaultId, UserId);
-            return Ok(seasons);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var seasons = await seasonService.GetByVaultAsync(vaultId, UserId);
+        return Ok(seasons);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        try
-        {
-            var season = await seasonService.GetByIdAsync(id, UserId);
-            return Ok(season);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var season = await seasonService.GetByIdAsync(id, UserId);
+        return Ok(season);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateSeasonRequest request)
     {
-        try
-        {
-            var season = await seasonService.CreateAsync(UserId, request);
-            return CreatedAtAction(nameof(GetById), new { id = season.Id }, season);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        var season = await seasonService.CreateAsync(UserId, request);
+        return CreatedAtAction(nameof(GetById), new { id = season.Id }, season);
     }
 
     [HttpPut("{id}/finish")]
     public async Task<IActionResult> Finish(int id)
     {
-        try
-        {
-            await seasonService.FinishAsync(id, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await seasonService.FinishAsync(id, UserId);
+        return NoContent();
     }
 
     [HttpPut("{id}/activate")]
     public async Task<IActionResult> Activate(int id)
     {
-        try
-        {
-            await seasonService.ActivateAsync(id, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await seasonService.ActivateAsync(id, UserId);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await seasonService.DeleteAsync(id, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        await seasonService.DeleteAsync(id, UserId);
+        return NoContent();
     }
 
     [HttpPatch("{id}/players/{playerId}/team")]
     public async Task<IActionResult> SetPlayerTeam(int id, string playerId, SetSeasonPlayerTeamRequest request)
     {
-        try
-        {
-            await seasonService.SetPlayerTeamAsync(id, playerId, UserId, request.TeamId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        await seasonService.SetPlayerTeamAsync(id, playerId, UserId, request.TeamId);
+        return NoContent();
     }
 
     [HttpPatch("{id}/video-game")]
     public async Task<IActionResult> PatchVideoGame(int id, UpdateSeasonVideoGameRequest request)
     {
-        try
-        {
-            await seasonService.PatchVideoGameAsync(id, UserId, request.VideoGameId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
+        await seasonService.PatchVideoGameAsync(id, UserId, request.VideoGameId);
+        return NoContent();
     }
 
     [HttpPut("{id}/configure")]
     public async Task<IActionResult> Configure(int id, ConfigureSeasonRequest request)
     {
-        try
-        {
-            await seasonService.ConfigureAsync(id, UserId, request);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await seasonService.ConfigureAsync(id, UserId, request);
+        return NoContent();
     }
 }

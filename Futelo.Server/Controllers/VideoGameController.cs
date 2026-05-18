@@ -27,28 +27,14 @@ public class VideoGameController(IVideoGameService videoGameService) : Controlle
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, CreateVideoGameRequest request)
     {
-        try
-        {
-            await videoGameService.UpdateAsync(id, request);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        await videoGameService.UpdateAsync(id, request);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await videoGameService.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        await videoGameService.DeleteAsync(id);
+        return NoContent();
     }
 }
