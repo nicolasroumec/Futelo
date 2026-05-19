@@ -1,0 +1,22 @@
+.theme-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 0.25rem 0.35rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background 0.2s;
+}
+
+.theme-btn:hover {
+    color: var(--color-text);
+    background: var(--color-surface-2);
+}
+
+.theme-btn svg {
+    width: 15px;
+    height: 15px;
+}

@@ -91,29 +91,29 @@ Todos los sprints de diseño, i18n, auditoría técnica (A1–A5), features de l
 ## Sesión 13 — Light/Dark Mode
 Rama: `13-theme`
 
-### Sprint T1 — ThemeService
+### Sprint T1 — ThemeService ✅
 `feat: add theme service with localStorage persistence`
 
-- [ ] Crear `IThemeService` en `Futelo.Client/Services/Theme/`
+- [x] Crear `IThemeService` en `Futelo.Client/Services/Theme/`
   - `string CurrentTheme` (→ `"dark"` | `"light"`)
   - `Task SetThemeAsync(string theme)`
   - `event Action OnChange`
-- [ ] Implementar `ThemeService`:
+- [x] Implementar `ThemeService`:
   - Lee tema inicial de localStorage via JS interop
   - Aplica clase `light` en `<body>` via JS interop (`document.body.classList`)
   - Dispara `OnChange`
-- [ ] Agregar en `wwwroot/js/theme.js`:
+- [x] Agregar en `wwwroot/js/theme.js`:
   - `window.themeInterop.get()` → lee de localStorage
   - `window.themeInterop.set(theme)` → guarda en localStorage + aplica clase en body
-- [ ] Registrar `ThemeService` como singleton en `Program.cs`
-- [ ] Importar `theme.js` en `index.html`
+- [x] Registrar `ThemeService` como singleton en `Program.cs`
+- [x] Importar `theme.js` en `index.html`
 
 ---
 
-### Sprint T2 — CSS light mode
+### Sprint T2 — CSS light mode ✅
 `feat: add light mode CSS theme`
 
-- [ ] Agregar bloque `body.light { ... }` en `variables.css` con toda la paleta light:
+- [x] Agregar bloque `body.light { ... }` en `variables.css` con toda la paleta light:
   - `--color-bg: #F8FAFC`
   - `--color-surface: #FFFFFF`
   - `--color-surface-2: #F1F5F9`
@@ -123,24 +123,24 @@ Rama: `13-theme`
   - `--color-primary: #16A34A`
   - `--color-primary-hover: #15803D`
   - Todos los `--bs-*` correspondientes
-- [ ] Verificar glassmorphism, rank-gold, glow y skeletons en light
-- [ ] Ajustar colores fijos hardcodeados en `components.css` / `layout.css` que no usen variables
+- [x] Verificar glassmorphism, rank-gold, glow y skeletons en light
+- [x] Ajustar colores fijos hardcodeados en `components.css` / `layout.css` que no usen variables
 
 ---
 
-### Sprint T3 — ThemeSwitcher + NavMenu
+### Sprint T3 — ThemeSwitcher + NavMenu ✅
 `feat: add theme toggle to nav`
 
-- [ ] Crear `ThemeSwitcher.razor` + `.razor.cs` + `.razor.css` (patrón idéntico a `LanguageSwitcher`)
-- [ ] Botón con ícono ☀️ / 🌙 según tema activo
-- [ ] Agregar `<ThemeSwitcher />` en `NavMenu.razor` dentro de `nav-controls` junto al `LanguageSwitcher`
+- [x] Crear `ThemeSwitcher.razor` + `.razor.cs` + `.razor.css` (patrón idéntico a `LanguageSwitcher`)
+- [x] Botón con ícono ☀️ / 🌙 según tema activo
+- [x] Agregar `<ThemeSwitcher />` en `NavMenu.razor` dentro de `nav-controls` junto al `LanguageSwitcher`
 
 ---
 
-### Sprint T4 — Anti-flash (FODT)
+### Sprint T4 — Anti-flash (FODT) ✅
 `fix: prevent flash of dark theme on page load`
 
-- [ ] Agregar script inline en `index.html` (antes de cualquier CSS) que aplique la clase sincrónicamente:
+- [x] Agregar script inline en `index.html` (antes de cualquier CSS) que aplique la clase sincrónicamente:
   ```html
   <script>
     (function() {
