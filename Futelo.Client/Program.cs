@@ -12,6 +12,7 @@ using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Services.Theme;
 using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 
@@ -54,6 +55,13 @@ builder.Services.AddSingleton<ILanguageService>(sp =>
     return new LanguageService(http, js);
 });
 
+builder.Services.AddSingleton<IThemeService>(sp =>
+{
+    var js = sp.GetRequiredService<Microsoft.JSInterop.IJSRuntime>();
+    return new ThemeService(js);
+});
+
 var host = builder.Build();
 await host.Services.GetRequiredService<ILanguageService>().InitializeAsync();
+await host.Services.GetRequiredService<IThemeService>().InitializeAsync();
 await host.RunAsync();

@@ -140,6 +140,9 @@ article.content {
   width: 1.1em;
   height: 1.1em;
 }
+body.light .sidebar .navbar-toggler-icon {
+  filter: none;
+}
 
 @media (min-width: 992px) {
   .sidebar .navbar-toggler {
