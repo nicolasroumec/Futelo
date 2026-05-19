@@ -27,9 +27,9 @@ Todos los sprints de diseño, i18n, auditoría técnica (A1–A5), features de l
   - `fix: add ARIA labels to pagination buttons for accessibility`
 - [x] Crear `ErrorMessages.cs` en `Futelo.Server/Services/` y reemplazar todos los strings hardcodeados (10 servicios)
   - `refactor: centralize error message strings in ErrorMessages`
-- [ ] Agregar `ILogger<T>` en todos los servicios del servidor
+- [x] Agregar `ILogger<T>` en todos los servicios del servidor
   - `feat: add structured logging to all server services`
-- [ ] Implementar caching en `VideoGameService` y `TeamService` para catálogos estáticos
+- [x] Implementar caching en `VideoGameService` y `TeamService` para catálogos estáticos
   - `feat: add in-memory cache to VideoGameService and TeamService`
 
 ---
