@@ -54,3 +54,49 @@
   --bs-table-striped-bg: rgba(31, 36, 48, 0.7);
   --bs-table-hover-bg: rgba(31, 36, 48, 0.7);
 }
+
+body.light {
+  /* Palette */
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F1F5F9;
+  --color-border: #E2E8F0;
+  --color-text: #0F172A;
+  --color-text-muted: #64748B;
+  --color-primary: #16A34A;
+  --color-primary-hover: #15803D;
+  --color-success: #16A34A;
+  --color-danger: #DC2626;
+  --color-warning: #D97706;
+  --color-info: #2563EB;
+  --color-danger-text: #DC2626;
+  --color-success-text: #16A34A;
+  --color-warning-text: #B45309;
+  --color-info-text: #1D4ED8;
+  --color-bronze: #92400E;
+  --color-cup: #1D4ED8;
+  --color-supercup: #7C3AED;
+
+  /* Bootstrap 5 overrides */
+  --bs-body-bg: #F8FAFC;
+  --bs-body-color: #0F172A;
+  --bs-border-color: #E2E8F0;
+  --bs-primary: #16A34A;
+  --bs-primary-rgb: 22, 163, 74;
+  --bs-secondary-color: #64748B;
+  --bs-secondary-bg: #F1F5F9;
+  --bs-tertiary-bg: #FFFFFF;
+  --bs-card-bg: #FFFFFF;
+  --bs-card-border-color: #E2E8F0;
+  --bs-list-group-bg: #FFFFFF;
+  --bs-list-group-border-color: #E2E8F0;
+  --bs-list-group-color: #0F172A;
+  --bs-link-color: #16A34A;
+  --bs-link-hover-color: #15803D;
+  --bs-heading-color: #0F172A;
+  --bs-table-bg: transparent;
+  --bs-table-color: #0F172A;
+  --bs-table-border-color: #E2E8F0;
+  --bs-table-striped-bg: rgba(241, 245, 249, 0.7);
+  --bs-table-hover-bg: rgba(241, 245, 249, 0.7);
+}
