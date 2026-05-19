@@ -8,7 +8,7 @@ namespace Futelo.Server.Services.Invitation;
 
 using static ErrorMessages;
 
-public class InvitationService(IInvitationRepository invitationRepository, IVaultRepository vaultRepository) : IInvitationService
+public class InvitationService(IInvitationRepository invitationRepository, IVaultRepository vaultRepository, ILogger<InvitationService> logger) : IInvitationService
 {
     public async Task<InvitationResponse> InviteAsync(int vaultId, string userId, InviteRequest request)
     {

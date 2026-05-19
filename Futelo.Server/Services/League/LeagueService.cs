@@ -8,7 +8,7 @@ namespace Futelo.Server.Services.League;
 
 using static ErrorMessages;
 
-public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
+public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueService> logger) : ILeagueService
 {
     public async Task<LeagueResponse> GetByIdAsync(int leagueId, string userId)
     {

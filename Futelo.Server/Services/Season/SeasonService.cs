@@ -9,7 +9,7 @@ namespace Futelo.Server.Services.Season;
 
 using static ErrorMessages;
 
-public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository vaultRepository) : ISeasonService
+public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository vaultRepository, ILogger<SeasonService> logger) : ISeasonService
 {
     public async Task<List<SeasonResponse>> GetByVaultAsync(int vaultId, string userId)
     {

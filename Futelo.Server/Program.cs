@@ -81,6 +81,7 @@ builder.Services.AddScoped<ISuperCupService, SuperCupService>();
 builder.Services.AddScoped<IStatsRepository, StatsRepository>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers(options => options.Filters.Add<ApiExceptionFilter>());
 
 var app = builder.Build();

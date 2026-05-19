@@ -10,7 +10,7 @@ namespace Futelo.Server.Services.Auth;
 
 using static ErrorMessages;
 
-public class AuthService(UserManager<AppUser> userManager, IConfiguration config) : IAuthService
+public class AuthService(UserManager<AppUser> userManager, IConfiguration config, ILogger<AuthService> logger) : IAuthService
 {
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {

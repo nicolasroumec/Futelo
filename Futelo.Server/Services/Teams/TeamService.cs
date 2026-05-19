@@ -6,7 +6,7 @@ namespace Futelo.Server.Services.Teams;
 
 using static ErrorMessages;
 
-public class TeamService(ITeamRepository repository) : ITeamService
+public class TeamService(ITeamRepository repository, ILogger<TeamService> logger) : ITeamService
 {
     public async Task<List<TeamResponse>> GetAllAsync()
     {

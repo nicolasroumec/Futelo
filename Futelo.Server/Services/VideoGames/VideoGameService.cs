@@ -6,7 +6,7 @@ namespace Futelo.Server.Services.VideoGames;
 
 using static ErrorMessages;
 
-public class VideoGameService(IVideoGameRepository repository) : IVideoGameService
+public class VideoGameService(IVideoGameRepository repository, ILogger<VideoGameService> logger) : IVideoGameService
 {
     public async Task<List<VideoGameResponse>> GetAllAsync()
     {

@@ -8,7 +8,7 @@ namespace Futelo.Server.Services.Stats;
 
 using static ErrorMessages;
 
-public class StatsService(IStatsRepository statsRepository) : IStatsService
+public class StatsService(IStatsRepository statsRepository, ILogger<StatsService> logger) : IStatsService
 {
     public async Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId, string requesterId)
     {
