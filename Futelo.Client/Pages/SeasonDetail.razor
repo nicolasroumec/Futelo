@@ -144,7 +144,7 @@ else
             <h5>@Lang.Get("season.players")</h5>
             @if (season.Players.Count == 0)
             {
-                <p class="empty-state">@Lang.Get("season.noPlayers")</p>
+                <EmptyState Message="@Lang.Get("season.noPlayers")" />
             }
             else
             {

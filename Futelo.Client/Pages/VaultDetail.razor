@@ -102,7 +102,7 @@ else
             </div>
             @if (seasons.Count == 0)
             {
-                <p class="empty-state">@Lang.Get("vault.noSeasons")</p>
+                <EmptyState Message="@Lang.Get("vault.noSeasons")" />
             }
             else
             {
@@ -153,7 +153,7 @@ else
             </div>
             @if (recentMatches.Count == 0)
             {
-                <p class="empty-state">@Lang.Get("stats.noMatches")</p>
+                <EmptyState Message="@Lang.Get("stats.noMatches")" />
             }
             else
             {

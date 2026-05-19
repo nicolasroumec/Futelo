@@ -21,7 +21,7 @@ else
     }
     else if (rows.Count == 0)
     {
-        <p class="empty-state">@Lang.Get("stats.noMatches")</p>
+        <EmptyState Message="@Lang.Get("stats.noMatches")" />
     }
     else
     {

@@ -46,7 +46,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
 }
 else if (games.Count == 0)
 {
-    <p class="empty-state">@Lang.Get("games.empty")</p>
+    <EmptyState Message="@Lang.Get("games.empty")" />
 }
 else
 {

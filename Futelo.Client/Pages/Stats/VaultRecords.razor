@@ -50,7 +50,7 @@ else
     }
     else if (records?.BestWinStreak == null && records?.BestUnbeatenStreak == null && records?.PeakElo == null)
     {
-        <p class="empty-state">@Lang.Get("stats.noMatches")</p>
+        <EmptyState Message="@Lang.Get("stats.noMatches")" />
     }
     else
     {

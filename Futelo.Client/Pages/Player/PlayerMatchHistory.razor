@@ -41,7 +41,7 @@ else
 
     @if (history.TotalCount == 0)
     {
-        <p class="empty-state">@Lang.Get("stats.noMatches")</p>
+        <EmptyState Message="@Lang.Get("stats.noMatches")" />
     }
     else
     {
@@ -67,9 +67,9 @@ else
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-outline-secondary btn-sm" disabled="@(currentPage <= 1)" @onclick="PrevPage">←</button>
+            <button class="btn btn-outline-secondary btn-sm" disabled="@(currentPage <= 1)" @onclick="PrevPage" aria-label="@Lang.Get("common.prevPage")">←</button>
             <span class="text-muted small">@Lang.Get("vault.matchHistoryPage") @currentPage / @history.TotalPages</span>
-            <button class="btn btn-outline-secondary btn-sm" disabled="@(currentPage >= history.TotalPages)" @onclick="NextPage">→</button>
+            <button class="btn btn-outline-secondary btn-sm" disabled="@(currentPage >= history.TotalPages)" @onclick="NextPage" aria-label="@Lang.Get("common.nextPage")">→</button>
         </div>
     }
 }

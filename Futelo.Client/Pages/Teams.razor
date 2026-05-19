@@ -46,7 +46,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
 }
 else if (teams.Count == 0)
 {
-    <p class="empty-state">@Lang.Get("teams.empty")</p>
+    <EmptyState Message="@Lang.Get("teams.empty")" />
 }
 else
 {

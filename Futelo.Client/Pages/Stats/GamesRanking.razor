@@ -21,7 +21,7 @@ else
     }
     else if (games.Count == 0)
     {
-        <p class="empty-state">@Lang.Get("stats.noGamesMatches")</p>
+        <EmptyState Message="@Lang.Get("stats.noGamesMatches")" />
     }
     else
     {

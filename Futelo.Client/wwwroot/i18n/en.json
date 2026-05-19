@@ -263,5 +263,7 @@
   "common.yes": "Yes",
   "common.no": "No",
   "common.resultRecorded": "Result recorded",
-  "common.select": "-- select --"
+  "common.select": "-- select --",
+  "common.prevPage": "Previous page",
+  "common.nextPage": "Next page"
 }
