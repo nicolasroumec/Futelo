@@ -6,16 +6,18 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Invitation;
 
-public class InvitationService(IInvitationRepository invitationRepository, IVaultRepository vaultRepository) : IInvitationService
+using static ErrorMessages;
+
+public class InvitationService(IInvitationRepository invitationRepository, IVaultRepository vaultRepository, ILogger<InvitationService> logger) : IInvitationService
 {
     public async Task<InvitationResponse> InviteAsync(int vaultId, string userId, InviteRequest request)
     {
         var vault = await vaultRepository.GetByIdAsync(vaultId)
-            ?? throw new KeyNotFoundException("Vault not found.");
+            ?? throw new KeyNotFoundException(VaultNotFound);
 
         var caller = vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || caller.Role != VaultRole.Admin)
-            throw new UnauthorizedAccessException("Only vault admins can invite players.");
+            throw new UnauthorizedAccessException(OnlyAdminsCanInvite);
 
         var invitation = new VaultInvitation
         {
@@ -36,20 +38,20 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
     public async Task AcceptAsync(string token, string userId)
     {
         var invitation = await invitationRepository.GetByTokenAsync(token)
-            ?? throw new KeyNotFoundException("Invitation not found.");
+            ?? throw new KeyNotFoundException(InvitationNotFound);
 
         if (invitation.Status != InvitationStatus.Pending)
-            throw new InvalidOperationException("This invitation is no longer valid.");
+            throw new InvalidOperationException(InvitationNoLongerValid);
 
         if (invitation.ExpiresAt < DateTime.UtcNow)
         {
             invitation.Status = InvitationStatus.Expired;
             await invitationRepository.UpdateAsync(invitation);
-            throw new InvalidOperationException("This invitation has expired.");
+            throw new InvalidOperationException(InvitationExpired);
         }
 
         if (invitation.Vault.Players.Any(p => p.PlayerId == userId))
-            throw new InvalidOperationException("You are already a member of this vault.");
+            throw new InvalidOperationException(AlreadyVaultMember);
 
         await vaultRepository.AddPlayerAsync(new VaultPlayer
         {

@@ -1,3 +1,4 @@
+using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.SuperCup;
 using Futelo.Shared.DTOs.SuperCup;
@@ -5,37 +6,41 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.SuperCup;
 
-public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCupService
+using static ErrorMessages;
+
+public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<SuperCupService> logger) : ISuperCupService
 {
     public async Task<SuperCupResponse> GetByIdAsync(int superCupId, string userId)
     {
         var superCup = await superCupRepository.GetByIdAsync(superCupId);
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("SuperCup not found.");
+            throw new KeyNotFoundException(SuperCupNotFound);
 
-        return MapToResponse(superCup);
+        var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
+        return MapToResponse(superCup, canEdit);
     }
 
     public async Task StartAsync(int superCupId, string userId)
     {
         var superCup = await superCupRepository.GetByIdAsync(superCupId);
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("SuperCup not found.");
+            throw new KeyNotFoundException(SuperCupNotFound);
 
         if (superCup.Status != TournamentStatus.NotStarted)
-            throw new InvalidOperationException("SuperCup has already been started.");
+            throw new InvalidOperationException(SuperCupAlreadyStarted);
 
         var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can start the SuperCup.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         var league = superCup.Season.League;
         var cup = superCup.Season.Cup;
 
         if (league == null || league.Status != TournamentStatus.Finished || league.ChampionId == null)
-            throw new InvalidOperationException("League must be finished before starting the SuperCup.");
+            throw new InvalidOperationException(LeagueMustBeFinishedFirst);
         if (cup == null || cup.Status != TournamentStatus.Finished || cup.ChampionId == null)
-            throw new InvalidOperationException("Cup must be finished before starting the SuperCup.");
+            throw new InvalidOperationException(CupMustBeFinishedFirst);
 
         string player1Id = league.ChampionId;
         string player2Id;
@@ -48,7 +53,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
         {
             var runnerUp = cup.Players.FirstOrDefault(cp => cp.CupPosition == 2);
             if (runnerUp == null)
-                throw new InvalidOperationException("Could not determine Cup runner-up for SuperCup.");
+                throw new InvalidOperationException(CouldNotDetermineRunnerUp);
             player2Id = runnerUp.PlayerId;
         }
 
@@ -84,28 +89,28 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
     {
         var superCup = await superCupRepository.GetByIdAsync(superCupId);
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("SuperCup not found.");
+            throw new KeyNotFoundException(SuperCupNotFound);
 
         if (superCup.Status != TournamentStatus.Active)
-            throw new InvalidOperationException("SuperCup is not active.");
+            throw new InvalidOperationException(SuperCupNotActive);
 
         var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can record results.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         if (homeScore < 0 || awayScore < 0)
-            throw new InvalidOperationException("Scores cannot be negative.");
+            throw new InvalidOperationException(ScoresCannotBeNegative);
 
         var match = superCup.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
             throw new KeyNotFoundException("Match not found in this SuperCup.");
         if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException("Match already has a result.");
+            throw new InvalidOperationException(MatchAlreadyHasResult);
         if (string.IsNullOrEmpty(match.HomePlayerId) || string.IsNullOrEmpty(match.AwayPlayerId))
-            throw new InvalidOperationException("Match participants are not yet determined.");
+            throw new InvalidOperationException(MatchParticipantsNotDetermined);
 
         // ELO
-        const int k = 16;
+        int k = EloCalculator.SuperCupK;
         var seasonPlayers = superCup.Season.Players.ToList();
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);
         var awaysp = seasonPlayers.First(sp => sp.PlayerId == match.AwayPlayerId);
@@ -120,13 +125,13 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
             awayResult = 1.0 - homeResult;
         }
 
-        var (homeSeasonChange, homeNewSeasonElo) = ComputeElo(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k);
-        var (awaySeasonChange, awayNewSeasonElo) = ComputeElo(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k);
+        var (homeSeasonChange, homeNewSeasonElo) = EloCalculator.Compute(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k);
+        var (awaySeasonChange, awayNewSeasonElo) = EloCalculator.Compute(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k);
 
         int homeHistElo = homesp.Player.EloRating;
         int awayHistElo = awaysp.Player.EloRating;
-        var (homeHistChange, homeNewHistElo) = ComputeElo(homeHistElo, awayHistElo, homeResult, goalDiff, k);
-        var (awayHistChange, awayNewHistElo) = ComputeElo(awayHistElo, homeHistElo, awayResult, goalDiff, k);
+        var (homeHistChange, homeNewHistElo) = EloCalculator.Compute(homeHistElo, awayHistElo, homeResult, goalDiff, k);
+        var (awayHistChange, awayNewHistElo) = EloCalculator.Compute(awayHistElo, homeHistElo, awayResult, goalDiff, k);
 
         var seasonElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.SeasonElo);
         int homeSeasonRankBefore = seasonElos.Count(kv => kv.Value > homesp.SeasonElo) + 1;
@@ -163,7 +168,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
             else if (wonOnPenaltiesId != null)
                 championId = wonOnPenaltiesId;
             else
-                throw new InvalidOperationException("Match is drawn — provide the winner on penalties.");
+                throw new InvalidOperationException(MatchIsDrawnNeedsPenalties);
 
             finished = true;
         }
@@ -192,7 +197,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
                 else if (wonOnPenaltiesId != null)
                     championId = wonOnPenaltiesId;
                 else
-                    throw new InvalidOperationException("Tie is level on aggregate — provide the winner on penalties.");
+                    throw new InvalidOperationException(TieOnAggregateMNeedsPenalties);
 
                 finished = true;
             }
@@ -249,7 +254,24 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
         };
     }
 
-    private static SuperCupResponse MapToResponse(Models.SuperCup superCup)
+    public async Task PatchMatchAsync(int superCupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
+    {
+        var superCup = await superCupRepository.GetByIdAsync(superCupId);
+        if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(SuperCupNotFound);
+
+        var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
+
+        var match = superCup.Matches.FirstOrDefault(m => m.Id == matchId);
+        if (match == null)
+            throw new KeyNotFoundException(MatchNotFound);
+
+        await superCupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
+    }
+
+    private static SuperCupResponse MapToResponse(Models.SuperCup superCup, bool canEdit = false)
     {
         var seasonPlayerMap = superCup.Season.Players
             .ToDictionary(sp => sp.PlayerId, sp => sp.Player.DisplayName);
@@ -258,9 +280,11 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
         {
             Id = superCup.Id,
             SeasonId = superCup.SeasonId,
+            VaultId = superCup.Season.VaultId,
             Name = superCup.Name,
             Status = superCup.Status.ToString(),
             IsHomeAndAway = superCup.IsHomeAndAway,
+            CanEdit = canEdit,
             Player1Id = superCup.Player1Id,
             Player1Name = superCup.Player1Id != null
                 ? seasonPlayerMap.GetValueOrDefault(superCup.Player1Id)
@@ -293,16 +317,15 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
                     AwayPenaltyScore = m.AwayPenaltyScore,
                     Status = m.Status.ToString(),
                     Leg = m.Leg,
-                    PlayedAt = m.PlayedAt
+                    PlayedAt = m.PlayedAt,
+                    HomeTeamId = m.HomeTeamId,
+                    HomeTeamName = m.HomeTeam?.Name,
+                    AwayTeamId = m.AwayTeamId,
+                    AwayTeamName = m.AwayTeam?.Name,
+                    VideoGameId = m.VideoGameId,
+                    VideoGameName = m.VideoGame?.Name
                 }).ToList()
         };
     }
 
-    private static (int change, int newElo) ComputeElo(int myElo, int opponentElo, double result, int goalDiff, int k)
-    {
-        double expected = 1.0 / (1.0 + Math.Pow(10, (opponentElo - myElo) / 400.0));
-        double multiplier = goalDiff >= 3 ? 1.5 : goalDiff == 2 ? 1.2 : 1.0;
-        int change = (int)Math.Round(k * multiplier * (result - expected), MidpointRounding.AwayFromZero);
-        return (change, myElo + change);
-    }
 }

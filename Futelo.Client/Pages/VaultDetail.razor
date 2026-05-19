@@ -1,4 +1,5 @@
-@page "/vaults/{id:int}"
+﻿@page "/vaults/{id:int}"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 @using Futelo.Shared.Enums
 
@@ -6,95 +7,179 @@
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="skeleton-block" style="width:3.5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:180px;height:1.75rem"></div>
+    </div>
+    <div class="skeleton-block mb-4" style="width:160px;height:.75rem"></div>
+    <div class="skeleton-block mb-2" style="width:70px;height:1rem"></div>
+    <ul class="list-group mb-4" style="max-width:420px">
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:55%"></div></li>
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:70%"></div></li>
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:45%"></div></li>
+    </ul>
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <div class="skeleton-block" style="width:5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:4.5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:4.5rem;height:2rem"></div>
+    </div>
+    <div class="skeleton-block mb-2" style="width:70px;height:1rem"></div>
+    <ul class="list-group" style="max-width:420px">
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:65%"></div></li>
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:50%"></div></li>
+    </ul>
 }
 else if (vault == null)
 {
-    <p class="text-danger">Vault not found.</p>
+    <p class="text-danger">@Lang.Get("vault.notFound")</p>
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/dashboard" class="btn btn-outline-secondary btn-sm">Back</a>
-        <h3 class="mb-0">@vault.Name</h3>
-    </div>
-
-    <p class="text-muted">Owner: @vault.OwnerDisplayName</p>
-
-    <h5 class="mt-4">Players</h5>
-    <ul class="list-group mb-4" style="max-width:420px">
-        @foreach (var player in vault.Players)
+        <a href="/dashboard" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+        @if (isEditingName)
         {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="/vaults/@Id/players/@player.PlayerId" class="text-decoration-none">@player.DisplayName</a>
-                <span class="badge @RoleBadgeClass(player.Role)">@player.Role</span>
-            </li>
-        }
-    </ul>
-
-    <div class="d-flex gap-2 mb-4">
-        <a href="/vaults/@Id/ranking" class="btn btn-outline-secondary btn-sm">Ranking</a>
-        <a href="/vaults/@Id/scorers" class="btn btn-outline-secondary btn-sm">Scorers</a>
-        <a href="/vaults/@Id/records" class="btn btn-outline-secondary btn-sm">Records</a>
-        <a href="/vaults/@Id/palmares" class="btn btn-outline-secondary btn-sm">Palmarés</a>
-        <a href="/vaults/@Id/teams" class="btn btn-outline-secondary btn-sm">Teams</a>
-        <a href="/vaults/@Id/games" class="btn btn-outline-secondary btn-sm">Games</a>
-    </div>
-
-    <div class="d-flex align-items-center gap-3 mt-4 mb-2">
-        <h5 class="mb-0">Seasons</h5>
-        @if (isOwner)
-        {
-            <a href="/vaults/@Id/seasons/create" class="btn btn-outline-primary btn-sm">+ New Season</a>
-        }
-    </div>
-    @if (seasons.Count == 0)
-    {
-        <p class="text-muted">No seasons yet.</p>
-    }
-    else
-    {
-        <ul class="list-group mb-4" style="max-width:420px">
-            @foreach (var s in seasons)
-            {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="/seasons/@s.Id" class="text-decoration-none">@s.Name (@s.Year)</a>
-                    <span class="badge bg-secondary">@s.Status</span>
-                </li>
-            }
-        </ul>
-    }
-
-    @if (isAdmin)
-    {
-        <h5>Invite Player</h5>
-        <EditForm Model="inviteModel" OnValidSubmit="HandleInvite" style="max-width:420px">
-            <DataAnnotationsValidator />
-            <div class="input-group mb-2">
-                <InputSelect class="form-select" @bind-Value="inviteModel.Role">
-                    <option value="@VaultRole.Viewer">Viewer</option>
-                    <option value="@VaultRole.Editor">Editor</option>
-                    <option value="@VaultRole.Admin">Admin</option>
-                </InputSelect>
-                <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
-                    @(isInviting ? "Generating..." : "Generate Link")
+            <div class="d-flex align-items-center gap-2">
+                <input class="form-control form-control-sm" style="max-width:260px"
+                       @bind="editName" @bind:event="oninput"
+                       maxlength="50" disabled="@isSavingName" />
+                <button class="btn btn-primary btn-sm" @onclick="SaveNameAsync" disabled="@(isSavingName || editName.Length < 3)">
+                    @(isSavingName ? Lang.Get("common.saving") : Lang.Get("common.save"))
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="CancelEditName" disabled="@isSavingName">
+                    @Lang.Get("common.cancel")
                 </button>
             </div>
-        </EditForm>
-
-        @if (!string.IsNullOrEmpty(inviteLink))
+        }
+        else
         {
-            <div class="input-group mt-2" style="max-width:420px">
-                <input class="form-control form-control-sm" readonly value="@inviteLink" />
-                <button class="btn btn-outline-secondary btn-sm" @onclick="CopyInviteLink">Copy</button>
+            <h3 class="mb-0">@vault.Name</h3>
+            @if (isAdmin)
+            {
+                <button class="btn btn-outline-secondary btn-sm" @onclick="StartEditName" title="@Lang.Get("vault.rename")">
+                    @Lang.Get("common.edit")
+                </button>
+            }
+        }
+    </div>
+
+    <p class="text-muted">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a href="/vaults/@Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
+        <a href="/vaults/@Id/records" class="btn btn-outline-secondary btn-sm">@Lang.Get("vault.records")</a>
+        <a href="/vaults/@Id/palmares" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.palmares")</a>
+        <a href="/vaults/@Id/teams" class="btn btn-outline-secondary btn-sm">@Lang.Get("teams.title")</a>
+        <a href="/vaults/@Id/games" class="btn btn-outline-secondary btn-sm">@Lang.Get("games.title")</a>
+    </div>
+
+    <div class="row g-4">
+        @* LEFT — Players, seasons, invite *@
+        <div class="col-lg-4">
+            <h5>@Lang.Get("vault.players")</h5>
+            <ul class="list-group mb-4">
+                @foreach (var player in vault.Players)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="/vaults/@Id/players/@player.PlayerId" class="text-decoration-none">@player.DisplayName</a>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary">@player.EloRating</span>
+                            <span class="badge @RoleBadgeClass(player.Role)">@player.Role</span>
+                        </div>
+                    </li>
+                }
+            </ul>
+
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <h5 class="mb-0">@Lang.Get("vault.seasons")</h5>
+                @if (isOwner)
+                {
+                    <a href="/vaults/@Id/seasons/create" class="btn btn-outline-primary btn-sm">+ @Lang.Get("vault.newSeason")</a>
+                }
             </div>
-        }
+            @if (seasons.Count == 0)
+            {
+                <EmptyState Message="@Lang.Get("vault.noSeasons")" />
+            }
+            else
+            {
+                <ul class="list-group mb-4">
+                    @foreach (var s in seasons)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="/seasons/@s.Id" class="text-decoration-none">@s.Name (@s.Year)</a>
+                            <span class="badge @BadgeHelper.StatusBadgeClass(s.Status)">@Lang.Get("season.status." + s.Status.ToLower())</span>
+                        </li>
+                    }
+                </ul>
+            }
 
-        @if (!string.IsNullOrEmpty(inviteMessage))
-        {
-            <div class="alert @inviteAlertClass mt-2">@inviteMessage</div>
-        }
-    }
+            @if (isAdmin)
+            {
+                <h5>@Lang.Get("vault.invitePlayer")</h5>
+                <EditForm Model="inviteModel" OnValidSubmit="HandleInvite">
+                    <DataAnnotationsValidator />
+                    <div class="input-group mb-2">
+                        <InputSelect class="form-select" @bind-Value="inviteModel.Role">
+                            <option value="@VaultRole.Viewer">Viewer</option>
+                            <option value="@VaultRole.Editor">Editor</option>
+                            <option value="@VaultRole.Admin">Admin</option>
+                        </InputSelect>
+                        <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
+                            @(isInviting ? Lang.Get("vault.generating") : Lang.Get("vault.generateLink"))
+                        </button>
+                    </div>
+                </EditForm>
+
+                @if (!string.IsNullOrEmpty(inviteLink))
+                {
+                    <div class="input-group mt-2">
+                        <input class="form-control form-control-sm" readonly value="@inviteLink" />
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="CopyInviteLink">@Lang.Get("common.copy")</button>
+                    </div>
+                }
+
+            }
+        </div>
+
+        @* RIGHT — Recent matches *@
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <h5 class="mb-0">@Lang.Get("vault.recentMatches")</h5>
+                <a href="/vaults/@Id/matches" class="btn btn-outline-secondary btn-sm">@Lang.Get("vault.fullHistory")</a>
+            </div>
+            @if (recentMatches.Count == 0)
+            {
+                <EmptyState Message="@Lang.Get("stats.noMatches")" />
+            }
+            else
+            {
+                <div class="recent-matches mb-4">
+                    @foreach (var m in recentMatches)
+                    {
+                        <div class="recent-match-row">
+                            <span class="recent-match-competition text-muted small">@m.SeasonName · @m.CompetitionName</span>
+                            <MatchDisplay
+                                HomePlayerName="@m.HomePlayerName"
+                                AwayPlayerName="@m.AwayPlayerName"
+                                HomeTeamName="@m.HomeTeamName"
+                                AwayTeamName="@m.AwayTeamName"
+                                VideoGameName="@m.VideoGameName"
+                                HomeScore="@m.HomeScore"
+                                AwayScore="@m.AwayScore"
+                                IsPlayed="true"
+                                WonOnPenaltiesId="@m.WonOnPenaltiesId"
+                                HomePenaltyScore="@m.HomePenaltyScore"
+                                AwayPenaltyScore="@m.AwayPenaltyScore" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
 }
 
 @if (!string.IsNullOrEmpty(errorMessage))

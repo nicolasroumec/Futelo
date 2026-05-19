@@ -1,10 +1,11 @@
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Stats;
 
-public partial class Palmares
+public partial class Palmares : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
@@ -13,12 +14,23 @@ public partial class Palmares
     private bool isLoading = true;
     private string? errorMessage;
 
+    private List<(string Name, int Count)> TitlesByPlayer => rows
+        .SelectMany(r => new[] { r.LeagueChampion, r.CupChampion, r.SuperCupChampion }
+            .Where(c => c != null).Select(c => c!))
+        .GroupBy(n => n)
+        .Select(g => (g.Key, g.Count()))
+        .OrderByDescending(x => x.Item2)
+        .ToList();
+
+    private int MaxTitles => TitlesByPlayer.FirstOrDefault().Count;
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            rows = await StatsService.GetPalmaresAsync(VaultId);
+            rows = await StatsService.GetPalmaresAsync(VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
@@ -27,5 +39,26 @@ public partial class Palmares
         {
             isLoading = false;
         }
+    }
+
+    private static string? GetTrebleWinner(PalmaresSeasonRow row)
+    {
+        if (row.LeagueChampion == null || row.CupChampion == null || row.SuperCupChampion == null)
+            return null;
+        return row.LeagueChampion == row.CupChampion && row.CupChampion == row.SuperCupChampion
+            ? row.LeagueChampion
+            : null;
+    }
+
+    private static string? GetDoubleWinner(PalmaresSeasonRow row)
+    {
+        if (GetTrebleWinner(row) != null) return null;
+        var champions = new[] { row.LeagueChampion, row.CupChampion, row.SuperCupChampion }
+            .Where(c => c != null).ToList();
+        return champions
+            .GroupBy(c => c)
+            .Where(g => g.Count() >= 2)
+            .Select(g => g.Key)
+            .FirstOrDefault();
     }
 }

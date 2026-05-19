@@ -1,10 +1,11 @@
 using Futelo.Client.Services.VideoGames;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class Games
+public partial class Games : LocalizedComponentBase
 {
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
 
@@ -29,8 +30,9 @@ public partial class Games
         errorMessage = null;
         try
         {
-            games = await VideoGameService.GetAllAsync();
+            games = await VideoGameService.GetAllAsync(ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

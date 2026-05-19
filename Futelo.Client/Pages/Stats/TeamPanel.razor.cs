@@ -1,10 +1,11 @@
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Stats;
 
-public partial class TeamPanel
+public partial class TeamPanel : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
@@ -17,8 +18,9 @@ public partial class TeamPanel
     {
         try
         {
-            rows = await StatsService.GetTeamPanelAsync(VaultId);
+            rows = await StatsService.GetTeamPanelAsync(VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

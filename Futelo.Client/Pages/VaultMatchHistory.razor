@@ -1,0 +1,75 @@
+﻿@page "/vaults/{id:int}/matches"
+@inherits LocalizedComponentBase
+@attribute [Authorize]
+
+<PageTitle>@Lang.Get("vault.matchHistory") - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <div class="skeleton-block mb-4" style="width:140px;height:1.75rem"></div>
+    <div class="recent-matches mb-4">
+        @for (int i = 0; i < 10; i++)
+        {
+            <div class="recent-match-row">
+                <div class="skeleton-block mb-1" style="height:.65rem;width:45%"></div>
+                <div class="recent-match-body">
+                    <div class="skeleton-block" style="height:.85rem;width:90%"></div>
+                    <div class="skeleton-block" style="height:.85rem;width:60px"></div>
+                    <div class="skeleton-block" style="height:.85rem;width:90%"></div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/vaults/@Id" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+        <h3 class="mb-0">@Lang.Get("vault.matchHistory")</h3>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-sm @(activeFilter == null ? "btn-primary" : "btn-outline-secondary")" @onclick="() => SetFilter(null)">@Lang.Get("filter.all")</button>
+        <button class="btn btn-sm @(activeFilter == "League" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("League")'>@Lang.Get("filter.league")</button>
+        <button class="btn btn-sm @(activeFilter == "Cup" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("Cup")'>@Lang.Get("filter.cup")</button>
+        <button class="btn btn-sm @(activeFilter == "SuperCup" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("SuperCup")'>@Lang.Get("filter.superCup")</button>
+    </div>
+
+    @if (history.TotalCount == 0)
+    {
+        <EmptyState Message="@Lang.Get("stats.noMatches")" />
+    }
+    else
+    {
+        <div class="recent-matches mb-3">
+            @foreach (var m in history.Items)
+            {
+                <div class="recent-match-row">
+                    <span class="recent-match-competition text-muted small">@m.SeasonName · @m.CompetitionName</span>
+                    <MatchDisplay
+                        HomePlayerName="@m.HomePlayerName"
+                        AwayPlayerName="@m.AwayPlayerName"
+                        HomeTeamName="@m.HomeTeamName"
+                        AwayTeamName="@m.AwayTeamName"
+                        VideoGameName="@m.VideoGameName"
+                        HomeScore="@m.HomeScore"
+                        AwayScore="@m.AwayScore"
+                        IsPlayed="true"
+                        WonOnPenaltiesId="@m.WonOnPenaltiesId"
+                        HomePenaltyScore="@m.HomePenaltyScore"
+                        AwayPenaltyScore="@m.AwayPenaltyScore" />
+                </div>
+            }
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-secondary btn-sm" disabled="@(currentPage <= 1)" @onclick="PrevPage" aria-label="@Lang.Get("common.prevPage")">←</button>
+            <span class="text-muted small">@Lang.Get("vault.matchHistoryPage") @currentPage / @history.TotalPages</span>
+            <button class="btn btn-outline-secondary btn-sm" disabled="@(currentPage >= history.TotalPages)" @onclick="NextPage" aria-label="@Lang.Get("common.nextPage")">→</button>
+        </div>
+    }
+}

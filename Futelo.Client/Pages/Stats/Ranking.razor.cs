@@ -1,10 +1,11 @@
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Stats;
 
-public partial class Ranking
+public partial class Ranking : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Parameter] public int SeasonId { get; set; }
@@ -18,8 +19,9 @@ public partial class Ranking
     {
         try
         {
-            rows = await StatsService.GetRankingAsync(SeasonId, VaultId);
+            rows = await StatsService.GetRankingAsync(SeasonId, VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

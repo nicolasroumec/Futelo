@@ -1,12 +1,13 @@
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.VideoGames;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class CreateSeason
+public partial class CreateSeason : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
@@ -22,7 +23,7 @@ public partial class CreateSeason
     {
         model.VaultId = VaultId;
         model.Year = DateTime.UtcNow.Year;
-        videoGames = await VideoGameService.GetAllAsync();
+        videoGames = await VideoGameService.GetAllAsync(ComponentToken);
     }
 
     private async Task HandleCreate()

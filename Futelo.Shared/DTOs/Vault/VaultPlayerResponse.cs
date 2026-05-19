@@ -8,4 +8,5 @@ public class VaultPlayerResponse
     public string DisplayName { get; set; } = string.Empty;
     public DateTime JoinedAt { get; set; }
     public VaultRole Role { get; set; }
+    public int EloRating { get; set; }
 }

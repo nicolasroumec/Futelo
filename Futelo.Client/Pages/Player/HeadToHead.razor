@@ -1,20 +1,40 @@
-@page "/vaults/{vaultId:int}/h2h/{player1Id}/{player2Id}"
+﻿@page "/vaults/{vaultId:int}/h2h/{player1Id}/{player2Id}"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
 <PageTitle>Head to Head - Futelo</PageTitle>
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="skeleton-block" style="width:3.5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:240px;height:1.75rem"></div>
+    </div>
+    <div class="d-flex gap-4 mb-4">
+        <div class="text-center">
+            <div class="skeleton-block mb-1" style="width:3rem;height:2.5rem;margin:0 auto"></div>
+            <div class="skeleton-block" style="width:80px;height:.7rem"></div>
+        </div>
+        <div class="text-center">
+            <div class="skeleton-block mb-1" style="width:3rem;height:2.5rem;margin:0 auto"></div>
+            <div class="skeleton-block" style="width:60px;height:.7rem"></div>
+        </div>
+        <div class="text-center">
+            <div class="skeleton-block mb-1" style="width:3rem;height:2.5rem;margin:0 auto"></div>
+            <div class="skeleton-block" style="width:80px;height:.7rem"></div>
+        </div>
+    </div>
+    <div class="skeleton-block mb-2" style="width:110px;height:1rem"></div>
+    <SkeletonTable Rows="5" Columns="5" />
 }
 else if (h2h == null)
 {
-    <p class="text-danger">Data not found.</p>
+    <p class="text-danger">@Lang.Get("headToHead.notFound")</p>
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@VaultId/players/@Player1Id" class="btn btn-outline-secondary btn-sm">Back</a>
+        <a href="/vaults/@VaultId/players/@Player1Id" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@h2h.Player1DisplayName vs @h2h.Player2DisplayName</h3>
     </div>
 
@@ -26,34 +46,34 @@ else
     <div class="d-flex gap-4 mb-4">
         <div class="text-center">
             <div class="fs-2 fw-bold">@h2h.Player1Wins</div>
-            <div class="text-muted small">@h2h.Player1DisplayName wins</div>
+            <div class="text-muted small">@h2h.Player1DisplayName @Lang.Get("headToHead.wins")</div>
         </div>
         <div class="text-center">
             <div class="fs-2 fw-bold">@h2h.Draws</div>
-            <div class="text-muted small">Draws</div>
+            <div class="text-muted small">@Lang.Get("headToHead.draws")</div>
         </div>
         <div class="text-center">
             <div class="fs-2 fw-bold">@h2h.Player2Wins</div>
-            <div class="text-muted small">@h2h.Player2DisplayName wins</div>
+            <div class="text-muted small">@h2h.Player2DisplayName @Lang.Get("headToHead.wins")</div>
         </div>
     </div>
 
     @if (h2h.Matches.Count == 0)
     {
-        <p class="text-muted">No matches played yet.</p>
+        <EmptyState Message="@Lang.Get("stats.noMatches")" />
     }
     else
     {
-        <h5>Match History</h5>
+        <h5>@Lang.Get("headToHead.matchHistory")</h5>
         <div class="table-responsive" style="max-width:620px">
             <table class="table table-sm table-bordered align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Home</th>
-                        <th>Score</th>
-                        <th>Away</th>
-                        <th>Game</th>
-                        <th>Date</th>
+                        <th>@Lang.Get("headToHead.home")</th>
+                        <th>@Lang.Get("headToHead.score")</th>
+                        <th>@Lang.Get("headToHead.away")</th>
+                        <th>@Lang.Get("stats.game")</th>
+                        <th>@Lang.Get("headToHead.date")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,4 +92,3 @@ else
         </div>
     }
 }
-

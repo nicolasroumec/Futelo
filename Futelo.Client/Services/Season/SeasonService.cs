@@ -1,82 +1,33 @@
-using System.Net.Http.Json;
 using Futelo.Shared.DTOs.Season;
 
 namespace Futelo.Client.Services.Season;
 
-public class SeasonService(HttpClient http) : ISeasonService
+public class SeasonService(HttpClient http) : ApiService(http), ISeasonService
 {
-    public async Task<List<SeasonResponse>> GetByVaultAsync(int vaultId)
-        => await http.GetFromJsonAsync<List<SeasonResponse>>($"api/seasons?vaultId={vaultId}") ?? [];
+    public Task<List<SeasonResponse>> GetByVaultAsync(int vaultId, CancellationToken ct = default)
+        => GetListAsync<SeasonResponse>($"api/seasons?vaultId={vaultId}", ct);
 
-    public async Task<SeasonResponse> GetByIdAsync(int id)
-        => await http.GetFromJsonAsync<SeasonResponse>($"api/seasons/{id}")
-            ?? throw new KeyNotFoundException($"Season {id} not found.");
+    public Task<SeasonResponse> GetByIdAsync(int id, CancellationToken ct = default)
+        => GetAsync<SeasonResponse>($"api/seasons/{id}", ct);
 
-    public async Task<SeasonResponse> CreateAsync(CreateSeasonRequest request)
-    {
-        var response = await http.PostAsJsonAsync("api/seasons", request);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<SeasonResponse>()
-            ?? throw new InvalidOperationException("Invalid server response.");
-    }
+    public Task<SeasonResponse> CreateAsync(CreateSeasonRequest request)
+        => PostAsync<SeasonResponse>("api/seasons", request);
 
-    public async Task ActivateAsync(int id)
-    {
-        var response = await http.PutAsync($"api/seasons/{id}/activate", null);
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to activate season." : error);
-        }
-    }
+    public Task ActivateAsync(int id)
+        => PutAsync($"api/seasons/{id}/activate");
 
-    public async Task FinishAsync(int id)
-    {
-        var response = await http.PutAsync($"api/seasons/{id}/finish", null);
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to finish season." : error);
-        }
-    }
+    public Task FinishAsync(int id)
+        => PutAsync($"api/seasons/{id}/finish");
 
-    public async Task DeleteAsync(int id)
-    {
-        var response = await http.DeleteAsync($"api/seasons/{id}");
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to delete season." : error);
-        }
-    }
+    public Task DeleteAsync(int id)
+        => DeleteAsync($"api/seasons/{id}");
 
-    public async Task SetPlayerTeamAsync(int id, string playerId, int? teamId)
-    {
-        var response = await http.PatchAsJsonAsync($"api/seasons/{id}/players/{playerId}/team", new { TeamId = teamId });
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to assign team." : error);
-        }
-    }
+    public Task SetPlayerTeamAsync(int id, string playerId, int? teamId)
+        => PatchAsync($"api/seasons/{id}/players/{playerId}/team", new { TeamId = teamId });
 
-    public async Task PatchVideoGameAsync(int id, int? videoGameId)
-    {
-        var response = await http.PatchAsJsonAsync($"api/seasons/{id}/video-game", new { VideoGameId = videoGameId });
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to update video game." : error);
-        }
-    }
+    public Task PatchVideoGameAsync(int id, int? videoGameId)
+        => PatchAsync($"api/seasons/{id}/video-game", new { VideoGameId = videoGameId });
 
-    public async Task ConfigureAsync(int id, ConfigureSeasonRequest request)
-    {
-        var response = await http.PutAsJsonAsync($"api/seasons/{id}/configure", request);
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException(string.IsNullOrEmpty(error) ? "Failed to configure season." : error);
-        }
-    }
+    public Task ConfigureAsync(int id, ConfigureSeasonRequest request)
+        => PutAsync($"api/seasons/{id}/configure", request);
 }

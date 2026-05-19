@@ -19,6 +19,9 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
             .Include(sc => sc.Player2)
             .Include(sc => sc.Matches).ThenInclude(m => m.HomePlayer)
             .Include(sc => sc.Matches).ThenInclude(m => m.AwayPlayer)
+            .Include(sc => sc.Matches).ThenInclude(m => m.HomeTeam)
+            .Include(sc => sc.Matches).ThenInclude(m => m.AwayTeam)
+            .Include(sc => sc.Matches).ThenInclude(m => m.VideoGame)
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(sc => sc.Id == id);
 
@@ -82,6 +85,16 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
             }
         }
 
+        await SaveChangesAsync();
+    }
+
+    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId)
+    {
+        var match = await Context.Set<Match>().FindAsync(matchId);
+        if (match == null) return;
+        match.HomeTeamId = homeTeamId;
+        match.AwayTeamId = awayTeamId;
+        match.VideoGameId = videoGameId;
         await SaveChangesAsync();
     }
 }

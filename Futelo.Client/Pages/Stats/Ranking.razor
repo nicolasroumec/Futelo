@@ -1,17 +1,18 @@
-@page "/vaults/{vaultId:int}/seasons/{seasonId:int}/ranking"
+﻿@page "/vaults/{vaultId:int}/seasons/{seasonId:int}/ranking"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
 <PageTitle>Ranking - Futelo</PageTitle>
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <SkeletonTable Columns="4" Rows="5" />
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/seasons/@SeasonId" class="btn btn-outline-secondary btn-sm">Back</a>
-        <h3 class="mb-0">Ranking</h3>
+        <a href="/seasons/@SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+        <h3 class="mb-0">@Lang.Get("stats.ranking")</h3>
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -20,7 +21,7 @@ else
     }
     else if (rows.Count == 0)
     {
-        <p class="text-muted">No players in this season.</p>
+        <EmptyState Message="@Lang.Get("stats.noPlayersInSeason")" />
     }
     else
     {
@@ -29,20 +30,23 @@ else
                 <thead class="table-dark">
                     <tr>
                         <th>#</th>
-                        <th>Player</th>
-                        <th>Season ELO</th>
-                        <th>Historical ELO</th>
+                        <th>@Lang.Get("stats.player")</th>
+                        <th>@Lang.Get("stats.seasonElo")</th>
+                        <th>@Lang.Get("stats.historicalElo")</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var row in rows)
                     {
-                        <tr>
+                        <tr class="@(row.Position == 1 ? "rank-gold" : "")">
                             <td>@row.Position</td>
                             <td>
-                                <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
-                                    @row.DisplayName
-                                </a>
+                                <div class="d-flex align-items-center gap-2">
+                                    <PlayerAvatar Name="@row.DisplayName" Size="24" />
+                                    <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
+                                        @row.DisplayName
+                                    </a>
+                                </div>
                             </td>
                             <td>@row.SeasonElo</td>
                             <td>@row.HistoricalElo</td>

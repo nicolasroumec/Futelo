@@ -1,10 +1,11 @@
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Player;
 
-public partial class HeadToHead
+public partial class HeadToHead : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Parameter] public string Player1Id { get; set; } = string.Empty;
@@ -19,8 +20,9 @@ public partial class HeadToHead
     {
         try
         {
-            h2h = await StatsService.GetHeadToHeadAsync(Player1Id, Player2Id, VaultId);
+            h2h = await StatsService.GetHeadToHeadAsync(Player1Id, Player2Id, VaultId, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

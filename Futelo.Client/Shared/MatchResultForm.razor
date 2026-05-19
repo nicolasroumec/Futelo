@@ -1,0 +1,43 @@
+@using Futelo.Client.Shared
+
+<div class="match-result-form mt-2 border-top pt-2">
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+               placeholder="Home" @bind="homeScore" />
+        <span>–</span>
+        <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+               placeholder="Away" @bind="awayScore" />
+    </div>
+
+    @if (HasPenalties && ShowPenaltyFields)
+    {
+        <div class="mb-2">
+            <label class="form-label small mb-1">@Lang.Get("cup.winnersOnPenalties")</label>
+            <select class="form-select form-select-sm" style="max-width:200px" @bind="wonOnPenaltiesId">
+                <option value="">@Lang.Get("common.select")</option>
+                <option value="@HomePlayerId">@HomePlayerName</option>
+                <option value="@AwayPlayerId">@AwayPlayerName</option>
+            </select>
+        </div>
+
+        @if (!string.IsNullOrEmpty(wonOnPenaltiesId))
+        {
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                       placeholder="Pen H" @bind="homePenaltyScore" />
+                <span>–</span>
+                <input type="number" min="0" class="form-control form-control-sm" style="width:70px"
+                       placeholder="Pen A" @bind="awayPenaltyScore" />
+            </div>
+        }
+    }
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-success" disabled="@IsSaving" @onclick="HandleSave">
+            @(IsSaving ? "..." : Lang.Get("common.save"))
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="HandleCancel">
+            @Lang.Get("common.cancel")
+        </button>
+    </div>
+</div>

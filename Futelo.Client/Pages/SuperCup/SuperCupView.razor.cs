@@ -1,33 +1,50 @@
+using Futelo.Client.Services.Stats;
 using Futelo.Client.Services.SuperCup;
+using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Toast;
+using Futelo.Client.Services.VideoGames;
+using Futelo.Client.Shared;
+using Futelo.Shared;
+using Futelo.Shared.DTOs.League;
+using Futelo.Shared.DTOs.Stats;
 using Futelo.Shared.DTOs.SuperCup;
+using Futelo.Shared.DTOs.Team;
+using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.SuperCup;
 
-public partial class SuperCupView
+public partial class SuperCupView : LocalizedComponentBase
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ISuperCupService SuperCupService { get; set; } = null!;
+    [Inject] private IStatsService StatsService { get; set; } = null!;
+    [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
 
     private SuperCupResponse? superCup;
+    private HeadToHeadResponse? h2h;
     private bool isLoading = true;
-    private bool isWorking;
+    private bool isRecording;
     private string? errorMessage;
 
     private int? recordingMatchId;
-    private int homeScore;
-    private int awayScore;
-    private string wonOnPenaltiesId = string.Empty;
-    private int? homePenaltyScore;
-    private int? awayPenaltyScore;
     private string recordingHomeId = string.Empty;
-    private string recordingHomeName = string.Empty;
     private string recordingAwayId = string.Empty;
-    private string recordingAwayName = string.Empty;
     private bool recordingIsLeg2;
+    private int? otherLegHomeScore;
+    private int? otherLegAwayScore;
     private RecordSuperCupResultResponse? lastResult;
 
-    protected override async Task OnInitializedAsync() => await LoadAsync();
+    private int? editingMatchId;
+    private List<TeamResponse> teams = [];
+    private List<VideoGameResponse> videoGames = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
 
     private async Task LoadAsync()
     {
@@ -35,8 +52,13 @@ public partial class SuperCupView
         errorMessage = null;
         try
         {
-            superCup = await SuperCupService.GetByIdAsync(Id);
+            superCup = await SuperCupService.GetByIdAsync(Id, ComponentToken);
+            if (superCup.Player1Id != null && superCup.Player2Id != null)
+            {
+                h2h = await StatsService.GetHeadToHeadAsync(superCup.Player1Id, superCup.Player2Id, superCup.VaultId, ComponentToken);
+            }
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
@@ -56,45 +78,23 @@ public partial class SuperCupView
         }
 
         recordingMatchId = matchId;
-        homeScore = 0;
-        awayScore = 0;
-        wonOnPenaltiesId = string.Empty;
-        homePenaltyScore = null;
-        awayPenaltyScore = null;
         lastResult = null;
         recordingHomeId = homeId;
-        recordingHomeName = homeName;
         recordingAwayId = awayId;
-        recordingAwayName = awayName;
         recordingIsLeg2 = superCup!.IsHomeAndAway && leg == 2;
-        errorMessage = null;
-    }
-
-    private bool ShowPenaltyFields
-    {
-        get
+        otherLegHomeScore = null;
+        otherLegAwayScore = null;
+        if (recordingIsLeg2 && superCup.Matches.Count >= 2)
         {
-            if (!superCup!.IsHomeAndAway)
-                return homeScore == awayScore;
-
-            if (!recordingIsLeg2) return false;
-
-            var ordered = superCup.Matches.OrderBy(m => m.Id).ToList();
-            if (ordered.Count < 2) return false;
-            var leg1 = ordered[0];
-            if (leg1.HomeScore == null) return false;
-
-            // Player1 = leg1.Home, Player2 = leg1.Away
-            int p1Goals = (leg1.HomeScore ?? 0) + awayScore;
-            int p2Goals = (leg1.AwayScore ?? 0) + homeScore;
-            return p1Goals == p2Goals;
+            var leg1 = superCup.Matches.OrderBy(m => m.Id).First();
+            otherLegHomeScore = leg1.HomeScore;
+            otherLegAwayScore = leg1.AwayScore;
         }
     }
 
     private async Task HandleStart()
     {
-        isWorking = true;
-        errorMessage = null;
+        isLoading = true;
         try
         {
             await SuperCupService.StartAsync(Id);
@@ -102,29 +102,27 @@ public partial class SuperCupView
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
-            isWorking = false;
+            isLoading = false;
         }
     }
 
-    private async Task HandleRecordResult()
+    private async Task HandleRecordResult(MatchResultInput input)
     {
         if (recordingMatchId == null) return;
-        isWorking = true;
-        errorMessage = null;
+        isRecording = true;
         try
         {
-            bool hasPenalties = ShowPenaltyFields && !string.IsNullOrEmpty(wonOnPenaltiesId);
             var request = new RecordSuperCupResultRequest
             {
-                HomeScore = homeScore,
-                AwayScore = awayScore,
-                WonOnPenaltiesId = hasPenalties ? wonOnPenaltiesId : null,
-                HomePenaltyScore = hasPenalties ? homePenaltyScore : null,
-                AwayPenaltyScore = hasPenalties ? awayPenaltyScore : null
+                HomeScore = input.HomeScore,
+                AwayScore = input.AwayScore,
+                WonOnPenaltiesId = input.WonOnPenaltiesId,
+                HomePenaltyScore = input.HomePenaltyScore,
+                AwayPenaltyScore = input.AwayPenaltyScore
             };
             lastResult = await SuperCupService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;
@@ -132,11 +130,51 @@ public partial class SuperCupView
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
-            isWorking = false;
+            isRecording = false;
+        }
+    }
+
+    private async Task ToggleEditMatch(int matchId)
+    {
+        if (editingMatchId == matchId)
+        {
+            editingMatchId = null;
+            return;
+        }
+
+        if (teams.Count == 0 || videoGames.Count == 0)
+        {
+            try
+            {
+                var t = TeamService.GetAllAsync();
+                var vg = VideoGameService.GetAllAsync();
+                await Task.WhenAll(t, vg);
+                teams = t.Result;
+                videoGames = vg.Result;
+            }
+            catch { }
+        }
+
+        editingMatchId = matchId;
+        recordingMatchId = null;
+    }
+
+    private async Task HandlePatchMatch(PatchMatchRequest request)
+    {
+        if (editingMatchId == null) return;
+        try
+        {
+            await SuperCupService.PatchMatchAsync(Id, editingMatchId.Value, request);
+            editingMatchId = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
         }
     }
 

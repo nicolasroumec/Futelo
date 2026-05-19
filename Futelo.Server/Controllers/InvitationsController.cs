@@ -15,22 +15,7 @@ public class InvitationsController(IInvitationService invitationService) : Contr
     [HttpPost("{token}/accept")]
     public async Task<IActionResult> Accept(string token)
     {
-        try
-        {
-            await invitationService.AcceptAsync(token, UserId);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await invitationService.AcceptAsync(token, UserId);
+        return NoContent();
     }
 }

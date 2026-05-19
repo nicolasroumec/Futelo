@@ -1,10 +1,11 @@
 using Futelo.Client.Services.Vault;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Vault;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class Dashboard
+public partial class Dashboard : LocalizedComponentBase
 {
     [Inject] private IVaultService VaultService { get; set; } = null!;
 
@@ -16,8 +17,9 @@ public partial class Dashboard
     {
         try
         {
-            vaults = await VaultService.GetAllAsync();
+            vaults = await VaultService.GetAllAsync(ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

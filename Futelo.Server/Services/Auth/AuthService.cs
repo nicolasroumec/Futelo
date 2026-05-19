@@ -8,15 +8,17 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Futelo.Server.Services.Auth;
 
-public class AuthService(UserManager<AppUser> userManager, IConfiguration config) : IAuthService
+using static ErrorMessages;
+
+public class AuthService(UserManager<AppUser> userManager, IConfiguration config, ILogger<AuthService> logger) : IAuthService
 {
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
         if (await userManager.FindByEmailAsync(request.Email) != null)
-            throw new InvalidOperationException("Email already in use.");
+            throw new InvalidOperationException(EmailAlreadyInUse);
 
         if (await userManager.FindByNameAsync(request.Username) != null)
-            throw new InvalidOperationException("Username already in use.");
+            throw new InvalidOperationException(UsernameAlreadyInUse);
 
         var user = new AppUser
         {
@@ -40,7 +42,7 @@ public class AuthService(UserManager<AppUser> userManager, IConfiguration config
             : await userManager.FindByNameAsync(request.UsernameOrEmail);
 
         if (user == null || !await userManager.CheckPasswordAsync(user, request.Password))
-            throw new UnauthorizedAccessException("Invalid credentials.");
+            throw new UnauthorizedAccessException(InvalidCredentials);
 
         return BuildAuthResponse(user);
     }

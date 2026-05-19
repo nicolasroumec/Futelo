@@ -1,4 +1,5 @@
-@page "/vaults/{vaultId:int}/seasons/create"
+﻿@page "/vaults/{vaultId:int}/seasons/create"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
 <PageTitle>New Season - Futelo</PageTitle>
@@ -6,29 +7,29 @@
 <div class="row justify-content-center mt-4">
     <div class="col-md-5">
         <div class="d-flex align-items-center gap-3 mb-4">
-            <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
-            <h3 class="mb-0">New Season</h3>
+            <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+            <h3 class="mb-0">@Lang.Get("createSeason.title")</h3>
         </div>
 
         <EditForm Model="model" OnValidSubmit="HandleCreate">
             <DataAnnotationsValidator />
 
             <div class="mb-3">
-                <label class="form-label">Name</label>
+                <label class="form-label">@Lang.Get("common.name")</label>
                 <InputText class="form-control" @bind-Value="model.Name" placeholder="e.g. Season 2026" />
                 <ValidationMessage For="() => model.Name" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Year</label>
+                <label class="form-label">@Lang.Get("season.year")</label>
                 <InputNumber class="form-control" @bind-Value="model.Year" />
                 <ValidationMessage For="() => model.Year" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Video Game</label>
+                <label class="form-label">@Lang.Get("season.videoGame")</label>
                 <InputSelect class="form-select" @bind-Value="model.VideoGameId">
-                    <option value="">— None —</option>
+                    <option value="">@Lang.Get("common.none")</option>
                     @foreach (var g in videoGames)
                     {
                         <option value="@g.Id">@g.Name</option>
@@ -43,9 +44,9 @@
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary" disabled="@isLoading">
-                    @(isLoading ? "Creating..." : "Create")
+                    @(isLoading ? Lang.Get("common.creating") : Lang.Get("common.create"))
                 </button>
-                <a href="/vaults/@VaultId" class="btn btn-outline-secondary">Cancel</a>
+                <a href="/vaults/@VaultId" class="btn btn-outline-secondary">@Lang.Get("common.cancel")</a>
             </div>
         </EditForm>
     </div>

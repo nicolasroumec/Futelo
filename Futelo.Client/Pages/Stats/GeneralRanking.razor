@@ -1,17 +1,18 @@
-@page "/vaults/{vaultId:int}/ranking"
+﻿@page "/vaults/{vaultId:int}/ranking"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
 <PageTitle>General Ranking - Futelo</PageTitle>
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <SkeletonTable Columns="3" Rows="5" />
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
-        <h3 class="mb-0">General Ranking</h3>
+        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+        <h3 class="mb-0">@Lang.Get("stats.generalRanking")</h3>
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -20,34 +21,118 @@ else
     }
     else if (rows.Count == 0)
     {
-        <p class="text-muted">No players in this vault.</p>
+        <EmptyState Message="@Lang.Get("stats.noPlayers")" />
     }
     else
     {
-        <div class="table-responsive" style="max-width:400px">
-            <table class="table table-sm table-bordered align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Player</th>
-                        <th>ELO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var row in rows)
-                    {
-                        <tr>
-                            <td>@row.Position</td>
-                            <td>
-                                <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
-                                    @row.DisplayName
-                                </a>
-                            </td>
-                            <td>@row.HistoricalElo</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        @if (rows.Count >= 3)
+        {
+            var first  = rows[0];
+            var second = rows[1];
+            var third  = rows[2];
+
+            <div class="podium">
+                <div class="podium-slot podium-second">
+                    <a href="/vaults/@VaultId/players/@second.PlayerId" class="podium-card text-decoration-none">
+                        <PlayerAvatar Name="@second.DisplayName" Size="36" />
+                        <div class="podium-name">@second.DisplayName</div>
+                        <div class="podium-elo">@second.HistoricalElo</div>
+                    </a>
+                    <div class="podium-base podium-base--second">2</div>
+                </div>
+
+                <div class="podium-slot podium-first">
+                    <div class="podium-medal">🥇</div>
+                    <a href="/vaults/@VaultId/players/@first.PlayerId" class="podium-card text-decoration-none">
+                        <PlayerAvatar Name="@first.DisplayName" Size="48" />
+                        <div class="podium-name">@first.DisplayName</div>
+                        <div class="podium-elo">@first.HistoricalElo</div>
+                    </a>
+                    <div class="podium-base podium-base--first">1</div>
+                </div>
+
+                <div class="podium-slot podium-third">
+                    <a href="/vaults/@VaultId/players/@third.PlayerId" class="podium-card text-decoration-none">
+                        <PlayerAvatar Name="@third.DisplayName" Size="36" />
+                        <div class="podium-name">@third.DisplayName</div>
+                        <div class="podium-elo">@third.HistoricalElo</div>
+                    </a>
+                    <div class="podium-base podium-base--third">3</div>
+                </div>
+            </div>
+
+        }
+
+        <div class="row g-4">
+            <div class="col-lg-5">
+                @if (rows.Count >= 3)
+                {
+                    <h6 class="text-muted mb-2">@Lang.Get("stats.fullStandings")</h6>
+                }
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>@Lang.Get("stats.player")</th>
+                                <th>@Lang.Get("stats.elo")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in rows)
+                            {
+                                <tr class="@(row.Position == 1 ? "rank-gold" : "")">
+                                    <td>@row.Position</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <PlayerAvatar Name="@row.DisplayName" Size="24" />
+                                            <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
+                                                @row.DisplayName
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>@row.HistoricalElo</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            @if (scorers.Count > 0)
+            {
+                <div class="col-lg-5">
+                    <h6 class="text-muted mb-2">@Lang.Get("stats.topScorers")</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>@Lang.Get("stats.player")</th>
+                                    <th>@Lang.Get("stats.goals")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var scorer in scorers)
+                                {
+                                    <tr class="@(scorer.Position == 1 ? "rank-gold" : "")">
+                                        <td>@scorer.Position</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <PlayerAvatar Name="@scorer.DisplayName" Size="24" />
+                                                <a href="/vaults/@VaultId/players/@scorer.PlayerId" class="text-decoration-none">
+                                                    @scorer.DisplayName
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td><strong>@scorer.Goals</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
         </div>
     }
 }

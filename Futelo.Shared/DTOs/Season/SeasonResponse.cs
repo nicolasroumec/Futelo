@@ -1,4 +1,15 @@
+using Futelo.Shared.DTOs.League;
+
 namespace Futelo.Shared.DTOs.Season;
+
+public class SeasonRecentMatchRow
+{
+    public string HomePlayerName { get; set; } = string.Empty;
+    public string AwayPlayerName { get; set; } = string.Empty;
+    public int HomeScore { get; set; }
+    public int AwayScore { get; set; }
+    public string Competition { get; set; } = string.Empty;
+}
 
 public class SeasonResponse
 {
@@ -23,4 +34,6 @@ public class SeasonResponse
     public int? VideoGameId { get; set; }
     public string? VideoGameName { get; set; }
     public List<SeasonPlayerResponse> Players { get; set; } = [];
+    public List<SeasonRecentMatchRow> RecentMatches { get; set; } = [];
+    public List<StandingRow> TopStandings { get; set; } = [];
 }

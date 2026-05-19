@@ -1,32 +1,54 @@
 @page "/seasons/{id:int}"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
 <PageTitle>@(season?.Name ?? "Season") - Futelo</PageTitle>
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="skeleton-block" style="width:3.5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:160px;height:1.75rem"></div>
+        <div class="skeleton-block" style="width:4.5rem;height:1.5rem;border-radius:1rem"></div>
+    </div>
+    <div class="skeleton-block mb-2" style="width:120px;height:.75rem"></div>
+    <div class="skeleton-block mb-4" style="width:150px;height:.75rem"></div>
+    <div class="d-flex gap-2 mb-4">
+        <div class="skeleton-block" style="width:5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:5rem;height:2rem"></div>
+    </div>
+    <div class="d-flex gap-2 mb-4">
+        <div class="skeleton-block" style="width:5.5rem;height:1.5rem;border-radius:1rem"></div>
+        <div class="skeleton-block" style="width:4.5rem;height:1.5rem;border-radius:1rem"></div>
+    </div>
+    <div class="skeleton-block mb-2" style="width:70px;height:1rem"></div>
+    <ul class="list-group" style="max-width:520px">
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:60%"></div></li>
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:75%"></div></li>
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:50%"></div></li>
+        <li class="list-group-item"><div class="skeleton-block" style="height:.8rem;width:65%"></div></li>
+    </ul>
 }
 else if (season == null)
 {
-    <p class="text-danger">Season not found.</p>
+    <p class="text-danger">@Lang.Get("season.notFound")</p>
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@season.VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
+        <a href="/vaults/@season.VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@season.Name</h3>
-        <span class="badge bg-secondary">@season.Status</span>
+        <span class="badge @BadgeHelper.StatusBadgeClass(season.Status)">@Lang.Get("season.status." + season.Status.ToLower())</span>
     </div>
 
-    <p class="text-muted">Year: @season.Year</p>
-    <p class="text-muted">Video Game: @(season.VideoGameName ?? "—")</p>
+    <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
+    <p class="text-muted">@Lang.Get("season.videoGame"): @(season.VideoGameName ?? "—")</p>
 
     @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
     {
         <div class="d-flex align-items-center gap-2 mb-3" style="max-width:420px">
             <select class="form-select form-select-sm" @bind="selectedVideoGameId">
-                <option value="">— None —</option>
+                <option value="">@Lang.Get("common.none")</option>
                 @foreach (var g in videoGames)
                 {
                     <option value="@g.Id">@g.Name</option>
@@ -34,22 +56,18 @@ else
             </select>
             <button class="btn btn-outline-primary btn-sm" disabled="@isPatchingVideoGame"
                     @onclick="HandlePatchVideoGame">
-                @(isPatchingVideoGame ? "Saving..." : "Save")
+                @(isPatchingVideoGame ? Lang.Get("common.saving") : Lang.Get("common.save"))
             </button>
         </div>
-        @if (!string.IsNullOrEmpty(videoGameMessage))
-        {
-            <div class="alert @videoGameAlertClass mb-3" style="max-width:420px">@videoGameMessage</div>
-        }
     }
 
     <div class="d-flex gap-2 mb-3">
-        <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">Ranking</a>
+        <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
         @if (isOwner && season.Status == "Active")
         {
             <button class="btn btn-outline-danger btn-sm" disabled="@(!CanFinish || isFinishing)"
                     @onclick="HandleFinish">
-                @(isFinishing ? "Finishing..." : "Finish Season")
+                @(isFinishing ? Lang.Get("season.finishing") : Lang.Get("season.finishSeason"))
             </button>
         }
         @if (isOwner)
@@ -58,35 +76,30 @@ else
             {
                 <button class="btn btn-outline-danger btn-sm ms-auto"
                         @onclick="() => confirmDelete = true">
-                    Delete Season
+                    @Lang.Get("season.deleteSeason")
                 </button>
             }
             else
             {
                 <span class="ms-auto d-flex align-items-center gap-2">
-                    <small class="text-danger">Are you sure? This cannot be undone.</small>
+                    <small class="text-danger">@Lang.Get("season.deleteConfirm")</small>
                     <button class="btn btn-danger btn-sm" disabled="@isDeleting"
                             @onclick="HandleDelete">
-                        @(isDeleting ? "Deleting..." : "Confirm Delete")
+                        @(isDeleting ? Lang.Get("common.deleting") : Lang.Get("common.confirmDelete"))
                     </button>
                     <button class="btn btn-outline-secondary btn-sm"
                             @onclick="() => confirmDelete = false">
-                        Cancel
+                        @Lang.Get("common.cancel")
                     </button>
                 </span>
             }
         }
     </div>
 
-    @if (!string.IsNullOrEmpty(finishMessage))
-    {
-        <div class="alert @finishAlertClass mb-3" style="max-width:420px">@finishMessage</div>
-    }
-
     @if (isOwner && season.Status == "Active" && !CanFinish)
     {
         <div class="alert alert-warning mb-3" style="max-width:420px">
-            To finish the season, all competitions must be completed first.
+            @Lang.Get("season.finishWarning")
         </div>
     }
 
@@ -126,133 +139,120 @@ else
         }
     </div>
 
-    <h5>Players</h5>
-    @if (season.Players.Count == 0)
-    {
-        <p class="text-muted">No players assigned yet.</p>
-    }
-    else
-    {
-        <ul class="list-group mb-4" style="max-width:520px">
-            @foreach (var p in season.Players)
+    <div class="row g-4">
+        <div class="@(HasRightContent ? "col-lg-5" : "col-12")">
+            <h5>@Lang.Get("season.players")</h5>
+            @if (season.Players.Count == 0)
             {
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>@p.DisplayName</span>
-                        <span class="badge bg-light text-dark">ELO @p.SeasonElo</span>
-                    </div>
-                    @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
+                <EmptyState Message="@Lang.Get("season.noPlayers")" />
+            }
+            else
+            {
+                <ul class="list-group mb-4">
+                    @foreach (var p in season.Players)
                     {
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            <select class="form-select form-select-sm"
-                                    value="@(playerTeamSelections.TryGetValue(p.PlayerId, out var t) ? t?.ToString() ?? "" : "")"
-                                    @onchange="e => { playerTeamSelections[p.PlayerId] = string.IsNullOrEmpty(e.Value?.ToString()) ? null : int.Parse(e.Value.ToString()!); }">
-                                <option value="">— No team —</option>
-                                @foreach (var team in teams)
+                        <li class="list-group-item" @key="@p.PlayerId">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>@p.DisplayName</span>
+                                <span class="badge bg-light text-dark">ELO @p.SeasonElo</span>
+                            </div>
+                            @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
+                            {
+                                <SeasonTeamSelector InitialTeamId="@p.TeamId"
+                                                    Teams="@teams"
+                                                    OnSave="@(teamId => HandleSetPlayerTeam(p.PlayerId, teamId))" />
+                            }
+                            else if (!string.IsNullOrEmpty(p.TeamName))
+                            {
+                                <small class="text-muted">@p.TeamName</small>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        @if (HasRightContent)
+        {
+            <div class="col-lg-7">
+                @if (season.TopStandings.Count > 0)
+                {
+                    <h5>@Lang.Get("league.standings")</h5>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>@Lang.Get("stats.player")</th>
+                                    <th>@Lang.Get("stats.played")</th>
+                                    <th>@Lang.Get("stats.wins")</th>
+                                    <th>@Lang.Get("stats.draws")</th>
+                                    <th>@Lang.Get("stats.losses")</th>
+                                    <th>@Lang.Get("league.points")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int pos = 1; }
+                                @foreach (var row in season.TopStandings)
                                 {
-                                    <option value="@team.Id">@team.Name</option>
+                                    <tr class="@(pos == 1 ? "rank-gold" : "")">
+                                        <td>@pos</td>
+                                        <td>@row.DisplayName</td>
+                                        <td>@row.Played</td>
+                                        <td>@row.Won</td>
+                                        <td>@row.Drawn</td>
+                                        <td>@row.Lost</td>
+                                        <td><strong>@row.Points</strong></td>
+                                    </tr>
+                                    pos++;
                                 }
-                            </select>
-                            <button class="btn btn-outline-secondary btn-sm"
-                                    @onclick="() => HandleSetPlayerTeam(p.PlayerId)">
-                                Save
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                @if (season.RecentMatches.Count > 0)
+                {
+                    <h5>@Lang.Get("vault.recentMatches")</h5>
+                    <div class="d-flex flex-column gap-2 mb-4">
+                        @foreach (var m in season.RecentMatches)
+                        {
+                            <div class="recent-match-row">
+                                <span class="recent-match-competition text-muted small">@m.Competition</span>
+                                <MatchDisplay HomePlayerName="@m.HomePlayerName"
+                                              AwayPlayerName="@m.AwayPlayerName"
+                                              HomeScore="@m.HomeScore"
+                                              AwayScore="@m.AwayScore"
+                                              IsPlayed="true" />
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (isOwner && season.Status == "Draft")
+                {
+                    <h5>@Lang.Get("season.configureSeason")</h5>
+
+                    <SeasonPlayerManager VaultPlayers="@vaultPlayers" SelectedPlayerIds="@selectedPlayerIds" />
+
+                    <SeasonCompetitionConfig Model="@configureModel" />
+
+                    <button class="btn btn-primary" disabled="@isConfiguring" @onclick="HandleConfigure">
+                        @(isConfiguring ? Lang.Get("common.saving") : Lang.Get("season.saveConfig"))
+                    </button>
+
+                    @if (season.Players.Count >= 2 && (season.HasLeague || season.HasCup))
+                    {
+                        <div class="mt-3">
+                            <button class="btn btn-success" disabled="@isActivating" @onclick="HandleActivate">
+                                @(isActivating ? Lang.Get("season.activating") : Lang.Get("season.startSeason"))
                             </button>
                         </div>
                     }
-                    else if (!string.IsNullOrEmpty(p.TeamName))
-                    {
-                        <small class="text-muted">@p.TeamName</small>
-                    }
-                </li>
-            }
-        </ul>
-    }
-
-    @if (isOwner && season.Status == "Draft")
-    {
-        <h5 class="mt-4">Configure Season</h5>
-
-        <div class="mb-3" style="max-width:420px">
-            <label class="form-label fw-semibold">Players</label>
-            @foreach (var vp in vaultPlayers)
-            {
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="p_@vp.PlayerId"
-                           checked="@selectedPlayerIds.Contains(vp.PlayerId)"
-                           @onchange="e => TogglePlayer(vp.PlayerId, (bool)e.Value!)" />
-                    <label class="form-check-label" for="p_@vp.PlayerId">@vp.DisplayName</label>
-                </div>
-            }
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Competitions</label>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="chkLeague"
-                       @bind="configureModel.HasLeague" />
-                <label class="form-check-label" for="chkLeague">League</label>
+                }
             </div>
-            @if (configureModel.HasLeague)
-            {
-                <div class="ms-3 mb-2">
-                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="League name" @bind="configureModel.LeagueName" />
-                </div>
-                <div class="form-check ms-3">
-                    <input class="form-check-input" type="checkbox" id="chkLeagueH2H"
-                           @bind="configureModel.LeagueIsHomeAndAway" />
-                    <label class="form-check-label" for="chkLeagueH2H">Home &amp; Away</label>
-                </div>
-            }
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="chkCup"
-                       @bind="configureModel.HasCup" />
-                <label class="form-check-label" for="chkCup">Cup</label>
-            </div>
-            @if (configureModel.HasCup)
-            {
-                <div class="ms-3 mb-2">
-                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="Cup name" @bind="configureModel.CupName" />
-                </div>
-            }
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="chkSuperCup"
-                       @bind="configureModel.HasSuperCup"
-                       disabled="@(!configureModel.HasLeague || !configureModel.HasCup)" />
-                <label class="form-check-label" for="chkSuperCup">SuperCup</label>
-            </div>
-            @if (configureModel.HasSuperCup)
-            {
-                <div class="ms-3 mb-2">
-                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                           placeholder="SuperCup name" @bind="configureModel.SuperCupName" />
-                </div>
-            }
-        </div>
-
-        @if (!string.IsNullOrEmpty(configureMessage))
-        {
-            <div class="alert @configureAlertClass" style="max-width:420px">@configureMessage</div>
         }
-
-        <button class="btn btn-primary" disabled="@isConfiguring" @onclick="HandleConfigure">
-            @(isConfiguring ? "Saving..." : "Save Configuration")
-        </button>
-
-    @if (season.Players.Count >= 2 && (season.HasLeague || season.HasCup))
-    {
-        <div class="mt-3">
-            @if (!string.IsNullOrEmpty(activateMessage))
-            {
-                <div class="alert @activateAlertClass mb-2" style="max-width:420px">@activateMessage</div>
-            }
-            <button class="btn btn-success" disabled="@isActivating" @onclick="HandleActivate">
-                @(isActivating ? "Activating..." : "Start Season")
-            </button>
-        </div>
-    }
-    }
+    </div>
 }
 
 @if (!string.IsNullOrEmpty(errorMessage))

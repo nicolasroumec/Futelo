@@ -1,10 +1,11 @@
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Team;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class Teams
+public partial class Teams : LocalizedComponentBase
 {
     [Inject] private ITeamService TeamService { get; set; } = null!;
 
@@ -29,8 +30,9 @@ public partial class Teams
         errorMessage = null;
         try
         {
-            teams = await TeamService.GetAllAsync();
+            teams = await TeamService.GetAllAsync(ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;

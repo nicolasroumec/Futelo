@@ -1,0 +1,23 @@
+<div class="table-responsive">
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                @for (int i = 0; i < Columns; i++)
+                {
+                    <th><div class="skeleton-block" style="height:.7rem;width:60%"></div></th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Rows; i++)
+            {
+                <tr>
+                    @for (int j = 0; j < Columns; j++)
+                    {
+                        <td><div class="skeleton-block" style="height:.8rem"></div></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

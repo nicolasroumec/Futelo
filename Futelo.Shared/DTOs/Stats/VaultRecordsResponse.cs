@@ -4,6 +4,10 @@ public class VaultRecordsResponse
 {
     public RecordEntry? BestWinStreak { get; set; }
     public RecordEntry? BestUnbeatenStreak { get; set; }
+    public RecordEntry? PeakElo { get; set; }
+    public RecordEntry? BestEloGain { get; set; }
+    public RecordEntry? LongestTop1Reign { get; set; }
+    public RecordEntry? TotalMatchesAtTop1 { get; set; }
 }
 
 public class RecordEntry

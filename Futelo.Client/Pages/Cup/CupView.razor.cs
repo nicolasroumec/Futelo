@@ -1,35 +1,46 @@
 using Futelo.Client.Services.Cup;
+using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Toast;
+using Futelo.Client.Services.VideoGames;
+using Futelo.Client.Shared;
+using Futelo.Shared;
 using Futelo.Shared.DTOs.Cup;
+using Futelo.Shared.DTOs.League;
+using Futelo.Shared.DTOs.Team;
+using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages.Cup;
 
-public partial class CupView
+public partial class CupView : LocalizedComponentBase
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ICupService CupService { get; set; } = null!;
+    [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
 
     private CupResponse? cup;
     private bool isLoading = true;
-    private bool isWorking;
+    private bool isRecording;
     private string? errorMessage;
 
     private int? recordingMatchId;
-    private int homeScore;
-    private int awayScore;
-    private string wonOnPenaltiesId = string.Empty;
-    private int? homePenaltyScore;
-    private int? awayPenaltyScore;
     private string recordingHomeId = string.Empty;
-    private string recordingHomeName = string.Empty;
     private string recordingAwayId = string.Empty;
-    private string recordingAwayName = string.Empty;
-    private bool recordingIsLeg2HomeAndAway;
+    private bool recordingIsLeg2;
     private int? otherLegHomeScore;
     private int? otherLegAwayScore;
     private RecordCupResultResponse? lastResult;
 
-    protected override async Task OnInitializedAsync() => await LoadAsync();
+    private int? editingMatchId;
+    private List<TeamResponse> teams = [];
+    private List<VideoGameResponse> videoGames = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
 
     private async Task LoadAsync()
     {
@@ -37,8 +48,9 @@ public partial class CupView
         errorMessage = null;
         try
         {
-            cup = await CupService.GetByIdAsync(Id);
+            cup = await CupService.GetByIdAsync(Id, ComponentToken);
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
@@ -54,65 +66,33 @@ public partial class CupView
         if (recordingMatchId == matchId)
         {
             recordingMatchId = null;
+            return;
         }
-        else
+
+        recordingMatchId = matchId;
+        lastResult = null;
+        recordingHomeId = homeId;
+        recordingAwayId = awayId;
+
+        var match = cup!.Rounds.SelectMany(r => r.Matches).First(m => m.Id == matchId);
+        recordingIsLeg2 = cup.IsHomeAndAway && match.Leg == 2;
+        otherLegHomeScore = null;
+        otherLegAwayScore = null;
+
+        if (recordingIsLeg2)
         {
-            recordingMatchId = matchId;
-            homeScore = 0;
-            awayScore = 0;
-            wonOnPenaltiesId = string.Empty;
-            homePenaltyScore = null;
-            awayPenaltyScore = null;
-            lastResult = null;
-
-            var match = cup!.Rounds
-                .SelectMany(r => r.Matches)
-                .First(m => m.Id == matchId);
-            recordingHomeId = homeId;
-            recordingHomeName = match.HomePlayerName;
-            recordingAwayId = awayId;
-            recordingAwayName = match.AwayPlayerName;
-
-            // For H&A: track the other leg to know when aggregate could be tied
-            recordingIsLeg2HomeAndAway = cup.IsHomeAndAway && match.Leg == 2;
-            otherLegHomeScore = null;
-            otherLegAwayScore = null;
-            if (recordingIsLeg2HomeAndAway)
-            {
-                var round = cup.Rounds.First(r => r.Matches.Any(m => m.Id == matchId));
-                var ordered = round.Matches.OrderBy(m => m.Id).ToList();
-                int idx = ordered.FindIndex(m => m.Id == matchId);
-                var leg1 = ordered[idx - 1];
-                otherLegHomeScore = leg1.HomeScore;
-                otherLegAwayScore = leg1.AwayScore;
-            }
-        }
-        errorMessage = null;
-    }
-
-    // Show penalty fields when: single-leg and score is tied, OR H&A leg2 and aggregate could be tied
-    private bool ShowPenaltyFields
-    {
-        get
-        {
-            if (!cup!.IsHomeAndAway)
-                return homeScore == awayScore;
-
-            if (!recordingIsLeg2HomeAndAway) return false;
-
-            if (otherLegHomeScore == null) return false;
-            // leg1: Home=A, Away=B. leg2: Home=B, Away=A
-            // A goals = leg1Home + leg2Away(=awayScore), B goals = leg1Away + leg2Home(=homeScore)
-            int aGoals = otherLegHomeScore.Value + awayScore;
-            int bGoals = (otherLegAwayScore ?? 0) + homeScore;
-            return aGoals == bGoals;
+            var round = cup.Rounds.First(r => r.Matches.Any(m => m.Id == matchId));
+            var ordered = round.Matches.OrderBy(m => m.Id).ToList();
+            int idx = ordered.FindIndex(m => m.Id == matchId);
+            var leg1 = ordered[idx - 1];
+            otherLegHomeScore = leg1.HomeScore;
+            otherLegAwayScore = leg1.AwayScore;
         }
     }
 
     private async Task HandleStart()
     {
-        isWorking = true;
-        errorMessage = null;
+        isLoading = true;
         try
         {
             await CupService.StartAsync(Id);
@@ -120,29 +100,27 @@ public partial class CupView
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
-            isWorking = false;
+            isLoading = false;
         }
     }
 
-    private async Task HandleRecordResult()
+    private async Task HandleRecordResult(MatchResultInput input)
     {
         if (recordingMatchId == null) return;
-        isWorking = true;
-        errorMessage = null;
+        isRecording = true;
         try
         {
-            bool hasPenalties = ShowPenaltyFields && !string.IsNullOrEmpty(wonOnPenaltiesId);
             var request = new RecordCupResultRequest
             {
-                HomeScore = homeScore,
-                AwayScore = awayScore,
-                WonOnPenaltiesId = hasPenalties ? wonOnPenaltiesId : null,
-                HomePenaltyScore = hasPenalties ? homePenaltyScore : null,
-                AwayPenaltyScore = hasPenalties ? awayPenaltyScore : null
+                HomeScore = input.HomeScore,
+                AwayScore = input.AwayScore,
+                WonOnPenaltiesId = input.WonOnPenaltiesId,
+                HomePenaltyScore = input.HomePenaltyScore,
+                AwayPenaltyScore = input.AwayPenaltyScore
             };
             lastResult = await CupService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;
@@ -150,17 +128,65 @@ public partial class CupView
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            Toast.Show(ex.Message, ToastType.Error);
         }
         finally
         {
-            isWorking = false;
+            isRecording = false;
         }
     }
 
-    // Groups matches in a round into ties.
-    // For single-leg: each match is its own tie.
-    // For home-and-away: consecutive pairs (leg1, leg2) form a tie.
+    private async Task HandleMatchClick(int matchId)
+    {
+        if (!cup!.CanEdit || cup.Status == CompetitionStatus.NotStarted) return;
+        var match = cup.Rounds.SelectMany(r => r.Matches).First(m => m.Id == matchId);
+        if (match.Status == MatchStatus.Pending && cup.Status == CompetitionStatus.Active
+            && !string.IsNullOrEmpty(match.HomePlayerId) && !string.IsNullOrEmpty(match.AwayPlayerId))
+            SelectMatch(matchId, match.HomePlayerId, match.AwayPlayerId);
+        else
+            await ToggleEditMatch(matchId);
+    }
+
+    private async Task ToggleEditMatch(int matchId)
+    {
+        if (editingMatchId == matchId)
+        {
+            editingMatchId = null;
+            return;
+        }
+
+        if (teams.Count == 0 || videoGames.Count == 0)
+        {
+            try
+            {
+                var t = TeamService.GetAllAsync();
+                var vg = VideoGameService.GetAllAsync();
+                await Task.WhenAll(t, vg);
+                teams = t.Result;
+                videoGames = vg.Result;
+            }
+            catch { }
+        }
+
+        editingMatchId = matchId;
+        recordingMatchId = null;
+    }
+
+    private async Task HandlePatchMatch(PatchMatchRequest request)
+    {
+        if (editingMatchId == null) return;
+        try
+        {
+            await CupService.PatchMatchAsync(Id, editingMatchId.Value, request);
+            editingMatchId = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+    }
+
     private List<List<CupMatchResponse>> GetTies(CupRoundResponse round)
     {
         var ordered = round.Matches.OrderBy(m => m.Id).ToList();

@@ -16,6 +16,9 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
             .Include(l => l.Players).ThenInclude(lp => lp.Player)
             .Include(l => l.Matches).ThenInclude(m => m.HomePlayer)
             .Include(l => l.Matches).ThenInclude(m => m.AwayPlayer)
+            .Include(l => l.Matches).ThenInclude(m => m.HomeTeam)
+            .Include(l => l.Matches).ThenInclude(m => m.AwayTeam)
+            .Include(l => l.Matches).ThenInclude(m => m.VideoGame)
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(l => l.Id == id);
 
@@ -97,6 +100,16 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
             }
         }
 
+        await SaveChangesAsync();
+    }
+
+    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId)
+    {
+        var match = await Context.Set<Match>().FindAsync(matchId);
+        if (match == null) return;
+        match.HomeTeamId = homeTeamId;
+        match.AwayTeamId = awayTeamId;
+        match.VideoGameId = videoGameId;
         await SaveChangesAsync();
     }
 }

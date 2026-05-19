@@ -1,22 +1,26 @@
-@page "/login"
+﻿@page "/login"
+@inherits LocalizedComponentBase
 
 <PageTitle>Login - Futelo</PageTitle>
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <h3 class="mb-4">Login</h3>
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-brand">FUTELO</div>
+
+        <h4 class="auth-title">@Lang.Get("auth.login.title")</h4>
+        <p class="auth-subtitle">@Lang.Get("auth.login.subtitle")</p>
 
         <EditForm Model="model" OnValidSubmit="HandleLogin">
             <DataAnnotationsValidator />
 
             <div class="mb-3">
-                <label class="form-label">Username or Email</label>
+                <label class="form-label">@Lang.Get("auth.login.usernameOrEmail")</label>
                 <InputText class="form-control" @bind-Value="model.UsernameOrEmail" />
                 <ValidationMessage For="() => model.UsernameOrEmail" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Password</label>
+                <label class="form-label">@Lang.Get("auth.login.password")</label>
                 <InputText class="form-control" type="password" @bind-Value="model.Password" />
                 <ValidationMessage For="() => model.Password" />
             </div>
@@ -27,12 +31,12 @@
             }
 
             <button type="submit" class="btn btn-primary w-100" disabled="@isLoading">
-                @(isLoading ? "Logging in..." : "Login")
+                @(isLoading ? Lang.Get("auth.login.signingIn") : Lang.Get("auth.login.button"))
             </button>
         </EditForm>
 
-        <p class="mt-3 text-center">
-            Don't have an account? <a href="/register">Register</a>
+        <p class="auth-footer">
+            @Lang.Get("auth.login.noAccount") <a href="/register">@Lang.Get("auth.login.registerLink")</a>
         </p>
     </div>
 </div>

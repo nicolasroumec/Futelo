@@ -1,0 +1,14 @@
+.player-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #000;
+    font-weight: 700;
+    font-family: var(--font-display);
+    line-height: 1;
+    flex-shrink: 0;
+    letter-spacing: -0.01em;
+    vertical-align: middle;
+    user-select: none;
+}

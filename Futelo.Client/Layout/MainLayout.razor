@@ -1,25 +1,18 @@
-﻿@inherits LayoutComponentBase
+@inject NavigationManager Nav
+@inherits LayoutComponentBase
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
-        <div class="top-row px-4 d-flex justify-content-end align-items-center gap-3">
-            <AuthorizeView>
-                <Authorized>
-                    <span>@context.User.Identity?.Name</span>
-                    <a href="/logout">Logout</a>
-                </Authorized>
-                <NotAuthorized>
-                    <a href="/login">Login</a>
-                    <a href="/register">Register</a>
-                </NotAuthorized>
-            </AuthorizeView>
-        </div>
-
         <article class="content px-4">
-            @Body
+            <div @key="Nav.Uri" class="page-content">
+                @Body
+            </div>
         </article>
     </main>
 </div>
+
+<ToastContainer />

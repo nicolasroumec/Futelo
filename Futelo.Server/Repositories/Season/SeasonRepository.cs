@@ -26,9 +26,13 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
             .Include(s => s.VideoGame)
             .Include(s => s.Players).ThenInclude(sp => sp.Player)
             .Include(s => s.Players).ThenInclude(sp => sp.Team)
-            .Include(s => s.League)
-            .Include(s => s.Cup)
-            .Include(s => s.SuperCup)
+            .Include(s => s.League).ThenInclude(l => l!.Matches).ThenInclude(m => m.HomePlayer)
+            .Include(s => s.League).ThenInclude(l => l!.Matches).ThenInclude(m => m.AwayPlayer)
+            .Include(s => s.League).ThenInclude(l => l!.Players)
+            .Include(s => s.Cup).ThenInclude(c => c!.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.HomePlayer)
+            .Include(s => s.Cup).ThenInclude(c => c!.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.AwayPlayer)
+            .Include(s => s.SuperCup).ThenInclude(sc => sc!.Matches).ThenInclude(m => m.HomePlayer)
+            .Include(s => s.SuperCup).ThenInclude(sc => sc!.Matches).ThenInclude(m => m.AwayPlayer)
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(s => s.Id == id);
 

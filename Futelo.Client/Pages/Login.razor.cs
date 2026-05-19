@@ -1,10 +1,11 @@
 using Futelo.Client.Services.Auth;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class Login
+public partial class Login : LocalizedComponentBase
 {
     [Inject] private IAuthService AuthService { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
@@ -24,7 +25,7 @@ public partial class Login
         try
         {
             await AuthService.LoginAsync(model);
-            Nav.NavigateTo(ReturnUrl ?? "/");
+            Nav.NavigateTo(ReturnUrl ?? "/dashboard");
         }
         catch (Exception ex)
         {

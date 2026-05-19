@@ -1,10 +1,11 @@
 using Futelo.Client.Services.Vault;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Vault;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class CreateVault
+public partial class CreateVault : LocalizedComponentBase
 {
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;

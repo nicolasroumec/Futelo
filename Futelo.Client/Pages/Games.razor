@@ -1,22 +1,23 @@
-@page "/games"
+﻿@page "/games"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
-<PageTitle>Games - Futelo</PageTitle>
+<PageTitle>@Lang.Get("games.title") - Futelo</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Video Games</h3>
-    <button class="btn btn-primary" @onclick="ShowCreateForm">New Game</button>
+    <h3>@Lang.Get("games.title")</h3>
+    <button class="btn btn-primary" @onclick="ShowCreateForm">@Lang.Get("games.newGame")</button>
 </div>
 
 @if (showForm)
 {
     <div class="card mb-4" style="max-width:400px">
         <div class="card-body">
-            <h5 class="card-title">@(editingId.HasValue ? "Edit Game" : "New Game")</h5>
+            <h5 class="card-title">@(editingId.HasValue ? Lang.Get("games.editGame") : Lang.Get("games.newGame"))</h5>
             <EditForm Model="formModel" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator />
                 <div class="mb-3">
-                    <label class="form-label">Name</label>
+                    <label class="form-label">@Lang.Get("common.name")</label>
                     <InputText class="form-control" @bind-Value="formModel.Name" />
                     <ValidationMessage For="() => formModel.Name" />
                 </div>
@@ -26,9 +27,9 @@
                 }
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
-                        @(isSubmitting ? "Saving..." : "Save")
+                        @(isSubmitting ? Lang.Get("common.saving") : Lang.Get("common.save"))
                     </button>
-                    <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CancelForm">@Lang.Get("common.cancel")</button>
                 </div>
             </EditForm>
         </div>
@@ -37,7 +38,7 @@
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <SkeletonCards Count="6" Columns="3" />
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -45,20 +46,24 @@ else if (!string.IsNullOrEmpty(errorMessage))
 }
 else if (games.Count == 0)
 {
-    <p class="text-muted">No games yet.</p>
+    <EmptyState Message="@Lang.Get("games.empty")" />
 }
 else
 {
-    <ul class="list-group" style="max-width:400px">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var game in games)
         {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                @game.Name
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => EditGame(game)">Edit</button>
-                    <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteGame(game.Id)">Delete</button>
+            <div class="col">
+                <div class="card card-glass h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-0">@game.Name</h5>
+                    </div>
+                    <div class="card-footer d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="() => EditGame(game)">@Lang.Get("common.edit")</button>
+                        <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteGame(game.Id)">@Lang.Get("common.delete")</button>
+                    </div>
                 </div>
-            </li>
+            </div>
         }
-    </ul>
+    </div>
 }

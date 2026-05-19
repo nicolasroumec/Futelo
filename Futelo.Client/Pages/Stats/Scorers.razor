@@ -1,17 +1,18 @@
-@page "/vaults/{vaultId:int}/scorers"
+﻿@page "/vaults/{vaultId:int}/scorers"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
 <PageTitle>Scorers - Futelo</PageTitle>
 
 @if (isLoading)
 {
-    <p>Loading...</p>
+    <SkeletonTable Columns="3" Rows="5" />
 }
 else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">Back</a>
-        <h3 class="mb-0">Top Scorers</h3>
+        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+        <h3 class="mb-0">@Lang.Get("stats.topScorers")</h3>
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -20,7 +21,7 @@ else
     }
     else if (rows.Count == 0)
     {
-        <p class="text-muted">No matches played yet.</p>
+        <EmptyState Message="@Lang.Get("stats.noMatches")" />
     }
     else
     {
@@ -29,19 +30,22 @@ else
                 <thead class="table-dark">
                     <tr>
                         <th>#</th>
-                        <th>Player</th>
-                        <th>Goals</th>
+                        <th>@Lang.Get("stats.player")</th>
+                        <th>@Lang.Get("stats.goals")</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var row in rows)
                     {
-                        <tr>
+                        <tr class="@(row.Position == 1 ? "rank-gold" : "")">
                             <td>@row.Position</td>
                             <td>
-                                <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
-                                    @row.DisplayName
-                                </a>
+                                <div class="d-flex align-items-center gap-2">
+                                    <PlayerAvatar Name="@row.DisplayName" Size="24" />
+                                    <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
+                                        @row.DisplayName
+                                    </a>
+                                </div>
                             </td>
                             <td><strong>@row.Goals</strong></td>
                         </tr>

@@ -1,17 +1,18 @@
-@page "/vaults/create"
+﻿@page "/vaults/create"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
 <PageTitle>New Vault - Futelo</PageTitle>
 
 <div class="row justify-content-center mt-4">
     <div class="col-md-5">
-        <h3 class="mb-4">New Vault</h3>
+        <h3 class="mb-4">@Lang.Get("createVault.title")</h3>
 
         <EditForm Model="model" OnValidSubmit="HandleCreate">
             <DataAnnotationsValidator />
 
             <div class="mb-3">
-                <label class="form-label">Name</label>
+                <label class="form-label">@Lang.Get("createVault.name")</label>
                 <InputText class="form-control" @bind-Value="model.Name" />
                 <ValidationMessage For="() => model.Name" />
             </div>
@@ -23,9 +24,9 @@
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary" disabled="@isLoading">
-                    @(isLoading ? "Creating..." : "Create")
+                    @(isLoading ? Lang.Get("common.creating") : Lang.Get("common.create"))
                 </button>
-                <a href="/dashboard" class="btn btn-outline-secondary">Cancel</a>
+                <a href="/dashboard" class="btn btn-outline-secondary">@Lang.Get("common.cancel")</a>
             </div>
         </EditForm>
     </div>

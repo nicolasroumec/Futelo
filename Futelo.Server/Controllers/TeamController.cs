@@ -27,28 +27,14 @@ public class TeamController(ITeamService teamService) : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, CreateTeamRequest request)
     {
-        try
-        {
-            await teamService.UpdateAsync(id, request);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        await teamService.UpdateAsync(id, request);
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            await teamService.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        await teamService.DeleteAsync(id);
+        return NoContent();
     }
 }

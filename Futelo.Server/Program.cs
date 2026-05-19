@@ -1,5 +1,6 @@
 using System.Text;
 using Futelo.Server.Data;
+using Futelo.Server.Filters;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Invitation;
 using Futelo.Server.Repositories.Cup;
@@ -27,12 +28,11 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevClient", policy =>
-        policy.WithOrigins(
-                  "https://localhost:7079", "http://localhost:5276",
-                  "https://localhost:60938", "http://localhost:60940")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
@@ -81,7 +81,8 @@ builder.Services.AddScoped<ISuperCupService, SuperCupService>();
 builder.Services.AddScoped<IStatsRepository, StatsRepository>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 
-builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
+builder.Services.AddControllers(options => options.Filters.Add<ApiExceptionFilter>());
 
 var app = builder.Build();
 

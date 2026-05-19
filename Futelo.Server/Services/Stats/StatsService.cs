@@ -1,20 +1,23 @@
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Stats;
 using Futelo.Shared.DTOs.Stats;
+using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Stats;
 
-public class StatsService(IStatsRepository statsRepository) : IStatsService
+using static ErrorMessages;
+
+public class StatsService(IStatsRepository statsRepository, ILogger<StatsService> logger) : IStatsService
 {
     public async Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var player = await statsRepository.GetPlayerAsync(playerId);
         if (player == null)
-            throw new KeyNotFoundException("Player not found.");
+            throw new KeyNotFoundException(PlayerNotFound);
 
         var matches = await statsRepository.GetPlayerMatchesInVaultAsync(playerId, vaultId);
 
@@ -35,6 +38,18 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         }
 
         var (currentStreak, bestWinStreak, bestUnbeatenStreak, currentStreakType) = ComputeStreaks(matches, playerId);
+
+        var titleSeasons = await statsRepository.GetPlayerTitleSeasonsInVaultAsync(playerId, vaultId);
+        var titles = new List<PlayerTitleEntry>();
+        foreach (var s in titleSeasons)
+        {
+            if (s.League?.ChampionId == playerId)
+                titles.Add(new PlayerTitleEntry { SeasonId = s.Id, SeasonName = s.Name, Year = s.Year, Competition = "League" });
+            if (s.Cup?.ChampionId == playerId)
+                titles.Add(new PlayerTitleEntry { SeasonId = s.Id, SeasonName = s.Name, Year = s.Year, Competition = "Cup" });
+            if (s.SuperCup?.ChampionId == playerId)
+                titles.Add(new PlayerTitleEntry { SeasonId = s.Id, SeasonName = s.Name, Year = s.Year, Competition = "SuperCup" });
+        }
 
         var topTeams = matches
             .Select(m => new
@@ -121,20 +136,21 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             BestWinStreak = bestWinStreak,
             BestUnbeatenStreak = bestUnbeatenStreak,
             TopTeams = topTeams,
-            GameStats = gameStats
+            GameStats = gameStats,
+            Titles = titles
         };
     }
 
     public async Task<HeadToHeadResponse> GetHeadToHeadAsync(string player1Id, string player2Id, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var player1 = await statsRepository.GetPlayerAsync(player1Id);
         var player2 = await statsRepository.GetPlayerAsync(player2Id);
 
         if (player1 == null || player2 == null)
-            throw new KeyNotFoundException("Player not found.");
+            throw new KeyNotFoundException(PlayerNotFound);
 
         var matches = await statsRepository.GetH2HMatchesInVaultAsync(player1Id, player2Id, vaultId);
 
@@ -184,7 +200,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<RankingRow>> GetGeneralRankingAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var vaultPlayers = await statsRepository.GetGeneralRankingAsync(vaultId);
 
@@ -201,7 +217,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var seasonPlayers = await statsRepository.GetSeasonRankingAsync(seasonId, vaultId);
 
@@ -219,7 +235,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var seasons = await statsRepository.GetVaultPalmaresAsync(vaultId);
 
@@ -239,7 +255,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<EloHistoryPoint>> GetEloHistoryAsync(string playerId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var history = await statsRepository.GetPlayerEloHistoryInVaultAsync(playerId, vaultId);
 
@@ -258,7 +274,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<ScorerRow>> GetScorersAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetAllPlayedMatchesInVaultAsync(vaultId);
         var scorerMap = new Dictionary<string, (string DisplayName, int Goals)>();
@@ -291,7 +307,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetAllPlayedMatchesInVaultAsync(vaultId);
 
@@ -325,17 +341,50 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
                 bestUnbeatenRecord = new RecordEntry { PlayerId = playerId!, DisplayName = playerUser.DisplayName, Value = bestUnbeaten };
         }
 
+        var eloHistories = await statsRepository.GetAllHistoricalEloInVaultAsync(vaultId);
+
+        RecordEntry? peakEloRecord = null;
+        RecordEntry? bestEloGainRecord = null;
+
+        if (eloHistories.Count > 0)
+        {
+            var peakEntry = eloHistories.MaxBy(e => e.EloAfter);
+            if (peakEntry != null)
+                peakEloRecord = new RecordEntry { PlayerId = peakEntry.PlayerId, DisplayName = peakEntry.Player.DisplayName, Value = peakEntry.EloAfter };
+
+            var gainEntry = eloHistories.Where(e => e.EloChange > 0).MaxBy(e => e.EloChange);
+            if (gainEntry != null)
+                bestEloGainRecord = new RecordEntry { PlayerId = gainEntry.PlayerId, DisplayName = gainEntry.Player.DisplayName, Value = gainEntry.EloChange };
+        }
+
+        var reignStats = ComputeTop1Reigns(eloHistories);
+
+        RecordEntry? longestReignRecord = null;
+        RecordEntry? totalTop1Record = null;
+
+        foreach (var (pid, (displayName, bestStreak, total)) in reignStats)
+        {
+            if (longestReignRecord == null || bestStreak > longestReignRecord.Value)
+                longestReignRecord = new RecordEntry { PlayerId = pid, DisplayName = displayName, Value = bestStreak };
+            if (totalTop1Record == null || total > totalTop1Record.Value)
+                totalTop1Record = new RecordEntry { PlayerId = pid, DisplayName = displayName, Value = total };
+        }
+
         return new VaultRecordsResponse
         {
             BestWinStreak = bestWinRecord,
-            BestUnbeatenStreak = bestUnbeatenRecord
+            BestUnbeatenStreak = bestUnbeatenRecord,
+            PeakElo = peakEloRecord,
+            BestEloGain = bestEloGainRecord,
+            LongestTop1Reign = longestReignRecord,
+            TotalMatchesAtTop1 = totalTop1Record
         };
     }
 
     public async Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetAllPlayedMatchesWithVideoGameInVaultAsync(vaultId);
 
@@ -399,7 +448,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetAllPlayedMatchesWithTeamsInVaultAsync(vaultId);
 
@@ -446,11 +495,11 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<RecentFormEntry>> GetRecentFormAsync(string playerId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var player = await statsRepository.GetPlayerAsync(playerId);
         if (player == null)
-            throw new KeyNotFoundException("Player not found.");
+            throw new KeyNotFoundException(PlayerNotFound);
 
         var matches = await statsRepository.GetPlayerLastNMatchesAsync(playerId, vaultId, 5);
 
@@ -474,10 +523,78 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         }).ToList();
     }
 
+    public async Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(string playerId, int vaultId, string requesterId, int limit)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+        var matches = await statsRepository.GetPlayerRecentMatchesAsync(playerId, vaultId, limit);
+        return matches.Select(MapToRecentMatch).ToList();
+    }
+
+    public async Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(string playerId, int vaultId, string requesterId, int page, int pageSize, string? competitionType = null)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+        var skip = (page - 1) * pageSize;
+        var totalCount = await statsRepository.CountPlayerMatchesAsync(playerId, vaultId, competitionType);
+        var items = await statsRepository.GetPlayerMatchesPageAsync(playerId, vaultId, skip, pageSize, competitionType);
+        return new MatchHistoryPageResponse
+        {
+            Items = items.Select(MapToRecentMatch).ToList(),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    private static RecentMatchResponse MapToRecentMatch(Match m)
+    {
+        string competitionType, competitionName, seasonName;
+        if (m.League != null)
+        {
+            competitionType = "League";
+            competitionName = m.League.Name;
+            seasonName = m.League.Season.Name;
+        }
+        else if (m.CupRound != null)
+        {
+            competitionType = "Cup";
+            competitionName = m.CupRound.Cup.Name;
+            seasonName = m.CupRound.Cup.Season.Name;
+        }
+        else
+        {
+            competitionType = "SuperCup";
+            competitionName = m.SuperCup!.Name;
+            seasonName = m.SuperCup.Season.Name;
+        }
+
+        return new RecentMatchResponse
+        {
+            Id = m.Id,
+            HomePlayerId = m.HomePlayerId ?? string.Empty,
+            HomePlayerName = m.HomePlayer?.DisplayName ?? string.Empty,
+            AwayPlayerId = m.AwayPlayerId ?? string.Empty,
+            AwayPlayerName = m.AwayPlayer?.DisplayName ?? string.Empty,
+            HomeScore = m.HomeScore,
+            AwayScore = m.AwayScore,
+            WonOnPenaltiesId = m.WonOnPenaltiesId,
+            HomePenaltyScore = m.HomePenaltyScore,
+            AwayPenaltyScore = m.AwayPenaltyScore,
+            HomeTeamName = m.HomeTeam?.Name,
+            AwayTeamName = m.AwayTeam?.Name,
+            VideoGameName = m.VideoGame?.Name,
+            PlayedAt = m.PlayedAt,
+            CompetitionType = competitionType,
+            CompetitionName = competitionName,
+            SeasonName = seasonName
+        };
+    }
+
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var match = await statsRepository.GetTopScoringMatchInVaultAsync(vaultId);
         if (match == null) return null;
@@ -497,6 +614,103 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             PlayedAt = match.PlayedAt,
             SeasonName = seasonName
         };
+    }
+
+    public async Task<PlayerRecordsResponse> GetPlayerRecordsAsync(string playerId, int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+
+        var matches = await statsRepository.GetPlayerMatchesWithOpponentsInVaultAsync(playerId, vaultId);
+        var eloHistory = await statsRepository.GetPlayerEloHistoryInVaultAsync(playerId, vaultId);
+        var allEloHistory = await statsRepository.GetAllHistoricalEloInVaultAsync(vaultId);
+
+        MatchRecordEntry? bestWin = null;
+        MatchRecordEntry? worstDefeat = null;
+        int bestWinDiff = -1;
+        int worstDefeatDiff = -1;
+
+        foreach (var m in matches)
+        {
+            bool isHome = m.HomePlayerId == playerId;
+            int myScore = isHome ? (m.HomeScore ?? 0) : (m.AwayScore ?? 0);
+            int oppScore = isHome ? (m.AwayScore ?? 0) : (m.HomeScore ?? 0);
+            int diff = Math.Abs(myScore - oppScore);
+            string opponentName = (isHome ? m.AwayPlayer : m.HomePlayer)?.DisplayName ?? string.Empty;
+
+            if (myScore > oppScore && diff > bestWinDiff)
+            {
+                bestWinDiff = diff;
+                bestWin = new MatchRecordEntry { OpponentName = opponentName, MyScore = myScore, OpponentScore = oppScore, PlayedAt = m.PlayedAt };
+            }
+            else if (oppScore > myScore && diff > worstDefeatDiff)
+            {
+                worstDefeatDiff = diff;
+                worstDefeat = new MatchRecordEntry { OpponentName = opponentName, MyScore = myScore, OpponentScore = oppScore, PlayedAt = m.PlayedAt };
+            }
+        }
+
+        int peakElo = eloHistory.Count > 0 ? eloHistory.Max(e => e.EloAfter) : 0;
+        int bestEloGain = eloHistory.Count > 0
+            ? eloHistory.Where(e => e.EloChange > 0).Select(e => e.EloChange).DefaultIfEmpty(0).Max()
+            : 0;
+
+        var reignStats = ComputeTop1Reigns(allEloHistory);
+        int longestReign = 0, totalAtTop1 = 0;
+        if (reignStats.TryGetValue(playerId, out var playerReign))
+        {
+            longestReign = playerReign.BestStreak;
+            totalAtTop1 = playerReign.Total;
+        }
+
+        return new PlayerRecordsResponse
+        {
+            BestWin = bestWin,
+            WorstDefeat = worstDefeat,
+            PeakElo = peakElo,
+            BestEloGain = bestEloGain,
+            LongestTop1Reign = longestReign,
+            TotalMatchesAtTop1 = totalAtTop1
+        };
+    }
+
+    private static Dictionary<string, (string DisplayName, int BestStreak, int Total)> ComputeTop1Reigns(List<EloHistory> eloHistories)
+    {
+        var stats = new Dictionary<string, (string DisplayName, int BestStreak, int Total)>();
+        var currentStreak = new Dictionary<string, int>();
+        string? currentTop1 = null;
+
+        foreach (var matchGroup in eloHistories.OrderBy(e => e.MatchId).GroupBy(e => e.MatchId))
+        {
+            var top1Entry = matchGroup.FirstOrDefault(e => e.RankAfter == 1);
+            var newTop1 = top1Entry?.PlayerId ?? currentTop1;
+
+            if (newTop1 == null) continue;
+
+            if (!stats.ContainsKey(newTop1))
+            {
+                if (top1Entry == null) continue;
+                stats[newTop1] = (top1Entry.Player.DisplayName, 0, 0);
+            }
+
+            if (newTop1 != currentTop1)
+            {
+                if (currentTop1 != null)
+                    currentStreak[currentTop1] = 0;
+                currentStreak[newTop1] = 1;
+                currentTop1 = newTop1;
+            }
+            else
+            {
+                currentStreak[newTop1] = currentStreak.GetValueOrDefault(newTop1) + 1;
+            }
+
+            int streak = currentStreak[newTop1];
+            var prev = stats[newTop1];
+            stats[newTop1] = (prev.DisplayName, Math.Max(prev.BestStreak, streak), prev.Total + 1);
+        }
+
+        return stats;
     }
 
     private static (int current, int bestWin, int bestUnbeaten, StreakType currentType) ComputeStreaks(List<Match> matches, string playerId)

@@ -1,3 +1,4 @@
+using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Cup;
 using Futelo.Shared.DTOs.Cup;
@@ -5,29 +6,33 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Cup;
 
-public class CupService(ICupRepository cupRepository) : ICupService
+using static ErrorMessages;
+
+public class CupService(ICupRepository cupRepository, ILogger<CupService> logger) : ICupService
 {
     public async Task<CupResponse> GetByIdAsync(int cupId, string userId)
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Cup not found.");
+            throw new KeyNotFoundException(CupNotFound);
 
-        return MapToResponse(cup);
+        var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
+        return MapToResponse(cup, canEdit);
     }
 
     public async Task GenerateBracketAsync(int cupId, string userId)
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Cup not found.");
+            throw new KeyNotFoundException(CupNotFound);
 
         if (cup.Status != TournamentStatus.NotStarted)
-            throw new InvalidOperationException("Bracket has already been generated.");
+            throw new InvalidOperationException(BracketAlreadyGenerated);
 
         var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can generate brackets.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         var seasonPlayers = cup.Season.Players.ToList();
         int n = seasonPlayers.Count;
@@ -50,17 +55,17 @@ public class CupService(ICupRepository cupRepository) : ICupService
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Cup not found.");
+            throw new KeyNotFoundException(CupNotFound);
 
         if (cup.Status != TournamentStatus.Active)
-            throw new InvalidOperationException("Cup is not active.");
+            throw new InvalidOperationException(CupNotActive);
 
         var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can record results.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         if (homeScore < 0 || awayScore < 0)
-            throw new InvalidOperationException("Scores cannot be negative.");
+            throw new InvalidOperationException(ScoresCannotBeNegative);
 
         var allRounds = cup.Rounds.OrderBy(r => r.RoundNumber).ToList();
         CupRound? matchRound = null;
@@ -83,9 +88,9 @@ public class CupService(ICupRepository cupRepository) : ICupService
         if (matchRound == null || match == null)
             throw new KeyNotFoundException("Match not found in this cup.");
         if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException("Match already has a result.");
+            throw new InvalidOperationException(MatchAlreadyHasResult);
         if (string.IsNullOrEmpty(match.HomePlayerId) || string.IsNullOrEmpty(match.AwayPlayerId))
-            throw new InvalidOperationException("Match participants are not yet determined.");
+            throw new InvalidOperationException(MatchParticipantsNotDetermined);
 
         // ELO
         var seasonPlayers = cup.Season.Players.ToList();
@@ -95,7 +100,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
         int totalRounds = allRounds.Count;
         int roundFromEnd = totalRounds - matchRound.RoundNumber;
         double kMultiplier = roundFromEnd switch { 0 => 1.5, 1 => 1.2, _ => 1.0 };
-        int k = (int)(24 * kMultiplier);
+        int k = (int)(EloCalculator.CupBaseK * kMultiplier);
 
         double homeResult = homeScore > awayScore ? 1.0 : homeScore == awayScore ? 0.5 : 0.0;
         double awayResult = 1.0 - homeResult;
@@ -107,13 +112,13 @@ public class CupService(ICupRepository cupRepository) : ICupService
             awayResult = 1.0 - homeResult;
         }
 
-        var (homeSeasonChange, homeNewSeasonElo) = ComputeElo(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k);
-        var (awaySeasonChange, awayNewSeasonElo) = ComputeElo(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k);
+        var (homeSeasonChange, homeNewSeasonElo) = EloCalculator.Compute(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k);
+        var (awaySeasonChange, awayNewSeasonElo) = EloCalculator.Compute(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k);
 
         int homeHistElo = homesp.Player.EloRating;
         int awayHistElo = awaysp.Player.EloRating;
-        var (homeHistChange, homeNewHistElo) = ComputeElo(homeHistElo, awayHistElo, homeResult, goalDiff, k);
-        var (awayHistChange, awayNewHistElo) = ComputeElo(awayHistElo, homeHistElo, awayResult, goalDiff, k);
+        var (homeHistChange, homeNewHistElo) = EloCalculator.Compute(homeHistElo, awayHistElo, homeResult, goalDiff, k);
+        var (awayHistChange, awayNewHistElo) = EloCalculator.Compute(awayHistElo, homeHistElo, awayResult, goalDiff, k);
 
         var seasonElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.SeasonElo);
         int homeSeasonRankBefore = seasonElos.Count(kv => kv.Value > homesp.SeasonElo) + 1;
@@ -153,7 +158,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
             else if (wonOnPenaltiesId != null)
                 tieWinnerId = wonOnPenaltiesId;
             else
-                throw new InvalidOperationException("Match is drawn — provide the winner on penalties.");
+                throw new InvalidOperationException(MatchIsDrawnNeedsPenalties);
 
             tieDecided = true;
         }
@@ -185,7 +190,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
                 else if (wonOnPenaltiesId != null)
                     tieWinnerId = wonOnPenaltiesId;
                 else
-                    throw new InvalidOperationException("Tie is level on aggregate — provide the winner on penalties.");
+                    throw new InvalidOperationException(TieOnAggregateMNeedsPenalties);
 
                 tieDecided = true;
             }
@@ -416,7 +421,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
         return positions;
     }
 
-    private static CupResponse MapToResponse(Models.Cup cup)
+    private static CupResponse MapToResponse(Models.Cup cup, bool canEdit = false)
     {
         var seasonPlayerMap = cup.Season.Players
             .ToDictionary(sp => sp.PlayerId, sp => sp.Player.DisplayName);
@@ -432,6 +437,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
             ChampionName = cup.ChampionId != null
                 ? seasonPlayerMap.GetValueOrDefault(cup.ChampionId)
                 : null,
+            CanEdit = canEdit,
             Rounds = cup.Rounds
                 .OrderBy(r => r.RoundNumber)
                 .Select(r => new CupRoundResponse
@@ -459,17 +465,33 @@ public class CupService(ICupRepository cupRepository) : ICupService
                             AwayPenaltyScore = m.AwayPenaltyScore,
                             Status = m.Status.ToString(),
                             Leg = m.Leg,
-                            PlayedAt = m.PlayedAt
+                            PlayedAt = m.PlayedAt,
+                            HomeTeamId = m.HomeTeamId,
+                            HomeTeamName = m.HomeTeam?.Name,
+                            AwayTeamId = m.AwayTeamId,
+                            AwayTeamName = m.AwayTeam?.Name,
+                            VideoGameId = m.VideoGameId,
+                            VideoGameName = m.VideoGame?.Name
                         }).ToList()
                 }).ToList()
         };
     }
 
-    private static (int change, int newElo) ComputeElo(int myElo, int opponentElo, double result, int goalDiff, int k)
+    public async Task PatchMatchAsync(int cupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
     {
-        double expected = 1.0 / (1.0 + Math.Pow(10, (opponentElo - myElo) / 400.0));
-        double multiplier = goalDiff >= 3 ? 1.5 : goalDiff == 2 ? 1.2 : 1.0;
-        int change = (int)Math.Round(k * multiplier * (result - expected), MidpointRounding.AwayFromZero);
-        return (change, myElo + change);
+        var cup = await cupRepository.GetByIdAsync(cupId);
+        if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(CupNotFound);
+
+        var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
+
+        var match = cup.Rounds.SelectMany(r => r.Matches).FirstOrDefault(m => m.Id == matchId);
+        if (match == null)
+            throw new KeyNotFoundException(MatchNotFound);
+
+        await cupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
     }
+
 }

@@ -1,0 +1,56 @@
+:root {
+  /* Palette */
+  --color-bg: #0F1115;
+  --color-surface: #171A21;
+  --color-surface-2: #1F2430;
+  --color-border: #2B3240;
+  --color-text: #F5F7FA;
+  --color-text-muted: #9AA4B2;
+  --color-primary: #22C55E;
+  --color-primary-hover: #16A34A;
+  --color-success: #22C55E;
+  --color-danger: #EF4444;
+  --color-warning: #FACC15;
+  --color-info: #3B82F6;
+  --color-danger-text:  #fca5a5;
+  --color-success-text: #86efac;
+  --color-warning-text: #fde68a;
+  --color-info-text:    #93c5fd;
+  --color-bronze:       #cd7f32;
+  --color-cup:          #60A5FA;
+  --color-supercup:     #C084FC;
+
+  /* Typography */
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-size-base: 15px;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --topbar-height: 54px;
+  --radius: 8px;
+  --radius-sm: 5px;
+
+  /* Bootstrap 5 CSS variable overrides */
+  --bs-body-bg: #0F1115;
+  --bs-body-color: #F5F7FA;
+  --bs-border-color: #2B3240;
+  --bs-primary: #22C55E;
+  --bs-primary-rgb: 34, 197, 94;
+  --bs-secondary-color: #9AA4B2;
+  --bs-secondary-bg: #1F2430;
+  --bs-tertiary-bg: #171A21;
+  --bs-card-bg: #171A21;
+  --bs-card-border-color: #2B3240;
+  --bs-list-group-bg: #171A21;
+  --bs-list-group-border-color: #2B3240;
+  --bs-list-group-color: #F5F7FA;
+  --bs-link-color: #22C55E;
+  --bs-link-hover-color: #16A34A;
+  --bs-heading-color: #F5F7FA;
+  --bs-table-bg: transparent;
+  --bs-table-color: #F5F7FA;
+  --bs-table-border-color: #2B3240;
+  --bs-table-striped-bg: rgba(31, 36, 48, 0.7);
+  --bs-table-hover-bg: rgba(31, 36, 48, 0.7);
+}
