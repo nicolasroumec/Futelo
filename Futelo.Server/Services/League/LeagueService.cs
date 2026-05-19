@@ -6,13 +6,15 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.League;
 
+using static ErrorMessages;
+
 public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
 {
     public async Task<LeagueResponse> GetByIdAsync(int leagueId, string userId)
     {
         var league = await leagueRepository.GetByIdAsync(leagueId);
         if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("League not found.");
+            throw new KeyNotFoundException(LeagueNotFound);
 
         var standings = league.Status == TournamentStatus.NotStarted
             ? []
@@ -62,14 +64,14 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
     {
         var league = await leagueRepository.GetByIdAsync(leagueId);
         if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("League not found.");
+            throw new KeyNotFoundException(LeagueNotFound);
 
         if (league.Status != TournamentStatus.NotStarted)
-            throw new InvalidOperationException("Fixture has already been generated.");
+            throw new InvalidOperationException(FixtureAlreadyGenerated);
 
         var playerIds = league.Season.Players.Select(sp => sp.PlayerId).ToList();
         if (playerIds.Count < 2)
-            throw new InvalidOperationException("At least 2 players are required.");
+            throw new InvalidOperationException(AtLeast2PlayersRequired);
 
         var leaguePlayers = playerIds.Select(pid => new LeaguePlayer
         {
@@ -87,10 +89,10 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
     {
         var league = await leagueRepository.GetByIdAsync(leagueId);
         if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("League not found.");
+            throw new KeyNotFoundException(LeagueNotFound);
 
         if (league.Matches.Any(m => m.Status == MatchStatus.Played))
-            throw new InvalidOperationException("Cannot regenerate fixture after results have been recorded.");
+            throw new InvalidOperationException(CannotRegenerateAfterResults);
 
         var playerIds = league.Season.Players.Select(sp => sp.PlayerId).ToList();
         var shuffled = playerIds.OrderBy(_ => Random.Shared.Next()).ToList();
@@ -110,23 +112,23 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
     {
         var league = await leagueRepository.GetByIdAsync(leagueId);
         if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("League not found.");
+            throw new KeyNotFoundException(LeagueNotFound);
 
         if (league.Status != TournamentStatus.Active)
-            throw new InvalidOperationException("League is not active.");
+            throw new InvalidOperationException(LeagueNotActive);
 
         var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can record results.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         if (homeScore < 0 || awayScore < 0)
-            throw new InvalidOperationException("Scores cannot be negative.");
+            throw new InvalidOperationException(ScoresCannotBeNegative);
 
         var match = league.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
-            throw new KeyNotFoundException("Match not found.");
+            throw new KeyNotFoundException(MatchNotFound);
         if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException("Match already has a result.");
+            throw new InvalidOperationException(MatchAlreadyHasResult);
 
         var seasonPlayers = league.Season.Players.ToList();
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);
@@ -187,14 +189,14 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
     {
         var league = await leagueRepository.GetByIdAsync(leagueId);
         if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("League not found.");
+            throw new KeyNotFoundException(LeagueNotFound);
 
         var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
             throw new UnauthorizedAccessException("Only vault admins and editors can edit matches.");
 
         if (league.Matches.All(m => m.Id != matchId))
-            throw new KeyNotFoundException("Match not found.");
+            throw new KeyNotFoundException(MatchNotFound);
 
         await leagueRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
     }

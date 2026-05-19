@@ -6,13 +6,15 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.SuperCup;
 
+using static ErrorMessages;
+
 public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCupService
 {
     public async Task<SuperCupResponse> GetByIdAsync(int superCupId, string userId)
     {
         var superCup = await superCupRepository.GetByIdAsync(superCupId);
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("SuperCup not found.");
+            throw new KeyNotFoundException(SuperCupNotFound);
 
         var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
@@ -23,22 +25,22 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
     {
         var superCup = await superCupRepository.GetByIdAsync(superCupId);
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("SuperCup not found.");
+            throw new KeyNotFoundException(SuperCupNotFound);
 
         if (superCup.Status != TournamentStatus.NotStarted)
-            throw new InvalidOperationException("SuperCup has already been started.");
+            throw new InvalidOperationException(SuperCupAlreadyStarted);
 
         var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can start the SuperCup.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         var league = superCup.Season.League;
         var cup = superCup.Season.Cup;
 
         if (league == null || league.Status != TournamentStatus.Finished || league.ChampionId == null)
-            throw new InvalidOperationException("League must be finished before starting the SuperCup.");
+            throw new InvalidOperationException(LeagueMustBeFinishedFirst);
         if (cup == null || cup.Status != TournamentStatus.Finished || cup.ChampionId == null)
-            throw new InvalidOperationException("Cup must be finished before starting the SuperCup.");
+            throw new InvalidOperationException(CupMustBeFinishedFirst);
 
         string player1Id = league.ChampionId;
         string player2Id;
@@ -51,7 +53,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
         {
             var runnerUp = cup.Players.FirstOrDefault(cp => cp.CupPosition == 2);
             if (runnerUp == null)
-                throw new InvalidOperationException("Could not determine Cup runner-up for SuperCup.");
+                throw new InvalidOperationException(CouldNotDetermineRunnerUp);
             player2Id = runnerUp.PlayerId;
         }
 
@@ -87,25 +89,25 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
     {
         var superCup = await superCupRepository.GetByIdAsync(superCupId);
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("SuperCup not found.");
+            throw new KeyNotFoundException(SuperCupNotFound);
 
         if (superCup.Status != TournamentStatus.Active)
-            throw new InvalidOperationException("SuperCup is not active.");
+            throw new InvalidOperationException(SuperCupNotActive);
 
         var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can record results.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         if (homeScore < 0 || awayScore < 0)
-            throw new InvalidOperationException("Scores cannot be negative.");
+            throw new InvalidOperationException(ScoresCannotBeNegative);
 
         var match = superCup.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
             throw new KeyNotFoundException("Match not found in this SuperCup.");
         if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException("Match already has a result.");
+            throw new InvalidOperationException(MatchAlreadyHasResult);
         if (string.IsNullOrEmpty(match.HomePlayerId) || string.IsNullOrEmpty(match.AwayPlayerId))
-            throw new InvalidOperationException("Match participants are not yet determined.");
+            throw new InvalidOperationException(MatchParticipantsNotDetermined);
 
         // ELO
         int k = EloCalculator.SuperCupK;
@@ -166,7 +168,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
             else if (wonOnPenaltiesId != null)
                 championId = wonOnPenaltiesId;
             else
-                throw new InvalidOperationException("Match is drawn — provide the winner on penalties.");
+                throw new InvalidOperationException(MatchIsDrawnNeedsPenalties);
 
             finished = true;
         }
@@ -195,7 +197,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
                 else if (wonOnPenaltiesId != null)
                     championId = wonOnPenaltiesId;
                 else
-                    throw new InvalidOperationException("Tie is level on aggregate — provide the winner on penalties.");
+                    throw new InvalidOperationException(TieOnAggregateMNeedsPenalties);
 
                 finished = true;
             }
@@ -256,15 +258,15 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
     {
         var superCup = await superCupRepository.GetByIdAsync(superCupId);
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("SuperCup not found.");
+            throw new KeyNotFoundException(SuperCupNotFound);
 
         var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can edit matches.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         var match = superCup.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
-            throw new KeyNotFoundException("Match not found.");
+            throw new KeyNotFoundException(MatchNotFound);
 
         await superCupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
     }

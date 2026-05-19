@@ -4,6 +4,8 @@ using Futelo.Shared.DTOs.VideoGame;
 
 namespace Futelo.Server.Services.VideoGames;
 
+using static ErrorMessages;
+
 public class VideoGameService(IVideoGameRepository repository) : IVideoGameService
 {
     public async Task<List<VideoGameResponse>> GetAllAsync()

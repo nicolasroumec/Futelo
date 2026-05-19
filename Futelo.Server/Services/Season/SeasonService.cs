@@ -7,13 +7,15 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Season;
 
+using static ErrorMessages;
+
 public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository vaultRepository) : ISeasonService
 {
     public async Task<List<SeasonResponse>> GetByVaultAsync(int vaultId, string userId)
     {
         var vault = await vaultRepository.GetByIdAsync(vaultId);
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var seasons = await seasonRepository.GetByVaultAsync(vaultId);
         return seasons.Select(MapToResponse).ToList();
@@ -23,7 +25,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         var season = await seasonRepository.GetByIdAsync(id);
         if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Season not found.");
+            throw new KeyNotFoundException(SeasonNotFound);
 
         return MapToResponse(season);
     }
@@ -32,9 +34,9 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         var vault = await vaultRepository.GetByIdAsync(request.VaultId);
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
         if (vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can create seasons.");
+            throw new UnauthorizedAccessException(OnlyOwnerCanCreateSeason);
 
         var season = new Models.Season
         {
@@ -53,17 +55,17 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         var season = await seasonRepository.GetByIdAsync(id);
         if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Season not found.");
+            throw new KeyNotFoundException(SeasonNotFound);
         if (season.Vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can configure seasons.");
+            throw new UnauthorizedAccessException(OnlyOwnerCanConfigureSeason);
         if (request.HasSuperCup && (!request.HasLeague || !request.HasCup))
-            throw new InvalidOperationException("SuperCup requires both League and Cup.");
+            throw new InvalidOperationException(SuperCupRequiresLeagueAndCup);
 
         var vaultPlayerIds = season.Vault.Players.Select(p => p.PlayerId).ToHashSet();
         if (request.PlayerIds.Any(pid => !vaultPlayerIds.Contains(pid)))
-            throw new InvalidOperationException("All players must belong to the vault.");
+            throw new InvalidOperationException(AllPlayersMustBelongToVault);
         if (request.PlayerIds.Count < 2)
-            throw new InvalidOperationException("At least 2 players are required.");
+            throw new InvalidOperationException(AtLeast2PlayersRequired);
 
         var players = request.PlayerIds.Select(pid => new SeasonPlayer
         {
@@ -79,11 +81,11 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         var season = await seasonRepository.GetByIdAsync(id);
         if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Season not found.");
+            throw new KeyNotFoundException(SeasonNotFound);
         if (season.Vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can finish a season.");
+            throw new UnauthorizedAccessException(OnlyOwnerCanFinishSeason);
         if (season.Status != SeasonStatus.Active)
-            throw new InvalidOperationException("Only Active seasons can be finished.");
+            throw new InvalidOperationException(OnlyActiveSeasonCanBeFinished);
 
         var pending = new List<string>();
         if (season.League != null && season.League.Status != TournamentStatus.Finished)
@@ -103,11 +105,11 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         var season = await seasonRepository.GetByIdAsync(id);
         if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Season not found.");
+            throw new KeyNotFoundException(SeasonNotFound);
         if (season.Vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can assign teams.");
+            throw new UnauthorizedAccessException(OnlyOwnerCanAssignTeams);
         if (season.Players.All(p => p.PlayerId != playerId))
-            throw new KeyNotFoundException("Player not found in this season.");
+            throw new KeyNotFoundException(PlayerNotFoundInSeason);
 
         await seasonRepository.SetPlayerTeamAsync(id, playerId, teamId);
     }
@@ -116,9 +118,9 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         var season = await seasonRepository.GetByIdAsync(id);
         if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Season not found.");
+            throw new KeyNotFoundException(SeasonNotFound);
         if (season.Vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can delete seasons.");
+            throw new UnauthorizedAccessException(OnlyOwnerCanDeleteSeason);
 
         await seasonRepository.DeleteAsync(id);
     }
@@ -127,9 +129,9 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         var season = await seasonRepository.GetByIdAsync(id);
         if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Season not found.");
+            throw new KeyNotFoundException(SeasonNotFound);
         if (season.Vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can update the season.");
+            throw new UnauthorizedAccessException(OnlyOwnerCanUpdateSeason);
 
         await seasonRepository.PatchVideoGameAsync(id, videoGameId);
     }
@@ -138,15 +140,15 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         var season = await seasonRepository.GetByIdAsync(id);
         if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Season not found.");
+            throw new KeyNotFoundException(SeasonNotFound);
         if (season.Vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can activate a season.");
+            throw new UnauthorizedAccessException(OnlyOwnerCanActivateSeason);
         if (season.Status != SeasonStatus.Draft)
-            throw new InvalidOperationException("Only Draft seasons can be activated.");
+            throw new InvalidOperationException(OnlyDraftSeasonCanBeActivated);
         if (!season.Players.Any())
-            throw new InvalidOperationException("Season must have players before activation.");
+            throw new InvalidOperationException(SeasonMustHavePlayers);
         if (season.League == null && season.Cup == null)
-            throw new InvalidOperationException("Season must have at least one competition before activation.");
+            throw new InvalidOperationException(SeasonMustHaveCompetition);
 
         await seasonRepository.UpdateStatusAsync(id, SeasonStatus.Active);
     }

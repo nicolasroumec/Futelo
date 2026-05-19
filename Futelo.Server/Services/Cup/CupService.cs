@@ -6,13 +6,15 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Cup;
 
+using static ErrorMessages;
+
 public class CupService(ICupRepository cupRepository) : ICupService
 {
     public async Task<CupResponse> GetByIdAsync(int cupId, string userId)
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Cup not found.");
+            throw new KeyNotFoundException(CupNotFound);
 
         var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
@@ -23,14 +25,14 @@ public class CupService(ICupRepository cupRepository) : ICupService
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Cup not found.");
+            throw new KeyNotFoundException(CupNotFound);
 
         if (cup.Status != TournamentStatus.NotStarted)
-            throw new InvalidOperationException("Bracket has already been generated.");
+            throw new InvalidOperationException(BracketAlreadyGenerated);
 
         var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can generate brackets.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         var seasonPlayers = cup.Season.Players.ToList();
         int n = seasonPlayers.Count;
@@ -53,17 +55,17 @@ public class CupService(ICupRepository cupRepository) : ICupService
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Cup not found.");
+            throw new KeyNotFoundException(CupNotFound);
 
         if (cup.Status != TournamentStatus.Active)
-            throw new InvalidOperationException("Cup is not active.");
+            throw new InvalidOperationException(CupNotActive);
 
         var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can record results.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         if (homeScore < 0 || awayScore < 0)
-            throw new InvalidOperationException("Scores cannot be negative.");
+            throw new InvalidOperationException(ScoresCannotBeNegative);
 
         var allRounds = cup.Rounds.OrderBy(r => r.RoundNumber).ToList();
         CupRound? matchRound = null;
@@ -86,9 +88,9 @@ public class CupService(ICupRepository cupRepository) : ICupService
         if (matchRound == null || match == null)
             throw new KeyNotFoundException("Match not found in this cup.");
         if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException("Match already has a result.");
+            throw new InvalidOperationException(MatchAlreadyHasResult);
         if (string.IsNullOrEmpty(match.HomePlayerId) || string.IsNullOrEmpty(match.AwayPlayerId))
-            throw new InvalidOperationException("Match participants are not yet determined.");
+            throw new InvalidOperationException(MatchParticipantsNotDetermined);
 
         // ELO
         var seasonPlayers = cup.Season.Players.ToList();
@@ -156,7 +158,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
             else if (wonOnPenaltiesId != null)
                 tieWinnerId = wonOnPenaltiesId;
             else
-                throw new InvalidOperationException("Match is drawn — provide the winner on penalties.");
+                throw new InvalidOperationException(MatchIsDrawnNeedsPenalties);
 
             tieDecided = true;
         }
@@ -188,7 +190,7 @@ public class CupService(ICupRepository cupRepository) : ICupService
                 else if (wonOnPenaltiesId != null)
                     tieWinnerId = wonOnPenaltiesId;
                 else
-                    throw new InvalidOperationException("Tie is level on aggregate — provide the winner on penalties.");
+                    throw new InvalidOperationException(TieOnAggregateMNeedsPenalties);
 
                 tieDecided = true;
             }
@@ -479,15 +481,15 @@ public class CupService(ICupRepository cupRepository) : ICupService
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Cup not found.");
+            throw new KeyNotFoundException(CupNotFound);
 
         var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
-            throw new UnauthorizedAccessException("Only vault admins and editors can edit matches.");
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
 
         var match = cup.Rounds.SelectMany(r => r.Matches).FirstOrDefault(m => m.Id == matchId);
         if (match == null)
-            throw new KeyNotFoundException("Match not found.");
+            throw new KeyNotFoundException(MatchNotFound);
 
         await cupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
     }

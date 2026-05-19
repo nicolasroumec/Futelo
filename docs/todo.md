@@ -19,38 +19,30 @@ Todos los sprints de diseño, i18n, auditoría técnica (A1–A5), features de l
 
 ---
 
-### Sprint A7 — UX y calidad (~3h) 🟢 Baja
+### Sprint A7 — UX y calidad (~3h) 🟢 Baja ✅
 
-- [ ] Crear componente `EmptyState.razor` reutilizable y reemplazar todos los `<p class="empty-state">`
+- [x] Crear componente `EmptyState.razor` reutilizable y reemplazar todos los `<p class="empty-state">` (17 páginas)
   - `feat: add reusable EmptyState component and migrate all empty states`
-- [ ] Agregar ARIA labels en botones de acción
-  - `fix: add ARIA labels to action buttons for accessibility`
+- [x] Agregar ARIA labels en botones de paginación (4 botones en VaultMatchHistory y PlayerMatchHistory)
+  - `fix: add ARIA labels to pagination buttons for accessibility`
+- [x] Crear `ErrorMessages.cs` en `Futelo.Server/Services/` y reemplazar todos los strings hardcodeados (10 servicios)
+  - `refactor: centralize error message strings in ErrorMessages`
 - [ ] Agregar `ILogger<T>` en todos los servicios del servidor
   - `feat: add structured logging to all server services`
-- [ ] Crear `ErrorMessages.cs` en Shared y reemplazar strings hardcodeados
-  - `refactor: centralize error message strings in ErrorMessages`
 - [ ] Implementar caching en `VideoGameService` y `TeamService` para catálogos estáticos
   - `feat: add in-memory cache to VideoGameService and TeamService`
 
 ---
 
-### Sprint A8 — Toast global (~2h) 🟢 Baja
+### Sprint A8 — Toast global (~2h) 🟢 Baja ✅
 
-Reemplaza los 2–5 pares `string message + string alertClass` por página por una llamada centralizada.
-
-- [ ] Crear `IToastService` en `Futelo.Client/Services/Toast/`
-  - `void Show(string message, ToastType type = ToastType.Success, int durationMs = 3000)`
-  - `event Action<ToastMessage> OnShow`
-- [ ] Implementar `ToastService` como singleton
-- [ ] Crear `ToastContainer.razor` + `.razor.css` en `Shared/`:
-  - Overlay fijo bottom-right, z-index alto
-  - Animación slide-in / fade-out
-  - Auto-dismiss por `durationMs`
-- [ ] Agregar `<ToastContainer />` en `MainLayout.razor`
-- [ ] Registrar `ToastService` en `Program.cs`
-- [ ] Migrar páginas: reemplazar `errorMessage`/`configureMessage`/etc. por `ToastService.Show()`
-  - Prioridad: `SeasonDetail`, `VaultDetail`, `LeagueView`, `CupView`, `SuperCupView`
-  - `refactor: replace inline alert messages with global toast service`
+- [x] Crear `IToastService` en `Futelo.Client/Services/Toast/`
+- [x] Implementar `ToastService` como singleton
+- [x] Crear `ToastContainer.razor` + `.razor.css` en `Shared/`
+- [x] Agregar `<ToastContainer />` en `MainLayout.razor`
+- [x] Registrar `ToastService` en `Program.cs`
+- [x] Migrar páginas con `ToastService.Show()`
+  - `feat: add global toast service and migrate alert messages in key pages`
 
 ---
 

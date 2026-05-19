@@ -5,6 +5,8 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Vault;
 
+using static ErrorMessages;
+
 public class VaultService(IVaultRepository repository) : IVaultService
 {
     public async Task<List<VaultResponse>> GetUserVaultsAsync(string userId)
@@ -17,7 +19,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
     {
         var vault = await repository.GetByIdAsync(id);
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
         return MapToResponse(vault);
     }
 
@@ -39,9 +41,9 @@ public class VaultService(IVaultRepository repository) : IVaultService
         var vault = await repository.GetByIdAsync(id);
         var caller = vault?.Players.FirstOrDefault(p => p.PlayerId == userId);
         if (vault == null || caller == null)
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
         if (caller.Role != VaultRole.Admin)
-            throw new UnauthorizedAccessException("Only vault admins can update the vault.");
+            throw new UnauthorizedAccessException(OnlyAdminsCanUpdate);
         vault.Name = request.Name;
         await repository.UpdateAsync(vault);
     }
@@ -50,9 +52,9 @@ public class VaultService(IVaultRepository repository) : IVaultService
     {
         var vault = await repository.GetByIdAsync(id);
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
         if (vault.OwnerId != userId)
-            throw new UnauthorizedAccessException("Only the vault owner can delete the vault.");
+            throw new UnauthorizedAccessException(OnlyOwnerCanDelete);
         await repository.DeleteAsync(vault);
     }
 
@@ -60,7 +62,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
     {
         var vault = await repository.GetByIdAsync(id);
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
         var matches = await repository.GetRecentMatchesAsync(id, limit);
         return matches.Select(MapToRecentMatch).ToList();
     }
@@ -69,7 +71,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
     {
         var vault = await repository.GetByIdAsync(id);
         if (vault == null || vault.Players.All(p => p.PlayerId != userId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
         var skip = (page - 1) * pageSize;
         var totalCount = await repository.CountMatchesAsync(id, competitionType);
         var items = await repository.GetMatchesPageAsync(id, skip, pageSize, competitionType);

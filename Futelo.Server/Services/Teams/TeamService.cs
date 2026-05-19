@@ -4,6 +4,8 @@ using Futelo.Shared.DTOs.Team;
 
 namespace Futelo.Server.Services.Teams;
 
+using static ErrorMessages;
+
 public class TeamService(ITeamRepository repository) : ITeamService
 {
     public async Task<List<TeamResponse>> GetAllAsync()

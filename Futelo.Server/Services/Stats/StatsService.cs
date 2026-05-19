@@ -6,16 +6,18 @@ using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Services.Stats;
 
+using static ErrorMessages;
+
 public class StatsService(IStatsRepository statsRepository) : IStatsService
 {
     public async Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var player = await statsRepository.GetPlayerAsync(playerId);
         if (player == null)
-            throw new KeyNotFoundException("Player not found.");
+            throw new KeyNotFoundException(PlayerNotFound);
 
         var matches = await statsRepository.GetPlayerMatchesInVaultAsync(playerId, vaultId);
 
@@ -142,13 +144,13 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<HeadToHeadResponse> GetHeadToHeadAsync(string player1Id, string player2Id, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var player1 = await statsRepository.GetPlayerAsync(player1Id);
         var player2 = await statsRepository.GetPlayerAsync(player2Id);
 
         if (player1 == null || player2 == null)
-            throw new KeyNotFoundException("Player not found.");
+            throw new KeyNotFoundException(PlayerNotFound);
 
         var matches = await statsRepository.GetH2HMatchesInVaultAsync(player1Id, player2Id, vaultId);
 
@@ -198,7 +200,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<RankingRow>> GetGeneralRankingAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var vaultPlayers = await statsRepository.GetGeneralRankingAsync(vaultId);
 
@@ -215,7 +217,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var seasonPlayers = await statsRepository.GetSeasonRankingAsync(seasonId, vaultId);
 
@@ -233,7 +235,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var seasons = await statsRepository.GetVaultPalmaresAsync(vaultId);
 
@@ -253,7 +255,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<EloHistoryPoint>> GetEloHistoryAsync(string playerId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var history = await statsRepository.GetPlayerEloHistoryInVaultAsync(playerId, vaultId);
 
@@ -272,7 +274,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<ScorerRow>> GetScorersAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetAllPlayedMatchesInVaultAsync(vaultId);
         var scorerMap = new Dictionary<string, (string DisplayName, int Goals)>();
@@ -305,7 +307,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetAllPlayedMatchesInVaultAsync(vaultId);
 
@@ -382,7 +384,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<GameStatsEntry>> GetGamesRankingAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetAllPlayedMatchesWithVideoGameInVaultAsync(vaultId);
 
@@ -446,7 +448,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetAllPlayedMatchesWithTeamsInVaultAsync(vaultId);
 
@@ -493,11 +495,11 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<RecentFormEntry>> GetRecentFormAsync(string playerId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var player = await statsRepository.GetPlayerAsync(playerId);
         if (player == null)
-            throw new KeyNotFoundException("Player not found.");
+            throw new KeyNotFoundException(PlayerNotFound);
 
         var matches = await statsRepository.GetPlayerLastNMatchesAsync(playerId, vaultId, 5);
 
@@ -524,7 +526,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<List<RecentMatchResponse>> GetPlayerRecentMatchesAsync(string playerId, int vaultId, string requesterId, int limit)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
         var matches = await statsRepository.GetPlayerRecentMatchesAsync(playerId, vaultId, limit);
         return matches.Select(MapToRecentMatch).ToList();
     }
@@ -532,7 +534,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(string playerId, int vaultId, string requesterId, int page, int pageSize, string? competitionType = null)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
         var skip = (page - 1) * pageSize;
         var totalCount = await statsRepository.CountPlayerMatchesAsync(playerId, vaultId, competitionType);
         var items = await statsRepository.GetPlayerMatchesPageAsync(playerId, vaultId, skip, pageSize, competitionType);
@@ -592,7 +594,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var match = await statsRepository.GetTopScoringMatchInVaultAsync(vaultId);
         if (match == null) return null;
@@ -617,7 +619,7 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
     public async Task<PlayerRecordsResponse> GetPlayerRecordsAsync(string playerId, int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
-            throw new KeyNotFoundException("Vault not found.");
+            throw new KeyNotFoundException(VaultNotFound);
 
         var matches = await statsRepository.GetPlayerMatchesWithOpponentsInVaultAsync(playerId, vaultId);
         var eloHistory = await statsRepository.GetPlayerEloHistoryInVaultAsync(playerId, vaultId);
