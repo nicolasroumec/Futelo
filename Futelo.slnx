@@ -2,5 +2,7 @@
   <Project Path="Futelo.Client/Futelo.Client.csproj" />
   <Project Path="Futelo.Server/Futelo.Server.csproj" />
   <Project Path="Futelo.Shared/Futelo.Shared.csproj" />
-  <Project Path="Futelo.Tests/Futelo.Tests.csproj" />
+  <Project Path="Futelo.Tests/Futelo.Tests.csproj">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
 </Solution>
