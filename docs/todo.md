@@ -155,14 +155,14 @@ Rama: `13-theme`
 ## Sesión 14 — PWA
 Rama: `14-pwa`
 
-### Sprint PWA1 — Manifest e íconos
+### Sprint PWA1 — Manifest e íconos ✅
 `feat: add web app manifest and PWA meta tags`
 
-- [ ] Crear `wwwroot/manifest.webmanifest` (name, short_name, start_url, display: standalone, theme_color, background_color, icons)
-- [ ] Generar `icon-512.png` (ya existe `icon-192.png`)
-- [ ] Generar `apple-touch-icon.png` (180×180, para iOS)
-- [ ] Variante maskable del ícono (con padding de safe zone)
-- [ ] Agregar en `index.html`:
+- [x] Crear `wwwroot/manifest.webmanifest` (name, short_name, start_url, display: standalone, theme_color, background_color, icons)
+- [x] Generar `icon-512.png` (ya existe `icon-192.png`)
+- [x] Generar `apple-touch-icon.png` (180×180, para iOS)
+- [x] Variante maskable del ícono (purpose: maskable any en manifest)
+- [x] Agregar en `index.html`:
   - `<link rel="manifest" href="manifest.webmanifest">`
   - `<meta name="theme-color" content="#111827">`
   - `<link rel="apple-touch-icon" href="apple-touch-icon.png">`
@@ -172,16 +172,18 @@ Rama: `14-pwa`
 
 ---
 
-### Sprint PWA2 — Service Worker
+### Sprint PWA2 — Service Worker ✅
 `feat: add service worker for offline and installability`
 
-- [ ] Crear `wwwroot/service-worker.js` (dev: network-only, sin cache)
-- [ ] Crear `wwwroot/service-worker.published.js` (prod: cache-first de todos los assets Blazor)
-- [ ] Agregar en `Futelo.Client.csproj`:
+- [x] Crear `wwwroot/service-worker.js` (dev: network-only, sin cache)
+- [x] Crear `wwwroot/service-worker.published.js` (prod: cache-first de todos los assets Blazor)
+- [x] Agregar en `Futelo.Client.csproj`:
   ```xml
   <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
   ```
   El SDK genera `service-worker-assets.js` automáticamente al publicar con la lista de todos los assets.
+- [x] Registrar `<ServiceWorker>` item en `.csproj`
+- [x] Registrar service worker en `index.html`
 
 ---
 
