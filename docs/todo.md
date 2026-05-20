@@ -187,20 +187,25 @@ Rama: `14-pwa`
 
 ---
 
-### Sprint PWA3 — Verificación
-`chore: verify PWA installability`
+### Sprint PWA3 — PwaUpdater + verificación
+`feat: add PwaUpdater component for service worker update detection`
 
-- [ ] Auditoría Lighthouse → sección PWA (score ≥ 90)
+- [x] Crear `PwaUpdater.razor` + `.razor.cs` + `.razor.css` en `Shared/`
+- [x] Agregar `wwwroot/js/pwaUpdater.js` con `register` y `applyUpdate`
+- [x] Manejar `SKIP_WAITING` en `service-worker.published.js`
+- [x] Registrar `<PwaUpdater />` en `MainLayout.razor`
+- [ ] Auditoría Lighthouse PWA (score ≥ 90) — hacer en despliegue real (HTTPS)
 - [ ] Probar install prompt en Chrome/Edge desktop
 - [ ] Probar "Agregar a pantalla de inicio" en Safari iOS
 
 ---
 
-### Sprint PWA4 — Offline UX (opcional)
-`feat: add offline indicator`
+### Sprint PWA4 — Offline UX ✅
+`feat: add offline indicator and offline fallback page`
 
-- [ ] Banner o toast cuando la app detecta que no hay conexión
-- [ ] Página de fallback offline (para navegación sin caché)
+- [x] Banner `OfflineIndicator` que aparece/desaparece con eventos `online`/`offline`
+- [x] `wwwroot/offline.html` — página de fallback sin conexión
+- [x] `service-worker.published.js` — sirve `offline.html` cuando navegación falla sin caché
 
 ---
 

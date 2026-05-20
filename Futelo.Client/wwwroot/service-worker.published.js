@@ -40,5 +40,16 @@ async function onFetch(event) {
         const cache = await caches.open(cacheName);
         cachedResponse = await cache.match(request);
     }
-    return cachedResponse || fetch(event.request);
+
+    if (cachedResponse) return cachedResponse;
+
+    try {
+        return await fetch(event.request);
+    } catch {
+        if (event.request.mode === 'navigate') {
+            const cache = await caches.open(cacheName);
+            return await cache.match('offline.html') ?? new Response('Offline', { status: 503 });
+        }
+        return new Response('Offline', { status: 503 });
+    }
 }
