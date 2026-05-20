@@ -284,6 +284,8 @@ public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<Sup
             Name = superCup.Name,
             Status = superCup.Status.ToString(),
             IsHomeAndAway = superCup.IsHomeAndAway,
+            StartDate = superCup.StartDate,
+            EndDate = superCup.EndDate,
             CanEdit = canEdit,
             Player1Id = superCup.Player1Id,
             Player1Name = superCup.Player1Id != null

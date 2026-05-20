@@ -209,5 +209,126 @@ Rama: `14-pwa`
 
 ---
 
-## Sesión 15 — Pulido y despliegue
-Ver roadmap para detalle completo.
+## Sesión 15 — Reglas y mejoras
+Rama: `15-features`
+
+### Sprint F1 — Fechas en Vault y competencias (~45min) ⬜
+`feat: add start and end dates to vault and competitions`
+
+- [ ] Agregar `StartDate` / `EndDate` (nullable) a `Vault`, `League`, `Cup`, `SuperCup` en los modelos EF Core
+- [ ] Migración EF Core
+- [ ] Actualizar DTOs en `Futelo.Shared` para incluir las fechas
+- [ ] UI: campos de fecha en el formulario de creación/edición del vault y en la configuración de cada competencia
+
+---
+
+### Sprint F2 — Programación manual de partidos (~1h) ⬜
+`feat: allow manual date assignment per match in league and cup`
+
+- [ ] Agregar campo `ScheduledDate` (nullable `DateTime`) al modelo `Match`
+- [ ] Migración EF Core
+- [ ] Endpoint PATCH `/api/matches/{id}/schedule` para asignar fecha a un partido
+- [ ] UI en `LeagueView` y `CupView`: campo de fecha editable por fila en el fixture (solo si el partido no tiene resultado cargado)
+
+---
+
+### Sprint F3 — Diferencia de gol en perfil de jugador (~20min) ⬜
+`feat: add goal difference to player profile stats table`
+
+- [ ] Calcular GD en `StatsService` (goles a favor − goles en contra)
+- [ ] Agregar `GoalsFor`, `GoalsAgainst`, `GoalDifference` a `PlayerStatsResponse`
+- [ ] UI en `PlayerProfile.razor`: mostrar GD en la tabla resumen de stats
+
+---
+
+### Sprint F4 — Reglas de desempate en Liga (~1.5h) ⬜
+`feat: add configurable tiebreaker rules for league standings`
+
+- [ ] Crear enum `TiebreakerRule` en `Futelo.Shared`: `GoalDifference`, `HeadToHead`, `HeadToHeadThenGoalDifference`
+- [ ] Agregar `TiebreakerRule` al modelo `League` + migración
+- [ ] Actualizar `LeagueService` standings: aplicar la regla al ordenar jugadores con igual puntos
+  - `HeadToHead`: compara resultado entre los empatados directamente
+  - `GoalDifference`: diferencia de goles general
+  - `HeadToHeadThenGoalDifference`: enfrentamiento directo, si sigue empatado → GD
+- [ ] La regla también determina el campeón al cerrar la liga
+- [ ] UI en configuración de liga: selector de regla de desempate
+
+---
+
+### Sprint F5 — Formato de Copa (~1.5h) ⬜
+`feat: add away goal rule and seeding mode to cup configuration`
+
+- [ ] Crear enum `CupSeedingMode` en `Futelo.Shared`: `LeaguePosition`, `SeasonElo`, `Random`
+- [ ] Agregar `SeedingMode` al modelo `Cup` + migración
+- [ ] Agregar `AwayGoalRule` (bool) al modelo `Cup` + migración
+  - Se aplica solo en rondas previas a la final — la final nunca usa gol de visitante
+- [ ] Actualizar `CupService`:
+  - Generación del bracket según `SeedingMode` (posición en liga anterior, ELO de última temporada, aleatorio)
+  - Lógica de avance en ida y vuelta: si hay empate en aggregate, aplicar `AwayGoalRule` antes de ir a penales
+- [ ] UI en configuración de copa: selector de sorteo + toggle de gol de visitante
+
+---
+
+### Sprint F6 — Mejora UI configuración de torneos (~1h) ⬜
+`feat: improve tournament configuration UI`
+
+- [ ] Rediseñar el formulario de configuración de Liga/Copa para que las nuevas reglas sean claras y estén bien agrupadas
+- [ ] Usar cards o secciones colapsables por competencia
+- [ ] Tooltips o descripciones cortas para cada opción de regla
+
+---
+
+## Sesión 16 — Pulido y despliegue
+Rama: `16-deploy`
+
+### Sprint D1 — Error boundaries en Client (~30min) ⬜
+`feat: add error boundaries and custom 404 page`
+
+- [ ] Envolver `<Router>` en `MainLayout.razor` con `<ErrorBoundary>` de Blazor
+- [ ] Crear `Shared/ErrorFallback.razor` + `.razor.cs`: mensaje amigable + botón "Volver al inicio"
+- [ ] Crear `Pages/NotFound.razor`: página 404 con link al dashboard
+- [ ] Configurar template `<NotFound>` en `Router` para usar `NotFound.razor`
+
+---
+
+### Sprint D2 — Security hardening (~1h) ⬜
+`feat: add rate limiting and restrict CORS for production`
+
+- [ ] Agregar rate limiting en `Program.cs` con `AddRateLimiter` (.NET 8+):
+  - Política `"auth"`: 5 requests / 1 minuto por IP
+  - Aplicar con `[EnableRateLimiting("auth")]` en `AuthController.Login` y `AuthController.Register`
+- [ ] Restringir CORS en `appsettings.Production.json` a la URL del cliente en producción
+
+---
+
+### Sprint D3 — Configuración de producción (~45min) ⬜
+`feat: add production configuration and environment variable support`
+
+- [ ] Crear `Futelo.Server/appsettings.Production.json`:
+  - `ConnectionStrings:DefaultConnection` (ruta SQLite en el servidor)
+  - `Jwt:Key`, `Jwt:Issuer`, `Jwt:Audience` leídos de env vars (`${JWT_KEY}`, etc.)
+  - `Cors:AllowedOrigins` con la URL del cliente
+- [ ] Verificar que ningún secreto esté hardcodeado en el repo
+- [ ] Crear `Futelo.Client/wwwroot/appsettings.Production.json` con la URL del API en producción
+
+---
+
+### Sprint D4 — Dockerfile y despliegue (~2h) ⬜
+`feat: add Dockerfile and deploy to Railway`
+
+- [ ] Crear `Dockerfile` multi-stage en la raíz:
+  - Stage `build`: `mcr.microsoft.com/dotnet/sdk:10.0` — publica `Futelo.Server` (incluye el Client como assets estáticos)
+  - Stage `runtime`: `mcr.microsoft.com/dotnet/aspnet:10.0` — copia publish output
+- [ ] Crear `.dockerignore`
+- [ ] Deploy en Railway (recomendado: conectar repo GitHub, Railway detecta Dockerfile automáticamente)
+- [ ] Configurar variables de entorno en Railway: `JWT_KEY`, `JWT_ISSUER`, `JWT_AUDIENCE`, `ASPNETCORE_ENVIRONMENT=Production`
+- [ ] Verificar que la app levanta en producción (DB se crea/migra al arrancar con `EnsureCreated` o `Migrate`)
+
+---
+
+### Sprint D5 — PWA Lighthouse post-deploy (~30min) ⬜
+`fix: PWA audit and install prompt verification`
+
+- [ ] Auditoría Lighthouse en Chrome DevTools (score ≥ 90 en PWA)
+- [ ] Probar install prompt en Chrome/Edge desktop
+- [ ] Probar "Agregar a pantalla de inicio" en Safari iOS

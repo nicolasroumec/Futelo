@@ -22,14 +22,20 @@ public class SeasonResponse
     public int? LeagueId { get; set; }
     public string LeagueName { get; set; } = "League";
     public bool LeagueIsHomeAndAway { get; set; }
+    public DateTime? LeagueStartDate { get; set; }
+    public DateTime? LeagueEndDate { get; set; }
     public string? LeagueStatus { get; set; }
     public bool HasCup { get; set; }
     public int? CupId { get; set; }
     public string CupName { get; set; } = "Cup";
+    public DateTime? CupStartDate { get; set; }
+    public DateTime? CupEndDate { get; set; }
     public string? CupStatus { get; set; }
     public bool HasSuperCup { get; set; }
     public int? SuperCupId { get; set; }
     public string SuperCupName { get; set; } = "SuperCup";
+    public DateTime? SuperCupStartDate { get; set; }
+    public DateTime? SuperCupEndDate { get; set; }
     public string? SuperCupStatus { get; set; }
     public int? VideoGameId { get; set; }
     public string? VideoGameName { get; set; }

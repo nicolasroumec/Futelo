@@ -74,7 +74,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             SeasonElo = EloCalculator.InitialElo
         }).ToList();
 
-        await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.HasCup, request.CupName, request.HasSuperCup, request.SuperCupName);
+        await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.LeagueStartDate, request.LeagueEndDate, request.HasCup, request.CupName, request.CupStartDate, request.CupEndDate, request.HasSuperCup, request.SuperCupName, request.SuperCupStartDate, request.SuperCupEndDate);
     }
 
     public async Task FinishAsync(int id, string userId)
@@ -166,14 +166,20 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         LeagueId = season.League?.Id,
         LeagueName = season.League?.Name ?? "League",
         LeagueIsHomeAndAway = season.League?.IsHomeAndAway ?? false,
+        LeagueStartDate = season.League?.StartDate,
+        LeagueEndDate = season.League?.EndDate,
         LeagueStatus = season.League?.Status.ToString(),
         HasCup = season.Cup != null,
         CupId = season.Cup?.Id,
         CupName = season.Cup?.Name ?? "Cup",
+        CupStartDate = season.Cup?.StartDate,
+        CupEndDate = season.Cup?.EndDate,
         CupStatus = season.Cup?.Status.ToString(),
         HasSuperCup = season.SuperCup != null,
         SuperCupId = season.SuperCup?.Id,
         SuperCupName = season.SuperCup?.Name ?? "SuperCup",
+        SuperCupStartDate = season.SuperCup?.StartDate,
+        SuperCupEndDate = season.SuperCup?.EndDate,
         SuperCupStatus = season.SuperCup?.Status.ToString(),
         Players = season.Players.Select(p => new SeasonPlayerResponse
         {

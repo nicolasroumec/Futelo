@@ -8,6 +8,8 @@ public class Cup
     public int SeasonId { get; set; }
     public string Name { get; set; } = "Cup";
     public bool IsHomeAndAway { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public BracketMode BracketMode { get; set; } = BracketMode.Seeded;
     public TournamentStatus Status { get; set; } = TournamentStatus.NotStarted;
 

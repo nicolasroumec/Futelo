@@ -8,6 +8,8 @@ public class SuperCupResponse
     public string Name { get; set; } = "SuperCup";
     public string Status { get; set; } = string.Empty;
     public bool IsHomeAndAway { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public string? Player1Id { get; set; }
     public string? Player1Name { get; set; }
     public string? Player2Id { get; set; }

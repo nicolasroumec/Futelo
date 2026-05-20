@@ -232,6 +232,50 @@ Controller  →  Service  →  Repository  →  FuteloContext
 - Adaptación mobile de todas las vistas
 - Navbar colapsable en móvil
 
-## Sesión 13 — Pulido y despliegue
-- Manejo global de errores (middleware en Server, error boundaries en Client)
-- Opciones de hosting (Railway, Fly.io, Azure)
+## Sesión 15 — Reglas y mejoras
+
+### Sprint F1 — Fechas en Vault y competencias
+`StartDate` / `EndDate` (nullable) en `Vault`, `League`, `Cup`, `SuperCup` + migración + UI en config.
+
+### Sprint F2 — Programación manual de partidos
+Campo `ScheduledDate` en `Match` + endpoint PATCH para asignar fecha + UI por fila en el fixture de liga y copa.
+
+### Sprint F3 — Diferencia de gol en perfil
+`GoalDifference` (GF − GA) en `PlayerStatsResponse` + columna en tabla resumen de `PlayerProfile`.
+
+### Sprint F4 — Reglas de desempate en Liga
+Enum `TiebreakerRule`: `GoalDifference`, `HeadToHead`, `HeadToHeadThenGoalDifference`. Se agrega a `League`, se aplica en el cálculo de standings y para determinar el campeón.
+
+### Sprint F5 — Formato de Copa
+- Enum `CupSeedingMode`: `LeaguePosition` (1 vs último/penúltimo, 2 vs antepenúltimo...), `SeasonElo`, `Random`
+- `AwayGoalRule` (bool) en `Cup`: aplica en rondas previas a la final únicamente
+- La final siempre se juega sin gol de visitante
+
+### Sprint F6 — Mejora UI configuración de torneos
+Rediseño del formulario de configuración con cards/secciones por competencia y tooltips para cada opción.
+
+---
+
+## Sesión 16 — Pulido y despliegue
+
+### Sprint D1 — Error boundaries en Client
+- `<ErrorBoundary>` alrededor del `<Router>` en `MainLayout`
+- `Shared/ErrorFallback.razor`: UI amigable con botón "Volver al inicio"
+- `Pages/NotFound.razor`: página 404 con link al dashboard
+
+### Sprint D2 — Security hardening
+- Rate limiting en endpoints de auth (5 req/min por IP) con `AddRateLimiter`
+- CORS restringido a la URL del cliente en `appsettings.Production.json`
+
+### Sprint D3 — Configuración de producción
+- `appsettings.Production.json` en Server y Client
+- Secretos (JWT key, connection string) via variables de entorno — nunca en el repo
+
+### Sprint D4 — Dockerfile y despliegue
+- Dockerfile multi-stage: SDK para build, ASP.NET runtime para ejecución
+- Deploy en Railway (conectar repo GitHub, configurar env vars)
+- Proveedor recomendado: Railway (Railway detecta Dockerfile automáticamente y tiene free tier)
+
+### Sprint D5 — PWA Lighthouse post-deploy
+- Auditoría Lighthouse (score ≥ 90) — requiere HTTPS real
+- Probar install prompt en Chrome/Edge y Safari iOS

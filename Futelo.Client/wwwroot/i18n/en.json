@@ -63,6 +63,8 @@
   "createVault.title": "New Vault",
   "createVault.name": "Vault Name",
   "createVault.button": "Create",
+  "createVault.startDate": "Start Date (optional)",
+  "createVault.endDate": "End Date (optional)",
 
   "season.year": "Year",
   "season.videoGame": "Video Game",

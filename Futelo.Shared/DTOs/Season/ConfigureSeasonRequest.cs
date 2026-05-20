@@ -5,9 +5,15 @@ public class ConfigureSeasonRequest
     public bool HasLeague { get; set; }
     public string LeagueName { get; set; } = "League";
     public bool LeagueIsHomeAndAway { get; set; }
+    public DateTime? LeagueStartDate { get; set; }
+    public DateTime? LeagueEndDate { get; set; }
     public bool HasCup { get; set; }
     public string CupName { get; set; } = "Cup";
+    public DateTime? CupStartDate { get; set; }
+    public DateTime? CupEndDate { get; set; }
     public bool HasSuperCup { get; set; }
     public string SuperCupName { get; set; } = "SuperCup";
+    public DateTime? SuperCupStartDate { get; set; }
+    public DateTime? SuperCupEndDate { get; set; }
     public List<string> PlayerIds { get; set; } = [];
 }

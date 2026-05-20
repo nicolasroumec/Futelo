@@ -30,6 +30,8 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             Status = league.Status.ToString(),
             Name = league.Name,
             IsHomeAndAway = league.IsHomeAndAway,
+            StartDate = league.StartDate,
+            EndDate = league.EndDate,
             ChampionId = league.ChampionId,
             ChampionName = league.ChampionId != null
                 ? league.Season.Players.FirstOrDefault(sp => sp.PlayerId == league.ChampionId)?.Player.DisplayName

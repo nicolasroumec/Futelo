@@ -433,6 +433,8 @@ public class CupService(ICupRepository cupRepository, ILogger<CupService> logger
             Status = cup.Status.ToString(),
             Name = cup.Name,
             IsHomeAndAway = cup.IsHomeAndAway,
+            StartDate = cup.StartDate,
+            EndDate = cup.EndDate,
             ChampionId = cup.ChampionId,
             ChampionName = cup.ChampionId != null
                 ? seasonPlayerMap.GetValueOrDefault(cup.ChampionId)
