@@ -1,0 +1,10 @@
+@namespace Futelo.Client.Shared
+
+@if (_updateAvailable)
+{
+    <div class="pwa-update-banner" role="alert">
+        <span class="pwa-update-banner__text">New version available.</span>
+        <button class="pwa-update-banner__btn" @onclick="ApplyUpdateAsync">Reload</button>
+        <button class="pwa-update-banner__dismiss" @onclick="Dismiss" aria-label="Dismiss">&#x2715;</button>
+    </div>
+}
