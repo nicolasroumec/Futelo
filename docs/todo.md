@@ -271,12 +271,14 @@ Rama: `15-features`
 
 ---
 
-### Sprint F6 — Mejora UI configuración de torneos (~1h) ⬜
+### Sprint F6 — Mejora UI configuración de torneos ✅
 `feat: improve tournament configuration UI`
 
-- [ ] Rediseñar el formulario de configuración de Liga/Copa para que las nuevas reglas sean claras y estén bien agrupadas
-- [ ] Usar cards o secciones colapsables por competencia
-- [ ] Tooltips o descripciones cortas para cada opción de regla
+- [x] Rediseñar `SeasonCompetitionConfig.razor`: una card por competencia (Liga / Copa / Supercopa)
+- [x] Toggle switches para activar/desactivar cada competencia; borde verde cuando activa
+- [x] Textos de ayuda (`form-text`) bajo cada regla (H&A, tiebreaker, seeding mode, away goal rule)
+- [x] CSS scoped en `SeasonCompetitionConfig.razor.css` usando variables del design system
+- [x] Claves i18n de hint añadidas en `en.json` y `es.json`
 
 ---
 

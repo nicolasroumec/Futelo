@@ -1,77 +1,128 @@
 @using Futelo.Shared.Enums
 @inherits LocalizedComponentBase
 
-<div class="mb-3">
-    <label class="form-label fw-semibold">@Lang.Get("season.competitions")</label>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="chkLeague"
-               @bind="Model.HasLeague" />
-        <label class="form-check-label" for="chkLeague">@Lang.Get("createSeason.league")</label>
-    </div>
-    @if (Model.HasLeague)
-    {
-        <div class="ms-3 mb-2">
-            <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                   placeholder="@Lang.Get("season.leagueNamePlaceholder")" @bind="Model.LeagueName" />
+<div class="competition-config">
+
+    <div class="competition-section @(Model.HasLeague ? "competition-section--active" : "")">
+        <div class="competition-section__toggle">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="chkLeague" role="switch"
+                       @bind="Model.HasLeague" />
+                <label class="form-check-label fw-semibold" for="chkLeague">
+                    @Lang.Get("createSeason.league")
+                </label>
+            </div>
         </div>
-        <div class="form-check ms-3">
-            <input class="form-check-input" type="checkbox" id="chkLeagueH2H"
-                   @bind="Model.LeagueIsHomeAndAway" />
-            <label class="form-check-label" for="chkLeagueH2H">@Lang.Get("season.homeAndAway")</label>
-        </div>
-        <div class="ms-3 mt-2" style="max-width:260px">
-            <label class="form-label form-label-sm mb-1">@Lang.Get("season.tiebreaker")</label>
-            <select class="form-select form-select-sm" @bind="Model.LeagueTiebreakerRule">
-                <option value="@TiebreakerRule.GoalDifference">@Lang.Get("season.tiebreaker.goalDifference")</option>
-                <option value="@TiebreakerRule.HeadToHead">@Lang.Get("season.tiebreaker.headToHead")</option>
-                <option value="@TiebreakerRule.HeadToHeadThenGoalDifference">@Lang.Get("season.tiebreaker.headToHeadThenGD")</option>
-            </select>
-        </div>
-    }
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="chkCup"
-               @bind="Model.HasCup" />
-        <label class="form-check-label" for="chkCup">@Lang.Get("createSeason.cup")</label>
-    </div>
-    @if (Model.HasCup)
-    {
-        <div class="ms-3 mb-2">
-            <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                   placeholder="@Lang.Get("season.cupNamePlaceholder")" @bind="Model.CupName" />
-        </div>
-        <div class="form-check ms-3">
-            <input class="form-check-input" type="checkbox" id="chkCupH2H"
-                   @bind="Model.CupIsHomeAndAway" />
-            <label class="form-check-label" for="chkCupH2H">@Lang.Get("season.homeAndAway")</label>
-        </div>
-        <div class="ms-3 mt-2" style="max-width:260px">
-            <label class="form-label form-label-sm mb-1">@Lang.Get("cup.seedingMode")</label>
-            <select class="form-select form-select-sm" @bind="Model.CupSeedingMode">
-                <option value="@CupSeedingMode.SeasonElo">@Lang.Get("cup.seedingMode.seasonElo")</option>
-                <option value="@CupSeedingMode.LeaguePosition">@Lang.Get("cup.seedingMode.leaguePosition")</option>
-                <option value="@CupSeedingMode.Random">@Lang.Get("cup.seedingMode.random")</option>
-            </select>
-        </div>
-        @if (Model.CupIsHomeAndAway)
+        @if (Model.HasLeague)
         {
-            <div class="form-check ms-3 mt-2">
-                <input class="form-check-input" type="checkbox" id="chkAwayGoalRule"
-                       @bind="Model.CupAwayGoalRule" />
-                <label class="form-check-label" for="chkAwayGoalRule">@Lang.Get("cup.awayGoalRule")</label>
+            <div class="competition-section__body">
+                <div class="mb-3">
+                    <label class="form-label form-label-sm mb-1">@Lang.Get("common.name")</label>
+                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
+                           placeholder="@Lang.Get("season.leagueNamePlaceholder")" @bind="Model.LeagueName" />
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="chkLeagueH2H"
+                               @bind="Model.LeagueIsHomeAndAway" />
+                        <label class="form-check-label" for="chkLeagueH2H">@Lang.Get("season.homeAndAway")</label>
+                    </div>
+                    <div class="form-text">@Lang.Get("season.homeAndAway.hint")</div>
+                </div>
+
+                <div class="mb-0" style="max-width:280px">
+                    <label class="form-label form-label-sm mb-1">@Lang.Get("season.tiebreaker")</label>
+                    <select class="form-select form-select-sm" @bind="Model.LeagueTiebreakerRule">
+                        <option value="@TiebreakerRule.GoalDifference">@Lang.Get("season.tiebreaker.goalDifference")</option>
+                        <option value="@TiebreakerRule.HeadToHead">@Lang.Get("season.tiebreaker.headToHead")</option>
+                        <option value="@TiebreakerRule.HeadToHeadThenGoalDifference">@Lang.Get("season.tiebreaker.headToHeadThenGD")</option>
+                    </select>
+                    <div class="form-text">@Lang.Get("season.tiebreaker.hint")</div>
+                </div>
             </div>
         }
-    }
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="chkSuperCup"
-               @bind="Model.HasSuperCup"
-               disabled="@(!Model.HasLeague || !Model.HasCup)" />
-        <label class="form-check-label" for="chkSuperCup">@Lang.Get("createSeason.superCup")</label>
     </div>
-    @if (Model.HasSuperCup)
-    {
-        <div class="ms-3 mb-2">
-            <input type="text" class="form-control form-control-sm" style="max-width:220px"
-                   placeholder="@Lang.Get("season.superCupNamePlaceholder")" @bind="Model.SuperCupName" />
+
+    <div class="competition-section @(Model.HasCup ? "competition-section--active" : "")">
+        <div class="competition-section__toggle">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="chkCup" role="switch"
+                       @bind="Model.HasCup" />
+                <label class="form-check-label fw-semibold" for="chkCup">
+                    @Lang.Get("createSeason.cup")
+                </label>
+            </div>
         </div>
-    }
+        @if (Model.HasCup)
+        {
+            <div class="competition-section__body">
+                <div class="mb-3">
+                    <label class="form-label form-label-sm mb-1">@Lang.Get("common.name")</label>
+                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
+                           placeholder="@Lang.Get("season.cupNamePlaceholder")" @bind="Model.CupName" />
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="chkCupH2H"
+                               @bind="Model.CupIsHomeAndAway" />
+                        <label class="form-check-label" for="chkCupH2H">@Lang.Get("season.homeAndAway")</label>
+                    </div>
+                    <div class="form-text">@Lang.Get("season.homeAndAway.hint")</div>
+                </div>
+
+                <div class="mb-3" style="max-width:280px">
+                    <label class="form-label form-label-sm mb-1">@Lang.Get("cup.seedingMode")</label>
+                    <select class="form-select form-select-sm" @bind="Model.CupSeedingMode">
+                        <option value="@CupSeedingMode.SeasonElo">@Lang.Get("cup.seedingMode.seasonElo")</option>
+                        <option value="@CupSeedingMode.LeaguePosition">@Lang.Get("cup.seedingMode.leaguePosition")</option>
+                        <option value="@CupSeedingMode.Random">@Lang.Get("cup.seedingMode.random")</option>
+                    </select>
+                    <div class="form-text">@Lang.Get("cup.seedingMode.hint")</div>
+                </div>
+
+                @if (Model.CupIsHomeAndAway)
+                {
+                    <div class="mb-0">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chkAwayGoalRule"
+                                   @bind="Model.CupAwayGoalRule" />
+                            <label class="form-check-label" for="chkAwayGoalRule">@Lang.Get("cup.awayGoalRule")</label>
+                        </div>
+                        <div class="form-text">@Lang.Get("cup.awayGoalRule.hint")</div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="competition-section @(Model.HasSuperCup ? "competition-section--active" : "") @(!Model.HasLeague || !Model.HasCup ? "competition-section--disabled" : "")">
+        <div class="competition-section__toggle">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="chkSuperCup" role="switch"
+                       @bind="Model.HasSuperCup"
+                       disabled="@(!Model.HasLeague || !Model.HasCup)" />
+                <label class="form-check-label fw-semibold" for="chkSuperCup">
+                    @Lang.Get("createSeason.superCup")
+                </label>
+            </div>
+            @if (!Model.HasLeague || !Model.HasCup)
+            {
+                <small class="text-muted ms-3">@Lang.Get("season.superCup.requiresLeagueAndCup")</small>
+            }
+        </div>
+        @if (Model.HasSuperCup)
+        {
+            <div class="competition-section__body">
+                <div class="mb-3">
+                    <label class="form-label form-label-sm mb-1">@Lang.Get("common.name")</label>
+                    <input type="text" class="form-control form-control-sm" style="max-width:220px"
+                           placeholder="@Lang.Get("season.superCupNamePlaceholder")" @bind="Model.SuperCupName" />
+                </div>
+                <div class="form-text mb-0">@Lang.Get("superCup.participantsInfo")</div>
+            </div>
+        }
+    </div>
+
 </div>
