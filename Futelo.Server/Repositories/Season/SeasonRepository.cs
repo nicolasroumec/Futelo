@@ -42,7 +42,7 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         await SaveChangesAsync();
     }
 
-    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, string leagueName, bool leagueIsHomeAndAway, TiebreakerRule leagueTiebreakerRule, DateTime? leagueStartDate, DateTime? leagueEndDate, bool hasCup, string cupName, DateTime? cupStartDate, DateTime? cupEndDate, bool hasSuperCup, string superCupName, DateTime? superCupStartDate, DateTime? superCupEndDate)
+    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, string leagueName, bool leagueIsHomeAndAway, TiebreakerRule leagueTiebreakerRule, DateTime? leagueStartDate, DateTime? leagueEndDate, bool hasCup, string cupName, bool cupIsHomeAndAway, CupSeedingMode cupSeedingMode, bool cupAwayGoalRule, DateTime? cupStartDate, DateTime? cupEndDate, bool hasSuperCup, string superCupName, DateTime? superCupStartDate, DateTime? superCupEndDate)
     {
         var existing = await Context.Set<SeasonPlayer>().Where(p => p.SeasonId == seasonId).ToListAsync();
         Context.Set<SeasonPlayer>().RemoveRange(existing);
@@ -64,10 +64,13 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 
         var cup = await Context.Set<Models.Cup>().FirstOrDefaultAsync(c => c.SeasonId == seasonId);
         if (hasCup && cup == null)
-            Context.Set<Models.Cup>().Add(new Models.Cup { SeasonId = seasonId, Name = cupName, StartDate = cupStartDate, EndDate = cupEndDate });
+            Context.Set<Models.Cup>().Add(new Models.Cup { SeasonId = seasonId, Name = cupName, IsHomeAndAway = cupIsHomeAndAway, SeedingMode = cupSeedingMode, AwayGoalRule = cupAwayGoalRule, StartDate = cupStartDate, EndDate = cupEndDate });
         else if (hasCup && cup != null)
         {
             cup.Name = cupName;
+            cup.IsHomeAndAway = cupIsHomeAndAway;
+            cup.SeedingMode = cupSeedingMode;
+            cup.AwayGoalRule = cupAwayGoalRule;
             cup.StartDate = cupStartDate;
             cup.EndDate = cupEndDate;
         }

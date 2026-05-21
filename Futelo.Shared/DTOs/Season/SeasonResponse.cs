@@ -32,6 +32,9 @@ public class SeasonResponse
     public bool HasCup { get; set; }
     public int? CupId { get; set; }
     public string CupName { get; set; } = "Cup";
+    public bool CupIsHomeAndAway { get; set; }
+    public CupSeedingMode CupSeedingMode { get; set; }
+    public bool CupAwayGoalRule { get; set; }
     public DateTime? CupStartDate { get; set; }
     public DateTime? CupEndDate { get; set; }
     public string? CupStatus { get; set; }

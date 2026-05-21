@@ -39,9 +39,25 @@ public class CupService(ICupRepository cupRepository, ILogger<CupService> logger
         if (n != 4 && n != 5 && n != 6 && n != 8)
             throw new InvalidOperationException($"Cup requires exactly 4, 5, 6, or 8 players. Found: {n}.");
 
-        var seeds = cup.BracketMode == BracketMode.Seeded
-            ? seasonPlayers.OrderByDescending(sp => sp.Player.EloRating).Select(sp => sp.PlayerId).ToList()
-            : seasonPlayers.OrderBy(_ => Random.Shared.Next()).Select(sp => sp.PlayerId).ToList();
+        List<string> seeds;
+        if (cup.SeedingMode == CupSeedingMode.Random)
+        {
+            seeds = seasonPlayers.OrderBy(_ => Random.Shared.Next()).Select(sp => sp.PlayerId).ToList();
+        }
+        else if (cup.SeedingMode == CupSeedingMode.LeaguePosition)
+        {
+            var league = cup.Season.League;
+            if (league == null || league.Status == TournamentStatus.NotStarted)
+                throw new InvalidOperationException("League must be active or finished to use league position seeding.");
+            var played = league.Matches.Where(m => m.Status == MatchStatus.Played).ToList();
+            var standings = Futelo.Server.Helpers.StandingsCalculator.Compute(played, league.Players, league.TiebreakerRule);
+            seeds = standings.Select(row => row.PlayerId).ToList();
+        }
+        else
+        {
+            // SeasonElo (default)
+            seeds = seasonPlayers.OrderByDescending(sp => sp.Player.EloRating).Select(sp => sp.PlayerId).ToList();
+        }
 
         var (rounds, players) = BuildBracket(seeds, cupId, cup.IsHomeAndAway);
 
@@ -187,6 +203,19 @@ public class CupService(ICupRepository cupRepository, ILogger<CupService> logger
                     tieWinnerId = playerA;
                 else if (bGoals > aGoals)
                     tieWinnerId = playerB;
+                else if (cup.AwayGoalRule && roundFromEnd > 0)
+                {
+                    int aAwayGoals = l2AwayScore;
+                    int bAwayGoals = l1AwayScore;
+                    if (aAwayGoals > bAwayGoals)
+                        tieWinnerId = playerA;
+                    else if (bAwayGoals > aAwayGoals)
+                        tieWinnerId = playerB;
+                    else if (wonOnPenaltiesId != null)
+                        tieWinnerId = wonOnPenaltiesId;
+                    else
+                        throw new InvalidOperationException(TieOnAggregateMNeedsPenalties);
+                }
                 else if (wonOnPenaltiesId != null)
                     tieWinnerId = wonOnPenaltiesId;
                 else
@@ -433,6 +462,8 @@ public class CupService(ICupRepository cupRepository, ILogger<CupService> logger
             Status = cup.Status.ToString(),
             Name = cup.Name,
             IsHomeAndAway = cup.IsHomeAndAway,
+            SeedingMode = cup.SeedingMode,
+            AwayGoalRule = cup.AwayGoalRule,
             StartDate = cup.StartDate,
             EndDate = cup.EndDate,
             ChampionId = cup.ChampionId,

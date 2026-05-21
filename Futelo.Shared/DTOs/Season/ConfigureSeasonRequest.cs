@@ -12,6 +12,9 @@ public class ConfigureSeasonRequest
     public DateTime? LeagueEndDate { get; set; }
     public bool HasCup { get; set; }
     public string CupName { get; set; } = "Cup";
+    public bool CupIsHomeAndAway { get; set; }
+    public CupSeedingMode CupSeedingMode { get; set; } = CupSeedingMode.SeasonElo;
+    public bool CupAwayGoalRule { get; set; }
     public DateTime? CupStartDate { get; set; }
     public DateTime? CupEndDate { get; set; }
     public bool HasSuperCup { get; set; }

@@ -206,6 +206,11 @@
   "league.homeTeam": "Home team",
   "league.awayTeam": "Away team",
 
+  "cup.seedingMode": "Seeding Mode",
+  "cup.seedingMode.seasonElo": "Season ELO",
+  "cup.seedingMode.leaguePosition": "League Position",
+  "cup.seedingMode.random": "Random",
+  "cup.awayGoalRule": "Away Goal Rule (non-final rounds)",
   "cup.bracket": "Bracket",
   "cup.enterResult": "Enter Result",
   "cup.start": "Start Cup",

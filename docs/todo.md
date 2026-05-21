@@ -212,60 +212,62 @@ Rama: `14-pwa`
 ## Sesión 15 — Reglas y mejoras
 Rama: `15-features`
 
-### Sprint F1 — Fechas en Vault y competencias (~45min) ⬜
-`feat: add start and end dates to vault and competitions`
+### Sprint F1 — Fechas en temporadas y competencias ✅
+`feat: replace vault dates with season, competition and match scheduling dates`
 
-- [ ] Agregar `StartDate` / `EndDate` (nullable) a `Vault`, `League`, `Cup`, `SuperCup` en los modelos EF Core
-- [ ] Migración EF Core
-- [ ] Actualizar DTOs en `Futelo.Shared` para incluir las fechas
-- [ ] UI: campos de fecha en el formulario de creación/edición del vault y en la configuración de cada competencia
-
----
-
-### Sprint F2 — Programación manual de partidos (~1h) ⬜
-`feat: allow manual date assignment per match in league and cup`
-
-- [ ] Agregar campo `ScheduledDate` (nullable `DateTime`) al modelo `Match`
-- [ ] Migración EF Core
-- [ ] Endpoint PATCH `/api/matches/{id}/schedule` para asignar fecha a un partido
-- [ ] UI en `LeagueView` y `CupView`: campo de fecha editable por fila en el fixture (solo si el partido no tiene resultado cargado)
+- [x] Quitar `StartDate`/`EndDate` de `Vault` (modelo, DTOs, servicio, i18n)
+- [x] Agregar `StartDate`/`EndDate` a `Season`, `League`, `Cup`, `SuperCup` + modelos EF Core
+- [x] Agregar `ScheduledDate` a `Match`
+- [x] Migración EF Core (`AddDatesToSeasonMatchAndCompetitions`)
+- [x] Actualizar DTOs en `Futelo.Shared`
+- [x] Endpoints PATCH `/dates` para Season, League, Cup, SuperCup (editables en cualquier momento)
+- [x] `ScheduledDate` incluido en el `PATCH match` existente
 
 ---
 
-### Sprint F3 — Diferencia de gol en perfil de jugador (~20min) ⬜
-`feat: add goal difference to player profile stats table`
+### Sprint F2 — (integrado en F1) ✅
+`feat: replace vault dates with season, competition and match scheduling dates`
 
-- [ ] Calcular GD en `StatsService` (goles a favor − goles en contra)
-- [ ] Agregar `GoalsFor`, `GoalsAgainst`, `GoalDifference` a `PlayerStatsResponse`
-- [ ] UI en `PlayerProfile.razor`: mostrar GD en la tabla resumen de stats
+- [x] `ScheduledDate` en `Match` + migración + endpoint PATCH integrado en PatchMatch
 
 ---
 
-### Sprint F4 — Reglas de desempate en Liga (~1.5h) ⬜
+### Sprint F3 — Diferencia de gol en todas las tablas de stats ✅
+`feat: add goal difference column to all stats tables`
+
+- [x] Propiedad calculada `GoalDifference` en `PlayerStatsResponse`, `TeamUsageRow`, `VideoGameStatsRow`, `PlayerGameStatsRow`
+- [x] Columna GD en: tabla principal de jugador, Top Teams, Performance by Game, Games Ranking
+
+---
+
+### Sprint F4 — Reglas de desempate en Liga ✅
 `feat: add configurable tiebreaker rules for league standings`
 
-- [ ] Crear enum `TiebreakerRule` en `Futelo.Shared`: `GoalDifference`, `HeadToHead`, `HeadToHeadThenGoalDifference`
-- [ ] Agregar `TiebreakerRule` al modelo `League` + migración
-- [ ] Actualizar `LeagueService` standings: aplicar la regla al ordenar jugadores con igual puntos
-  - `HeadToHead`: compara resultado entre los empatados directamente
-  - `GoalDifference`: diferencia de goles general
-  - `HeadToHeadThenGoalDifference`: enfrentamiento directo, si sigue empatado → GD
-- [ ] La regla también determina el campeón al cerrar la liga
-- [ ] UI en configuración de liga: selector de regla de desempate
+- [x] Enum `TiebreakerRule`: `GoalDifference`, `HeadToHead`, `HeadToHeadThenGoalDifference`
+- [x] `TiebreakerRule` en modelo `League` + migración (`AddTiebreakerRuleToLeague`)
+- [x] `StandingsCalculator` refactorizado: algoritmo multi-grupo, H2H correcto para 3+ jugadores empatados
+- [x] La regla aplica también al determinar el campeón al cerrar la liga y al widget top 3 de la temporada
+- [x] UI: dropdown en configuración de liga (componente `SeasonCompetitionConfig`)
 
 ---
 
-### Sprint F5 — Formato de Copa (~1.5h) ⬜
+### Sprint F5 — Formato de Copa ✅
 `feat: add away goal rule and seeding mode to cup configuration`
 
-- [ ] Crear enum `CupSeedingMode` en `Futelo.Shared`: `LeaguePosition`, `SeasonElo`, `Random`
-- [ ] Agregar `SeedingMode` al modelo `Cup` + migración
-- [ ] Agregar `AwayGoalRule` (bool) al modelo `Cup` + migración
+- [x] Crear enum `CupSeedingMode` en `Futelo.Shared`: `SeasonElo`, `LeaguePosition`, `Random`
+- [x] Reemplazar `BracketMode` con `SeedingMode: CupSeedingMode` en modelo `Cup` + migración (`AddCupSeedingModeAndAwayGoalRule`)
+- [x] Agregar `AwayGoalRule` (bool) al modelo `Cup` (mismo migration)
   - Se aplica solo en rondas previas a la final — la final nunca usa gol de visitante
-- [ ] Actualizar `CupService`:
-  - Generación del bracket según `SeedingMode` (posición en liga anterior, ELO de última temporada, aleatorio)
-  - Lógica de avance en ida y vuelta: si hay empate en aggregate, aplicar `AwayGoalRule` antes de ir a penales
-- [ ] UI en configuración de copa: selector de sorteo + toggle de gol de visitante
+- [x] Agregar `CupIsHomeAndAway` a `ConfigureSeasonRequest` (no estaba antes)
+- [x] Actualizar `CupService`:
+  - `SeasonElo`: ordena por EloRating del jugador (anterior comportamiento de Seeded)
+  - `LeaguePosition`: usa `StandingsCalculator` sobre la liga activa/finalizada de la temporada
+  - `Random`: shuffle aleatorio
+  - Lógica de avance ida/vuelta: empate aggregate → goles visitante → penales (solo en no-finales)
+- [x] Includes de `Season.League.Matches` y `Season.League.Players` en `CupRepository.GetByIdAsync`
+- [x] `CupResponse` expone `SeedingMode` y `AwayGoalRule`
+- [x] `SeasonResponse` expone `CupIsHomeAndAway`, `CupSeedingMode`, `CupAwayGoalRule`
+- [x] UI en configuración de copa: checkbox H&A, dropdown seeding mode, checkbox gol de visitante
 
 ---
 
@@ -275,6 +277,14 @@ Rama: `15-features`
 - [ ] Rediseñar el formulario de configuración de Liga/Copa para que las nuevas reglas sean claras y estén bien agrupadas
 - [ ] Usar cards o secciones colapsables por competencia
 - [ ] Tooltips o descripciones cortas para cada opción de regla
+
+---
+
+## Features futuras (backlog)
+
+### Partido de desempate en Liga
+Cuando dos o más jugadores terminan igualados en todos los criterios de desempate configurados (puntos, DG, H2H, etc.), se genera automáticamente un partido extra fuera del fixture normal para determinar el campeón o la posición en disputa.
+- Requiere: nuevo tipo de partido (playoff), lógica de detección al cerrar la liga, UI para registrar el resultado, y que no afecte el ELO de la temporada.
 
 ---
 

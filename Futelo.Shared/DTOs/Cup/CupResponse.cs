@@ -1,3 +1,5 @@
+using Futelo.Shared.Enums;
+
 namespace Futelo.Shared.DTOs.Cup;
 
 public class CupResponse
@@ -7,6 +9,8 @@ public class CupResponse
     public string Status { get; set; } = string.Empty;
     public string Name { get; set; } = "Cup";
     public bool IsHomeAndAway { get; set; }
+    public CupSeedingMode SeedingMode { get; set; }
+    public bool AwayGoalRule { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public string? ChampionId { get; set; }

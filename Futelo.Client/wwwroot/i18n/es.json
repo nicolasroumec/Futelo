@@ -206,6 +206,11 @@
   "league.homeTeam": "Equipo local",
   "league.awayTeam": "Equipo visitante",
 
+  "cup.seedingMode": "Modo de siembra",
+  "cup.seedingMode.seasonElo": "ELO de temporada",
+  "cup.seedingMode.leaguePosition": "Posición en liga",
+  "cup.seedingMode.random": "Aleatorio",
+  "cup.awayGoalRule": "Regla del gol de visitante (rondas no finales)",
   "cup.bracket": "Cuadro",
   "cup.enterResult": "Ingresar resultado",
   "cup.start": "Iniciar Copa",

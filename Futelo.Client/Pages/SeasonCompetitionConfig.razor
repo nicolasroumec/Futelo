@@ -39,6 +39,27 @@
             <input type="text" class="form-control form-control-sm" style="max-width:220px"
                    placeholder="@Lang.Get("season.cupNamePlaceholder")" @bind="Model.CupName" />
         </div>
+        <div class="form-check ms-3">
+            <input class="form-check-input" type="checkbox" id="chkCupH2H"
+                   @bind="Model.CupIsHomeAndAway" />
+            <label class="form-check-label" for="chkCupH2H">@Lang.Get("season.homeAndAway")</label>
+        </div>
+        <div class="ms-3 mt-2" style="max-width:260px">
+            <label class="form-label form-label-sm mb-1">@Lang.Get("cup.seedingMode")</label>
+            <select class="form-select form-select-sm" @bind="Model.CupSeedingMode">
+                <option value="@CupSeedingMode.SeasonElo">@Lang.Get("cup.seedingMode.seasonElo")</option>
+                <option value="@CupSeedingMode.LeaguePosition">@Lang.Get("cup.seedingMode.leaguePosition")</option>
+                <option value="@CupSeedingMode.Random">@Lang.Get("cup.seedingMode.random")</option>
+            </select>
+        </div>
+        @if (Model.CupIsHomeAndAway)
+        {
+            <div class="form-check ms-3 mt-2">
+                <input class="form-check-input" type="checkbox" id="chkAwayGoalRule"
+                       @bind="Model.CupAwayGoalRule" />
+                <label class="form-check-label" for="chkAwayGoalRule">@Lang.Get("cup.awayGoalRule")</label>
+            </div>
+        }
     }
     <div class="form-check">
         <input class="form-check-input" type="checkbox" id="chkSuperCup"
