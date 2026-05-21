@@ -12,7 +12,7 @@
         <div class="skeleton-block" style="width:6rem;height:1.5rem;border-radius:1rem"></div>
     </div>
     <div class="skeleton-block mb-2" style="width:50px;height:1rem"></div>
-    <SkeletonTable Rows="1" Columns="6" />
+    <SkeletonTable Rows="1" Columns="7" />
     <div class="d-flex gap-1 mb-4">
         <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
         <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
@@ -69,6 +69,7 @@ else
                             <th>@Lang.Get("stats.losses")</th>
                             <th>@Lang.Get("league.goalsFor")</th>
                             <th>@Lang.Get("league.goalsAgainst")</th>
+                            <th>@Lang.Get("league.goalDiff")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,6 +80,7 @@ else
                             <td>@_lost</td>
                             <td>@_gf</td>
                             <td>@_ga</td>
+                            <td>@(stats.GoalDifference > 0 ? $"+{stats.GoalDifference}" : stats.GoalDifference.ToString())</td>
                         </tr>
                     </tbody>
                 </table>
@@ -240,6 +242,7 @@ else
                         <th>@Lang.Get("stats.losses")</th>
                         <th>@Lang.Get("league.goalsFor")</th>
                         <th>@Lang.Get("league.goalsAgainst")</th>
+                        <th>@Lang.Get("league.goalDiff")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -253,6 +256,7 @@ else
                             <td>@t.Lost</td>
                             <td>@t.GoalsFor</td>
                             <td>@t.GoalsAgainst</td>
+                            <td>@(t.GoalDifference > 0 ? $"+{t.GoalDifference}" : t.GoalDifference.ToString())</td>
                         </tr>
                     }
                 </tbody>
@@ -274,6 +278,7 @@ else
                         <th>@Lang.Get("stats.losses")</th>
                         <th>@Lang.Get("league.goalsFor")</th>
                         <th>@Lang.Get("league.goalsAgainst")</th>
+                        <th>@Lang.Get("league.goalDiff")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -287,6 +292,7 @@ else
                             <td>@g.Lost</td>
                             <td>@g.GoalsFor</td>
                             <td>@g.GoalsAgainst</td>
+                            <td>@(g.GoalDifference > 0 ? $"+{g.GoalDifference}" : g.GoalDifference.ToString())</td>
                         </tr>
                     }
                 </tbody>
