@@ -199,6 +199,7 @@
   "league.goalDiff": "DG",
   "league.start": "Iniciar Liga",
   "league.reshuffle": "Remezclar Fixture",
+  "league.reshuffleConfirm": "¿Seguro? Se perderá el fixture actual.",
   "league.notFound": "Liga no encontrada.",
   "league.generating": "Generando...",
   "league.generateFixture": "Generar Fixture",

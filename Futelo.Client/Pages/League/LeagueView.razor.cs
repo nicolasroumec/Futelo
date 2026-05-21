@@ -23,6 +23,7 @@ public partial class LeagueView : LocalizedComponentBase
     private LeagueResponse? league;
     private bool isLoading = true;
     private bool isWorking;
+    private bool confirmReshuffle;
     private string? errorMessage;
 
     private int? recordingMatchId;
@@ -39,6 +40,13 @@ public partial class LeagueView : LocalizedComponentBase
     private DateOnly? editStartDate;
     private DateOnly? editEndDate;
     private bool isSavingDates;
+
+    private string TiebreakerKey => league!.TiebreakerRule switch
+    {
+        Futelo.Shared.Enums.TiebreakerRule.HeadToHead => "season.tiebreaker.headToHead",
+        Futelo.Shared.Enums.TiebreakerRule.HeadToHeadThenGoalDifference => "season.tiebreaker.headToHeadThenGD",
+        _ => "season.tiebreaker.goalDifference"
+    };
 
     private List<int> Matchdays => league?.Matches
         .Select(m => m.Matchday)
@@ -123,6 +131,7 @@ public partial class LeagueView : LocalizedComponentBase
 
     private async Task HandleReshuffle()
     {
+        confirmReshuffle = false;
         isWorking = true;
         try
         {

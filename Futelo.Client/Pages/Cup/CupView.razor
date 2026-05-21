@@ -74,6 +74,18 @@ else
         </div>
     }
 
+    <div class="text-muted small mb-3 d-flex gap-3">
+        <span>@Lang.Get("cup.seedingMode"): <strong>@Lang.Get(SeedingModeKey)</strong></span>
+        @if (cup.IsHomeAndAway)
+        {
+            <span>· @Lang.Get("season.homeAndAway")</span>
+        }
+        @if (cup.AwayGoalRule)
+        {
+            <span>· @Lang.Get("cup.awayGoalRule")</span>
+        }
+    </div>
+
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="alert alert-danger mb-3">@errorMessage</div>

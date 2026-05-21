@@ -43,6 +43,13 @@ public partial class CupView : LocalizedComponentBase
     private DateOnly? editEndDate;
     private bool isSavingDates;
 
+    private string SeedingModeKey => cup!.SeedingMode switch
+    {
+        Futelo.Shared.Enums.CupSeedingMode.LeaguePosition => "cup.seedingMode.leaguePosition",
+        Futelo.Shared.Enums.CupSeedingMode.Random => "cup.seedingMode.random",
+        _ => "cup.seedingMode.seasonElo"
+    };
+
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
