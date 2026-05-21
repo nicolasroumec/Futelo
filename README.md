@@ -67,4 +67,5 @@ dotnet run
 
 ## Docs
 
-Ver la carpeta [`/docs`](./docs) para arquitectura, modelo de datos y roadmap de sesiones.
+- [`docs/domain.md`](./docs/domain.md) — modelo de dominio, entidades, ciclo de vida, reglas de negocio
+- [`docs/features.md`](./docs/features.md) — registro de features y mapa completo de endpoints
