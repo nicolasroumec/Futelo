@@ -16,6 +16,7 @@ public partial class MatchEditPanel
     [Parameter] public int? HomeTeamId { get; set; }
     [Parameter] public int? AwayTeamId { get; set; }
     [Parameter] public int? VideoGameId { get; set; }
+    [Parameter] public DateTime? ScheduledDate { get; set; }
     [Parameter] public List<TeamResponse> Teams { get; set; } = [];
     [Parameter] public List<VideoGameResponse> VideoGames { get; set; } = [];
     [Parameter] public EventCallback<PatchMatchRequest> OnSave { get; set; }
@@ -24,6 +25,7 @@ public partial class MatchEditPanel
     private string editHomeTeamIdStr = "";
     private string editAwayTeamIdStr = "";
     private string editVideoGameIdStr = "";
+    private DateOnly? editScheduledDate;
     private bool isSaving;
     private bool wasEditing;
 
@@ -34,6 +36,7 @@ public partial class MatchEditPanel
             editHomeTeamIdStr = HomeTeamId?.ToString() ?? "";
             editAwayTeamIdStr = AwayTeamId?.ToString() ?? "";
             editVideoGameIdStr = VideoGameId?.ToString() ?? "";
+            editScheduledDate = ScheduledDate is { } d ? DateOnly.FromDateTime(d) : null;
         }
         wasEditing = IsEditing;
     }
@@ -48,6 +51,7 @@ public partial class MatchEditPanel
                 HomeTeamId = string.IsNullOrEmpty(editHomeTeamIdStr) ? null : int.Parse(editHomeTeamIdStr),
                 AwayTeamId = string.IsNullOrEmpty(editAwayTeamIdStr) ? null : int.Parse(editAwayTeamIdStr),
                 VideoGameId = string.IsNullOrEmpty(editVideoGameIdStr) ? null : int.Parse(editVideoGameIdStr),
+                ScheduledDate = editScheduledDate is { } sd ? sd.ToDateTime(TimeOnly.MinValue) : null,
             };
             await OnSave.InvokeAsync(request);
         }

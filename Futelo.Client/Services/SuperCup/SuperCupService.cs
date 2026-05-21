@@ -1,3 +1,4 @@
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.SuperCup;
 
@@ -16,4 +17,7 @@ public class SuperCupService(HttpClient http) : ApiService(http), ISuperCupServi
 
     public Task PatchMatchAsync(int superCupId, int matchId, PatchMatchRequest request)
         => PatchAsync($"api/supercups/{superCupId}/matches/{matchId}", request);
+
+    public Task PatchDatesAsync(int id, PatchDatesRequest request)
+        => PatchAsync($"api/supercups/{id}/dates", request);
 }

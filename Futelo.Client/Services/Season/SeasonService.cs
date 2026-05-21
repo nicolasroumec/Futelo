@@ -1,3 +1,4 @@
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Season;
 
 namespace Futelo.Client.Services.Season;
@@ -30,4 +31,7 @@ public class SeasonService(HttpClient http) : ApiService(http), ISeasonService
 
     public Task ConfigureAsync(int id, ConfigureSeasonRequest request)
         => PutAsync($"api/seasons/{id}/configure", request);
+
+    public Task PatchDatesAsync(int id, PatchDatesRequest request)
+        => PatchAsync($"api/seasons/{id}/dates", request);
 }

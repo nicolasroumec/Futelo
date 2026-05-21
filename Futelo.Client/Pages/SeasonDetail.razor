@@ -43,22 +43,28 @@ else
 
     <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
     <p class="text-muted">@Lang.Get("season.videoGame"): @(season.VideoGameName ?? "—")</p>
-    @if (season.StartDate.HasValue || season.EndDate.HasValue)
+
+    @if (editingSeasonDates)
     {
-        <p class="text-muted">
-            @if (season.StartDate.HasValue)
+        <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editSeasonStartDate" />
+            <span class="text-muted">→</span>
+            <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editSeasonEndDate" />
+            <button class="btn btn-sm btn-primary" disabled="@isSavingSeasonDates" @onclick="HandlePatchSeasonDates">
+                @(isSavingSeasonDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingSeasonDates = false">@Lang.Get("common.cancel")</button>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
+            <span>📅 @(season.StartDate.HasValue ? season.StartDate.Value.ToString("dd MMM yyyy") : "—") → @(season.EndDate.HasValue ? season.EndDate.Value.ToString("dd MMM yyyy") : "—")</span>
+            @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
             {
-                <span>@Lang.Get("season.startDate"): @season.StartDate.Value.ToString("dd/MM/yyyy")</span>
+                <button class="btn btn-link btn-sm p-0 text-muted" @onclick="BeginEditSeasonDates">✏️</button>
             }
-            @if (season.StartDate.HasValue && season.EndDate.HasValue)
-            {
-                <span> &ndash; </span>
-            }
-            @if (season.EndDate.HasValue)
-            {
-                <span>@Lang.Get("season.endDate"): @season.EndDate.Value.ToString("dd/MM/yyyy")</span>
-            }
-        </p>
+        </div>
     }
 
     @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))

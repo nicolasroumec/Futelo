@@ -1,3 +1,4 @@
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Season;
 
 namespace Futelo.Client.Services.Season;
@@ -13,4 +14,5 @@ public interface ISeasonService
     Task PatchVideoGameAsync(int id, int? videoGameId);
     Task SetPlayerTeamAsync(int id, string playerId, int? teamId);
     Task DeleteAsync(int id);
+    Task PatchDatesAsync(int id, PatchDatesRequest request);
 }

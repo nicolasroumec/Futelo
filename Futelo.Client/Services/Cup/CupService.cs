@@ -1,3 +1,4 @@
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Cup;
 using Futelo.Shared.DTOs.League;
 
@@ -16,4 +17,7 @@ public class CupService(HttpClient http) : ApiService(http), ICupService
 
     public Task PatchMatchAsync(int cupId, int matchId, PatchMatchRequest request)
         => PatchAsync($"api/cups/{cupId}/matches/{matchId}", request);
+
+    public Task PatchDatesAsync(int id, PatchDatesRequest request)
+        => PatchAsync($"api/cups/{id}/dates", request);
 }

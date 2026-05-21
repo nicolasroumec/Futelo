@@ -4,6 +4,7 @@ using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.VideoGame;
@@ -33,6 +34,11 @@ public partial class LeagueView : LocalizedComponentBase
     private int? editingMatchId;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
+
+    private bool editingDates;
+    private DateOnly? editStartDate;
+    private DateOnly? editEndDate;
+    private bool isSavingDates;
 
     private List<int> Matchdays => league?.Matches
         .Select(m => m.Matchday)
@@ -201,6 +207,36 @@ public partial class LeagueView : LocalizedComponentBase
         catch (Exception ex)
         {
             Toast.Show(ex.Message, ToastType.Error);
+        }
+    }
+
+    private void BeginEditDates()
+    {
+        editStartDate = league?.StartDate is { } s ? DateOnly.FromDateTime(s) : null;
+        editEndDate = league?.EndDate is { } e ? DateOnly.FromDateTime(e) : null;
+        editingDates = true;
+    }
+
+    private async Task HandlePatchDates()
+    {
+        isSavingDates = true;
+        try
+        {
+            await LeagueService.PatchDatesAsync(Id, new PatchDatesRequest
+            {
+                StartDate = editStartDate is { } s ? s.ToDateTime(TimeOnly.MinValue) : null,
+                EndDate = editEndDate is { } e ? e.ToDateTime(TimeOnly.MinValue) : null,
+            });
+            editingDates = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isSavingDates = false;
         }
     }
 
