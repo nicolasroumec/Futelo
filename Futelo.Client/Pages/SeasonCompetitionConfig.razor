@@ -1,3 +1,4 @@
+@using Futelo.Shared.Enums
 @inherits LocalizedComponentBase
 
 <div class="mb-3">
@@ -17,6 +18,14 @@
             <input class="form-check-input" type="checkbox" id="chkLeagueH2H"
                    @bind="Model.LeagueIsHomeAndAway" />
             <label class="form-check-label" for="chkLeagueH2H">@Lang.Get("season.homeAndAway")</label>
+        </div>
+        <div class="ms-3 mt-2" style="max-width:260px">
+            <label class="form-label form-label-sm mb-1">@Lang.Get("season.tiebreaker")</label>
+            <select class="form-select form-select-sm" @bind="Model.LeagueTiebreakerRule">
+                <option value="@TiebreakerRule.GoalDifference">@Lang.Get("season.tiebreaker.goalDifference")</option>
+                <option value="@TiebreakerRule.HeadToHead">@Lang.Get("season.tiebreaker.headToHead")</option>
+                <option value="@TiebreakerRule.HeadToHeadThenGoalDifference">@Lang.Get("season.tiebreaker.headToHeadThenGD")</option>
+            </select>
         </div>
     }
     <div class="form-check">

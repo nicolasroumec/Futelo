@@ -10,6 +10,7 @@ public class League
     public bool IsHomeAndAway { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    public TiebreakerRule TiebreakerRule { get; set; } = TiebreakerRule.GoalDifference;
     public TournamentStatus Status { get; set; } = TournamentStatus.NotStarted;
 
     public string? ChampionId { get; set; }

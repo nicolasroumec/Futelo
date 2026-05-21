@@ -18,7 +18,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
 
         var standings = league.Status == TournamentStatus.NotStarted
             ? []
-            : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players);
+            : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players, league.TiebreakerRule);
 
         var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
@@ -32,6 +32,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             IsHomeAndAway = league.IsHomeAndAway,
             StartDate = league.StartDate,
             EndDate = league.EndDate,
+            TiebreakerRule = league.TiebreakerRule,
             ChampionId = league.ChampionId,
             ChampionName = league.ChampionId != null
                 ? league.Season.Players.FirstOrDefault(sp => sp.PlayerId == league.ChampionId)?.Player.DisplayName
@@ -139,7 +140,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
 
         var (homeResult, awayResult, goalDiff) = ComputeOutcome(homeScore, awayScore);
         var elo = ComputeEloBlock(homesp, awaysp, seasonPlayers, matchId, league.SeasonId, homeResult, awayResult, goalDiff);
-        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore);
+        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore, league.TiebreakerRule);
 
         await leagueRepository.SaveMatchResultAsync(new MatchResultData
         {
@@ -272,7 +273,8 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
 
     private static (bool leagueFinished, Dictionary<string, int> finalPositions, string? championId) DetectFinish(
         IEnumerable<Match> allMatches, IEnumerable<LeaguePlayer> leaguePlayers,
-        string homePlayerId, string awayPlayerId, int homeScore, int awayScore)
+        string homePlayerId, string awayPlayerId, int homeScore, int awayScore,
+        TiebreakerRule tiebreaker)
     {
         var matchList = allMatches.ToList();
         if (matchList.Count(m => m.Status == MatchStatus.Pending) != 1)
@@ -290,7 +292,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             })
             .ToList();
 
-        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers);
+        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers, tiebreaker);
         var finalPositions = finalStandings
             .Select((row, i) => (row.PlayerId, Position: i + 1))
             .ToDictionary(x => x.PlayerId, x => x.Position);

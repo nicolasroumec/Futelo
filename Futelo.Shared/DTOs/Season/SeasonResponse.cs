@@ -1,4 +1,5 @@
 using Futelo.Shared.DTOs.League;
+using Futelo.Shared.Enums;
 
 namespace Futelo.Shared.DTOs.Season;
 
@@ -24,6 +25,7 @@ public class SeasonResponse
     public int? LeagueId { get; set; }
     public string LeagueName { get; set; } = "League";
     public bool LeagueIsHomeAndAway { get; set; }
+    public TiebreakerRule LeagueTiebreakerRule { get; set; }
     public DateTime? LeagueStartDate { get; set; }
     public DateTime? LeagueEndDate { get; set; }
     public string? LeagueStatus { get; set; }

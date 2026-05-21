@@ -1,3 +1,5 @@
+using Futelo.Shared.Enums;
+
 namespace Futelo.Shared.DTOs.Season;
 
 public class ConfigureSeasonRequest
@@ -5,6 +7,7 @@ public class ConfigureSeasonRequest
     public bool HasLeague { get; set; }
     public string LeagueName { get; set; } = "League";
     public bool LeagueIsHomeAndAway { get; set; }
+    public TiebreakerRule LeagueTiebreakerRule { get; set; } = TiebreakerRule.GoalDifference;
     public DateTime? LeagueStartDate { get; set; }
     public DateTime? LeagueEndDate { get; set; }
     public bool HasCup { get; set; }
