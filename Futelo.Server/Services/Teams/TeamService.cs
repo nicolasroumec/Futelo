@@ -7,7 +7,7 @@ namespace Futelo.Server.Services.Teams;
 
 using static ErrorMessages;
 
-public class TeamService(ITeamRepository repository, IMemoryCache cache, ILogger<TeamService> logger) : ITeamService
+public class TeamService(ITeamRepository repository, IMemoryCache cache) : ITeamService
 {
     private const string CacheKey = "teams_all";
 

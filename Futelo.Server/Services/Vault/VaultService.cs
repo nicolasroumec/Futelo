@@ -7,7 +7,7 @@ namespace Futelo.Server.Services.Vault;
 
 using static ErrorMessages;
 
-public class VaultService(IVaultRepository repository, ILogger<VaultService> logger) : IVaultService
+public class VaultService(IVaultRepository repository) : IVaultService
 {
     public async Task<List<VaultResponse>> GetUserVaultsAsync(string userId)
     {

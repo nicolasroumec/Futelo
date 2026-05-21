@@ -8,7 +8,7 @@ namespace Futelo.Server.Services.SuperCup;
 
 using static ErrorMessages;
 
-public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<SuperCupService> logger) : ISuperCupService
+public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCupService
 {
     public async Task<SuperCupResponse> GetByIdAsync(int superCupId, string userId)
     {

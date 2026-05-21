@@ -8,7 +8,7 @@ namespace Futelo.Server.Services.League;
 
 using static ErrorMessages;
 
-public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueService> logger) : ILeagueService
+public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
 {
     public async Task<LeagueResponse> GetByIdAsync(int leagueId, string userId)
     {
@@ -149,10 +149,10 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             AwayScore = awayScore,
             LeagueId = leagueId,
             SeasonId = league.SeasonId,
-            HomePlayerId = match.HomePlayerId,
+            HomePlayerId = match.HomePlayerId!,
             HomeNewSeasonElo = elo.HomeNewSeasonElo,
             HomeNewHistoricalElo = elo.HomeNewHistElo,
-            AwayPlayerId = match.AwayPlayerId,
+            AwayPlayerId = match.AwayPlayerId!,
             AwayNewSeasonElo = elo.AwayNewSeasonElo,
             AwayNewHistoricalElo = elo.AwayNewHistElo,
             EloHistories = elo.Histories,
@@ -168,7 +168,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
         {
             Home = new EloChangeResult
             {
-                PlayerId = match.HomePlayerId,
+                PlayerId = match.HomePlayerId!,
                 DisplayName = homesp.Player.DisplayName,
                 EloBefore = homesp.SeasonElo,
                 EloAfter = elo.HomeNewSeasonElo,
@@ -178,7 +178,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             },
             Away = new EloChangeResult
             {
-                PlayerId = match.AwayPlayerId,
+                PlayerId = match.AwayPlayerId!,
                 DisplayName = awaysp.Player.DisplayName,
                 EloBefore = awaysp.SeasonElo,
                 EloAfter = elo.AwayNewSeasonElo,

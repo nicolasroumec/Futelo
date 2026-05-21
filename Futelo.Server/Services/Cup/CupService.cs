@@ -8,7 +8,7 @@ namespace Futelo.Server.Services.Cup;
 
 using static ErrorMessages;
 
-public class CupService(ICupRepository cupRepository, ILogger<CupService> logger) : ICupService
+public class CupService(ICupRepository cupRepository) : ICupService
 {
     public async Task<CupResponse> GetByIdAsync(int cupId, string userId)
     {
