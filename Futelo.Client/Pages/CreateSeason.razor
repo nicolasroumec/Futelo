@@ -37,6 +37,16 @@
                 </InputSelect>
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">@Lang.Get("season.startDate")</label>
+                <InputDate class="form-control" @bind-Value="model.StartDate" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">@Lang.Get("season.endDate")</label>
+                <InputDate class="form-control" @bind-Value="model.EndDate" />
+            </div>
+
             @if (!string.IsNullOrEmpty(errorMessage))
             {
                 <div class="alert alert-danger">@errorMessage</div>

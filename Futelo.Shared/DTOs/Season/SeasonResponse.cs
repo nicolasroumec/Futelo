@@ -37,6 +37,8 @@ public class SeasonResponse
     public DateTime? SuperCupStartDate { get; set; }
     public DateTime? SuperCupEndDate { get; set; }
     public string? SuperCupStatus { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public int? VideoGameId { get; set; }
     public string? VideoGameName { get; set; }
     public List<SeasonPlayerResponse> Players { get; set; } = [];

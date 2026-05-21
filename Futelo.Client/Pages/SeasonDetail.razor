@@ -43,6 +43,23 @@ else
 
     <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
     <p class="text-muted">@Lang.Get("season.videoGame"): @(season.VideoGameName ?? "—")</p>
+    @if (season.StartDate.HasValue || season.EndDate.HasValue)
+    {
+        <p class="text-muted">
+            @if (season.StartDate.HasValue)
+            {
+                <span>@Lang.Get("season.startDate"): @season.StartDate.Value.ToString("dd/MM/yyyy")</span>
+            }
+            @if (season.StartDate.HasValue && season.EndDate.HasValue)
+            {
+                <span> &ndash; </span>
+            }
+            @if (season.EndDate.HasValue)
+            {
+                <span>@Lang.Get("season.endDate"): @season.EndDate.Value.ToString("dd/MM/yyyy")</span>
+            }
+        </p>
+    }
 
     @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
     {

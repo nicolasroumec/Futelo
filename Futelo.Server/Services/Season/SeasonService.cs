@@ -44,7 +44,9 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             Name = request.Name,
             Year = request.Year,
             Status = SeasonStatus.Draft,
-            VideoGameId = request.VideoGameId
+            VideoGameId = request.VideoGameId,
+            StartDate = request.StartDate,
+            EndDate = request.EndDate
         };
         await seasonRepository.CreateAsync(season);
         var created = await seasonRepository.GetByIdAsync(season.Id);
@@ -160,6 +162,8 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         Name = season.Name,
         Year = season.Year,
         Status = season.Status.ToString(),
+        StartDate = season.StartDate,
+        EndDate = season.EndDate,
         VideoGameId = season.VideoGameId,
         VideoGameName = season.VideoGame?.Name,
         HasLeague = season.League != null,

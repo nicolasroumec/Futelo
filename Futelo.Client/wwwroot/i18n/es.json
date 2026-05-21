@@ -264,6 +264,8 @@
   "common.no": "No",
   "common.resultRecorded": "Resultado registrado",
   "common.select": "-- seleccionar --",
+  "season.startDate": "Fecha de inicio (opcional)",
+  "season.endDate": "Fecha de fin (opcional)",
   "common.prevPage": "Página anterior",
   "common.nextPage": "Página siguiente"
 }
