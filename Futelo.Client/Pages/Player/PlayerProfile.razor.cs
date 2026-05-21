@@ -108,7 +108,7 @@ public partial class PlayerProfile : LocalizedComponentBase
     private void NavigateToH2H()
     {
         if (!string.IsNullOrEmpty(selectedOpponentId))
-            Navigation.NavigateTo($"/vaults/{VaultId}/h2h/{PlayerId}/{selectedOpponentId}");
+            Navigation.NavigateTo($"/vaults/{VaultId}/compare/{PlayerId}/{selectedOpponentId}");
     }
 
     private string StreakLabel()
