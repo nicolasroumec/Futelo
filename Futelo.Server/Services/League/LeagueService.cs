@@ -50,6 +50,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
                     AwayScore = m.AwayScore,
                     Status = m.Status.ToString(),
                     Matchday = m.Leg,
+                    ScheduledDate = m.ScheduledDate,
                     PlayedAt = m.PlayedAt,
                     HomeTeamId = m.HomeTeamId,
                     HomeTeamName = m.HomeTeam?.Name,
@@ -187,7 +188,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
         };
     }
 
-    public async Task PatchMatchAsync(int leagueId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
+    public async Task PatchMatchAsync(int leagueId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate, string userId)
     {
         var league = await leagueRepository.GetByIdAsync(leagueId);
         if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
@@ -200,7 +201,18 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
         if (league.Matches.All(m => m.Id != matchId))
             throw new KeyNotFoundException(MatchNotFound);
 
-        await leagueRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
+        await leagueRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId, scheduledDate);
+    }
+
+    public async Task PatchDatesAsync(int leagueId, string userId, DateTime? startDate, DateTime? endDate)
+    {
+        var league = await leagueRepository.GetByIdAsync(leagueId);
+        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(LeagueNotFound);
+        if (league.Season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException(OnlyOwnerCanConfigureSeason);
+
+        await leagueRepository.PatchDatesAsync(leagueId, startDate, endDate);
     }
 
     private static (double homeResult, double awayResult, int goalDiff) ComputeOutcome(int homeScore, int awayScore)

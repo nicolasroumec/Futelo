@@ -467,6 +467,7 @@ public class CupService(ICupRepository cupRepository, ILogger<CupService> logger
                             AwayPenaltyScore = m.AwayPenaltyScore,
                             Status = m.Status.ToString(),
                             Leg = m.Leg,
+                            ScheduledDate = m.ScheduledDate,
                             PlayedAt = m.PlayedAt,
                             HomeTeamId = m.HomeTeamId,
                             HomeTeamName = m.HomeTeam?.Name,
@@ -479,7 +480,7 @@ public class CupService(ICupRepository cupRepository, ILogger<CupService> logger
         };
     }
 
-    public async Task PatchMatchAsync(int cupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
+    public async Task PatchMatchAsync(int cupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate, string userId)
     {
         var cup = await cupRepository.GetByIdAsync(cupId);
         if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
@@ -493,7 +494,18 @@ public class CupService(ICupRepository cupRepository, ILogger<CupService> logger
         if (match == null)
             throw new KeyNotFoundException(MatchNotFound);
 
-        await cupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
+        await cupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId, scheduledDate);
+    }
+
+    public async Task PatchDatesAsync(int cupId, string userId, DateTime? startDate, DateTime? endDate)
+    {
+        var cup = await cupRepository.GetByIdAsync(cupId);
+        if (cup == null || cup.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(CupNotFound);
+        if (cup.Season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
+
+        await cupRepository.PatchDatesAsync(cupId, startDate, endDate);
     }
 
 }

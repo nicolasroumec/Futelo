@@ -29,8 +29,6 @@ public class VaultService(IVaultRepository repository, ILogger<VaultService> log
         {
             Name = request.Name,
             OwnerId = ownerId,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate,
             Players = [new VaultPlayer { PlayerId = ownerId, JoinedAt = DateTime.UtcNow, Role = VaultRole.Admin }]
         };
         await repository.CreateAsync(vault);
@@ -47,8 +45,6 @@ public class VaultService(IVaultRepository repository, ILogger<VaultService> log
         if (caller.Role != VaultRole.Admin)
             throw new UnauthorizedAccessException(OnlyAdminsCanUpdate);
         vault.Name = request.Name;
-        vault.StartDate = request.StartDate;
-        vault.EndDate = request.EndDate;
         await repository.UpdateAsync(vault);
     }
 
@@ -138,8 +134,6 @@ public class VaultService(IVaultRepository repository, ILogger<VaultService> log
         Name = vault.Name,
         OwnerId = vault.OwnerId,
         OwnerDisplayName = vault.Owner.DisplayName,
-        StartDate = vault.StartDate,
-        EndDate = vault.EndDate,
         Players = vault.Players.Select(p => new VaultPlayerResponse
         {
             PlayerId = p.PlayerId,

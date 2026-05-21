@@ -103,13 +103,23 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
         await SaveChangesAsync();
     }
 
-    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId)
+    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate)
     {
         var match = await Context.Set<Match>().FindAsync(matchId);
         if (match == null) return;
         match.HomeTeamId = homeTeamId;
         match.AwayTeamId = awayTeamId;
         match.VideoGameId = videoGameId;
+        match.ScheduledDate = scheduledDate;
+        await SaveChangesAsync();
+    }
+
+    public async Task PatchDatesAsync(int leagueId, DateTime? startDate, DateTime? endDate)
+    {
+        var league = await Context.Set<Models.League>().FindAsync(leagueId);
+        if (league == null) return;
+        league.StartDate = startDate;
+        league.EndDate = endDate;
         await SaveChangesAsync();
     }
 }

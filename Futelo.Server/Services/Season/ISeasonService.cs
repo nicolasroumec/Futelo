@@ -11,6 +11,7 @@ public interface ISeasonService
     Task ActivateAsync(int id, string userId);
     Task FinishAsync(int id, string userId);
     Task PatchVideoGameAsync(int id, string userId, int? videoGameId);
+    Task PatchDatesAsync(int id, string userId, DateTime? startDate, DateTime? endDate);
     Task SetPlayerTeamAsync(int id, string playerId, string userId, int? teamId);
     Task DeleteAsync(int id, string userId);
 }

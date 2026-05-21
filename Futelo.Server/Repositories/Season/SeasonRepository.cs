@@ -104,6 +104,15 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         await SaveChangesAsync();
     }
 
+    public async Task PatchDatesAsync(int seasonId, DateTime? startDate, DateTime? endDate)
+    {
+        var season = await Context.Set<Models.Season>().FindAsync(seasonId);
+        if (season == null) return;
+        season.StartDate = startDate;
+        season.EndDate = endDate;
+        await SaveChangesAsync();
+    }
+
     public async Task SetPlayerTeamAsync(int seasonId, string playerId, int? teamId)
     {
         var sp = await Context.Set<SeasonPlayer>()

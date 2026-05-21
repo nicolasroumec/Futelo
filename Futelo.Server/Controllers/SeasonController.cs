@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Futelo.Server.Services.Season;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Season;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,6 +67,13 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
     public async Task<IActionResult> PatchVideoGame(int id, UpdateSeasonVideoGameRequest request)
     {
         await seasonService.PatchVideoGameAsync(id, UserId, request.VideoGameId);
+        return NoContent();
+    }
+
+    [HttpPatch("{id}/dates")]
+    public async Task<IActionResult> PatchDates(int id, PatchDatesRequest request)
+    {
+        await seasonService.PatchDatesAsync(id, UserId, request.StartDate, request.EndDate);
         return NoContent();
     }
 

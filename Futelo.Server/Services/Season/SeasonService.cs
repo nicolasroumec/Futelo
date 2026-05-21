@@ -138,6 +138,17 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         await seasonRepository.PatchVideoGameAsync(id, videoGameId);
     }
 
+    public async Task PatchDatesAsync(int id, string userId, DateTime? startDate, DateTime? endDate)
+    {
+        var season = await seasonRepository.GetByIdAsync(id);
+        if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(SeasonNotFound);
+        if (season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException(OnlyOwnerCanUpdateSeason);
+
+        await seasonRepository.PatchDatesAsync(id, startDate, endDate);
+    }
+
     public async Task ActivateAsync(int id, string userId)
     {
         var season = await seasonRepository.GetByIdAsync(id);

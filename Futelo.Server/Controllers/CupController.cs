@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Futelo.Server.Services.Cup;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Cup;
 using Futelo.Shared.DTOs.League;
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +41,14 @@ public class CupController(ICupService cupService) : ControllerBase
     [HttpPatch("{id}/matches/{matchId}")]
     public async Task<IActionResult> PatchMatch(int id, int matchId, PatchMatchRequest request)
     {
-        await cupService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, UserId);
+        await cupService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, request.ScheduledDate, UserId);
+        return NoContent();
+    }
+
+    [HttpPatch("{id}/dates")]
+    public async Task<IActionResult> PatchDates(int id, PatchDatesRequest request)
+    {
+        await cupService.PatchDatesAsync(id, UserId, request.StartDate, request.EndDate);
         return NoContent();
     }
 }

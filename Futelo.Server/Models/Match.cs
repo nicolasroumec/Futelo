@@ -14,6 +14,7 @@ public class Match
     public int? AwayPenaltyScore { get; set; }
     public MatchStatus Status { get; set; } = MatchStatus.Pending;
     public int Leg { get; set; } = 1;
+    public DateTime? ScheduledDate { get; set; }
     public DateTime? PlayedAt { get; set; }
     public int? VideoGameId { get; set; }
     public int? HomeTeamId { get; set; }
