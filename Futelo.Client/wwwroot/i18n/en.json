@@ -210,6 +210,7 @@
   "league.editMatch": "Edit match",
   "league.homeTeam": "Home team",
   "league.awayTeam": "Away team",
+  "match.scheduledDate": "Scheduled date",
   "league.startManual": "Enter Manually",
   "league.addMatch": "Add match",
   "league.homePlayer": "Home",
