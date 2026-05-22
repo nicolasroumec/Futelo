@@ -210,6 +210,10 @@
   "league.editMatch": "Editar partido",
   "league.homeTeam": "Equipo local",
   "league.awayTeam": "Equipo visitante",
+  "league.startManual": "Ingresar Manualmente",
+  "league.addMatch": "Agregar partido",
+  "league.homePlayer": "Local",
+  "league.awayPlayer": "Visitante",
 
   "cup.seedingMode": "Modo de siembra",
   "cup.seedingMode.seasonElo": "ELO de temporada",

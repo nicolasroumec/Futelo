@@ -92,9 +92,17 @@ else
 
     @if (league.Status == "NotStarted")
     {
-        <button class="btn btn-success mb-4" disabled="@isWorking" @onclick="HandleStart">
-            @(isWorking ? Lang.Get("league.generating") : Lang.Get("league.generateFixture"))
-        </button>
+        <div class="d-flex gap-2 mb-4">
+            <button class="btn btn-success" disabled="@isWorking" @onclick="HandleStart">
+                @(isWorking ? Lang.Get("league.generating") : Lang.Get("league.generateFixture"))
+            </button>
+            @if (league.CanEdit)
+            {
+                <button class="btn btn-outline-secondary" disabled="@isWorking" @onclick="HandleStartManual">
+                    @Lang.Get("league.startManual")
+                </button>
+            }
+        </div>
     }
     else
     {
@@ -241,6 +249,51 @@ else
                         </div>
                     }
                 </div>
+
+                @if (league.Status == "Active" && league.CanEdit)
+                {
+                    @if (addingMatch)
+                    {
+                        <div class="d-flex flex-wrap gap-2 align-items-end mt-3 mb-2">
+                            <div>
+                                <label class="form-label small mb-1">@Lang.Get("league.matchday")</label>
+                                <input type="number" class="form-control form-control-sm" style="width:80px" min="1" @bind="newMatchday" />
+                            </div>
+                            <div>
+                                <label class="form-label small mb-1">@Lang.Get("league.homePlayer")</label>
+                                <select class="form-select form-select-sm" style="width:160px" @bind="newHomePlayerId">
+                                    <option value="">@Lang.Get("common.select")</option>
+                                    @foreach (var p in league.SeasonPlayers)
+                                    {
+                                        <option value="@p.Id">@p.DisplayName</option>
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label small mb-1">@Lang.Get("league.awayPlayer")</label>
+                                <select class="form-select form-select-sm" style="width:160px" @bind="newAwayPlayerId">
+                                    <option value="">@Lang.Get("common.select")</option>
+                                    @foreach (var p in league.SeasonPlayers)
+                                    {
+                                        <option value="@p.Id">@p.DisplayName</option>
+                                    }
+                                </select>
+                            </div>
+                            <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
+                                @(isAddingMatch ? "..." : Lang.Get("league.addMatch"))
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatch = false">
+                                @Lang.Get("common.cancel")
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-primary btn-sm mt-2 mb-2" @onclick="BeginAddMatch">
+                            + @Lang.Get("league.addMatch")
+                        </button>
+                    }
+                }
 
                 @if (league.Status == "Active" && league.Matches.All(m => m.Status == "Pending"))
                 {

@@ -210,6 +210,10 @@
   "league.editMatch": "Edit match",
   "league.homeTeam": "Home team",
   "league.awayTeam": "Away team",
+  "league.startManual": "Enter Manually",
+  "league.addMatch": "Add match",
+  "league.homePlayer": "Home",
+  "league.awayPlayer": "Away",
 
   "cup.seedingMode": "Seeding Mode",
   "cup.seedingMode.seasonElo": "Season ELO",

@@ -11,6 +11,12 @@ public class LeagueService(HttpClient http) : ApiService(http), ILeagueService
     public Task StartAsync(int id)
         => PostAsync($"api/leagues/{id}/start");
 
+    public Task StartManualAsync(int id)
+        => PostAsync($"api/leagues/{id}/start-manual");
+
+    public Task AddMatchAsync(int leagueId, AddLeagueMatchRequest request)
+        => PostAsync($"api/leagues/{leagueId}/matches", request);
+
     public Task ReshuffleAsync(int id)
         => PutAsync($"api/leagues/{id}/reshuffle");
 

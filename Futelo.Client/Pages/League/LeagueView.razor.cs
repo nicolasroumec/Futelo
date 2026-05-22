@@ -41,6 +41,12 @@ public partial class LeagueView : LocalizedComponentBase
     private DateOnly? editEndDate;
     private bool isSavingDates;
 
+    private bool addingMatch;
+    private int newMatchday = 1;
+    private string newHomePlayerId = string.Empty;
+    private string newAwayPlayerId = string.Empty;
+    private bool isAddingMatch;
+
     private string TiebreakerKey => league!.TiebreakerRule switch
     {
         Futelo.Shared.Enums.TiebreakerRule.HeadToHead => "season.tiebreaker.headToHead",
@@ -126,6 +132,57 @@ public partial class LeagueView : LocalizedComponentBase
         finally
         {
             isWorking = false;
+        }
+    }
+
+    private async Task HandleStartManual()
+    {
+        isWorking = true;
+        try
+        {
+            await LeagueService.StartManualAsync(Id);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isWorking = false;
+        }
+    }
+
+    private void BeginAddMatch()
+    {
+        newMatchday = Matchdays.Count > 0 ? Matchdays.Max() + 1 : 1;
+        newHomePlayerId = string.Empty;
+        newAwayPlayerId = string.Empty;
+        addingMatch = true;
+    }
+
+    private async Task HandleAddMatch()
+    {
+        if (string.IsNullOrEmpty(newHomePlayerId) || string.IsNullOrEmpty(newAwayPlayerId)) return;
+        isAddingMatch = true;
+        try
+        {
+            await LeagueService.AddMatchAsync(Id, new AddLeagueMatchRequest
+            {
+                Matchday = newMatchday,
+                HomePlayerId = newHomePlayerId,
+                AwayPlayerId = newAwayPlayerId
+            });
+            addingMatch = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isAddingMatch = false;
         }
     }
 
