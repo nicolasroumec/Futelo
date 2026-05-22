@@ -282,6 +282,68 @@ Rama: `15-features`
 
 ---
 
+### Sprint F7 — Ingreso manual de partidos: Liga ⬜
+Permite cargar partidos históricos en la liga sin generar el fixture automático. El usuario activa la liga manualmente, agrega partidos (fecha + local + visitante) de a uno, y registra resultados con el flujo existente (ELO se calcula igual).
+
+**Commit 1 — `feat: league manual - shared DTOs and server`**
+- [ ] `Futelo.Shared/DTOs/PlayerSummary.cs` ← nuevo `{ string Id, string DisplayName }`
+- [ ] `Futelo.Shared/DTOs/League/AddLeagueMatchRequest.cs` ← nuevo `{ int Matchday, string HomePlayerId, string AwayPlayerId }`
+- [ ] `LeagueResponse.cs` ← agregar `List<PlayerSummary> SeasonPlayers`
+- [ ] `ILeagueRepository` + `LeagueRepository` ← agregar `InitPlayersAsync` y `AddMatchAsync`
+- [ ] `ILeagueService` + `LeagueService` ← agregar `StartManualAsync` y `AddMatchManuallyAsync` (valida jugadores en temporada, Leg = Matchday)
+- [ ] `LeagueService.GetByIdAsync` ← poblar `SeasonPlayers` desde `league.Season.Players`
+- [ ] `LeagueController` ← `POST /{id}/start-manual` y `POST /{id}/matches`
+
+**Commit 2 — `feat: league manual - client service and UI`**
+- [ ] `ILeagueService` + `LeagueService` (Client) ← agregar `StartManualAsync` y `AddMatchAsync`
+- [ ] `LeagueView.razor` ← en NotStarted + CanEdit: botón "Ingresar Manualmente" junto a "Generar Fixture"; en Active + CanEdit: formulario inline "Agregar partido" (nro de fecha, dropdown local, dropdown visitante)
+- [ ] `LeagueView.razor.cs` ← estado `addingMatch`, `newMatchday`, `newHomePlayerId`, `newAwayPlayerId`, handlers `HandleStartManual` y `HandleAddMatch`
+- [ ] `en.json` / `es.json` ← agregar `league.startManual`, `league.addMatch`
+
+---
+
+### Sprint F8 — Ingreso manual de partidos: Copa ⬜
+Permite crear rondas y partidos manualmente en la copa. Se agrega flag `IsManual` al modelo para desactivar el auto-avance de la llave cuando se registran resultados.
+
+**Commit 1 — `feat: cup manual - model, migration and server`**
+- [ ] `Cup.cs` ← agregar `bool IsManual`
+- [ ] Migración EF Core: `AddIsManualToCup` (`AddColumn<bool>("IsManual", "Cups", defaultValue: false)`)
+- [ ] `Futelo.Shared/DTOs/Cup/AddCupRoundRequest.cs` ← nuevo `{ string Name, int RoundNumber }`
+- [ ] `Futelo.Shared/DTOs/Cup/AddCupMatchRequest.cs` ← nuevo `{ string HomePlayerId, string AwayPlayerId, int Leg }`
+- [ ] `CupResponse.cs` ← agregar `List<PlayerSummary> SeasonPlayers`, `bool IsManual`
+- [ ] `ICupRepository` + `CupRepository` ← agregar `InitPlayersAsync`, `AddRoundAsync`, `AddMatchToRoundAsync`
+- [ ] `ICupService` + `CupService` ← agregar `StartManualAsync`, `AddRoundAsync`, `AddMatchAsync`
+- [ ] `CupService.RecordResultAsync` ← cuando `cup.IsManual == true`, omitir bloque de auto-avance; detectar fin cuando todos los partidos de la ronda con mayor `RoundNumber` estén `Played` → campeón = ganador del último partido
+- [ ] `CupService.GetByIdAsync` ← poblar `SeasonPlayers`
+- [ ] `CupController` ← `POST /{id}/start-manual`, `POST /{id}/rounds`, `POST /{id}/rounds/{roundId}/matches`
+- [ ] `ErrorMessages` ← agregar `CupRoundNotFound`
+
+**Commit 2 — `feat: cup manual - client service and UI`**
+- [ ] `ICupService` + `CupService` (Client) ← agregar `StartManualAsync`, `AddRoundAsync`, `AddMatchAsync`
+- [ ] `CupView.razor` ← en NotStarted + CanEdit: botón "Ingresar Manualmente"; en Active + IsManual: formulario "Agregar ronda" (nombre + nro) y por ronda formulario "Agregar partido" (local, visitante, leg)
+- [ ] `CupView.razor.cs` ← estado + handlers
+- [ ] `en.json` / `es.json` ← agregar `cup.startManual`, `cup.addRound`, `cup.roundName`, `cup.roundNumber`, `cup.addMatch`
+
+---
+
+### Sprint F9 — Ingreso manual de partidos: SuperCopa ⬜
+Permite iniciar la SuperCopa eligiendo los dos jugadores libremente, sin requerir que la Liga y Copa estén finalizadas. Útil para cargar supercopa histórica.
+
+**Commit 1 — `feat: supercup manual - shared DTOs and server`**
+- [ ] `Futelo.Shared/DTOs/SuperCup/StartSuperCupManualRequest.cs` ← nuevo `{ string Player1Id, string Player2Id }`
+- [ ] `SuperCupResponse.cs` ← agregar `List<PlayerSummary> SeasonPlayers`
+- [ ] `ISuperCupService` + `SuperCupService` ← agregar `StartManualAsync(int, string player1Id, string player2Id, string userId)` (valida que ambos jugadores estén en la temporada y sean distintos; reutiliza `SetParticipantsAsync` del repo; omite el check de Liga/Copa finalizadas)
+- [ ] `SuperCupService.GetByIdAsync` ← poblar `SeasonPlayers`
+- [ ] `SuperCupController` ← `POST /{id}/start-manual` con body `StartSuperCupManualRequest`
+
+**Commit 2 — `feat: supercup manual - client service and UI`**
+- [ ] `ISuperCupService` + `SuperCupService` (Client) ← agregar `StartManualAsync(int, StartSuperCupManualRequest)`
+- [ ] `SuperCupView.razor` ← en NotStarted + CanEdit: sección "Ingresar Manualmente" con dos dropdowns de jugadores (de `superCup.SeasonPlayers`) + botón, junto al "Iniciar SuperCopa" existente
+- [ ] `SuperCupView.razor.cs` ← estado `manualPlayer1Id`, `manualPlayer2Id`, `isStartingManual`, handler `HandleStartManual`
+- [ ] `en.json` / `es.json` ← agregar `supercup.startManual`, `supercup.player1`, `supercup.player2`
+
+---
+
 ## Features futuras (backlog)
 
 ### Partido de desempate en Liga

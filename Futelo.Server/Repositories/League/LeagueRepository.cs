@@ -114,6 +114,21 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
         await SaveChangesAsync();
     }
 
+    public async Task InitPlayersAsync(int leagueId, List<LeaguePlayer> players)
+    {
+        var existing = await Context.Set<LeaguePlayer>()
+            .Where(lp => lp.LeagueId == leagueId).ToListAsync();
+        Context.Set<LeaguePlayer>().RemoveRange(existing);
+        Context.Set<LeaguePlayer>().AddRange(players);
+        await SaveChangesAsync();
+    }
+
+    public async Task AddMatchAsync(Match match)
+    {
+        Context.Set<Match>().Add(match);
+        await SaveChangesAsync();
+    }
+
     public async Task PatchDatesAsync(int leagueId, DateTime? startDate, DateTime? endDate)
     {
         var league = await Context.Set<Models.League>().FindAsync(leagueId);

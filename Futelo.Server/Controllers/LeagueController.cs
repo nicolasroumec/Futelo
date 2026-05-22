@@ -28,6 +28,20 @@ public class LeagueController(ILeagueService leagueService) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("{id}/start-manual")]
+    public async Task<IActionResult> StartManual(int id)
+    {
+        await leagueService.StartManualAsync(id, UserId);
+        return NoContent();
+    }
+
+    [HttpPost("{id}/matches")]
+    public async Task<IActionResult> AddMatch(int id, AddLeagueMatchRequest request)
+    {
+        await leagueService.AddMatchManuallyAsync(id, request, UserId);
+        return NoContent();
+    }
+
     [HttpPut("{id}/reshuffle")]
     public async Task<IActionResult> Reshuffle(int id)
     {

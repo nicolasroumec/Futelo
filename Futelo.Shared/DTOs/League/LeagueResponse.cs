@@ -15,6 +15,7 @@ public class LeagueResponse
     public string? ChampionId { get; set; }
     public string? ChampionName { get; set; }
     public bool CanEdit { get; set; }
+    public List<PlayerSummary> SeasonPlayers { get; set; } = [];
     public List<MatchResponse> Matches { get; set; } = [];
     public List<StandingRow> Standings { get; set; } = [];
 }

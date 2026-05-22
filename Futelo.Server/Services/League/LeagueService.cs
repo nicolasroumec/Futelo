@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.League;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.Enums;
 
@@ -38,6 +39,10 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
                 ? league.Season.Players.FirstOrDefault(sp => sp.PlayerId == league.ChampionId)?.Player.DisplayName
                 : null,
             CanEdit = canEdit,
+            SeasonPlayers = league.Season.Players
+                .Select(sp => new PlayerSummary { Id = sp.PlayerId, DisplayName = sp.Player.DisplayName })
+                .OrderBy(p => p.DisplayName)
+                .ToList(),
             Matches = league.Matches
                 .OrderBy(m => m.Leg).ThenBy(m => m.Id)
                 .Select(m => new MatchResponse
@@ -87,6 +92,68 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
 
         await leagueRepository.SetFixtureAsync(leagueId, leaguePlayers, matches);
         await leagueRepository.UpdateStatusAsync(leagueId, TournamentStatus.Active);
+    }
+
+    public async Task StartManualAsync(int leagueId, string userId)
+    {
+        var league = await leagueRepository.GetByIdAsync(leagueId);
+        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(LeagueNotFound);
+
+        if (league.Status != TournamentStatus.NotStarted)
+            throw new InvalidOperationException(FixtureAlreadyGenerated);
+
+        var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
+
+        var playerIds = league.Season.Players.Select(sp => sp.PlayerId).ToList();
+        if (playerIds.Count < 2)
+            throw new InvalidOperationException(AtLeast2PlayersRequired);
+
+        var leaguePlayers = playerIds.Select(pid => new LeaguePlayer
+        {
+            LeagueId = leagueId,
+            PlayerId = pid
+        }).ToList();
+
+        await leagueRepository.InitPlayersAsync(leagueId, leaguePlayers);
+        await leagueRepository.UpdateStatusAsync(leagueId, TournamentStatus.Active);
+    }
+
+    public async Task AddMatchManuallyAsync(int leagueId, AddLeagueMatchRequest request, string userId)
+    {
+        var league = await leagueRepository.GetByIdAsync(leagueId);
+        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(LeagueNotFound);
+
+        if (league.Status != TournamentStatus.Active)
+            throw new InvalidOperationException(LeagueNotActive);
+
+        var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
+
+        if (request.Matchday < 1)
+            throw new InvalidOperationException("Matchday must be at least 1.");
+
+        if (request.HomePlayerId == request.AwayPlayerId)
+            throw new InvalidOperationException("Home and away players must be different.");
+
+        var playerIds = league.Season.Players.Select(sp => sp.PlayerId).ToHashSet();
+        if (!playerIds.Contains(request.HomePlayerId) || !playerIds.Contains(request.AwayPlayerId))
+            throw new InvalidOperationException("Both players must belong to the season.");
+
+        var match = new Match
+        {
+            LeagueId = leagueId,
+            HomePlayerId = request.HomePlayerId,
+            AwayPlayerId = request.AwayPlayerId,
+            Leg = request.Matchday,
+            Status = MatchStatus.Pending
+        };
+
+        await leagueRepository.AddMatchAsync(match);
     }
 
     public async Task RegenerateFixtureAsync(int leagueId, string userId)

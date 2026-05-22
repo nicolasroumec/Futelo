@@ -8,6 +8,8 @@ public interface ILeagueRepository
     Task<Models.League?> GetByIdAsync(int id);
     Task UpdateStatusAsync(int leagueId, TournamentStatus status);
     Task SetFixtureAsync(int leagueId, List<LeaguePlayer> players, List<Match> matches);
+    Task InitPlayersAsync(int leagueId, List<LeaguePlayer> players);
+    Task AddMatchAsync(Match match);
     Task SaveMatchResultAsync(MatchResultData data);
     Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate);
     Task PatchDatesAsync(int leagueId, DateTime? startDate, DateTime? endDate);
