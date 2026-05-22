@@ -153,4 +153,34 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
         cup.EndDate = endDate;
         await SaveChangesAsync();
     }
+
+    public async Task InitPlayersAsync(int cupId, List<CupPlayer> players)
+    {
+        var existing = await Context.Set<CupPlayer>().Where(cp => cp.CupId == cupId).ToListAsync();
+        Context.Set<CupPlayer>().RemoveRange(existing);
+        Context.Set<CupPlayer>().AddRange(players);
+        await SaveChangesAsync();
+    }
+
+    public async Task ActivateManualAsync(int cupId)
+    {
+        var cup = await Context.Set<Models.Cup>().FindAsync(cupId);
+        if (cup == null) return;
+        cup.IsManual = true;
+        cup.Status = TournamentStatus.Active;
+        await SaveChangesAsync();
+    }
+
+    public async Task<int> AddRoundAsync(CupRound round)
+    {
+        Context.Set<CupRound>().Add(round);
+        await SaveChangesAsync();
+        return round.Id;
+    }
+
+    public async Task AddMatchToRoundAsync(Match match)
+    {
+        Context.Set<Match>().Add(match);
+        await SaveChangesAsync();
+    }
 }

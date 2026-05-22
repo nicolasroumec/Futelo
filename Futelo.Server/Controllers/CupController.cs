@@ -29,6 +29,27 @@ public class CupController(ICupService cupService) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("{id}/start-manual")]
+    public async Task<IActionResult> StartManual(int id)
+    {
+        await cupService.StartManualAsync(id, UserId);
+        return NoContent();
+    }
+
+    [HttpPost("{id}/rounds")]
+    public async Task<IActionResult> AddRound(int id, AddCupRoundRequest request)
+    {
+        var roundId = await cupService.AddRoundAsync(id, request, UserId);
+        return Ok(new { roundId });
+    }
+
+    [HttpPost("{id}/rounds/{roundId}/matches")]
+    public async Task<IActionResult> AddMatch(int id, int roundId, AddCupMatchRequest request)
+    {
+        await cupService.AddMatchAsync(id, roundId, request, UserId);
+        return NoContent();
+    }
+
     [HttpPut("{id}/matches/{matchId}/result")]
     public async Task<IActionResult> RecordResult(int id, int matchId, RecordCupResultRequest request)
     {

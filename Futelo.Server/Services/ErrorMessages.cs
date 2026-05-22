@@ -46,6 +46,7 @@ internal static class ErrorMessages
 
     // Cup
     internal const string CupNotFound = "Cup not found.";
+    internal const string CupRoundNotFound = "Cup round not found.";
     internal const string BracketAlreadyGenerated = "Bracket has already been generated.";
     internal const string CupNotActive = "Cup is not active.";
     internal const string MatchNotFound = "Match not found.";

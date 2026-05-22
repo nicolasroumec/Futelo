@@ -12,6 +12,7 @@ public class Cup
     public DateTime? EndDate { get; set; }
     public CupSeedingMode SeedingMode { get; set; } = CupSeedingMode.SeasonElo;
     public bool AwayGoalRule { get; set; }
+    public bool IsManual { get; set; }
     public TournamentStatus Status { get; set; } = TournamentStatus.NotStarted;
 
     public string? ChampionId { get; set; }
