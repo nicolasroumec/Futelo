@@ -40,7 +40,7 @@ public class CupController(ICupService cupService) : ControllerBase
     public async Task<IActionResult> AddRound(int id, AddCupRoundRequest request)
     {
         var roundId = await cupService.AddRoundAsync(id, request, UserId);
-        return Ok(new { roundId });
+        return Ok(roundId);
     }
 
     [HttpPost("{id}/rounds/{roundId}/matches")]

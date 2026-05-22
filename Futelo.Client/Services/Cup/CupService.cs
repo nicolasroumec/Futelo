@@ -12,6 +12,15 @@ public class CupService(HttpClient http) : ApiService(http), ICupService
     public Task StartAsync(int id)
         => PostAsync($"api/cups/{id}/start");
 
+    public Task StartManualAsync(int id)
+        => PostAsync($"api/cups/{id}/start-manual");
+
+    public Task<int> AddRoundAsync(int cupId, AddCupRoundRequest request)
+        => PostAsync<int>($"api/cups/{cupId}/rounds", request);
+
+    public Task AddMatchAsync(int cupId, int roundId, AddCupMatchRequest request)
+        => PostAsync($"api/cups/{cupId}/rounds/{roundId}/matches", request);
+
     public Task<RecordCupResultResponse> RecordResultAsync(int cupId, int matchId, RecordCupResultRequest request)
         => PutAsync<RecordCupResultResponse>($"api/cups/{cupId}/matches/{matchId}/result", request);
 

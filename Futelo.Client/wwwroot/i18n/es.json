@@ -215,6 +215,13 @@
   "league.homePlayer": "Local",
   "league.awayPlayer": "Visitante",
 
+  "cup.startManual": "Ingresar Manualmente",
+  "cup.addRound": "Agregar ronda",
+  "cup.roundName": "Nombre de ronda",
+  "cup.roundNumber": "Ronda #",
+  "cup.addMatch": "Agregar partido",
+  "cup.homePlayer": "Local",
+  "cup.awayPlayer": "Visitante",
   "cup.seedingMode": "Modo de siembra",
   "cup.seedingMode.seasonElo": "ELO de temporada",
   "cup.seedingMode.leaguePosition": "Posición en liga",

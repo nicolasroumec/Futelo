@@ -93,9 +93,17 @@ else
 
     @if (cup.Status == "NotStarted")
     {
-        <button class="btn btn-success mb-4" disabled="@isLoading" @onclick="HandleStart">
-            @(isLoading ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
-        </button>
+        <div class="d-flex gap-2 mb-4">
+            <button class="btn btn-success" disabled="@isLoading" @onclick="HandleStart">
+                @(isLoading ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
+            </button>
+            @if (cup.CanEdit)
+            {
+                <button class="btn btn-outline-secondary" disabled="@isLoading" @onclick="HandleStartManual">
+                    @Lang.Get("cup.startManual")
+                </button>
+            }
+        </div>
     }
     else
     {
@@ -196,6 +204,80 @@ else
                     </div>
                 }
             </div>
+
+            @if (cup.IsManual && cup.CanEdit && cup.Status == "Active")
+            {
+                @if (addingMatchToRoundId == round.Id)
+                {
+                    <div class="d-flex flex-wrap gap-2 align-items-end mb-3" @onclick:stopPropagation="true">
+                        <div>
+                            <label class="form-label small mb-1">@Lang.Get("cup.homePlayer")</label>
+                            <select class="form-select form-select-sm" style="width:160px" @bind="newMatchHomePlayerId">
+                                <option value="">@Lang.Get("common.select")</option>
+                                @foreach (var p in cup.SeasonPlayers)
+                                {
+                                    <option value="@p.Id">@p.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label small mb-1">@Lang.Get("cup.awayPlayer")</label>
+                            <select class="form-select form-select-sm" style="width:160px" @bind="newMatchAwayPlayerId">
+                                <option value="">@Lang.Get("common.select")</option>
+                                @foreach (var p in cup.SeasonPlayers)
+                                {
+                                    <option value="@p.Id">@p.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label small mb-1">@Lang.Get("cup.leg")</label>
+                            <input type="number" class="form-control form-control-sm" style="width:70px" min="1" @bind="newMatchLeg" />
+                        </div>
+                        <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
+                            @(isAddingMatch ? "..." : Lang.Get("cup.addMatch"))
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatchToRoundId = null">
+                            @Lang.Get("common.cancel")
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-outline-primary btn-sm mb-3" @onclick="() => BeginAddMatch(round.Id)">
+                        + @Lang.Get("cup.addMatch")
+                    </button>
+                }
+            }
+        }
+
+        @if (cup.IsManual && cup.CanEdit && cup.Status == "Active")
+        {
+            @if (addingRound)
+            {
+                <div class="d-flex flex-wrap gap-2 align-items-end mt-2 mb-3">
+                    <div>
+                        <label class="form-label small mb-1">@Lang.Get("cup.roundName")</label>
+                        <input type="text" class="form-control form-control-sm" style="width:160px" @bind="newRoundName" placeholder="Final" />
+                    </div>
+                    <div>
+                        <label class="form-label small mb-1">@Lang.Get("cup.roundNumber")</label>
+                        <input type="number" class="form-control form-control-sm" style="width:80px" min="1" @bind="newRoundNumber" />
+                    </div>
+                    <button class="btn btn-primary btn-sm" disabled="@isAddingRound" @onclick="HandleAddRound">
+                        @(isAddingRound ? "..." : Lang.Get("cup.addRound"))
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingRound = false">
+                        @Lang.Get("common.cancel")
+                    </button>
+                </div>
+            }
+            else
+            {
+                <button class="btn btn-outline-secondary btn-sm mt-2" @onclick="BeginAddRound">
+                    + @Lang.Get("cup.addRound")
+                </button>
+            }
         }
     }
 }

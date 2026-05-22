@@ -215,6 +215,13 @@
   "league.homePlayer": "Home",
   "league.awayPlayer": "Away",
 
+  "cup.startManual": "Enter Manually",
+  "cup.addRound": "Add Round",
+  "cup.roundName": "Round name",
+  "cup.roundNumber": "Round #",
+  "cup.addMatch": "Add match",
+  "cup.homePlayer": "Home",
+  "cup.awayPlayer": "Away",
   "cup.seedingMode": "Seeding Mode",
   "cup.seedingMode.seasonElo": "Season ELO",
   "cup.seedingMode.leaguePosition": "League Position",
