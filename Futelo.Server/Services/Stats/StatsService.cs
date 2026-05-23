@@ -271,6 +271,58 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
         return points;
     }
 
+    public async Task<GlobalEloHistoryResponse> GetGlobalEloHistoryAsync(string playerId, int vaultId, string requesterId, string? competitionType)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+
+        var history = await statsRepository.GetPlayerGlobalEloHistoryAsync(playerId, vaultId, competitionType);
+
+        if (history.Count == 0)
+            return new GlobalEloHistoryResponse();
+
+        var points = new List<GlobalEloHistoryPoint>
+        {
+            new()
+            {
+                Date            = history[0].CreatedAt,
+                Elo             = history[0].EloBefore,
+                CompetitionType = GetCompetitionType(history[0].Match),
+                SeasonName      = history[0].Season.Name
+            }
+        };
+        points.AddRange(history.Select(h => new GlobalEloHistoryPoint
+        {
+            Date            = h.CreatedAt,
+            Elo             = h.EloAfter,
+            CompetitionType = GetCompetitionType(h.Match),
+            SeasonName      = h.Season.Name
+        }));
+
+        var seasons = new List<EloSeasonAnnotation>();
+        int? prevSeasonId = null;
+        for (int i = 0; i < history.Count; i++)
+        {
+            if (history[i].SeasonId == prevSeasonId) continue;
+            seasons.Add(new EloSeasonAnnotation
+            {
+                Name            = history[i].Season.Name,
+                FirstPointIndex = i + 1
+            });
+            prevSeasonId = history[i].SeasonId;
+        }
+
+        return new GlobalEloHistoryResponse { Points = points, Seasons = seasons };
+    }
+
+    private static string GetCompetitionType(Match match)
+    {
+        if (match.LeagueId.HasValue)   return "League";
+        if (match.CupRoundId.HasValue) return "Cup";
+        if (match.SuperCupId.HasValue) return "SuperCup";
+        return "";
+    }
+
     public async Task<List<ScorerRow>> GetScorersAsync(int vaultId, string requesterId)
     {
         if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))

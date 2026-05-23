@@ -1,3 +1,102 @@
+window.renderGlobalEloChart = function (canvasId, labels, data, seasons) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    if (canvas._chart) {
+        canvas._chart.destroy();
+    }
+
+    const ctx = canvas.getContext('2d');
+    const height = canvas.offsetHeight || 200;
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.25)');
+    gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+
+    const seasonPlugin = {
+        id: 'seasonBoundaries',
+        afterDraw(chart) {
+            const xAxis = chart.scales.x;
+            const yAxis = chart.scales.y;
+            const pCtx = chart.ctx;
+
+            seasons.forEach(season => {
+                if (season.firstPointIndex <= 0 || season.firstPointIndex >= labels.length) return;
+
+                const x = xAxis.getPixelForValue(season.firstPointIndex);
+
+                pCtx.save();
+                pCtx.beginPath();
+                pCtx.moveTo(x, yAxis.top);
+                pCtx.lineTo(x, yAxis.bottom);
+                pCtx.lineWidth = 1;
+                pCtx.strokeStyle = 'rgba(148,163,184,0.45)';
+                pCtx.setLineDash([4, 4]);
+                pCtx.stroke();
+                pCtx.setLineDash([]);
+                pCtx.fillStyle = '#9AA4B2';
+                pCtx.font = '10px sans-serif';
+                pCtx.fillText(season.name, x + 4, yAxis.top + 12);
+                pCtx.restore();
+            });
+        }
+    };
+
+    canvas._chart = new Chart(canvas, {
+        type: 'line',
+        plugins: [seasonPlugin],
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                borderColor: '#22C55E',
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4,
+                pointRadius: labels.length > 60 ? 2 : 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#22C55E',
+                pointBorderColor: '#0F1115',
+                pointBorderWidth: 2,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1F2430',
+                    borderColor: '#2B3240',
+                    borderWidth: 1,
+                    titleColor: '#9AA4B2',
+                    bodyColor: '#F5F7FA',
+                    padding: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: (item) => `ELO ${item.raw}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#2B3240' },
+                    ticks: {
+                        color: '#9AA4B2',
+                        font: { size: 11 },
+                        maxTicksLimit: 8,
+                        maxRotation: 0
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    grid: { color: '#2B3240' },
+                    ticks: { color: '#9AA4B2', font: { size: 11 } }
+                }
+            }
+        }
+    });
+};
+
 window.renderEloChart = function (canvasId, labels, data) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;

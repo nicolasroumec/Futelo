@@ -8,34 +8,36 @@
 
 ### Stack tecnológico
 
-| Capa | Tecnología |
-|------|-----------|
-| Frontend | Blazor 10 WASM, Bootstrap 5, SVG icons |
-| Backend | ASP.NET Core 10 Web API |
-| Database | SQLite (dev) / SQL Server (prod) via EF Core 10 |
-| Auth | ASP.NET Core Identity + JWT (7 días, sin refresh) |
-| PWA | Service Worker + Manifest |
-| i18n | Servicio custom ES/EN |
-| Arquitectura | Controller → Service → Repository → DbContext |
+
+| Capa         | Tecnología                                        |
+| ------------ | -------------------------------------------------- |
+| Frontend     | Blazor 10 WASM, Bootstrap 5, SVG icons             |
+| Backend      | ASP.NET Core 10 Web API                            |
+| Database     | SQLite (dev) / SQL Server (prod) via EF Core 10    |
+| Auth         | ASP.NET Core Identity + JWT (7 días, sin refresh) |
+| PWA          | Service Worker + Manifest                          |
+| i18n         | Servicio custom ES/EN                              |
+| Arquitectura | Controller → Service → Repository → DbContext   |
 
 ### Funcionalidades existentes
 
-| Feature | Estado | Descripción |
-|---------|--------|-------------|
-| Autenticación | ✅ | Register/Login con JWT |
-| Vaults | ✅ | Grupos de amigos, invitación por token de email |
-| Temporadas | ✅ | Lifecycle Draft → Active → Finished |
-| Liga | ✅ | Round-robin, fixture auto + manual, standings con tiebreakers |
-| Copa | ✅ | Bracket eliminación, seeding modes, gol visitante, penales |
-| SuperCopa | ✅ | 1v1 entre campeones, penales, H2H |
-| Sistema ELO | ✅ | Global + por temporada, K variable por competición, multiplicadores por diferencia de goles |
-| Rankings | ✅ | ELO global, ELO temporada, Palmarés, Goleadores, Records, H2H |
-| Perfil jugador | ✅ | Historial ELO, partidos recientes, forma |
-| Comparación jugadores | ✅ | Side-by-side stats |
-| Catálogos | ✅ | VideoGames y Teams (CRUD) |
-| PWA | ✅ | Offline indicator, install prompt, service worker |
-| Temas | ✅ | Dark/Light, persistido en localStorage |
-| i18n | ✅ | ES/EN |
+
+| Feature                | Estado | Descripción                                                                                 |
+| ---------------------- | ------ | -------------------------------------------------------------------------------------------- |
+| Autenticación         | ✅     | Register/Login con JWT                                                                       |
+| Vaults                 | ✅     | Grupos de amigos, invitación por token de email                                             |
+| Temporadas             | ✅     | Lifecycle Draft → Active → Finished                                                        |
+| Liga                   | ✅     | Round-robin, fixture auto + manual, standings con tiebreakers                                |
+| Copa                   | ✅     | Bracket eliminación, seeding modes, gol visitante, penales                                  |
+| SuperCopa              | ✅     | 1v1 entre campeones, penales, H2H                                                            |
+| Sistema ELO            | ✅     | Global + por temporada, K variable por competición, multiplicadores por diferencia de goles |
+| Rankings               | ✅     | ELO global, ELO temporada, Palmarés, Goleadores, Records, H2H                               |
+| Perfil jugador         | ✅     | Historial ELO, partidos recientes, forma                                                     |
+| Comparación jugadores | ✅     | Side-by-side stats                                                                           |
+| Catálogos             | ✅     | VideoGames y Teams (CRUD)                                                                    |
+| PWA                    | ✅     | Offline indicator, install prompt, service worker                                            |
+| Temas                  | ✅     | Dark/Light, persistido en localStorage                                                       |
+| i18n                   | ✅     | ES/EN                                                                                        |
 
 ### Flujo típico del usuario
 
@@ -231,7 +233,7 @@
 
 **Problema que resuelve:** `EloHistory` ya existe y el perfil del jugador muestra un gráfico de ELO por temporada. Pero no hay forma de ver la evolución del ELO global a lo largo de todas las temporadas en una sola vista.
 
-**Cómo funciona:** En el perfil del jugador, un gráfico de línea muestra el ELO global a través del tiempo — partido por partido — con anotaciones de las temporadas. Se puede filtrar por competición (Liga/Copa/Amistosos). El eje X es fecha real (no número de partidos).
+**Cómo funciona:** En el perfil del jugador, un gráfico de línea muestra el ELO global a través del tiempo — partido por partido — con anotaciones de las temporadas. Se puede filtrar por competición (Liga/Copa). El eje X es fecha real (no número de partidos).
 
 **Impacto esperado:** Da valor a los datos históricos que ya se están acumulando. Los jugadores "veteranos" tienen incentivo para mirar hacia atrás y comparar épocas. Refuerza el ELO global como métrica significativa.
 
@@ -243,20 +245,21 @@
 
 ## PASO 3 — Matriz de priorización
 
-| Feature | Valor para el usuario (1-5) | Esfuerzo técnico (1-5) | Prioridad sugerida |
-|---------|:-:|:-:|:--:|
-| F4 — Invitación por Link | 5 | 2 | **Alto** |
-| F1 — Activity Feed | 5 | 3 | **Alto** |
-| F10 — Comentarios y Reacciones | 4 | 2 | **Alto** |
-| F7 — Vista Calendario | 3 | 1 | **Alto** |
-| F12 — Historial ELO Multi-Temporada | 3 | 1 | **Alto** |
-| F5 — Resumen Visual de Temporada | 5 | 3 | **Medio** |
-| F2 — Partidos Amistosos | 4 | 3 | **Medio** |
-| F3 — Predicciones de Partidos | 4 | 3 | **Medio** |
-| F11 — Notificaciones In-App | 4 | 4 | **Medio** |
-| F6 — Logros y Badges | 3 | 4 | **Medio** |
-| F8 — Draft de Equipos | 3 | 4 | **Bajo** |
-| F9 — Fase de Grupos + Eliminatoria | 4 | 5 | **Bajo** |
+
+| Feature                              | Valor para el usuario (1-5) | Esfuerzo técnico (1-5) | Prioridad sugerida |
+| ------------------------------------ | :-------------------------: | :---------------------: | :----------------: |
+| F4 — Invitación por Link           |              5              |            2            |      **Alto**      |
+| F1 — Activity Feed                  |              5              |            3            |      **Alto**      |
+| F10 — Comentarios y Reacciones      |              4              |            2            |      **Alto**      |
+| F7 — Vista Calendario               |              3              |            1            |      **Alto**      |
+| F12 — Historial ELO Multi-Temporada |              3              |            1            |      **Alto**      |
+| F5 — Resumen Visual de Temporada    |              5              |            3            |     **Medio**     |
+| F2 — Partidos Amistosos             |              4              |            3            |     **Medio**     |
+| F3 — Predicciones de Partidos       |              4              |            3            |     **Medio**     |
+| F11 — Notificaciones In-App         |              4              |            4            |     **Medio**     |
+| F6 — Logros y Badges                |              3              |            4            |     **Medio**     |
+| F8 — Draft de Equipos               |              3              |            4            |      **Bajo**      |
+| F9 — Fase de Grupos + Eliminatoria  |              4              |            5            |      **Bajo**      |
 
 ---
 
@@ -271,6 +274,7 @@
 **Qué refuerza en el código que es necesaria:** La entidad `VaultInvitation` tiene los campos `Email` y `Token`, pero el código en `InvitationService` valida que el email invitado ya exista como usuario (`UserManager.FindByEmailAsync`). Si no existe, la invitación falla silenciosamente desde la perspectiva del nuevo usuario. El endpoint `/invite/accept` ya maneja el token — el cambio es mínimo.
 
 **Cómo se integra sin romper nada:**
+
 - Añadir un campo `IsLinkBased` (bool) a `VaultInvitation` y `MaxUses` (nullable int)
 - El endpoint de accept verifica `IsLinkBased=true` y crea el usuario si no existe (redirect al registro con token pre-filled)
 - El endpoint de generación de link en `VaultController` es nuevo pero no modifica los existentes
@@ -285,6 +289,7 @@
 **Qué refuerza en el código:** `EloHistory` registra `EloBefore`, `EloAfter`, `EloChange`, `RankBefore`, `RankAfter` con timestamp de cada partido. `Match` tiene `PlayedAt`. La query para "últimos 10 eventos del Vault ordenados por fecha" es una join entre Match y EloHistory — los índices ya están. El `VaultController` ya tiene `/recent-matches` que retorna los partidos recientes, lo cual es la mitad del feed.
 
 **Cómo se integra sin romper nada:**
+
 - Nuevo endpoint `/api/vaults/{id}/feed` que retorna `IEnumerable<FeedEventDto>` (tipo polimórfico: MatchResult | SeasonActivated | PlayerJoined | RecordBroken)
 - El dashboard existente queda como fallback; el feed se añade como sección nueva
 - El componente de feed es independiente; no modifica ninguna página existente
@@ -298,6 +303,7 @@
 **Qué refuerza en el código:** `StatsService` ya computa palmarés, goleadores, rachas (`VaultRecords`), y el endpoint de records ya incluye `TopScoringMatch`. Los datos del recap son literalmente un agregado de stats ya computadas. El `SeasonController` tiene `PUT /seasons/{id}/finish` — el trigger perfecto para generar el recap.
 
 **Cómo se integra sin romper nada:**
+
 - Nuevo endpoint `GET /api/seasons/{id}/recap` (read-only, sin `[Authorize]` para el link público — o con un token de acceso anónimo)
 - Se ejecuta solo en temporadas con `Status = Finished`; no toca la lógica de finish existente
 - Nueva página `/seasons/{id}/recap` en el cliente con diseño visual destacado

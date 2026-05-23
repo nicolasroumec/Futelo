@@ -79,6 +79,27 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
+    public async Task<List<EloHistory>> GetPlayerGlobalEloHistoryAsync(string playerId, int vaultId, string? competitionType)
+    {
+        var query = context.EloHistories
+            .Include(e => e.Match)
+            .Include(e => e.Season)
+            .Where(e => e.PlayerId == playerId && !e.IsSeasonElo && e.Season.VaultId == vaultId);
+
+        query = competitionType switch
+        {
+            "League"   => query.Where(e => e.Match.LeagueId != null),
+            "Cup"      => query.Where(e => e.Match.CupRoundId != null),
+            "SuperCup" => query.Where(e => e.Match.SuperCupId != null),
+            _          => query
+        };
+
+        return await query
+            .OrderBy(e => e.CreatedAt)
+            .AsNoTrackingWithIdentityResolution()
+            .ToListAsync();
+    }
+
     public async Task<List<Match>> GetAllPlayedMatchesInVaultAsync(int vaultId)
         => await context.Matches
             .Where(m => m.Status == MatchStatus.Played)

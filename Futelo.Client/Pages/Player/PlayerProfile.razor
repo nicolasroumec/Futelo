@@ -217,12 +217,25 @@ else
                 </div>
             }
 
-            @if (eloHistory.Count > 0)
+            @if (globalEloHistory != null)
             {
                 <h5>@Lang.Get("player.eloHistory")</h5>
-                <div class="mb-4">
-                    <canvas id="elo-chart"></canvas>
+                <div class="d-flex gap-1 mb-2 flex-wrap">
+                    <button class="btn btn-sm @(competitionFilter == null ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter(null)'>@Lang.Get("common.all")</button>
+                    <button class="btn btn-sm @(competitionFilter == "League" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("League")'>@Lang.Get("createSeason.league")</button>
+                    <button class="btn btn-sm @(competitionFilter == "Cup" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("Cup")'>@Lang.Get("createSeason.cup")</button>
+                    <button class="btn btn-sm @(competitionFilter == "SuperCup" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("SuperCup")'>@Lang.Get("createSeason.superCup")</button>
                 </div>
+                @if (globalEloHistory.Points.Count > 0)
+                {
+                    <div class="mb-4">
+                        <canvas id="global-elo-chart"></canvas>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted small mb-4">@Lang.Get("stats.noMatches")</p>
+                }
             }
         </div>
     </div>

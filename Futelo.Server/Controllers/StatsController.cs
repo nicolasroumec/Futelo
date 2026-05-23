@@ -54,6 +54,13 @@ public class StatsController(IStatsService statsService) : ControllerBase
         return Ok(history);
     }
 
+    [HttpGet("vaults/{vaultId}/players/{playerId}/global-elo-history")]
+    public async Task<IActionResult> GetGlobalEloHistory(int vaultId, string playerId, [FromQuery] string? competition)
+    {
+        var result = await statsService.GetGlobalEloHistoryAsync(playerId, vaultId, UserId, competition);
+        return Ok(result);
+    }
+
     [HttpGet("vaults/{vaultId}/scorers")]
     public async Task<IActionResult> GetScorers(int vaultId)
     {

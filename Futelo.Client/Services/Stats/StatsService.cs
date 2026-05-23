@@ -24,6 +24,13 @@ public class StatsService(HttpClient http) : ApiService(http), IStatsService
     public Task<List<EloHistoryPoint>> GetEloHistoryAsync(int vaultId, string playerId, CancellationToken ct = default)
         => GetListAsync<EloHistoryPoint>($"api/stats/vaults/{vaultId}/players/{playerId}/elo-history", ct);
 
+    public Task<GlobalEloHistoryResponse> GetGlobalEloHistoryAsync(int vaultId, string playerId, string? competition = null, CancellationToken ct = default)
+    {
+        var url = $"api/stats/vaults/{vaultId}/players/{playerId}/global-elo-history";
+        if (!string.IsNullOrEmpty(competition)) url += $"?competition={competition}";
+        return GetAsync<GlobalEloHistoryResponse>(url, ct);
+    }
+
     public Task<List<ScorerRow>> GetScorersAsync(int vaultId, CancellationToken ct = default)
         => GetListAsync<ScorerRow>($"api/stats/vaults/{vaultId}/scorers", ct);
 
