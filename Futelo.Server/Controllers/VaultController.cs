@@ -64,6 +64,13 @@ public class VaultController(IVaultService vaultService, IInvitationService invi
         return Ok(matches);
     }
 
+    [HttpGet("{id}/feed")]
+    public async Task<IActionResult> GetFeed(int id, [FromQuery] int limit = 10)
+    {
+        var feed = await vaultService.GetFeedAsync(id, UserId, limit);
+        return Ok(feed);
+    }
+
     [HttpPost("{id}/invite")]
     public async Task<IActionResult> Invite(int id, InviteRequest request)
     {

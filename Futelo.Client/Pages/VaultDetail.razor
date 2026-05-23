@@ -145,35 +145,47 @@ else
             }
         </div>
 
-        @* RIGHT — Recent matches *@
+        @* RIGHT — Activity Feed *@
         <div class="col-lg-8">
             <div class="d-flex align-items-center gap-3 mb-2">
-                <h5 class="mb-0">@Lang.Get("vault.recentMatches")</h5>
+                <h5 class="mb-0">@Lang.Get("vault.activityFeed")</h5>
                 <a href="/vaults/@Id/matches" class="btn btn-outline-secondary btn-sm">@Lang.Get("vault.fullHistory")</a>
             </div>
-            @if (recentMatches.Count == 0)
+            @if (feed.Count == 0)
             {
                 <EmptyState Message="@Lang.Get("stats.noMatches")" />
             }
             else
             {
                 <div class="recent-matches mb-4">
-                    @foreach (var m in recentMatches)
+                    @foreach (var ev in feed)
                     {
                         <div class="recent-match-row">
-                            <span class="recent-match-competition text-muted small">@m.SeasonName · @m.CompetitionName</span>
+                            <span class="recent-match-competition text-muted small">@ev.SeasonName · @ev.CompetitionName</span>
                             <MatchDisplay
-                                HomePlayerName="@m.HomePlayerName"
-                                AwayPlayerName="@m.AwayPlayerName"
-                                HomeTeamName="@m.HomeTeamName"
-                                AwayTeamName="@m.AwayTeamName"
-                                VideoGameName="@m.VideoGameName"
-                                HomeScore="@m.HomeScore"
-                                AwayScore="@m.AwayScore"
+                                HomePlayerName="@ev.HomePlayerName"
+                                AwayPlayerName="@ev.AwayPlayerName"
+                                HomeTeamName="@ev.HomeTeamName"
+                                AwayTeamName="@ev.AwayTeamName"
+                                VideoGameName="@ev.VideoGameName"
+                                HomeScore="@ev.HomeScore"
+                                AwayScore="@ev.AwayScore"
                                 IsPlayed="true"
-                                WonOnPenaltiesId="@m.WonOnPenaltiesId"
-                                HomePenaltyScore="@m.HomePenaltyScore"
-                                AwayPenaltyScore="@m.AwayPenaltyScore" />
+                                WonOnPenaltiesId="@ev.WonOnPenaltiesId"
+                                HomePenaltyScore="@ev.HomePenaltyScore"
+                                AwayPenaltyScore="@ev.AwayPenaltyScore" />
+                            @if (ev.HomeNewElo > 0 || ev.AwayNewElo > 0)
+                            {
+                                <div class="feed-elo-row">
+                                    <span class="@EloChangeClass(ev.HomeEloChange)">
+                                        @($"{FormatEloChange(ev.HomeEloChange)} ELO · {ev.HomeNewElo}{RankChange(ev.HomeRankBefore, ev.HomeRankAfter)}")
+                                    </span>
+                                    <span></span>
+                                    <span class="feed-elo-away @EloChangeClass(ev.AwayEloChange)">
+                                        @($"{FormatEloChange(ev.AwayEloChange)} ELO · {ev.AwayNewElo}{RankChange(ev.AwayRankBefore, ev.AwayRankAfter)}")
+                                    </span>
+                                </div>
+                            }
                         </div>
                     }
                 </div>

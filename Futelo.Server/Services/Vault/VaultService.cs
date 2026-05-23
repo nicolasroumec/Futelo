@@ -84,28 +84,57 @@ public class VaultService(IVaultRepository repository) : IVaultService
         };
     }
 
+    public async Task<List<FeedEventDto>> GetFeedAsync(int vaultId, string userId, int limit)
+    {
+        var vault = await repository.GetByIdAsync(vaultId);
+        if (vault == null || vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(VaultNotFound);
+
+        var matches = await repository.GetRecentMatchesAsync(vaultId, limit);
+        if (matches.Count == 0) return [];
+
+        var matchIds = matches.Select(m => m.Id).ToList();
+        var eloMap = await repository.GetEloHistoriesForMatchesAsync(matchIds);
+
+        return matches.Select(m =>
+        {
+            eloMap.TryGetValue((m.Id, m.HomePlayerId ?? ""), out var homeElo);
+            eloMap.TryGetValue((m.Id, m.AwayPlayerId ?? ""), out var awayElo);
+            var (type, name, season) = GetCompetitionInfo(m);
+            return new FeedEventDto
+            {
+                MatchId          = m.Id,
+                OccurredAt       = m.PlayedAt ?? DateTime.UtcNow,
+                CompetitionType  = type,
+                CompetitionName  = name,
+                SeasonName       = season,
+                HomePlayerId     = m.HomePlayerId ?? "",
+                HomePlayerName   = m.HomePlayer?.DisplayName ?? "",
+                AwayPlayerId     = m.AwayPlayerId ?? "",
+                AwayPlayerName   = m.AwayPlayer?.DisplayName ?? "",
+                HomeScore        = m.HomeScore,
+                AwayScore        = m.AwayScore,
+                WonOnPenaltiesId = m.WonOnPenaltiesId,
+                HomePenaltyScore = m.HomePenaltyScore,
+                AwayPenaltyScore = m.AwayPenaltyScore,
+                HomeTeamName     = m.HomeTeam?.Name,
+                AwayTeamName     = m.AwayTeam?.Name,
+                VideoGameName    = m.VideoGame?.Name,
+                HomeEloChange    = homeElo?.EloChange ?? 0,
+                AwayEloChange    = awayElo?.EloChange ?? 0,
+                HomeNewElo       = homeElo?.EloAfter ?? 0,
+                AwayNewElo       = awayElo?.EloAfter ?? 0,
+                HomeRankBefore   = homeElo?.RankBefore ?? 0,
+                HomeRankAfter    = homeElo?.RankAfter ?? 0,
+                AwayRankBefore   = awayElo?.RankBefore ?? 0,
+                AwayRankAfter    = awayElo?.RankAfter ?? 0
+            };
+        }).ToList();
+    }
+
     private static RecentMatchResponse MapToRecentMatch(Models.Match m)
     {
-        string competitionType, competitionName, seasonName;
-        if (m.League != null)
-        {
-            competitionType = "League";
-            competitionName = m.League.Name;
-            seasonName = m.League.Season.Name;
-        }
-        else if (m.CupRound != null)
-        {
-            competitionType = "Cup";
-            competitionName = m.CupRound.Cup.Name;
-            seasonName = m.CupRound.Cup.Season.Name;
-        }
-        else
-        {
-            competitionType = "SuperCup";
-            competitionName = m.SuperCup!.Name;
-            seasonName = m.SuperCup.Season.Name;
-        }
-
+        var (competitionType, competitionName, seasonName) = GetCompetitionInfo(m);
         return new RecentMatchResponse
         {
             Id = m.Id,
@@ -126,6 +155,13 @@ public class VaultService(IVaultRepository repository) : IVaultService
             CompetitionName = competitionName,
             SeasonName = seasonName
         };
+    }
+
+    private static (string Type, string Name, string Season) GetCompetitionInfo(Models.Match m)
+    {
+        if (m.League != null)    return ("League",   m.League.Name,         m.League.Season.Name);
+        if (m.CupRound != null)  return ("Cup",      m.CupRound.Cup.Name,   m.CupRound.Cup.Season.Name);
+        return                          ("SuperCup", m.SuperCup!.Name,      m.SuperCup.Season.Name);
     }
 
     private static VaultResponse MapToResponse(Models.Vault vault) => new()

@@ -75,7 +75,7 @@
 
 ---
 
-### F1 — Activity Feed en Dashboard
+### ~~F1 — Activity Feed en Dashboard~~ ✅
 
 **Problema que resuelve:** El dashboard actual muestra solo una lista de Vaults. Un usuario que vuelve después de un día no sabe qué pasó: ¿quién ganó? ¿hay partidos pendientes? ¿cambió el ranking? La app no engancha en la visita diaria.
 
@@ -229,7 +229,7 @@
 
 ---
 
-### F12 — Historial ELO con Gráfico Multi-Temporada
+### ~~F12 — Historial ELO con Gráfico Multi-Temporada~~ ✅
 
 **Problema que resuelve:** `EloHistory` ya existe y el perfil del jugador muestra un gráfico de ELO por temporada. Pero no hay forma de ver la evolución del ELO global a lo largo de todas las temporadas en una sola vista.
 
@@ -249,10 +249,10 @@
 | Feature                              | Valor para el usuario (1-5) | Esfuerzo técnico (1-5) | Prioridad sugerida |
 | ------------------------------------ | :-------------------------: | :---------------------: | :----------------: |
 | F4 — Invitación por Link           |              5              |            2            |      **Alto**      |
-| F1 — Activity Feed                  |              5              |            3            |      **Alto**      |
+| ~~F1 — Activity Feed~~  ✅           |              5              |            3            |      **Alto**      |
 | F10 — Comentarios y Reacciones      |              4              |            2            |      **Alto**      |
 | F7 — Vista Calendario               |              3              |            1            |      **Alto**      |
-| F12 — Historial ELO Multi-Temporada |              3              |            1            |      **Alto**      |
+| ~~F12 — Historial ELO Multi-Temporada~~ ✅ |         3              |            1            |      **Alto**      |
 | F5 — Resumen Visual de Temporada    |              5              |            3            |     **Medio**     |
 | F2 — Partidos Amistosos             |              4              |            3            |     **Medio**     |
 | F3 — Predicciones de Partidos       |              4              |            3            |     **Medio**     |
@@ -282,7 +282,7 @@
 
 ---
 
-### 🥈 #2 — F1: Activity Feed en Dashboard
+### ~~🥈 #2 — F1: Activity Feed en Dashboard~~ ✅
 
 **Por qué esta sobre las demás:** El dashboard actual es una lista de Vaults — funcional pero que no crea hábito. La frecuencia de visita de un usuario depende de que "se acuerde" de entrar. Un feed de actividad reciente convierte el dashboard en el destino diario: "¿qué pasó hoy en mi Vault?". Los datos para construirlo ya existen completamente — `EloHistory.CreatedAt`, `Match.PlayedAt`, `Season.StartDate` — solo falta la capa de presentación.
 
@@ -315,6 +315,6 @@
 
 Antes de cualquier feature nueva, hay dos deudas técnicas que pueden bloquear la estabilidad en producción:
 
-**PT1 — Refresh Tokens:** El JWT expira en 7 días sin renovación automática. Un usuario que no entra por una semana se encuentra con un cierre de sesión inesperado. Con features como notificaciones (F11) o el feed (F1) que invitan a entrar más frecuentemente, este bug se hará más notorio, no menos. Estimado: ~1 sprint.
+~~**PT1 — Refresh Tokens:** El JWT expira en 7 días sin renovación automática. Un usuario que no entra por una semana se encuentra con un cierre de sesión inesperado. Con features como notificaciones (F11) o el feed (F1) que invitan a entrar más frecuentemente, este bug se hará más notorio, no menos. Estimado: ~1 sprint.~~ ✅
 
-**PT2 — Migraciones EF Core:** El proyecto usa `EnsureCreated` en lugar de `dotnet ef migrations`. Cualquier cambio de schema (necesario para F2, F3, F6, etc.) en producción requeriría drops manuales. Migrar a un flujo de migrations formal antes de deployar es imprescindible. Estimado: ~0.5 sprints.
+~~**PT2 — Migraciones EF Core:** El proyecto usa `EnsureCreated` en lugar de `dotnet ef migrations`. Cualquier cambio de schema (necesario para F2, F3, F6, etc.) en producción requeriría drops manuales. Migrar a un flujo de migrations formal antes de deployar es imprescindible. Estimado: ~0.5 sprints.~~ ✅
