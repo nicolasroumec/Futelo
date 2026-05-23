@@ -23,6 +23,7 @@ public class FuteloContext : IdentityDbContext<AppUser>
     public DbSet<EloHistory> EloHistories { get; set; } = null!;
     public DbSet<Team> Teams { get; set; } = null!;
     public DbSet<VideoGame> VideoGames { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -161,5 +162,14 @@ public class FuteloContext : IdentityDbContext<AppUser>
             .WithMany()
             .HasForeignKey(sc => sc.ChampionId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany(u => u.RefreshTokens)
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<RefreshToken>()
+            .HasIndex(rt => rt.TokenHash);
     }
 }
