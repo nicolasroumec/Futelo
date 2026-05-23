@@ -124,4 +124,11 @@ public class StatsController(IStatsService statsService) : ControllerBase
         if (match == null) return NotFound();
         return Ok(match);
     }
+
+    [HttpGet("vaults/{vaultId}/all-time-standings")]
+    public async Task<IActionResult> GetAllTimeStandings(int vaultId)
+    {
+        var standings = await statsService.GetAllTimeStandingsAsync(vaultId, UserId);
+        return Ok(standings);
+    }
 }

@@ -12,6 +12,7 @@ public partial class VaultRecords : LocalizedComponentBase
 
     private VaultRecordsResponse? records;
     private TopScoringMatchResponse? topScoringMatch;
+    private List<AllTimeStandingRow> standings = [];
     private bool isLoading = true;
     private string? errorMessage;
 
@@ -19,8 +20,13 @@ public partial class VaultRecords : LocalizedComponentBase
     {
         try
         {
-            records = await StatsService.GetVaultRecordsAsync(VaultId, ComponentToken);
-            topScoringMatch = await StatsService.GetTopScoringMatchAsync(VaultId, ComponentToken);
+            var recordsTask     = StatsService.GetVaultRecordsAsync(VaultId, ComponentToken);
+            var topMatchTask    = StatsService.GetTopScoringMatchAsync(VaultId, ComponentToken);
+            var standingsTask   = StatsService.GetAllTimeStandingsAsync(VaultId, ComponentToken);
+            await Task.WhenAll(recordsTask, topMatchTask, standingsTask);
+            records         = recordsTask.Result;
+            topScoringMatch = topMatchTask.Result;
+            standings       = standingsTask.Result;
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)

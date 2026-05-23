@@ -48,12 +48,57 @@ else
     {
         <div class="alert alert-danger mb-3">@errorMessage</div>
     }
-    else if (records?.BestWinStreak == null && records?.BestUnbeatenStreak == null && records?.PeakElo == null)
-    {
-        <EmptyState Message="@Lang.Get("stats.noMatches")" />
-    }
     else
     {
+
+    @if (standings.Count > 0)
+    {
+        <h5 class="mb-3">@Lang.Get("stats.allTimeStandings")</h5>
+        <div class="table-responsive mb-5" style="max-width:640px">
+            <table class="table table-sm table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>@Lang.Get("stats.player")</th>
+                        <th title="@Lang.Get("stats.played.full")">@Lang.Get("stats.played")</th>
+                        <th title="@Lang.Get("stats.wins.full")">@Lang.Get("stats.wins")</th>
+                        <th title="@Lang.Get("stats.draws.full")">@Lang.Get("stats.draws")</th>
+                        <th title="@Lang.Get("stats.losses.full")">@Lang.Get("stats.losses")</th>
+                        <th title="@Lang.Get("stats.goalsFor.full")">@Lang.Get("stats.goalsFor")</th>
+                        <th title="@Lang.Get("stats.goalsAgainst.full")">@Lang.Get("stats.goalsAgainst")</th>
+                        <th title="@Lang.Get("stats.goalDiff.full")">@Lang.Get("stats.goalDiff")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in standings)
+                    {
+                        <tr class="@(row.Position == 1 ? "rank-gold" : "")">
+                            <td>@row.Position</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <PlayerAvatar Name="@row.DisplayName" Size="24" />
+                                    <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">@row.DisplayName</a>
+                                </div>
+                            </td>
+                            <td>@row.Played</td>
+                            <td class="text-success fw-semibold">@row.Won</td>
+                            <td>@row.Drawn</td>
+                            <td class="text-danger">@row.Lost</td>
+                            <td>@row.GoalsFor</td>
+                            <td>@row.GoalsAgainst</td>
+                            <td class="@(row.GoalDifference > 0 ? "text-success" : row.GoalDifference < 0 ? "text-danger" : "")">
+                                @(row.GoalDifference > 0 ? $"+{row.GoalDifference}" : row.GoalDifference.ToString())
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (records?.BestWinStreak != null || records?.BestUnbeatenStreak != null || records?.PeakElo != null)
+    {
+        <h5 class="mb-3">@Lang.Get("stats.allTimeRecords")</h5>
         <div class="row g-3">
             @if (records!.BestWinStreak != null)
             {
@@ -178,5 +223,6 @@ else
                 </div>
             }
         </div>
+    }
     }
 }

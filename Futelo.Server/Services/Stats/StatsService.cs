@@ -821,4 +821,51 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
 
         return (current, bestWin, bestUnbeaten, currentType);
     }
+
+    public async Task<List<AllTimeStandingRow>> GetAllTimeStandingsAsync(int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+
+        var matches = await statsRepository.GetAllPlayedMatchesInVaultAsync(vaultId);
+
+        var dict = new Dictionary<string, AllTimeStandingRow>();
+
+        foreach (var m in matches)
+        {
+            if (m.HomePlayerId == null || m.AwayPlayerId == null) continue;
+            if (m.HomeScore == null || m.AwayScore == null) continue;
+
+            if (!dict.ContainsKey(m.HomePlayerId))
+                dict[m.HomePlayerId] = new AllTimeStandingRow { PlayerId = m.HomePlayerId, DisplayName = m.HomePlayer?.DisplayName ?? "" };
+            if (!dict.ContainsKey(m.AwayPlayerId))
+                dict[m.AwayPlayerId] = new AllTimeStandingRow { PlayerId = m.AwayPlayerId, DisplayName = m.AwayPlayer?.DisplayName ?? "" };
+
+            var home = dict[m.HomePlayerId];
+            var away = dict[m.AwayPlayerId];
+
+            home.Played++;
+            away.Played++;
+            home.GoalsFor += m.HomeScore.Value;
+            home.GoalsAgainst += m.AwayScore.Value;
+            away.GoalsFor += m.AwayScore.Value;
+            away.GoalsAgainst += m.HomeScore.Value;
+
+            if (m.WonOnPenaltiesId != null)
+            {
+                home.Drawn++;
+                away.Drawn++;
+            }
+            else if (m.HomeScore > m.AwayScore) { home.Won++; away.Lost++; }
+            else if (m.HomeScore < m.AwayScore) { away.Won++; home.Lost++; }
+            else { home.Drawn++; away.Drawn++; }
+        }
+
+        return dict.Values
+            .OrderByDescending(r => r.Won)
+            .ThenByDescending(r => r.GoalDifference)
+            .ThenByDescending(r => r.GoalsFor)
+            .Select((r, i) => { r.Position = i + 1; return r; })
+            .ToList();
+    }
 }
