@@ -352,7 +352,82 @@ Cuando dos o más jugadores terminan igualados en todos los criterios de desempa
 
 ---
 
-## Sesión 16 — Pulido y despliegue
+## Sesión 16 — UI/UX Audit
+Rama: `16-ux`
+
+### Sprint UX1 — CSS tokens base ✅
+`refactor: add missing CSS tokens and fix base font size`
+
+- [x] `variables.css` ← añadir `--radius-md: 10px`, `--radius-lg: 16px`, `--radius-full: 9999px`
+- [x] `variables.css` ← añadir escala `--space-1` a `--space-10` (múltiplos de 4px)
+- [x] `variables.css` ← añadir `--z-nav: 100`, `--z-overlay: 200`, `--z-modal: 300`, `--z-toast: 9999`
+- [x] `variables.css` ← añadir `--color-surface-rgb: 23, 26, 33` (dark) / `255, 255, 255` (light) para glassmorphism
+- [x] `variables.css` + `app.css` ← `--font-size-base: 16px` (era 15px; previene auto-zoom en iOS)
+- [x] `layout.css` ← `.nav-section-label`: `opacity: 0.5` → `0.65` (contraste WCAG AA)
+
+---
+
+### Sprint UX2 — Fixes de CSS por componente ⬜
+`fix: CSS component fixes from UX audit`
+
+- [ ] `components.css` ← `.card-glass`: reemplazar `rgba(23, 26, 33, 0.6)` hardcodeado por `rgba(var(--color-surface-rgb), 0.65)` (roto en light mode)
+- [ ] `PlayerCompare.razor.css` ← `.compare-winner`: `var(--bs-success)` → `var(--color-success)`; `.h2h-bar__p2`: `var(--bs-danger)` → `var(--color-danger)`
+- [ ] `LeagueView.razor.css` ← `.match-card--played`: eliminar `opacity: 0.72` global; aplicar `opacity: 0.55` solo en `.match-meta` y `.match-card__date`
+- [ ] `LeagueView.razor.css` ← `.match-card--pending`: `border-left: 3px solid var(--color-primary)`
+- [ ] `LeagueView.razor.css` ← añadir clase `.result-form-section` con fondo verde tenue para separar el formulario de resultado
+- [ ] `components.css` ← `.empty-state`: convertir a flexbox centrado con `border: 1px dashed`, `border-radius: var(--radius-lg)`
+
+---
+
+### Sprint UX3 — Jerarquía visual ⬜
+`feat: improve visual hierarchy in key screens`
+
+- [ ] `PlayerProfile.razor` ← ELO como número hero: `font-family: var(--font-display); font-size: 2.25rem; color: var(--color-primary)` en lugar de badge
+- [ ] `LeagueView.razor` ← score de partido como dato primario: `fw-bold` + `font-display` + `font-size: 1.35rem`; nombres de jugador como secundario (`small fw-semibold`)
+- [ ] `Dashboard.razor` ← vault card: nombre con `h5 fw-bold font-display`; añadir badge "Temporada activa" cuando corresponda; CTA siempre visible en card-footer
+
+---
+
+### Sprint UX4 — Feedback de acciones ⬜
+`feat: add loading spinners and improve action feedback`
+
+- [ ] Todos los botones de guardado ← añadir `spinner-border-sm` + `disabled` durante el loading (SaveResult, ActivateSeason, CreateVault, CreateSeason, etc.)
+- [ ] `LeagueView` ← eliminar `alert-success` permanente de resultado; redirigir al `ToastService` existente
+- [ ] `CupView` ← igual que LeagueView para el alert de resultado
+
+---
+
+### Sprint UX5 — Formularios ⬜
+`feat: improve form UX with labels, validation and modals`
+
+- [ ] `MatchResultForm.razor` ← reemplazar placeholders sueltos por labels visibles (`form-label fw-semibold`) sobre cada input de score; igual en la sección de penales
+- [ ] Todos los `EditForm` ← agregar `is-invalid` + `<div class="invalid-feedback">` en campos con error; alert global solo para errores de servidor
+- [ ] `SeasonDetail.razor` ← reemplazar confirmación inline de "Eliminar temporada" por Bootstrap Modal con descripción de consecuencias
+- [ ] `VaultDetail.razor` (o donde aplique) ← mismo modal de confirmación para "Eliminar vault"
+- [ ] `LeagueView.razor` ← form "Agregar partido": reemplazar `style="width:160px"` hardcodeados por grid Bootstrap responsive (`col-6 col-sm`)
+
+---
+
+### Sprint UX6 — Navegación ⬜
+`feat: add breadcrumbs and improve season setup flow`
+
+- [ ] `LeagueView.razor` ← añadir breadcrumb Bootstrap 5: Dashboard → Vault → Season → League (reemplaza o complementa el `← Back`)
+- [ ] `CupView.razor` ← mismo breadcrumb
+- [ ] `SeasonDetail.razor` ← mismo breadcrumb; + mover botón "Activar temporada" al top de la página (en Draft mode, mostrar banner verde con el CTA en lugar de tenerlo al fondo)
+- [ ] `SeasonDetail.razor` ← añadir stepper visual de configuración (Competiciones → Jugadores → Equipos → Activar) cuando `Status == Draft`
+
+---
+
+### Sprint UX7 — EmptyState mejorado ⬜
+`feat: enhance EmptyState component with icon, title and CTA`
+
+- [ ] `EmptyState.razor` + `.razor.cs` ← añadir parámetros: `Title`, `Icon` (RenderFragment), `ActionLabel`, `ActionHref`, `OnAction` (EventCallback)
+- [ ] `EmptyState.razor` ← nueva estructura: ícono centrado + título + mensaje + botón CTA opcional
+- [ ] Migrar usos existentes de `EmptyState` para pasar `Title` y CTA donde corresponda (Dashboard sin vaults, lista de partidos vacía, etc.)
+
+---
+
+## Sesión 17 — Pulido y despliegue
 Rama: `16-deploy`
 
 ### Sprint D1 — Error boundaries en Client (~30min) ⬜
