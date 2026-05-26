@@ -72,6 +72,8 @@
   "season.finishing": "Finishing...",
   "season.players": "Players",
   "season.startSeason": "Start Season",
+  "season.draftBannerTitle": "Season in draft",
+  "season.draftBannerDesc": "Complete the setup steps and activate the season to begin.",
   "season.configure": "Configure",
   "season.configureSeason": "Configure Season",
   "season.competitions": "Competitions",

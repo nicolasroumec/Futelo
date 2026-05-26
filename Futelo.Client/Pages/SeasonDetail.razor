@@ -41,6 +41,28 @@ else
         <span class="badge @BadgeHelper.StatusBadgeClass(season.Status)">@Lang.Get("season.status." + season.Status.ToLower())</span>
     </div>
 
+    @if (isOwner && season.Status == "Draft")
+    {
+        <div class="d-flex align-items-center justify-content-between p-3 mb-4 rounded-3"
+             style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2)">
+            <div>
+                <div class="fw-semibold small">@Lang.Get("season.draftBannerTitle")</div>
+                <div class="text-muted" style="font-size:.8rem">@Lang.Get("season.draftBannerDesc")</div>
+            </div>
+            @if (season.Players.Count >= 2 && (season.HasLeague || season.HasCup))
+            {
+                <button class="btn btn-success btn-sm fw-semibold ms-3 flex-shrink-0"
+                        @onclick="HandleActivate" disabled="@isActivating">
+                    @if (isActivating)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    }
+                    @(isActivating ? Lang.Get("season.activating") : Lang.Get("season.startSeason") + " →")
+                </button>
+            }
+        </div>
+    }
+
     <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
     <p class="text-muted">@Lang.Get("season.videoGame"): @(season.VideoGameName ?? "—")</p>
 

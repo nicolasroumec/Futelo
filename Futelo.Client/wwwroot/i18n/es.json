@@ -72,6 +72,8 @@
   "season.finishing": "Finalizando...",
   "season.players": "Jugadores",
   "season.startSeason": "Iniciar temporada",
+  "season.draftBannerTitle": "Temporada en borrador",
+  "season.draftBannerDesc": "Completá los pasos de configuración y activá la temporada para comenzar.",
   "season.configure": "Configurar",
   "season.configureSeason": "Configurar temporada",
   "season.competitions": "Competencias",
