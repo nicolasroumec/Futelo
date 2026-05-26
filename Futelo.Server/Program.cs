@@ -42,7 +42,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<FuteloContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentityCore<AppUser>()
+builder.Services.AddIdentityCore<AppUser>(options =>
+    {
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequiredLength = 6;
+    })
     .AddEntityFrameworkStores<FuteloContext>()
     .AddDefaultTokenProviders();
 
