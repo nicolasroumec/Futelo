@@ -10,7 +10,7 @@ namespace Futelo.Server.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/seasons")]
-public class SeasonController(ISeasonService seasonService) : ControllerBase
+public class SeasonController(ISeasonService seasonService, ISeasonRecapService recapService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
@@ -26,6 +26,14 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
     {
         var season = await seasonService.GetByIdAsync(id, UserId);
         return Ok(season);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{id}/recap")]
+    public async Task<IActionResult> GetRecap(int id)
+    {
+        var recap = await recapService.GetRecapAsync(id);
+        return Ok(recap);
     }
 
     [HttpPost]
