@@ -58,6 +58,10 @@ else
             <span class="text-muted">→</span>
             <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editEndDate" />
             <button class="btn btn-sm btn-primary" disabled="@isSavingDates" @onclick="HandlePatchDates">
+                @if (isSavingDates)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
                 @(isSavingDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
             </button>
             <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingDates = false">@Lang.Get("common.cancel")</button>
@@ -94,12 +98,20 @@ else
     @if (cup.Status == "NotStarted")
     {
         <div class="d-flex gap-2 mb-4">
-            <button class="btn btn-success" disabled="@isLoading" @onclick="HandleStart">
-                @(isLoading ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
+            <button class="btn btn-success" disabled="@isWorking" @onclick="HandleStart">
+                @if (isWorking)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
+                @(isWorking ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
             </button>
             @if (cup.CanEdit)
             {
-                <button class="btn btn-outline-secondary" disabled="@isLoading" @onclick="HandleStartManual">
+                <button class="btn btn-outline-secondary" disabled="@isWorking" @onclick="HandleStartManual">
+                    @if (isWorking)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    }
                     @Lang.Get("cup.startManual")
                 </button>
             }
@@ -107,19 +119,6 @@ else
     }
     else
     {
-        @if (lastResult != null)
-        {
-            <div class="alert alert-success mb-4">
-                <strong>@Lang.Get("common.resultRecorded")</strong>
-                @if (lastResult.TieDecided)
-                {
-                    <div class="text-muted small">@Lang.Get("cup.tieDecided")</div>
-                }
-                <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
-                <div>@FormatEloChange(lastResult.Away)</div>
-            </div>
-        }
-
         @foreach (var round in cup.Rounds)
         {
             <h5 class="mt-3">@round.Name</h5>
@@ -235,7 +234,11 @@ else
                             <input type="number" class="form-control form-control-sm" style="width:70px" min="1" @bind="newMatchLeg" />
                         </div>
                         <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
-                            @(isAddingMatch ? "..." : Lang.Get("cup.addMatch"))
+                            @if (isAddingMatch)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            }
+                            @Lang.Get("cup.addMatch")
                         </button>
                         <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatchToRoundId = null">
                             @Lang.Get("common.cancel")
@@ -265,7 +268,11 @@ else
                         <input type="number" class="form-control form-control-sm" style="width:80px" min="1" @bind="newRoundNumber" />
                     </div>
                     <button class="btn btn-primary btn-sm" disabled="@isAddingRound" @onclick="HandleAddRound">
-                        @(isAddingRound ? "..." : Lang.Get("cup.addRound"))
+                        @if (isAddingRound)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        }
+                        @Lang.Get("cup.addRound")
                     </button>
                     <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingRound = false">
                         @Lang.Get("common.cancel")

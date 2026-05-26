@@ -61,6 +61,10 @@ else
             <span class="text-muted">→</span>
             <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editEndDate" />
             <button class="btn btn-sm btn-primary" disabled="@isSavingDates" @onclick="HandlePatchDates">
+                @if (isSavingDates)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
                 @(isSavingDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
             </button>
             <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingDates = false">@Lang.Get("common.cancel")</button>
@@ -94,11 +98,19 @@ else
     {
         <div class="d-flex gap-2 mb-4">
             <button class="btn btn-success" disabled="@isWorking" @onclick="HandleStart">
+                @if (isWorking)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
                 @(isWorking ? Lang.Get("league.generating") : Lang.Get("league.generateFixture"))
             </button>
             @if (league.CanEdit)
             {
                 <button class="btn btn-outline-secondary" disabled="@isWorking" @onclick="HandleStartManual">
+                    @if (isWorking)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    }
                     @Lang.Get("league.startManual")
                 </button>
             }
@@ -170,15 +182,6 @@ else
             @* RIGHT — Fixture *@
             <div class="col-lg-7">
                 <h5 class="mt-2">@Lang.Get("league.fixture")</h5>
-
-                @if (lastResult != null)
-                {
-                    <div class="alert alert-success mb-3">
-                        <strong>@Lang.Get("common.resultRecorded")</strong>
-                        <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
-                        <div>@FormatEloChange(lastResult.Away)</div>
-                    </div>
-                }
 
                 @if (Matchdays.Count > 1)
                 {
@@ -280,7 +283,11 @@ else
                                 </select>
                             </div>
                             <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
-                                @(isAddingMatch ? "..." : Lang.Get("league.addMatch"))
+                                @if (isAddingMatch)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                }
+                                @Lang.Get("league.addMatch")
                             </button>
                             <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatch = false">
                                 @Lang.Get("common.cancel")
@@ -308,7 +315,11 @@ else
                         <span class="d-flex align-items-center gap-2">
                             <small class="text-danger">@Lang.Get("league.reshuffleConfirm")</small>
                             <button class="btn btn-danger btn-sm" disabled="@isWorking" @onclick="HandleReshuffle">
-                                @(isWorking ? "..." : Lang.Get("common.confirmDelete"))
+                                @if (isWorking)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                }
+                                @Lang.Get("common.confirmDelete")
                             </button>
                             <button class="btn btn-outline-secondary btn-sm" @onclick="() => confirmReshuffle = false">
                                 @Lang.Get("common.cancel")

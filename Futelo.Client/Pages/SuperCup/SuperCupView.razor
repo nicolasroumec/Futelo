@@ -53,6 +53,10 @@ else
             <span class="text-muted">→</span>
             <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editEndDate" />
             <button class="btn btn-sm btn-primary" disabled="@isSavingDates" @onclick="HandlePatchDates">
+                @if (isSavingDates)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
                 @(isSavingDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
             </button>
             <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingDates = false">@Lang.Get("common.cancel")</button>
@@ -79,8 +83,12 @@ else
         <div class="mb-3 text-muted">
             <p>@Lang.Get("superCup.participantsInfo")</p>
         </div>
-        <button class="btn btn-success mb-4" disabled="@isLoading" @onclick="HandleStart">
-            @(isLoading ? Lang.Get("superCup.starting") : Lang.Get("superCup.start"))
+        <button class="btn btn-success mb-4" disabled="@isWorking" @onclick="HandleStart">
+            @if (isWorking)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            @(isWorking ? Lang.Get("superCup.starting") : Lang.Get("superCup.start"))
         </button>
     }
     else
@@ -92,19 +100,6 @@ else
                 <span class="fw-semibold">@superCup.Player2Name</span>
             </div>
         </div>
-
-        @if (lastResult != null)
-        {
-            <div class="alert alert-success mb-4" style="max-width:420px">
-                <strong>@Lang.Get("common.resultRecorded")</strong>
-                @if (lastResult.Finished)
-                {
-                    <div class="text-muted small">@Lang.Get("superCup.finished")</div>
-                }
-                <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
-                <div>@FormatEloChange(lastResult.Away)</div>
-            </div>
-        }
 
         @foreach (var match in superCup.Matches.OrderBy(m => m.Id))
         {

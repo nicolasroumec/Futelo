@@ -23,6 +23,7 @@ public partial class CupView : LocalizedComponentBase
 
     private CupResponse? cup;
     private bool isLoading = true;
+    private bool isWorking;
     private bool isRecording;
     private string? errorMessage;
 
@@ -32,7 +33,6 @@ public partial class CupView : LocalizedComponentBase
     private bool recordingIsLeg2;
     private int? otherLegHomeScore;
     private int? otherLegAwayScore;
-    private RecordCupResultResponse? lastResult;
 
     private int? editingMatchId;
     private List<TeamResponse> teams = [];
@@ -94,7 +94,6 @@ public partial class CupView : LocalizedComponentBase
         }
 
         recordingMatchId = matchId;
-        lastResult = null;
         recordingHomeId = homeId;
         recordingAwayId = awayId;
 
@@ -116,7 +115,7 @@ public partial class CupView : LocalizedComponentBase
 
     private async Task HandleStart()
     {
-        isLoading = true;
+        isWorking = true;
         try
         {
             await CupService.StartAsync(Id);
@@ -128,13 +127,13 @@ public partial class CupView : LocalizedComponentBase
         }
         finally
         {
-            isLoading = false;
+            isWorking = false;
         }
     }
 
     private async Task HandleStartManual()
     {
-        isLoading = true;
+        isWorking = true;
         try
         {
             await CupService.StartManualAsync(Id);
@@ -146,7 +145,7 @@ public partial class CupView : LocalizedComponentBase
         }
         finally
         {
-            isLoading = false;
+            isWorking = false;
         }
     }
 
@@ -230,8 +229,9 @@ public partial class CupView : LocalizedComponentBase
                 HomePenaltyScore = input.HomePenaltyScore,
                 AwayPenaltyScore = input.AwayPenaltyScore
             };
-            lastResult = await CupService.RecordResultAsync(Id, recordingMatchId.Value, request);
+            await CupService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -358,10 +358,4 @@ public partial class CupView : LocalizedComponentBase
         return (leg1.HomePlayerName, homeGoals, awayGoals, leg1.AwayPlayerName);
     }
 
-    private static string FormatEloChange(CupEloChangeResult p)
-    {
-        string arrow = p.RankAfter < p.RankBefore ? "↑" : p.RankAfter > p.RankBefore ? "↓" : "→";
-        string sign = p.EloChange >= 0 ? "+" : "";
-        return $"{p.DisplayName}   {p.EloBefore} → {p.EloAfter} ({sign}{p.EloChange})  {arrow} #{p.RankAfter}";
-    }
 }

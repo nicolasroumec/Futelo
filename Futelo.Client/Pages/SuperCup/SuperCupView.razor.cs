@@ -27,6 +27,7 @@ public partial class SuperCupView : LocalizedComponentBase
     private SuperCupResponse? superCup;
     private HeadToHeadResponse? h2h;
     private bool isLoading = true;
+    private bool isWorking;
     private bool isRecording;
     private string? errorMessage;
 
@@ -36,7 +37,6 @@ public partial class SuperCupView : LocalizedComponentBase
     private bool recordingIsLeg2;
     private int? otherLegHomeScore;
     private int? otherLegAwayScore;
-    private RecordSuperCupResultResponse? lastResult;
 
     private int? editingMatchId;
     private List<TeamResponse> teams = [];
@@ -84,7 +84,6 @@ public partial class SuperCupView : LocalizedComponentBase
         }
 
         recordingMatchId = matchId;
-        lastResult = null;
         recordingHomeId = homeId;
         recordingAwayId = awayId;
         recordingIsLeg2 = superCup!.IsHomeAndAway && leg == 2;
@@ -100,7 +99,7 @@ public partial class SuperCupView : LocalizedComponentBase
 
     private async Task HandleStart()
     {
-        isLoading = true;
+        isWorking = true;
         try
         {
             await SuperCupService.StartAsync(Id);
@@ -112,7 +111,7 @@ public partial class SuperCupView : LocalizedComponentBase
         }
         finally
         {
-            isLoading = false;
+            isWorking = false;
         }
     }
 
@@ -130,8 +129,9 @@ public partial class SuperCupView : LocalizedComponentBase
                 HomePenaltyScore = input.HomePenaltyScore,
                 AwayPenaltyScore = input.AwayPenaltyScore
             };
-            lastResult = await SuperCupService.RecordResultAsync(Id, recordingMatchId.Value, request);
+            await SuperCupService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -232,10 +232,4 @@ public partial class SuperCupView : LocalizedComponentBase
         return (p1Goals, p2Goals);
     }
 
-    private static string FormatEloChange(SuperCupEloChangeResult p)
-    {
-        string arrow = p.RankAfter < p.RankBefore ? "↑" : p.RankAfter > p.RankBefore ? "↓" : "→";
-        string sign = p.EloChange >= 0 ? "+" : "";
-        return $"{p.DisplayName}   {p.EloBefore} → {p.EloAfter} ({sign}{p.EloChange})  {arrow} #{p.RankAfter}";
-    }
 }

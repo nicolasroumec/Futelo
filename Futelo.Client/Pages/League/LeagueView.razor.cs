@@ -28,7 +28,6 @@ public partial class LeagueView : LocalizedComponentBase
 
     private int? recordingMatchId;
     private bool isRecording;
-    private RecordResultResponse? lastResult;
 
     private int selectedMatchday;
 
@@ -112,7 +111,6 @@ public partial class LeagueView : LocalizedComponentBase
         else
         {
             recordingMatchId = matchId;
-            lastResult = null;
             editingMatchId = null;
         }
     }
@@ -212,8 +210,9 @@ public partial class LeagueView : LocalizedComponentBase
         try
         {
             var request = new RecordResultRequest { HomeScore = input.HomeScore, AwayScore = input.AwayScore };
-            lastResult = await LeagueService.RecordResultAsync(Id, recordingMatchId.Value, request);
+            await LeagueService.RecordResultAsync(Id, recordingMatchId.Value, request);
             recordingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -306,10 +305,4 @@ public partial class LeagueView : LocalizedComponentBase
         }
     }
 
-    private static string FormatEloChange(EloChangeResult p)
-    {
-        string arrow = p.RankAfter < p.RankBefore ? "↑" : p.RankAfter > p.RankBefore ? "↓" : "→";
-        string sign = p.EloChange >= 0 ? "+" : "";
-        return $"{p.DisplayName}   {p.EloBefore} → {p.EloAfter} ({sign}{p.EloChange})  {arrow} #{p.RankAfter}";
-    }
 }

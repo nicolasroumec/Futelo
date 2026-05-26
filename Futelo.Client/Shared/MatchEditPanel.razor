@@ -44,7 +44,11 @@
         </div>
         <div class="d-flex gap-2 mt-2">
             <button class="btn btn-sm btn-primary" disabled="@isSaving" @onclick="HandleSave">
-                @(isSaving ? "..." : Lang.Get("common.save"))
+                @if (isSaving)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
+                @Lang.Get("common.save")
             </button>
             <button class="btn btn-sm btn-outline-secondary" @onclick="HandleCancel">
                 @Lang.Get("common.cancel")

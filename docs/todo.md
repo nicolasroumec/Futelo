@@ -388,12 +388,12 @@ Rama: `16-ux`
 
 ---
 
-### Sprint UX4 — Feedback de acciones ⬜
+### Sprint UX4 — Feedback de acciones ✅
 `feat: add loading spinners and improve action feedback`
 
-- [ ] Todos los botones de guardado ← añadir `spinner-border-sm` + `disabled` durante el loading (SaveResult, ActivateSeason, CreateVault, CreateSeason, etc.)
-- [ ] `LeagueView` ← eliminar `alert-success` permanente de resultado; redirigir al `ToastService` existente
-- [ ] `CupView` ← igual que LeagueView para el alert de resultado
+- [x] Todos los botones de guardado ← añadir `spinner-border-sm` + `disabled` durante el loading (SaveResult, ActivateSeason, CreateVault, CreateSeason, etc.)
+- [x] `LeagueView` ← eliminar `alert-success` permanente de resultado; redirigir al `ToastService` existente
+- [x] `CupView` ← igual que LeagueView para el alert de resultado
 
 ---
 

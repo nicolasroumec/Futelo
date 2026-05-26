@@ -24,6 +24,10 @@
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    }
                     @(isLoading ? Lang.Get("common.creating") : Lang.Get("common.create"))
                 </button>
                 <a href="/dashboard" class="btn btn-outline-secondary">@Lang.Get("common.cancel")</a>
