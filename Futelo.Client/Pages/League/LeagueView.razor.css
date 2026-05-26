@@ -55,7 +55,11 @@
 
 .match-card--played {
     border-left: 3px solid transparent;
-    opacity: .72;
+}
+
+.match-card--played .match-meta,
+.match-card--played .match-card__date {
+    opacity: 0.55;
 }
 
 .match-card--editable {
@@ -105,5 +109,14 @@
 .pending-summary__chip strong {
     color: var(--color-primary);
     margin-left: .2rem;
+}
+
+/* Result form highlight */
+.result-form-section {
+    background: rgba(34, 197, 94, 0.04);
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: var(--radius);
+    padding: var(--space-5);
+    margin-top: var(--space-4);
 }
 

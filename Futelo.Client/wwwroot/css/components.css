@@ -13,7 +13,7 @@
 }
 
 .card-glass {
-  background: rgba(23, 26, 33, 0.6);
+  background: rgba(var(--color-surface-rgb), 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-color: rgba(255, 255, 255, 0.06);
@@ -361,14 +361,17 @@ body.light .card-glass:hover {
    ============================================= */
 
 .empty-state {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
   color: var(--color-text-muted);
   font-size: 0.875rem;
-  padding: 2rem 1.5rem;
+  padding: var(--space-10) var(--space-6);
   text-align: center;
   background-color: var(--color-surface);
   border: 1px dashed var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   max-width: 480px;
   margin-bottom: 1rem;
 }

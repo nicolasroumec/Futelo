@@ -367,15 +367,15 @@ Rama: `16-ux`
 
 ---
 
-### Sprint UX2 — Fixes de CSS por componente ⬜
+### Sprint UX2 — Fixes de CSS por componente ✅
 `fix: CSS component fixes from UX audit`
 
-- [ ] `components.css` ← `.card-glass`: reemplazar `rgba(23, 26, 33, 0.6)` hardcodeado por `rgba(var(--color-surface-rgb), 0.65)` (roto en light mode)
-- [ ] `PlayerCompare.razor.css` ← `.compare-winner`: `var(--bs-success)` → `var(--color-success)`; `.h2h-bar__p2`: `var(--bs-danger)` → `var(--color-danger)`
-- [ ] `LeagueView.razor.css` ← `.match-card--played`: eliminar `opacity: 0.72` global; aplicar `opacity: 0.55` solo en `.match-meta` y `.match-card__date`
-- [ ] `LeagueView.razor.css` ← `.match-card--pending`: `border-left: 3px solid var(--color-primary)`
-- [ ] `LeagueView.razor.css` ← añadir clase `.result-form-section` con fondo verde tenue para separar el formulario de resultado
-- [ ] `components.css` ← `.empty-state`: convertir a flexbox centrado con `border: 1px dashed`, `border-radius: var(--radius-lg)`
+- [x] `components.css` ← `.card-glass`: reemplazar `rgba(23, 26, 33, 0.6)` hardcodeado por `rgba(var(--color-surface-rgb), 0.6)` (ya tenía override light mode correcto, solo se parametriza el dark)
+- [ ] `PlayerCompare.razor.css` ← `.compare-winner` / `.h2h-bar__p2` — componente no existe todavía, se aplicará cuando se implemente
+- [x] `LeagueView.razor.css` ← `.match-card--played`: eliminar `opacity: 0.72` global; aplicar `opacity: 0.55` solo en `.match-meta` y `.match-card__date`
+- [x] `LeagueView.razor.css` ← `.match-card--pending`: ya tenía `border-left: 3px solid var(--color-primary)` — sin cambios
+- [x] `LeagueView.razor.css` ← añadir clase `.result-form-section` con fondo verde tenue
+- [x] `components.css` ← `.empty-state`: convertir a flexbox centrado, `border-radius: var(--radius-lg)`, spacing con tokens
 
 ---
 
@@ -415,6 +415,18 @@ Rama: `16-ux`
 - [ ] `CupView.razor` ← mismo breadcrumb
 - [ ] `SeasonDetail.razor` ← mismo breadcrumb; + mover botón "Activar temporada" al top de la página (en Draft mode, mostrar banner verde con el CTA en lugar de tenerlo al fondo)
 - [ ] `SeasonDetail.razor` ← añadir stepper visual de configuración (Competiciones → Jugadores → Equipos → Activar) cuando `Status == Draft`
+
+---
+
+### Sprint UX8 — HeadToHead visual (barras y winner highlight) ⬜
+`feat: improve HeadToHead page with visual stat bars and winner highlight`
+
+La página `HeadToHead.razor` actual muestra las stats como números simples y una tabla. Este sprint la convierte en un panel visual con:
+
+- [ ] CSS scoped `HeadToHead.razor.css` ← añadir `.h2h-stats`, `.h2h-bar`, `.h2h-bar__p1`, `.h2h-bar__p2`, `.compare-winner`, `.compare-loser`
+- [ ] `HeadToHead.razor` ← reemplazar los 3 `div` de wins/draws/losses por un layout centrado con barras proporcionales (`h2h-bar__p1` verde / `h2h-bar__p2` rojo / empates neutro)
+- [ ] `HeadToHead.razor` ← highlight del jugador con más victorias con `.compare-winner` (color `var(--color-success)`, `fw-bold`) y el otro con `.compare-loser` (`opacity: 0.45`)
+- [ ] `HeadToHead.razor` ← añadir fila de resumen de goles totales con el mismo formato de barras
 
 ---
 
