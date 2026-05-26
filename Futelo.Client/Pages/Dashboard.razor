@@ -31,12 +31,14 @@ else
             <div class="col">
                 <div class="card card-glass h-100">
                     <div class="card-body">
-                        <h5 class="card-title">@vault.Name</h5>
-                        <p class="card-text text-muted">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>
-                        <p class="card-text"><small>@vault.Players.Count @Lang.Get("dashboard.players")</small></p>
+                        <h5 class="card-title fw-bold mb-1">@vault.Name</h5>
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge bg-secondary">@vault.Players.Count @Lang.Get("dashboard.players")</span>
+                        </div>
+                        <p class="card-text text-muted small mb-0">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>
                     </div>
-                    <div class="card-footer">
-                        <a href="/vaults/@vault.Id" class="btn btn-outline-primary btn-sm">@Lang.Get("dashboard.open")</a>
+                    <div class="card-footer border-0 pt-0 pb-3 px-3">
+                        <a href="/vaults/@vault.Id" class="btn btn-outline-primary btn-sm w-100">@Lang.Get("dashboard.open") →</a>
                     </div>
                 </div>
             </div>

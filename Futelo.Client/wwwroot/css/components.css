@@ -439,6 +439,24 @@ body.light .card-glass:hover {
     gap: 0.1rem 0.5rem;
 }
 
+.match-card__player {
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.match-card__score {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    line-height: 1;
+}
+
+.match-card__vs {
+    font-size: .85rem;
+    color: var(--color-text-muted);
+}
+
 .match-meta__item {
     font-size: 0.75rem;
     color: var(--color-text-muted);

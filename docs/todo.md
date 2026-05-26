@@ -379,12 +379,12 @@ Rama: `16-ux`
 
 ---
 
-### Sprint UX3 — Jerarquía visual ⬜
+### Sprint UX3 — Jerarquía visual ✅
 `feat: improve visual hierarchy in key screens`
 
-- [ ] `PlayerProfile.razor` ← ELO como número hero: `font-family: var(--font-display); font-size: 2.25rem; color: var(--color-primary)` en lugar de badge
-- [ ] `LeagueView.razor` ← score de partido como dato primario: `fw-bold` + `font-display` + `font-size: 1.35rem`; nombres de jugador como secundario (`small fw-semibold`)
-- [ ] `Dashboard.razor` ← vault card: nombre con `h5 fw-bold font-display`; añadir badge "Temporada activa" cuando corresponda; CTA siempre visible en card-footer
+- [x] `PlayerProfile.razor` + `.razor.css` ← ELO como número hero con `.elo-hero` (2.25rem, font-display, color-primary) en lugar de badge
+- [x] `components.css` ← `.match-card__score`, `.match-card__player`, `.match-card__vs` movidos desde `LeagueView.razor.css` (donde eran CSS muerto por scoped CSS) a global; score a 1.35rem font-display
+- [x] `Dashboard.razor` ← nombre del vault con `fw-bold`, player count como badge, CTA a ancho completo con flecha; badge "Temporada activa" pendiente (requiere `HasActiveSeason` en `VaultResponse`)
 
 ---
 
@@ -418,6 +418,15 @@ Rama: `16-ux`
 
 ---
 
+### Sprint UX7 — EmptyState mejorado ⬜
+`feat: enhance EmptyState component with icon, title and CTA`
+
+- [ ] `EmptyState.razor` + `.razor.cs` ← añadir parámetros: `Title`, `Icon` (RenderFragment), `ActionLabel`, `ActionHref`, `OnAction` (EventCallback)
+- [ ] `EmptyState.razor` ← nueva estructura: ícono centrado + título + mensaje + botón CTA opcional
+- [ ] Migrar usos existentes de `EmptyState` para pasar `Title` y CTA donde corresponda (Dashboard sin vaults, lista de partidos vacía, etc.)
+
+---
+
 ### Sprint UX8 — HeadToHead visual (barras y winner highlight) ⬜
 `feat: improve HeadToHead page with visual stat bars and winner highlight`
 
@@ -427,15 +436,6 @@ La página `HeadToHead.razor` actual muestra las stats como números simples y u
 - [ ] `HeadToHead.razor` ← reemplazar los 3 `div` de wins/draws/losses por un layout centrado con barras proporcionales (`h2h-bar__p1` verde / `h2h-bar__p2` rojo / empates neutro)
 - [ ] `HeadToHead.razor` ← highlight del jugador con más victorias con `.compare-winner` (color `var(--color-success)`, `fw-bold`) y el otro con `.compare-loser` (`opacity: 0.45`)
 - [ ] `HeadToHead.razor` ← añadir fila de resumen de goles totales con el mismo formato de barras
-
----
-
-### Sprint UX7 — EmptyState mejorado ⬜
-`feat: enhance EmptyState component with icon, title and CTA`
-
-- [ ] `EmptyState.razor` + `.razor.cs` ← añadir parámetros: `Title`, `Icon` (RenderFragment), `ActionLabel`, `ActionHref`, `OnAction` (EventCallback)
-- [ ] `EmptyState.razor` ← nueva estructura: ícono centrado + título + mensaje + botón CTA opcional
-- [ ] Migrar usos existentes de `EmptyState` para pasar `Title` y CTA donde corresponda (Dashboard sin vaults, lista de partidos vacía, etc.)
 
 ---
 

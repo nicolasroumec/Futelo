@@ -46,8 +46,13 @@ else
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <PlayerAvatar Name="@stats.DisplayName" Size="40" />
-        <h3 class="mb-0">@stats.DisplayName</h3>
-        <span class="badge bg-secondary">ELO @_elo</span>
+        <div>
+            <h3 class="mb-0">@stats.DisplayName</h3>
+            <div class="d-flex align-items-baseline gap-2">
+                <span class="elo-hero">@_elo</span>
+                <span class="text-muted fw-semibold text-uppercase elo-hero__label">ELO</span>
+            </div>
+        </div>
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
