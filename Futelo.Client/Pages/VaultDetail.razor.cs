@@ -116,7 +116,7 @@ public partial class VaultDetail : LocalizedComponentBase
         try
         {
             var result = await VaultService.InviteAsync(Id, inviteModel);
-            inviteLink = $"{Navigation.BaseUri}invitations/{result.Token}/accept";
+            inviteLink = $"{Navigation.BaseUri}invite/join?token={result.Token}";
         }
         catch (Exception ex)
         {

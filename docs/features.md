@@ -9,6 +9,7 @@ Status: ✅ done · 🔄 in progress · 📋 planned
 | Auth (register / login / JWT) | ✅ | `AuthController`, `AuthService`, `Pages/Login.razor`, `Pages/Register.razor` |
 | Vault CRUD + player list | ✅ | `VaultController`, `VaultService`, `Pages/VaultDetail.razor` |
 | Vault invitations (email token) | ✅ | `InvitationsController`, `InvitationService`, `Pages/AcceptInvitation.razor` |
+| Invite by link (F4) | ✅ | `InvitationsController.GetPreview`, `Pages/InviteJoin.razor` |
 | Season lifecycle (Draft→Active→Finished) | ✅ | `SeasonController`, `SeasonService`, `Pages/SeasonDetail.razor` |
 | Season configuration UI | ✅ | `Pages/SeasonCompetitionConfig.razor` + `.razor.css` |
 
@@ -101,7 +102,8 @@ GET    /api/vaults/{id}/matches
 GET    /api/vaults/{id}/recent-matches
 POST   /api/vaults/{id}/invite
 
-POST   /api/invitations/accept
+GET    /api/invitations/{token}          (public)
+POST   /api/invitations/{token}/accept
 
 GET    /api/seasons?vaultId={id}
 POST   /api/seasons

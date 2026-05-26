@@ -65,12 +65,20 @@ public class InvitationService(IInvitationRepository invitationRepository, IVaul
         await invitationRepository.UpdateAsync(invitation);
     }
 
+    public async Task<InvitationResponse> GetPreviewAsync(string token)
+    {
+        var invitation = await invitationRepository.GetByTokenAsync(token)
+            ?? throw new KeyNotFoundException(InvitationNotFound);
+        return MapToResponse(invitation, invitation.Vault.Name);
+    }
+
     private static InvitationResponse MapToResponse(VaultInvitation invitation, string vaultName) => new()
     {
         Id = invitation.Id,
         VaultId = invitation.VaultId,
         VaultName = vaultName,
         Token = invitation.Token,
+        Role = invitation.Role.ToString(),
         Status = invitation.Status.ToString(),
         CreatedAt = invitation.CreatedAt,
         ExpiresAt = invitation.ExpiresAt
