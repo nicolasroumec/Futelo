@@ -16,25 +16,25 @@
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("auth.register.email")</label>
                 <InputText class="form-control" @bind-Value="model.Email" />
-                <ValidationMessage For="() => model.Email" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.Email" /></div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("auth.register.username")</label>
                 <InputText class="form-control" @bind-Value="model.Username" />
-                <ValidationMessage For="() => model.Username" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.Username" /></div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("auth.register.displayName")</label>
                 <InputText class="form-control" @bind-Value="model.DisplayName" />
-                <ValidationMessage For="() => model.DisplayName" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.DisplayName" /></div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("auth.register.password")</label>
                 <InputText class="form-control" type="password" @bind-Value="model.Password" />
-                <ValidationMessage For="() => model.Password" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.Password" /></div>
             </div>
 
             @if (!string.IsNullOrEmpty(errorMessage))

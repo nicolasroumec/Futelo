@@ -19,7 +19,7 @@
                 <div class="mb-3">
                     <label class="form-label">@Lang.Get("common.name")</label>
                     <InputText class="form-control" @bind-Value="formModel.Name" />
-                    <ValidationMessage For="() => formModel.Name" />
+                    <div class="invalid-feedback"><ValidationMessage For="() => formModel.Name" /></div>
                 </div>
                 @if (!string.IsNullOrEmpty(formError))
                 {

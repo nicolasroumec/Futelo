@@ -14,7 +14,7 @@
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("createVault.name")</label>
                 <InputText class="form-control" @bind-Value="model.Name" />
-                <ValidationMessage For="() => model.Name" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.Name" /></div>
             </div>
 
             @if (!string.IsNullOrEmpty(errorMessage))

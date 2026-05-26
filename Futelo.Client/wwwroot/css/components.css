@@ -222,6 +222,7 @@ body.light .card-glass:hover {
   border-color: var(--color-danger);
   outline: none;
 }
+.invalid ~ .invalid-feedback { display: block; }
 .validation-message {
   color: var(--color-danger);
   font-size: 0.78rem;

@@ -1201,9 +1201,9 @@ Ejemplo de uso en Dashboard cuando no hay vaults:
 | # | Mejora | Dimensión | Esfuerzo | Impacto |
 |---|--------|-----------|----------|---------|
 | ~~1~~ | ~~⚡ Spinner en todos los botones de guardado~~ ✅ | ~~Feedback~~ | ~~S~~ | ~~Alto~~ |
-| 2 | ⚡ Labels visibles en MatchResultForm (reemplazar solo-placeholder) | Formularios | S | Alto |
+| ~~2~~ | ~~⚡ Labels visibles en MatchResultForm (reemplazar solo-placeholder)~~ ✅ | ~~Formularios~~ | ~~S~~ | ~~Alto~~ |
 | ~~3~~ | ~~⚡ Eliminar `alert-success` permanente; redirigir al ToastService~~ ✅ | ~~Feedback~~ | ~~S~~ | ~~Alto~~ |
-| 4 | ⚡ `is-invalid` + `invalid-feedback` inline en todos los EditForm | Formularios | S | Alto |
+| ~~4~~ | ~~⚡ `is-invalid` + `invalid-feedback` inline en todos los EditForm~~ ✅ | ~~Formularios~~ | ~~S~~ | ~~Alto~~ |
 | ~~5~~ | ~~⚡ Score como dato primario en match cards (`fs-5 fw-bold font-display`)~~ ✅ | ~~Jerarquía~~ | ~~S~~ | ~~Alto~~ |
 | ~~6~~ | ~~⚡ ELO como número hero en PlayerProfile (`display-5 fw-bold`)~~ ✅ | ~~Jerarquía~~ | ~~S~~ | ~~Alto~~ |
 | ~~7~~ | ~~⚡ Botón "Activar temporada" elevado al top de SeasonDetail Draft~~ ✅ | ~~Navegación~~ | ~~S~~ | ~~Alto~~ |

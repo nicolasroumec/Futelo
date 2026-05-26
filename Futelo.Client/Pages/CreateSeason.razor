@@ -17,13 +17,13 @@
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("common.name")</label>
                 <InputText class="form-control" @bind-Value="model.Name" placeholder="e.g. Season 2026" />
-                <ValidationMessage For="() => model.Name" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.Name" /></div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("season.year")</label>
                 <InputNumber class="form-control" @bind-Value="model.Year" />
-                <ValidationMessage For="() => model.Year" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.Year" /></div>
             </div>
 
             <div class="mb-3">
