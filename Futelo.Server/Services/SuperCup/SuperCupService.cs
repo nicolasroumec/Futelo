@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.SuperCup;
+using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs.SuperCup;
 using Futelo.Shared.Enums;
 
@@ -8,7 +9,7 @@ namespace Futelo.Server.Services.SuperCup;
 
 using static ErrorMessages;
 
-public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<SuperCupService> logger) : ISuperCupService
+public class SuperCupService(ISuperCupRepository superCupRepository, IAchievementEngine achievementEngine) : ISuperCupService
 {
     public async Task<SuperCupResponse> GetByIdAsync(int superCupId, string userId)
     {
@@ -227,6 +228,22 @@ public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<Sup
             AwayTeamId = awaysp.TeamId
         });
 
+        await achievementEngine.EvaluateAfterMatchAsync(new MatchAchievementContext(
+            MatchId: matchId,
+            VaultId: superCup.Season.VaultId,
+            SeasonId: superCup.SeasonId,
+            HomePlayerId: match.HomePlayerId,
+            AwayPlayerId: match.AwayPlayerId,
+            HomeScore: homeScore,
+            AwayScore: awayScore,
+            WonOnPenaltiesId: wonOnPenaltiesId,
+            HomeOldHistElo: homeHistElo,
+            HomeNewHistElo: homeNewHistElo,
+            AwayOldHistElo: awayHistElo,
+            AwayNewHistElo: awayNewHistElo,
+            IsFinal: true
+        ));
+
         return new RecordSuperCupResultResponse
         {
             Home = new SuperCupEloChangeResult
@@ -254,7 +271,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<Sup
         };
     }
 
-    public async Task PatchMatchAsync(int superCupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
+    public async Task PatchMatchAsync(int superCupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate, string userId)
     {
         var superCup = await superCupRepository.GetByIdAsync(superCupId);
         if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
@@ -268,7 +285,18 @@ public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<Sup
         if (match == null)
             throw new KeyNotFoundException(MatchNotFound);
 
-        await superCupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
+        await superCupRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId, scheduledDate);
+    }
+
+    public async Task PatchDatesAsync(int superCupId, string userId, DateTime? startDate, DateTime? endDate)
+    {
+        var superCup = await superCupRepository.GetByIdAsync(superCupId);
+        if (superCup == null || superCup.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(SuperCupNotFound);
+        if (superCup.Season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
+
+        await superCupRepository.PatchDatesAsync(superCupId, startDate, endDate);
     }
 
     private static SuperCupResponse MapToResponse(Models.SuperCup superCup, bool canEdit = false)
@@ -284,6 +312,8 @@ public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<Sup
             Name = superCup.Name,
             Status = superCup.Status.ToString(),
             IsHomeAndAway = superCup.IsHomeAndAway,
+            StartDate = superCup.StartDate,
+            EndDate = superCup.EndDate,
             CanEdit = canEdit,
             Player1Id = superCup.Player1Id,
             Player1Name = superCup.Player1Id != null
@@ -317,6 +347,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository, ILogger<Sup
                     AwayPenaltyScore = m.AwayPenaltyScore,
                     Status = m.Status.ToString(),
                     Leg = m.Leg,
+                    ScheduledDate = m.ScheduledDate,
                     PlayedAt = m.PlayedAt,
                     HomeTeamId = m.HomeTeamId,
                     HomeTeamName = m.HomeTeam?.Name,

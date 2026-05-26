@@ -88,13 +88,23 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
         await SaveChangesAsync();
     }
 
-    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId)
+    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate)
     {
         var match = await Context.Set<Match>().FindAsync(matchId);
         if (match == null) return;
         match.HomeTeamId = homeTeamId;
         match.AwayTeamId = awayTeamId;
         match.VideoGameId = videoGameId;
+        match.ScheduledDate = scheduledDate;
+        await SaveChangesAsync();
+    }
+
+    public async Task PatchDatesAsync(int superCupId, DateTime? startDate, DateTime? endDate)
+    {
+        var superCup = await Context.Set<Models.SuperCup>().FindAsync(superCupId);
+        if (superCup == null) return;
+        superCup.StartDate = startDate;
+        superCup.EndDate = endDate;
         await SaveChangesAsync();
     }
 }

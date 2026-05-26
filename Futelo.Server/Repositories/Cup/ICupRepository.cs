@@ -9,5 +9,10 @@ public interface ICupRepository
     Task UpdateStatusAsync(int cupId, TournamentStatus status);
     Task SetBracketAsync(int cupId, List<CupPlayer> players, List<CupRound> rounds);
     Task SaveMatchResultAsync(CupMatchResultData data);
-    Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId);
+    Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate);
+    Task PatchDatesAsync(int cupId, DateTime? startDate, DateTime? endDate);
+    Task InitPlayersAsync(int cupId, List<CupPlayer> players);
+    Task ActivateManualAsync(int cupId);
+    Task<int> AddRoundAsync(CupRound round);
+    Task AddMatchToRoundAsync(Match match);
 }

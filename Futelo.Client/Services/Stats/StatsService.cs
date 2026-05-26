@@ -24,6 +24,13 @@ public class StatsService(HttpClient http) : ApiService(http), IStatsService
     public Task<List<EloHistoryPoint>> GetEloHistoryAsync(int vaultId, string playerId, CancellationToken ct = default)
         => GetListAsync<EloHistoryPoint>($"api/stats/vaults/{vaultId}/players/{playerId}/elo-history", ct);
 
+    public Task<GlobalEloHistoryResponse> GetGlobalEloHistoryAsync(int vaultId, string playerId, string? competition = null, CancellationToken ct = default)
+    {
+        var url = $"api/stats/vaults/{vaultId}/players/{playerId}/global-elo-history";
+        if (!string.IsNullOrEmpty(competition)) url += $"?competition={competition}";
+        return GetAsync<GlobalEloHistoryResponse>(url, ct);
+    }
+
     public Task<List<ScorerRow>> GetScorersAsync(int vaultId, CancellationToken ct = default)
         => GetListAsync<ScorerRow>($"api/stats/vaults/{vaultId}/scorers", ct);
 
@@ -51,6 +58,12 @@ public class StatsService(HttpClient http) : ApiService(http), IStatsService
 
     public Task<PlayerRecordsResponse> GetPlayerRecordsAsync(int vaultId, string playerId, CancellationToken ct = default)
         => GetAsync<PlayerRecordsResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/records", ct);
+
+    public Task<List<AllTimeStandingRow>> GetAllTimeStandingsAsync(int vaultId, CancellationToken ct = default)
+        => GetListAsync<AllTimeStandingRow>($"api/stats/vaults/{vaultId}/all-time-standings", ct);
+
+    public Task<List<PlayerAchievementResponse>> GetPlayerAchievementsAsync(int vaultId, string playerId, CancellationToken ct = default)
+        => GetListAsync<PlayerAchievementResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/achievements", ct);
 
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, CancellationToken ct = default)
     {

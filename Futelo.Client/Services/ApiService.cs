@@ -27,6 +27,12 @@ public abstract class ApiService(HttpClient http)
         await res.EnsureSuccessAsync();
     }
 
+    protected async Task PostAsync(string url, object body)
+    {
+        var res = await Http.PostAsJsonAsync(url, body);
+        await res.EnsureSuccessAsync();
+    }
+
     protected async Task PutAsync(string url, object? body = null)
     {
         var res = body is null

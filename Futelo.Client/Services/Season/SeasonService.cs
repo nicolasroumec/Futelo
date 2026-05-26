@@ -1,9 +1,13 @@
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Season;
 
 namespace Futelo.Client.Services.Season;
 
 public class SeasonService(HttpClient http) : ApiService(http), ISeasonService
 {
+    public Task<SeasonRecapResponse> GetRecapAsync(int id, CancellationToken ct = default)
+        => GetAsync<SeasonRecapResponse>($"api/seasons/{id}/recap", ct);
+
     public Task<List<SeasonResponse>> GetByVaultAsync(int vaultId, CancellationToken ct = default)
         => GetListAsync<SeasonResponse>($"api/seasons?vaultId={vaultId}", ct);
 
@@ -30,4 +34,7 @@ public class SeasonService(HttpClient http) : ApiService(http), ISeasonService
 
     public Task ConfigureAsync(int id, ConfigureSeasonRequest request)
         => PutAsync($"api/seasons/{id}/configure", request);
+
+    public Task PatchDatesAsync(int id, PatchDatesRequest request)
+        => PatchAsync($"api/seasons/{id}/dates", request);
 }

@@ -209,5 +209,200 @@ Rama: `14-pwa`
 
 ---
 
-## Sesión 15 — Pulido y despliegue
-Ver roadmap para detalle completo.
+## Sesión 15 — Reglas y mejoras
+Rama: `15-features`
+
+### Sprint F1 — Fechas en temporadas y competencias ✅
+`feat: replace vault dates with season, competition and match scheduling dates`
+
+- [x] Quitar `StartDate`/`EndDate` de `Vault` (modelo, DTOs, servicio, i18n)
+- [x] Agregar `StartDate`/`EndDate` a `Season`, `League`, `Cup`, `SuperCup` + modelos EF Core
+- [x] Agregar `ScheduledDate` a `Match`
+- [x] Migración EF Core (`AddDatesToSeasonMatchAndCompetitions`)
+- [x] Actualizar DTOs en `Futelo.Shared`
+- [x] Endpoints PATCH `/dates` para Season, League, Cup, SuperCup (editables en cualquier momento)
+- [x] `ScheduledDate` incluido en el `PATCH match` existente
+
+---
+
+### Sprint F2 — (integrado en F1) ✅
+`feat: replace vault dates with season, competition and match scheduling dates`
+
+- [x] `ScheduledDate` en `Match` + migración + endpoint PATCH integrado en PatchMatch
+
+---
+
+### Sprint F3 — Diferencia de gol en todas las tablas de stats ✅
+`feat: add goal difference column to all stats tables`
+
+- [x] Propiedad calculada `GoalDifference` en `PlayerStatsResponse`, `TeamUsageRow`, `VideoGameStatsRow`, `PlayerGameStatsRow`
+- [x] Columna GD en: tabla principal de jugador, Top Teams, Performance by Game, Games Ranking
+
+---
+
+### Sprint F4 — Reglas de desempate en Liga ✅
+`feat: add configurable tiebreaker rules for league standings`
+
+- [x] Enum `TiebreakerRule`: `GoalDifference`, `HeadToHead`, `HeadToHeadThenGoalDifference`
+- [x] `TiebreakerRule` en modelo `League` + migración (`AddTiebreakerRuleToLeague`)
+- [x] `StandingsCalculator` refactorizado: algoritmo multi-grupo, H2H correcto para 3+ jugadores empatados
+- [x] La regla aplica también al determinar el campeón al cerrar la liga y al widget top 3 de la temporada
+- [x] UI: dropdown en configuración de liga (componente `SeasonCompetitionConfig`)
+
+---
+
+### Sprint F5 — Formato de Copa ✅
+`feat: add away goal rule and seeding mode to cup configuration`
+
+- [x] Crear enum `CupSeedingMode` en `Futelo.Shared`: `SeasonElo`, `LeaguePosition`, `Random`
+- [x] Reemplazar `BracketMode` con `SeedingMode: CupSeedingMode` en modelo `Cup` + migración (`AddCupSeedingModeAndAwayGoalRule`)
+- [x] Agregar `AwayGoalRule` (bool) al modelo `Cup` (mismo migration)
+  - Se aplica solo en rondas previas a la final — la final nunca usa gol de visitante
+- [x] Agregar `CupIsHomeAndAway` a `ConfigureSeasonRequest` (no estaba antes)
+- [x] Actualizar `CupService`:
+  - `SeasonElo`: ordena por EloRating del jugador (anterior comportamiento de Seeded)
+  - `LeaguePosition`: usa `StandingsCalculator` sobre la liga activa/finalizada de la temporada
+  - `Random`: shuffle aleatorio
+  - Lógica de avance ida/vuelta: empate aggregate → goles visitante → penales (solo en no-finales)
+- [x] Includes de `Season.League.Matches` y `Season.League.Players` en `CupRepository.GetByIdAsync`
+- [x] `CupResponse` expone `SeedingMode` y `AwayGoalRule`
+- [x] `SeasonResponse` expone `CupIsHomeAndAway`, `CupSeedingMode`, `CupAwayGoalRule`
+- [x] UI en configuración de copa: checkbox H&A, dropdown seeding mode, checkbox gol de visitante
+
+---
+
+### Sprint F6 — Mejora UI configuración de torneos ✅
+`feat: improve tournament configuration UI`
+
+- [x] Rediseñar `SeasonCompetitionConfig.razor`: una card por competencia (Liga / Copa / Supercopa)
+- [x] Toggle switches para activar/desactivar cada competencia; borde verde cuando activa
+- [x] Textos de ayuda (`form-text`) bajo cada regla (H&A, tiebreaker, seeding mode, away goal rule)
+- [x] CSS scoped en `SeasonCompetitionConfig.razor.css` usando variables del design system
+- [x] Claves i18n de hint añadidas en `en.json` y `es.json`
+
+---
+
+### Sprint F7 — Ingreso manual de partidos: Liga ⬜
+Permite cargar partidos históricos en la liga sin generar el fixture automático. El usuario activa la liga manualmente, agrega partidos (fecha + local + visitante) de a uno, y registra resultados con el flujo existente (ELO se calcula igual).
+
+**Commit 1 — `feat: league manual - shared DTOs and server`**
+- [ ] `Futelo.Shared/DTOs/PlayerSummary.cs` ← nuevo `{ string Id, string DisplayName }`
+- [ ] `Futelo.Shared/DTOs/League/AddLeagueMatchRequest.cs` ← nuevo `{ int Matchday, string HomePlayerId, string AwayPlayerId }`
+- [ ] `LeagueResponse.cs` ← agregar `List<PlayerSummary> SeasonPlayers`
+- [ ] `ILeagueRepository` + `LeagueRepository` ← agregar `InitPlayersAsync` y `AddMatchAsync`
+- [ ] `ILeagueService` + `LeagueService` ← agregar `StartManualAsync` y `AddMatchManuallyAsync` (valida jugadores en temporada, Leg = Matchday)
+- [ ] `LeagueService.GetByIdAsync` ← poblar `SeasonPlayers` desde `league.Season.Players`
+- [ ] `LeagueController` ← `POST /{id}/start-manual` y `POST /{id}/matches`
+
+**Commit 2 — `feat: league manual - client service and UI`**
+- [ ] `ILeagueService` + `LeagueService` (Client) ← agregar `StartManualAsync` y `AddMatchAsync`
+- [ ] `LeagueView.razor` ← en NotStarted + CanEdit: botón "Ingresar Manualmente" junto a "Generar Fixture"; en Active + CanEdit: formulario inline "Agregar partido" (nro de fecha, dropdown local, dropdown visitante)
+- [ ] `LeagueView.razor.cs` ← estado `addingMatch`, `newMatchday`, `newHomePlayerId`, `newAwayPlayerId`, handlers `HandleStartManual` y `HandleAddMatch`
+- [ ] `en.json` / `es.json` ← agregar `league.startManual`, `league.addMatch`
+
+---
+
+### Sprint F8 — Ingreso manual de partidos: Copa ⬜
+Permite crear rondas y partidos manualmente en la copa. Se agrega flag `IsManual` al modelo para desactivar el auto-avance de la llave cuando se registran resultados.
+
+**Commit 1 — `feat: cup manual - model, migration and server`**
+- [ ] `Cup.cs` ← agregar `bool IsManual`
+- [ ] Migración EF Core: `AddIsManualToCup` (`AddColumn<bool>("IsManual", "Cups", defaultValue: false)`)
+- [ ] `Futelo.Shared/DTOs/Cup/AddCupRoundRequest.cs` ← nuevo `{ string Name, int RoundNumber }`
+- [ ] `Futelo.Shared/DTOs/Cup/AddCupMatchRequest.cs` ← nuevo `{ string HomePlayerId, string AwayPlayerId, int Leg }`
+- [ ] `CupResponse.cs` ← agregar `List<PlayerSummary> SeasonPlayers`, `bool IsManual`
+- [ ] `ICupRepository` + `CupRepository` ← agregar `InitPlayersAsync`, `AddRoundAsync`, `AddMatchToRoundAsync`
+- [ ] `ICupService` + `CupService` ← agregar `StartManualAsync`, `AddRoundAsync`, `AddMatchAsync`
+- [ ] `CupService.RecordResultAsync` ← cuando `cup.IsManual == true`, omitir bloque de auto-avance; detectar fin cuando todos los partidos de la ronda con mayor `RoundNumber` estén `Played` → campeón = ganador del último partido
+- [ ] `CupService.GetByIdAsync` ← poblar `SeasonPlayers`
+- [ ] `CupController` ← `POST /{id}/start-manual`, `POST /{id}/rounds`, `POST /{id}/rounds/{roundId}/matches`
+- [ ] `ErrorMessages` ← agregar `CupRoundNotFound`
+
+**Commit 2 — `feat: cup manual - client service and UI`**
+- [ ] `ICupService` + `CupService` (Client) ← agregar `StartManualAsync`, `AddRoundAsync`, `AddMatchAsync`
+- [ ] `CupView.razor` ← en NotStarted + CanEdit: botón "Ingresar Manualmente"; en Active + IsManual: formulario "Agregar ronda" (nombre + nro) y por ronda formulario "Agregar partido" (local, visitante, leg)
+- [ ] `CupView.razor.cs` ← estado + handlers
+- [ ] `en.json` / `es.json` ← agregar `cup.startManual`, `cup.addRound`, `cup.roundName`, `cup.roundNumber`, `cup.addMatch`
+
+---
+
+### Sprint F9 — Ingreso manual de partidos: SuperCopa ⬜
+Permite iniciar la SuperCopa eligiendo los dos jugadores libremente, sin requerir que la Liga y Copa estén finalizadas. Útil para cargar supercopa histórica.
+
+**Commit 1 — `feat: supercup manual - shared DTOs and server`**
+- [ ] `Futelo.Shared/DTOs/SuperCup/StartSuperCupManualRequest.cs` ← nuevo `{ string Player1Id, string Player2Id }`
+- [ ] `SuperCupResponse.cs` ← agregar `List<PlayerSummary> SeasonPlayers`
+- [ ] `ISuperCupService` + `SuperCupService` ← agregar `StartManualAsync(int, string player1Id, string player2Id, string userId)` (valida que ambos jugadores estén en la temporada y sean distintos; reutiliza `SetParticipantsAsync` del repo; omite el check de Liga/Copa finalizadas)
+- [ ] `SuperCupService.GetByIdAsync` ← poblar `SeasonPlayers`
+- [ ] `SuperCupController` ← `POST /{id}/start-manual` con body `StartSuperCupManualRequest`
+
+**Commit 2 — `feat: supercup manual - client service and UI`**
+- [ ] `ISuperCupService` + `SuperCupService` (Client) ← agregar `StartManualAsync(int, StartSuperCupManualRequest)`
+- [ ] `SuperCupView.razor` ← en NotStarted + CanEdit: sección "Ingresar Manualmente" con dos dropdowns de jugadores (de `superCup.SeasonPlayers`) + botón, junto al "Iniciar SuperCopa" existente
+- [ ] `SuperCupView.razor.cs` ← estado `manualPlayer1Id`, `manualPlayer2Id`, `isStartingManual`, handler `HandleStartManual`
+- [ ] `en.json` / `es.json` ← agregar `supercup.startManual`, `supercup.player1`, `supercup.player2`
+
+---
+
+## Features futuras (backlog)
+
+### Partido de desempate en Liga
+Cuando dos o más jugadores terminan igualados en todos los criterios de desempate configurados (puntos, DG, H2H, etc.), se genera automáticamente un partido extra fuera del fixture normal para determinar el campeón o la posición en disputa.
+- Requiere: nuevo tipo de partido (playoff), lógica de detección al cerrar la liga, UI para registrar el resultado, y que no afecte el ELO de la temporada.
+
+---
+
+## Sesión 16 — Pulido y despliegue
+Rama: `16-deploy`
+
+### Sprint D1 — Error boundaries en Client (~30min) ⬜
+`feat: add error boundaries and custom 404 page`
+
+- [ ] Envolver `<Router>` en `MainLayout.razor` con `<ErrorBoundary>` de Blazor
+- [ ] Crear `Shared/ErrorFallback.razor` + `.razor.cs`: mensaje amigable + botón "Volver al inicio"
+- [ ] Crear `Pages/NotFound.razor`: página 404 con link al dashboard
+- [ ] Configurar template `<NotFound>` en `Router` para usar `NotFound.razor`
+
+---
+
+### Sprint D2 — Security hardening (~1h) ⬜
+`feat: add rate limiting and restrict CORS for production`
+
+- [ ] Agregar rate limiting en `Program.cs` con `AddRateLimiter` (.NET 8+):
+  - Política `"auth"`: 5 requests / 1 minuto por IP
+  - Aplicar con `[EnableRateLimiting("auth")]` en `AuthController.Login` y `AuthController.Register`
+- [ ] Restringir CORS en `appsettings.Production.json` a la URL del cliente en producción
+
+---
+
+### Sprint D3 — Configuración de producción (~45min) ⬜
+`feat: add production configuration and environment variable support`
+
+- [ ] Crear `Futelo.Server/appsettings.Production.json`:
+  - `ConnectionStrings:DefaultConnection` (ruta SQLite en el servidor)
+  - `Jwt:Key`, `Jwt:Issuer`, `Jwt:Audience` leídos de env vars (`${JWT_KEY}`, etc.)
+  - `Cors:AllowedOrigins` con la URL del cliente
+- [ ] Verificar que ningún secreto esté hardcodeado en el repo
+- [ ] Crear `Futelo.Client/wwwroot/appsettings.Production.json` con la URL del API en producción
+
+---
+
+### Sprint D4 — Dockerfile y despliegue (~2h) ⬜
+`feat: add Dockerfile and deploy to Railway`
+
+- [ ] Crear `Dockerfile` multi-stage en la raíz:
+  - Stage `build`: `mcr.microsoft.com/dotnet/sdk:10.0` — publica `Futelo.Server` (incluye el Client como assets estáticos)
+  - Stage `runtime`: `mcr.microsoft.com/dotnet/aspnet:10.0` — copia publish output
+- [ ] Crear `.dockerignore`
+- [ ] Deploy en Railway (recomendado: conectar repo GitHub, Railway detecta Dockerfile automáticamente)
+- [ ] Configurar variables de entorno en Railway: `JWT_KEY`, `JWT_ISSUER`, `JWT_AUDIENCE`, `ASPNETCORE_ENVIRONMENT=Production`
+- [ ] Verificar que la app levanta en producción (DB se crea/migra al arrancar con `EnsureCreated` o `Migrate`)
+
+---
+
+### Sprint D5 — PWA Lighthouse post-deploy (~30min) ⬜
+`fix: PWA audit and install prompt verification`
+
+- [ ] Auditoría Lighthouse en Chrome DevTools (score ≥ 90 en PWA)
+- [ ] Probar install prompt en Chrome/Edge desktop
+- [ ] Probar "Agregar a pantalla de inicio" en Safari iOS

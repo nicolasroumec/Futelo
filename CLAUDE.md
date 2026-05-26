@@ -1,14 +1,25 @@
 # Futelo – Project Guidelines
 
+See `docs/domain.md` for the domain model and `docs/features.md` for feature status.
+
+## Stack
+
+Blazor 10 WASM (`Futelo.Client`) + ASP.NET Core 10 (`Futelo.Server`) + SQL Server via EF Core. Shared DTOs/enums live in `Futelo.Shared`.
+
+## Architecture layers (Server)
+
+`Controller` → `IService` / `Service` → `IRepository` / `Repository` → EF Core `DbContext`
+
+All services use primary-constructor DI. Never inject `ILogger` unless logging is actually needed.
+
 ## Code conventions
 
 - All code in English: classes, methods, variables, file names.
-- All Blazor components use the **code-behind pattern**: C# logic goes in a `.razor.cs` partial class file. Never use `@code {}` blocks inside `.razor` files.
+- Blazor components use the **code-behind pattern**: logic in `.razor.cs` partial class. Never use `@code {}` blocks.
+- `CanEdit` on competition responses = current user is vault owner.
+- `DateOnly?` for `<input type="date">` bindings in Blazor 10 (not `string` or `DateTime?`).
 
-## Branch naming
+## Branch / commits
 
-Format: `{number}-{feature-name}` (e.g. `2-authentication`)
-
-## Commits
-
-Commit after each logical chunk, not one big commit at the end.
+- Branch format: `{number}-{feature-name}` (e.g. `15-features`)
+- Commit after each logical chunk. The user commits manually — only suggest the message.

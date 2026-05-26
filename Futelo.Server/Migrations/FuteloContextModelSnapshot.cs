@@ -102,13 +102,19 @@ namespace Futelo.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BracketMode")
-                        .HasColumnType("int");
+                    b.Property<bool>("AwayGoalRule")
+                        .HasColumnType("bit");
 
                     b.Property<string>("ChampionId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsHomeAndAway")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsManual")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -117,6 +123,12 @@ namespace Futelo.Server.Migrations
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("int");
+
+                    b.Property<int>("SeedingMode")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -240,6 +252,9 @@ namespace Futelo.Server.Migrations
                     b.Property<string>("ChampionId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsHomeAndAway")
                         .HasColumnType("bit");
 
@@ -250,7 +265,13 @@ namespace Futelo.Server.Migrations
                     b.Property<int>("SeasonId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TiebreakerRule")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -325,6 +346,9 @@ namespace Futelo.Server.Migrations
                     b.Property<DateTime?>("PlayedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("ScheduledDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -360,6 +384,72 @@ namespace Futelo.Server.Migrations
                     b.ToTable("Matches");
                 });
 
+            modelBuilder.Entity("Futelo.Server.Models.PlayerAchievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PlayerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("SeasonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UnlockedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("VaultId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId", "VaultId", "Type")
+                        .IsUnique();
+
+                    b.ToTable("PlayerAchievements");
+                });
+
+            modelBuilder.Entity("Futelo.Server.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("Futelo.Server.Models.Season", b =>
                 {
                     b.Property<int>("Id")
@@ -368,9 +458,15 @@ namespace Futelo.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -427,6 +523,9 @@ namespace Futelo.Server.Migrations
                     b.Property<string>("ChampionId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsHomeAndAway")
                         .HasColumnType("bit");
 
@@ -442,6 +541,9 @@ namespace Futelo.Server.Migrations
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -892,6 +994,28 @@ namespace Futelo.Server.Migrations
                     b.Navigation("WonOnPenalties");
                 });
 
+            modelBuilder.Entity("Futelo.Server.Models.PlayerAchievement", b =>
+                {
+                    b.HasOne("Futelo.Server.Models.AppUser", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("Futelo.Server.Models.RefreshToken", b =>
+                {
+                    b.HasOne("Futelo.Server.Models.AppUser", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Futelo.Server.Models.Season", b =>
                 {
                     b.HasOne("Futelo.Server.Models.Vault", "Vault")
@@ -1067,6 +1191,8 @@ namespace Futelo.Server.Migrations
             modelBuilder.Entity("Futelo.Server.Models.AppUser", b =>
                 {
                     b.Navigation("EloHistories");
+
+                    b.Navigation("RefreshTokens");
 
                     b.Navigation("VaultPlayers");
                 });

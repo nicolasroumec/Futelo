@@ -37,7 +37,7 @@ else if (cup == null)
 }
 else
 {
-    <div class="d-flex align-items-center gap-3 mb-4">
+    <div class="d-flex align-items-center gap-3 mb-2">
         <a href="/seasons/@cup.SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <h3 class="mb-0">@cup.Name</h3>
         <span class="badge @BadgeHelper.StatusBadgeClass(cup.Status)">@Lang.Get("competition.status." + cup.Status.ToLower())</span>
@@ -51,6 +51,41 @@ else
         }
     </div>
 
+    @if (editingDates)
+    {
+        <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editStartDate" />
+            <span class="text-muted">→</span>
+            <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editEndDate" />
+            <button class="btn btn-sm btn-primary" disabled="@isSavingDates" @onclick="HandlePatchDates">
+                @(isSavingDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingDates = false">@Lang.Get("common.cancel")</button>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
+            <span>📅 @(cup.StartDate.HasValue ? cup.StartDate.Value.ToString("dd MMM yyyy") : "—") → @(cup.EndDate.HasValue ? cup.EndDate.Value.ToString("dd MMM yyyy") : "—")</span>
+            @if (cup.CanEdit)
+            {
+                <button class="btn btn-link btn-sm p-0 text-muted" @onclick="BeginEditDates">✏️</button>
+            }
+        </div>
+    }
+
+    <div class="text-muted small mb-3 d-flex gap-3">
+        <span>@Lang.Get("cup.seedingMode"): <strong>@Lang.Get(SeedingModeKey)</strong></span>
+        @if (cup.IsHomeAndAway)
+        {
+            <span>· @Lang.Get("season.homeAndAway")</span>
+        }
+        @if (cup.AwayGoalRule)
+        {
+            <span>· @Lang.Get("cup.awayGoalRule")</span>
+        }
+    </div>
+
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="alert alert-danger mb-3">@errorMessage</div>
@@ -58,9 +93,17 @@ else
 
     @if (cup.Status == "NotStarted")
     {
-        <button class="btn btn-success mb-4" disabled="@isLoading" @onclick="HandleStart">
-            @(isLoading ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
-        </button>
+        <div class="d-flex gap-2 mb-4">
+            <button class="btn btn-success" disabled="@isLoading" @onclick="HandleStart">
+                @(isLoading ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
+            </button>
+            @if (cup.CanEdit)
+            {
+                <button class="btn btn-outline-secondary" disabled="@isLoading" @onclick="HandleStartManual">
+                    @Lang.Get("cup.startManual")
+                </button>
+            }
+        </div>
     }
     else
     {
@@ -110,6 +153,10 @@ else
                                             WonOnPenaltiesId="@match.WonOnPenaltiesId"
                                             HomePenaltyScore="@match.HomePenaltyScore"
                                             AwayPenaltyScore="@match.AwayPenaltyScore" />
+                                        @if (match.ScheduledDate.HasValue && match.Status != "Played")
+                                        {
+                                            <div class="text-muted small mt-1">📅 @match.ScheduledDate.Value.ToString("dd MMM yyyy")</div>
+                                        }
 
                                         @if (recordingMatchId == match.Id)
                                         {
@@ -137,6 +184,7 @@ else
                                             HomeTeamId="match.HomeTeamId"
                                             AwayTeamId="match.AwayTeamId"
                                             VideoGameId="match.VideoGameId"
+                                            ScheduledDate="match.ScheduledDate"
                                             Teams="teams"
                                             VideoGames="videoGames"
                                             OnSave="HandlePatchMatch"
@@ -156,6 +204,80 @@ else
                     </div>
                 }
             </div>
+
+            @if (cup.IsManual && cup.CanEdit && cup.Status == "Active")
+            {
+                @if (addingMatchToRoundId == round.Id)
+                {
+                    <div class="d-flex flex-wrap gap-2 align-items-end mb-3" @onclick:stopPropagation="true">
+                        <div>
+                            <label class="form-label small mb-1">@Lang.Get("cup.homePlayer")</label>
+                            <select class="form-select form-select-sm" style="width:160px" @bind="newMatchHomePlayerId">
+                                <option value="">@Lang.Get("common.select")</option>
+                                @foreach (var p in cup.SeasonPlayers)
+                                {
+                                    <option value="@p.Id">@p.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label small mb-1">@Lang.Get("cup.awayPlayer")</label>
+                            <select class="form-select form-select-sm" style="width:160px" @bind="newMatchAwayPlayerId">
+                                <option value="">@Lang.Get("common.select")</option>
+                                @foreach (var p in cup.SeasonPlayers)
+                                {
+                                    <option value="@p.Id">@p.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label small mb-1">@Lang.Get("cup.leg")</label>
+                            <input type="number" class="form-control form-control-sm" style="width:70px" min="1" @bind="newMatchLeg" />
+                        </div>
+                        <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
+                            @(isAddingMatch ? "..." : Lang.Get("cup.addMatch"))
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatchToRoundId = null">
+                            @Lang.Get("common.cancel")
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-outline-primary btn-sm mb-3" @onclick="() => BeginAddMatch(round.Id)">
+                        + @Lang.Get("cup.addMatch")
+                    </button>
+                }
+            }
+        }
+
+        @if (cup.IsManual && cup.CanEdit && cup.Status == "Active")
+        {
+            @if (addingRound)
+            {
+                <div class="d-flex flex-wrap gap-2 align-items-end mt-2 mb-3">
+                    <div>
+                        <label class="form-label small mb-1">@Lang.Get("cup.roundName")</label>
+                        <input type="text" class="form-control form-control-sm" style="width:160px" @bind="newRoundName" placeholder="Final" />
+                    </div>
+                    <div>
+                        <label class="form-label small mb-1">@Lang.Get("cup.roundNumber")</label>
+                        <input type="number" class="form-control form-control-sm" style="width:80px" min="1" @bind="newRoundNumber" />
+                    </div>
+                    <button class="btn btn-primary btn-sm" disabled="@isAddingRound" @onclick="HandleAddRound">
+                        @(isAddingRound ? "..." : Lang.Get("cup.addRound"))
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingRound = false">
+                        @Lang.Get("common.cancel")
+                    </button>
+                </div>
+            }
+            else
+            {
+                <button class="btn btn-outline-secondary btn-sm mt-2" @onclick="BeginAddRound">
+                    + @Lang.Get("cup.addRound")
+                </button>
+            }
         }
     }
 }

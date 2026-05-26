@@ -8,7 +8,11 @@ public class Cup
     public int SeasonId { get; set; }
     public string Name { get; set; } = "Cup";
     public bool IsHomeAndAway { get; set; }
-    public BracketMode BracketMode { get; set; } = BracketMode.Seeded;
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public CupSeedingMode SeedingMode { get; set; } = CupSeedingMode.SeasonElo;
+    public bool AwayGoalRule { get; set; }
+    public bool IsManual { get; set; }
     public TournamentStatus Status { get; set; } = TournamentStatus.NotStarted;
 
     public string? ChampionId { get; set; }

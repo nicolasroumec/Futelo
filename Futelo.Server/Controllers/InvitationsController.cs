@@ -12,6 +12,14 @@ public class InvitationsController(IInvitationService invitationService) : Contr
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
+    [AllowAnonymous]
+    [HttpGet("{token}")]
+    public async Task<IActionResult> GetPreview(string token)
+    {
+        var preview = await invitationService.GetPreviewAsync(token);
+        return Ok(preview);
+    }
+
     [HttpPost("{token}/accept")]
     public async Task<IActionResult> Accept(string token)
     {

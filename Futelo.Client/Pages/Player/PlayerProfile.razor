@@ -12,7 +12,7 @@
         <div class="skeleton-block" style="width:6rem;height:1.5rem;border-radius:1rem"></div>
     </div>
     <div class="skeleton-block mb-2" style="width:50px;height:1rem"></div>
-    <SkeletonTable Rows="1" Columns="6" />
+    <SkeletonTable Rows="1" Columns="7" />
     <div class="d-flex gap-1 mb-4">
         <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
         <div class="skeleton-block" style="width:2rem;height:1.5rem;border-radius:1rem"></div>
@@ -69,6 +69,7 @@ else
                             <th>@Lang.Get("stats.losses")</th>
                             <th>@Lang.Get("league.goalsFor")</th>
                             <th>@Lang.Get("league.goalsAgainst")</th>
+                            <th>@Lang.Get("league.goalDiff")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,6 +80,7 @@ else
                             <td>@_lost</td>
                             <td>@_gf</td>
                             <td>@_ga</td>
+                            <td>@(stats.GoalDifference > 0 ? $"+{stats.GoalDifference}" : stats.GoalDifference.ToString())</td>
                         </tr>
                     </tbody>
                 </table>
@@ -215,15 +217,54 @@ else
                 </div>
             }
 
-            @if (eloHistory.Count > 0)
+            @if (globalEloHistory != null)
             {
                 <h5>@Lang.Get("player.eloHistory")</h5>
-                <div class="mb-4">
-                    <canvas id="elo-chart"></canvas>
+                <div class="d-flex gap-1 mb-2 flex-wrap">
+                    <button class="btn btn-sm @(competitionFilter == null ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter(null)'>@Lang.Get("common.all")</button>
+                    <button class="btn btn-sm @(competitionFilter == "League" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("League")'>@Lang.Get("createSeason.league")</button>
+                    <button class="btn btn-sm @(competitionFilter == "Cup" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("Cup")'>@Lang.Get("createSeason.cup")</button>
+                    <button class="btn btn-sm @(competitionFilter == "SuperCup" ? "btn-primary" : "btn-outline-secondary")" @onclick='() => SetFilter("SuperCup")'>@Lang.Get("createSeason.superCup")</button>
                 </div>
+                @if (globalEloHistory.Points.Count > 0)
+                {
+                    <div class="mb-4">
+                        <canvas id="global-elo-chart"></canvas>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted small mb-4">@Lang.Get("stats.noMatches")</p>
+                }
             }
         </div>
     </div>
+
+    @* FULL WIDTH — Achievements *@
+    @if (achievements.Count > 0)
+    {
+        <div class="mb-4">
+            <h5>Logros <span class="text-muted fw-normal fs-6">(@achievements.Count)</span></h5>
+            @foreach (var group in achievements.GroupBy(a => AchievementMeta.GetCategory(a.Type)))
+            {
+                <div class="mb-3">
+                    <div class="achievement-category-label">@group.Key</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var a in group)
+                        {
+                            <div class="achievement-badge" title="@AchievementMeta.GetDescription(a.Type)">
+                                <span class="achievement-badge__icon">@AchievementMeta.GetIcon(a.Type)</span>
+                                <div class="achievement-badge__text">
+                                    <span class="achievement-badge__name">@AchievementMeta.GetName(a.Type)</span>
+                                    <span class="achievement-badge__date">@a.UnlockedAt.ToString("dd/MM/yy")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
 
     @* FULL WIDTH — Top teams, game stats, recent matches *@
     @if (stats.TopTeams.Count > 0)
@@ -240,6 +281,7 @@ else
                         <th>@Lang.Get("stats.losses")</th>
                         <th>@Lang.Get("league.goalsFor")</th>
                         <th>@Lang.Get("league.goalsAgainst")</th>
+                        <th>@Lang.Get("league.goalDiff")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -253,6 +295,7 @@ else
                             <td>@t.Lost</td>
                             <td>@t.GoalsFor</td>
                             <td>@t.GoalsAgainst</td>
+                            <td>@(t.GoalDifference > 0 ? $"+{t.GoalDifference}" : t.GoalDifference.ToString())</td>
                         </tr>
                     }
                 </tbody>
@@ -274,6 +317,7 @@ else
                         <th>@Lang.Get("stats.losses")</th>
                         <th>@Lang.Get("league.goalsFor")</th>
                         <th>@Lang.Get("league.goalsAgainst")</th>
+                        <th>@Lang.Get("league.goalDiff")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -287,6 +331,7 @@ else
                             <td>@g.Lost</td>
                             <td>@g.GoalsFor</td>
                             <td>@g.GoalsAgainst</td>
+                            <td>@(g.GoalDifference > 0 ? $"+{g.GoalDifference}" : g.GoalDifference.ToString())</td>
                         </tr>
                     }
                 </tbody>

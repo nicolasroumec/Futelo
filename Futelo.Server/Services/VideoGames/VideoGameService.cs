@@ -7,7 +7,7 @@ namespace Futelo.Server.Services.VideoGames;
 
 using static ErrorMessages;
 
-public class VideoGameService(IVideoGameRepository repository, IMemoryCache cache, ILogger<VideoGameService> logger) : IVideoGameService
+public class VideoGameService(IVideoGameRepository repository, IMemoryCache cache) : IVideoGameService
 {
     private const string CacheKey = "videogames_all";
 

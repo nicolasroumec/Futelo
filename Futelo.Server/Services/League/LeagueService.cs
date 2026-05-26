@@ -1,6 +1,8 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.League;
+using Futelo.Server.Services.Achievement;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.Enums;
 
@@ -8,7 +10,7 @@ namespace Futelo.Server.Services.League;
 
 using static ErrorMessages;
 
-public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueService> logger) : ILeagueService
+public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngine achievementEngine) : ILeagueService
 {
     public async Task<LeagueResponse> GetByIdAsync(int leagueId, string userId)
     {
@@ -18,7 +20,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
 
         var standings = league.Status == TournamentStatus.NotStarted
             ? []
-            : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players);
+            : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players, league.TiebreakerRule);
 
         var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
@@ -30,11 +32,18 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             Status = league.Status.ToString(),
             Name = league.Name,
             IsHomeAndAway = league.IsHomeAndAway,
+            StartDate = league.StartDate,
+            EndDate = league.EndDate,
+            TiebreakerRule = league.TiebreakerRule,
             ChampionId = league.ChampionId,
             ChampionName = league.ChampionId != null
                 ? league.Season.Players.FirstOrDefault(sp => sp.PlayerId == league.ChampionId)?.Player.DisplayName
                 : null,
             CanEdit = canEdit,
+            SeasonPlayers = league.Season.Players
+                .Select(sp => new PlayerSummary { Id = sp.PlayerId, DisplayName = sp.Player.DisplayName })
+                .OrderBy(p => p.DisplayName)
+                .ToList(),
             Matches = league.Matches
                 .OrderBy(m => m.Leg).ThenBy(m => m.Id)
                 .Select(m => new MatchResponse
@@ -48,6 +57,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
                     AwayScore = m.AwayScore,
                     Status = m.Status.ToString(),
                     Matchday = m.Leg,
+                    ScheduledDate = m.ScheduledDate,
                     PlayedAt = m.PlayedAt,
                     HomeTeamId = m.HomeTeamId,
                     HomeTeamName = m.HomeTeam?.Name,
@@ -83,6 +93,68 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
 
         await leagueRepository.SetFixtureAsync(leagueId, leaguePlayers, matches);
         await leagueRepository.UpdateStatusAsync(leagueId, TournamentStatus.Active);
+    }
+
+    public async Task StartManualAsync(int leagueId, string userId)
+    {
+        var league = await leagueRepository.GetByIdAsync(leagueId);
+        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(LeagueNotFound);
+
+        if (league.Status != TournamentStatus.NotStarted)
+            throw new InvalidOperationException(FixtureAlreadyGenerated);
+
+        var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
+
+        var playerIds = league.Season.Players.Select(sp => sp.PlayerId).ToList();
+        if (playerIds.Count < 2)
+            throw new InvalidOperationException(AtLeast2PlayersRequired);
+
+        var leaguePlayers = playerIds.Select(pid => new LeaguePlayer
+        {
+            LeagueId = leagueId,
+            PlayerId = pid
+        }).ToList();
+
+        await leagueRepository.InitPlayersAsync(leagueId, leaguePlayers);
+        await leagueRepository.UpdateStatusAsync(leagueId, TournamentStatus.Active);
+    }
+
+    public async Task AddMatchManuallyAsync(int leagueId, AddLeagueMatchRequest request, string userId)
+    {
+        var league = await leagueRepository.GetByIdAsync(leagueId);
+        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(LeagueNotFound);
+
+        if (league.Status != TournamentStatus.Active)
+            throw new InvalidOperationException(LeagueNotActive);
+
+        var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
+        if (caller == null || (caller.Role != VaultRole.Admin && caller.Role != VaultRole.Editor))
+            throw new UnauthorizedAccessException(OnlyAdminsAndEditorsCanEdit);
+
+        if (request.Matchday < 1)
+            throw new InvalidOperationException("Matchday must be at least 1.");
+
+        if (request.HomePlayerId == request.AwayPlayerId)
+            throw new InvalidOperationException("Home and away players must be different.");
+
+        var playerIds = league.Season.Players.Select(sp => sp.PlayerId).ToHashSet();
+        if (!playerIds.Contains(request.HomePlayerId) || !playerIds.Contains(request.AwayPlayerId))
+            throw new InvalidOperationException("Both players must belong to the season.");
+
+        var match = new Match
+        {
+            LeagueId = leagueId,
+            HomePlayerId = request.HomePlayerId,
+            AwayPlayerId = request.AwayPlayerId,
+            Leg = request.Matchday,
+            Status = MatchStatus.Pending
+        };
+
+        await leagueRepository.AddMatchAsync(match);
     }
 
     public async Task RegenerateFixtureAsync(int leagueId, string userId)
@@ -136,7 +208,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
 
         var (homeResult, awayResult, goalDiff) = ComputeOutcome(homeScore, awayScore);
         var elo = ComputeEloBlock(homesp, awaysp, seasonPlayers, matchId, league.SeasonId, homeResult, awayResult, goalDiff);
-        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore);
+        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore, league.TiebreakerRule);
 
         await leagueRepository.SaveMatchResultAsync(new MatchResultData
         {
@@ -145,10 +217,10 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             AwayScore = awayScore,
             LeagueId = leagueId,
             SeasonId = league.SeasonId,
-            HomePlayerId = match.HomePlayerId,
+            HomePlayerId = match.HomePlayerId!,
             HomeNewSeasonElo = elo.HomeNewSeasonElo,
             HomeNewHistoricalElo = elo.HomeNewHistElo,
-            AwayPlayerId = match.AwayPlayerId,
+            AwayPlayerId = match.AwayPlayerId!,
             AwayNewSeasonElo = elo.AwayNewSeasonElo,
             AwayNewHistoricalElo = elo.AwayNewHistElo,
             EloHistories = elo.Histories,
@@ -160,11 +232,27 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             AwayTeamId = awaysp.TeamId
         });
 
+        await achievementEngine.EvaluateAfterMatchAsync(new MatchAchievementContext(
+            MatchId: matchId,
+            VaultId: league.Season.VaultId,
+            SeasonId: league.SeasonId,
+            HomePlayerId: match.HomePlayerId!,
+            AwayPlayerId: match.AwayPlayerId!,
+            HomeScore: homeScore,
+            AwayScore: awayScore,
+            WonOnPenaltiesId: null,
+            HomeOldHistElo: homesp.Player.EloRating,
+            HomeNewHistElo: elo.HomeNewHistElo,
+            AwayOldHistElo: awaysp.Player.EloRating,
+            AwayNewHistElo: elo.AwayNewHistElo,
+            IsFinal: false
+        ));
+
         return new RecordResultResponse
         {
             Home = new EloChangeResult
             {
-                PlayerId = match.HomePlayerId,
+                PlayerId = match.HomePlayerId!,
                 DisplayName = homesp.Player.DisplayName,
                 EloBefore = homesp.SeasonElo,
                 EloAfter = elo.HomeNewSeasonElo,
@@ -174,7 +262,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             },
             Away = new EloChangeResult
             {
-                PlayerId = match.AwayPlayerId,
+                PlayerId = match.AwayPlayerId!,
                 DisplayName = awaysp.Player.DisplayName,
                 EloBefore = awaysp.SeasonElo,
                 EloAfter = elo.AwayNewSeasonElo,
@@ -185,7 +273,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
         };
     }
 
-    public async Task PatchMatchAsync(int leagueId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId)
+    public async Task PatchMatchAsync(int leagueId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate, string userId)
     {
         var league = await leagueRepository.GetByIdAsync(leagueId);
         if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
@@ -198,7 +286,18 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
         if (league.Matches.All(m => m.Id != matchId))
             throw new KeyNotFoundException(MatchNotFound);
 
-        await leagueRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId);
+        await leagueRepository.PatchMatchAsync(matchId, homeTeamId, awayTeamId, videoGameId, scheduledDate);
+    }
+
+    public async Task PatchDatesAsync(int leagueId, string userId, DateTime? startDate, DateTime? endDate)
+    {
+        var league = await leagueRepository.GetByIdAsync(leagueId);
+        if (league == null || league.Season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(LeagueNotFound);
+        if (league.Season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException(OnlyOwnerCanConfigureSeason);
+
+        await leagueRepository.PatchDatesAsync(leagueId, startDate, endDate);
     }
 
     private static (double homeResult, double awayResult, int goalDiff) ComputeOutcome(int homeScore, int awayScore)
@@ -258,7 +357,8 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
 
     private static (bool leagueFinished, Dictionary<string, int> finalPositions, string? championId) DetectFinish(
         IEnumerable<Match> allMatches, IEnumerable<LeaguePlayer> leaguePlayers,
-        string homePlayerId, string awayPlayerId, int homeScore, int awayScore)
+        string homePlayerId, string awayPlayerId, int homeScore, int awayScore,
+        TiebreakerRule tiebreaker)
     {
         var matchList = allMatches.ToList();
         if (matchList.Count(m => m.Status == MatchStatus.Pending) != 1)
@@ -276,7 +376,7 @@ public class LeagueService(ILeagueRepository leagueRepository, ILogger<LeagueSer
             })
             .ToList();
 
-        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers);
+        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers, tiebreaker);
         var finalPositions = finalStandings
             .Select((row, i) => (row.PlayerId, Position: i + 1))
             .ToDictionary(x => x.PlayerId, x => x.Position);

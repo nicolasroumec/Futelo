@@ -54,6 +54,13 @@ public class StatsController(IStatsService statsService) : ControllerBase
         return Ok(history);
     }
 
+    [HttpGet("vaults/{vaultId}/players/{playerId}/global-elo-history")]
+    public async Task<IActionResult> GetGlobalEloHistory(int vaultId, string playerId, [FromQuery] string? competition)
+    {
+        var result = await statsService.GetGlobalEloHistoryAsync(playerId, vaultId, UserId, competition);
+        return Ok(result);
+    }
+
     [HttpGet("vaults/{vaultId}/scorers")]
     public async Task<IActionResult> GetScorers(int vaultId)
     {
@@ -116,5 +123,19 @@ public class StatsController(IStatsService statsService) : ControllerBase
         var match = await statsService.GetTopScoringMatchAsync(vaultId, UserId);
         if (match == null) return NotFound();
         return Ok(match);
+    }
+
+    [HttpGet("vaults/{vaultId}/all-time-standings")]
+    public async Task<IActionResult> GetAllTimeStandings(int vaultId)
+    {
+        var standings = await statsService.GetAllTimeStandingsAsync(vaultId, UserId);
+        return Ok(standings);
+    }
+
+    [HttpGet("vaults/{vaultId}/players/{playerId}/achievements")]
+    public async Task<IActionResult> GetPlayerAchievements(int vaultId, string playerId)
+    {
+        var achievements = await statsService.GetPlayerAchievementsAsync(playerId, vaultId, UserId);
+        return Ok(achievements);
     }
 }

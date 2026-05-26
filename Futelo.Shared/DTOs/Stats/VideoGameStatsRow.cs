@@ -9,4 +9,5 @@ public class VideoGameStatsRow
     public int Lost { get; set; }
     public int GoalsFor { get; set; }
     public int GoalsAgainst { get; set; }
+    public int GoalDifference => GoalsFor - GoalsAgainst;
 }

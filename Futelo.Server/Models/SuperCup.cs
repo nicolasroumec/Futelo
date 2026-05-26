@@ -8,6 +8,8 @@ public class SuperCup
     public int SeasonId { get; set; }
     public string Name { get; set; } = "SuperCup";
     public bool IsHomeAndAway { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public string? Player1Id { get; set; }
     public string? Player2Id { get; set; }
     public TournamentStatus Status { get; set; } = TournamentStatus.NotStarted;

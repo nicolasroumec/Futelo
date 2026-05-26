@@ -11,6 +11,7 @@ public interface IStatsService
     Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId, string requesterId);
     Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId, string requesterId);
     Task<List<EloHistoryPoint>> GetEloHistoryAsync(string playerId, int vaultId, string requesterId);
+    Task<GlobalEloHistoryResponse> GetGlobalEloHistoryAsync(string playerId, int vaultId, string requesterId, string? competitionType);
     Task<List<ScorerRow>> GetScorersAsync(int vaultId, string requesterId);
     Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId, string requesterId);
     Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId, string requesterId);
@@ -20,4 +21,6 @@ public interface IStatsService
     Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(string playerId, int vaultId, string requesterId, int page, int pageSize, string? competitionType = null);
     Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, string requesterId);
     Task<PlayerRecordsResponse> GetPlayerRecordsAsync(string playerId, int vaultId, string requesterId);
+    Task<List<AllTimeStandingRow>> GetAllTimeStandingsAsync(int vaultId, string requesterId);
+    Task<List<PlayerAchievementResponse>> GetPlayerAchievementsAsync(string playerId, int vaultId, string requesterId);
 }

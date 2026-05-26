@@ -47,6 +47,12 @@ public class VaultRepository(FuteloContext context) : BaseRepository<Models.Vaul
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
 
+    public async Task<Dictionary<(int MatchId, string PlayerId), EloHistory>> GetEloHistoriesForMatchesAsync(List<int> matchIds)
+        => await Context.Set<EloHistory>()
+            .Where(e => matchIds.Contains(e.MatchId) && !e.IsSeasonElo)
+            .AsNoTracking()
+            .ToDictionaryAsync(e => (e.MatchId, e.PlayerId));
+
     public async Task<List<Match>> GetMatchesPageAsync(int vaultId, int skip, int take, string? competitionType = null)
         => await ApplyCompetitionFilter(VaultMatchesQuery(vaultId), competitionType)
             .Skip(skip)

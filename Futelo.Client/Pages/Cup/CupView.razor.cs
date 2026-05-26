@@ -4,6 +4,7 @@ using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Cup;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Team;
@@ -36,6 +37,29 @@ public partial class CupView : LocalizedComponentBase
     private int? editingMatchId;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
+
+    private bool editingDates;
+    private DateOnly? editStartDate;
+    private DateOnly? editEndDate;
+    private bool isSavingDates;
+
+    private bool addingRound;
+    private string newRoundName = string.Empty;
+    private int newRoundNumber = 1;
+    private bool isAddingRound;
+
+    private int? addingMatchToRoundId;
+    private string newMatchHomePlayerId = string.Empty;
+    private string newMatchAwayPlayerId = string.Empty;
+    private int newMatchLeg = 1;
+    private bool isAddingMatch;
+
+    private string SeedingModeKey => cup!.SeedingMode switch
+    {
+        Futelo.Shared.Enums.CupSeedingMode.LeaguePosition => "cup.seedingMode.leaguePosition",
+        Futelo.Shared.Enums.CupSeedingMode.Random => "cup.seedingMode.random",
+        _ => "cup.seedingMode.seasonElo"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,6 +129,90 @@ public partial class CupView : LocalizedComponentBase
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task HandleStartManual()
+    {
+        isLoading = true;
+        try
+        {
+            await CupService.StartManualAsync(Id);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void BeginAddRound()
+    {
+        var maxRound = cup?.Rounds.Count > 0 ? cup.Rounds.Max(r => r.RoundNumber) : 0;
+        newRoundNumber = maxRound + 1;
+        newRoundName = string.Empty;
+        addingRound = true;
+    }
+
+    private async Task HandleAddRound()
+    {
+        if (string.IsNullOrWhiteSpace(newRoundName)) return;
+        isAddingRound = true;
+        try
+        {
+            await CupService.AddRoundAsync(Id, new AddCupRoundRequest
+            {
+                Name = newRoundName,
+                RoundNumber = newRoundNumber
+            });
+            addingRound = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isAddingRound = false;
+        }
+    }
+
+    private void BeginAddMatch(int roundId)
+    {
+        addingMatchToRoundId = roundId;
+        newMatchHomePlayerId = string.Empty;
+        newMatchAwayPlayerId = string.Empty;
+        newMatchLeg = 1;
+    }
+
+    private async Task HandleAddMatch()
+    {
+        if (addingMatchToRoundId == null) return;
+        if (string.IsNullOrEmpty(newMatchHomePlayerId) || string.IsNullOrEmpty(newMatchAwayPlayerId)) return;
+        isAddingMatch = true;
+        try
+        {
+            await CupService.AddMatchAsync(Id, addingMatchToRoundId.Value, new AddCupMatchRequest
+            {
+                HomePlayerId = newMatchHomePlayerId,
+                AwayPlayerId = newMatchAwayPlayerId,
+                Leg = newMatchLeg
+            });
+            addingMatchToRoundId = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isAddingMatch = false;
         }
     }
 
@@ -184,6 +292,36 @@ public partial class CupView : LocalizedComponentBase
         catch (Exception ex)
         {
             Toast.Show(ex.Message, ToastType.Error);
+        }
+    }
+
+    private void BeginEditDates()
+    {
+        editStartDate = cup?.StartDate is { } s ? DateOnly.FromDateTime(s) : null;
+        editEndDate = cup?.EndDate is { } e ? DateOnly.FromDateTime(e) : null;
+        editingDates = true;
+    }
+
+    private async Task HandlePatchDates()
+    {
+        isSavingDates = true;
+        try
+        {
+            await CupService.PatchDatesAsync(Id, new PatchDatesRequest
+            {
+                StartDate = editStartDate is { } s ? s.ToDateTime(TimeOnly.MinValue) : null,
+                EndDate = editEndDate is { } e ? e.ToDateTime(TimeOnly.MinValue) : null,
+            });
+            editingDates = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isSavingDates = false;
         }
     }
 

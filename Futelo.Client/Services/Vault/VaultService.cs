@@ -14,6 +14,9 @@ public class VaultService(HttpClient http) : ApiService(http), IVaultService
     public Task<List<RecentMatchResponse>> GetRecentMatchesAsync(int vaultId, int limit = 10, CancellationToken ct = default)
         => GetListAsync<RecentMatchResponse>($"api/vaults/{vaultId}/recent-matches?limit={limit}", ct);
 
+    public Task<List<FeedEventDto>> GetFeedAsync(int vaultId, int limit = 10, CancellationToken ct = default)
+        => GetListAsync<FeedEventDto>($"api/vaults/{vaultId}/feed?limit={limit}", ct);
+
     public Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int vaultId, int page = 1, int pageSize = 10, string? competitionType = null, CancellationToken ct = default)
     {
         var url = $"api/vaults/{vaultId}/matches?page={page}&pageSize={pageSize}";

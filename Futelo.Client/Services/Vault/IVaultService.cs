@@ -8,6 +8,7 @@ public interface IVaultService
     Task<List<VaultResponse>> GetAllAsync(CancellationToken ct = default);
     Task<VaultResponse> GetByIdAsync(int id, CancellationToken ct = default);
     Task<List<RecentMatchResponse>> GetRecentMatchesAsync(int vaultId, int limit = 10, CancellationToken ct = default);
+    Task<List<FeedEventDto>> GetFeedAsync(int vaultId, int limit = 10, CancellationToken ct = default);
     Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int vaultId, int page = 1, int pageSize = 10, string? competitionType = null, CancellationToken ct = default);
     Task<VaultResponse> CreateAsync(CreateVaultRequest request);
     Task UpdateAsync(int id, UpdateVaultRequest request);

@@ -1,4 +1,5 @@
 using Futelo.Server.Models;
+using Futelo.Server.Repositories.Achievement;
 using Futelo.Server.Repositories.Stats;
 using Futelo.Shared.DTOs.Stats;
 using Futelo.Shared.DTOs.Vault;
@@ -8,7 +9,7 @@ namespace Futelo.Server.Services.Stats;
 
 using static ErrorMessages;
 
-public class StatsService(IStatsRepository statsRepository, ILogger<StatsService> logger) : IStatsService
+public class StatsService(IStatsRepository statsRepository, IAchievementRepository achievementRepository) : IStatsService
 {
     public async Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId, string requesterId)
     {
@@ -269,6 +270,58 @@ public class StatsService(IStatsRepository statsRepository, ILogger<StatsService
         points.AddRange(history.Select(h => new EloHistoryPoint { Date = h.CreatedAt, Elo = h.EloAfter }));
 
         return points;
+    }
+
+    public async Task<GlobalEloHistoryResponse> GetGlobalEloHistoryAsync(string playerId, int vaultId, string requesterId, string? competitionType)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+
+        var history = await statsRepository.GetPlayerGlobalEloHistoryAsync(playerId, vaultId, competitionType);
+
+        if (history.Count == 0)
+            return new GlobalEloHistoryResponse();
+
+        var points = new List<GlobalEloHistoryPoint>
+        {
+            new()
+            {
+                Date            = history[0].CreatedAt,
+                Elo             = history[0].EloBefore,
+                CompetitionType = GetCompetitionType(history[0].Match),
+                SeasonName      = history[0].Season.Name
+            }
+        };
+        points.AddRange(history.Select(h => new GlobalEloHistoryPoint
+        {
+            Date            = h.CreatedAt,
+            Elo             = h.EloAfter,
+            CompetitionType = GetCompetitionType(h.Match),
+            SeasonName      = h.Season.Name
+        }));
+
+        var seasons = new List<EloSeasonAnnotation>();
+        int? prevSeasonId = null;
+        for (int i = 0; i < history.Count; i++)
+        {
+            if (history[i].SeasonId == prevSeasonId) continue;
+            seasons.Add(new EloSeasonAnnotation
+            {
+                Name            = history[i].Season.Name,
+                FirstPointIndex = i + 1
+            });
+            prevSeasonId = history[i].SeasonId;
+        }
+
+        return new GlobalEloHistoryResponse { Points = points, Seasons = seasons };
+    }
+
+    private static string GetCompetitionType(Match match)
+    {
+        if (match.LeagueId.HasValue)   return "League";
+        if (match.CupRoundId.HasValue) return "Cup";
+        if (match.SuperCupId.HasValue) return "SuperCup";
+        return "";
     }
 
     public async Task<List<ScorerRow>> GetScorersAsync(int vaultId, string requesterId)
@@ -768,5 +821,66 @@ public class StatsService(IStatsRepository statsRepository, ILogger<StatsService
         }
 
         return (current, bestWin, bestUnbeaten, currentType);
+    }
+
+    public async Task<List<AllTimeStandingRow>> GetAllTimeStandingsAsync(int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+
+        var matches = await statsRepository.GetAllPlayedMatchesInVaultAsync(vaultId);
+
+        var dict = new Dictionary<string, AllTimeStandingRow>();
+
+        foreach (var m in matches)
+        {
+            if (m.HomePlayerId == null || m.AwayPlayerId == null) continue;
+            if (m.HomeScore == null || m.AwayScore == null) continue;
+
+            if (!dict.ContainsKey(m.HomePlayerId))
+                dict[m.HomePlayerId] = new AllTimeStandingRow { PlayerId = m.HomePlayerId, DisplayName = m.HomePlayer?.DisplayName ?? "" };
+            if (!dict.ContainsKey(m.AwayPlayerId))
+                dict[m.AwayPlayerId] = new AllTimeStandingRow { PlayerId = m.AwayPlayerId, DisplayName = m.AwayPlayer?.DisplayName ?? "" };
+
+            var home = dict[m.HomePlayerId];
+            var away = dict[m.AwayPlayerId];
+
+            home.Played++;
+            away.Played++;
+            home.GoalsFor += m.HomeScore.Value;
+            home.GoalsAgainst += m.AwayScore.Value;
+            away.GoalsFor += m.AwayScore.Value;
+            away.GoalsAgainst += m.HomeScore.Value;
+
+            if (m.WonOnPenaltiesId != null)
+            {
+                home.Drawn++;
+                away.Drawn++;
+            }
+            else if (m.HomeScore > m.AwayScore) { home.Won++; away.Lost++; }
+            else if (m.HomeScore < m.AwayScore) { away.Won++; home.Lost++; }
+            else { home.Drawn++; away.Drawn++; }
+        }
+
+        return dict.Values
+            .OrderByDescending(r => r.Won)
+            .ThenByDescending(r => r.GoalDifference)
+            .ThenByDescending(r => r.GoalsFor)
+            .Select((r, i) => { r.Position = i + 1; return r; })
+            .ToList();
+    }
+
+    public async Task<List<PlayerAchievementResponse>> GetPlayerAchievementsAsync(string playerId, int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+
+        var achievements = await achievementRepository.GetByPlayerAndVaultAsync(playerId, vaultId);
+        return achievements.Select(a => new PlayerAchievementResponse
+        {
+            Type = a.Type,
+            UnlockedAt = a.UnlockedAt,
+            SeasonId = a.SeasonId
+        }).ToList();
     }
 }

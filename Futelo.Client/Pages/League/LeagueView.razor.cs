@@ -4,6 +4,7 @@ using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.VideoGame;
@@ -22,6 +23,7 @@ public partial class LeagueView : LocalizedComponentBase
     private LeagueResponse? league;
     private bool isLoading = true;
     private bool isWorking;
+    private bool confirmReshuffle;
     private string? errorMessage;
 
     private int? recordingMatchId;
@@ -33,6 +35,24 @@ public partial class LeagueView : LocalizedComponentBase
     private int? editingMatchId;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
+
+    private bool editingDates;
+    private DateOnly? editStartDate;
+    private DateOnly? editEndDate;
+    private bool isSavingDates;
+
+    private bool addingMatch;
+    private int newMatchday = 1;
+    private string newHomePlayerId = string.Empty;
+    private string newAwayPlayerId = string.Empty;
+    private bool isAddingMatch;
+
+    private string TiebreakerKey => league!.TiebreakerRule switch
+    {
+        Futelo.Shared.Enums.TiebreakerRule.HeadToHead => "season.tiebreaker.headToHead",
+        Futelo.Shared.Enums.TiebreakerRule.HeadToHeadThenGoalDifference => "season.tiebreaker.headToHeadThenGD",
+        _ => "season.tiebreaker.goalDifference"
+    };
 
     private List<int> Matchdays => league?.Matches
         .Select(m => m.Matchday)
@@ -115,8 +135,60 @@ public partial class LeagueView : LocalizedComponentBase
         }
     }
 
+    private async Task HandleStartManual()
+    {
+        isWorking = true;
+        try
+        {
+            await LeagueService.StartManualAsync(Id);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isWorking = false;
+        }
+    }
+
+    private void BeginAddMatch()
+    {
+        newMatchday = Matchdays.Count > 0 ? Matchdays.Max() + 1 : 1;
+        newHomePlayerId = string.Empty;
+        newAwayPlayerId = string.Empty;
+        addingMatch = true;
+    }
+
+    private async Task HandleAddMatch()
+    {
+        if (string.IsNullOrEmpty(newHomePlayerId) || string.IsNullOrEmpty(newAwayPlayerId)) return;
+        isAddingMatch = true;
+        try
+        {
+            await LeagueService.AddMatchAsync(Id, new AddLeagueMatchRequest
+            {
+                Matchday = newMatchday,
+                HomePlayerId = newHomePlayerId,
+                AwayPlayerId = newAwayPlayerId
+            });
+            addingMatch = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isAddingMatch = false;
+        }
+    }
+
     private async Task HandleReshuffle()
     {
+        confirmReshuffle = false;
         isWorking = true;
         try
         {
@@ -201,6 +273,36 @@ public partial class LeagueView : LocalizedComponentBase
         catch (Exception ex)
         {
             Toast.Show(ex.Message, ToastType.Error);
+        }
+    }
+
+    private void BeginEditDates()
+    {
+        editStartDate = league?.StartDate is { } s ? DateOnly.FromDateTime(s) : null;
+        editEndDate = league?.EndDate is { } e ? DateOnly.FromDateTime(e) : null;
+        editingDates = true;
+    }
+
+    private async Task HandlePatchDates()
+    {
+        isSavingDates = true;
+        try
+        {
+            await LeagueService.PatchDatesAsync(Id, new PatchDatesRequest
+            {
+                StartDate = editStartDate is { } s ? s.ToDateTime(TimeOnly.MinValue) : null,
+                EndDate = editEndDate is { } e ? e.ToDateTime(TimeOnly.MinValue) : null,
+            });
+            editingDates = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isSavingDates = false;
         }
     }
 

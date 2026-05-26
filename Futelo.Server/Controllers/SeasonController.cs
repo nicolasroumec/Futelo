@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Futelo.Server.Services.Season;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Season;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ namespace Futelo.Server.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/seasons")]
-public class SeasonController(ISeasonService seasonService) : ControllerBase
+public class SeasonController(ISeasonService seasonService, ISeasonRecapService recapService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
@@ -25,6 +26,14 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
     {
         var season = await seasonService.GetByIdAsync(id, UserId);
         return Ok(season);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{id}/recap")]
+    public async Task<IActionResult> GetRecap(int id)
+    {
+        var recap = await recapService.GetRecapAsync(id);
+        return Ok(recap);
     }
 
     [HttpPost]
@@ -66,6 +75,13 @@ public class SeasonController(ISeasonService seasonService) : ControllerBase
     public async Task<IActionResult> PatchVideoGame(int id, UpdateSeasonVideoGameRequest request)
     {
         await seasonService.PatchVideoGameAsync(id, UserId, request.VideoGameId);
+        return NoContent();
+    }
+
+    [HttpPatch("{id}/dates")]
+    public async Task<IActionResult> PatchDates(int id, PatchDatesRequest request)
+    {
+        await seasonService.PatchDatesAsync(id, UserId, request.StartDate, request.EndDate);
         return NoContent();
     }
 

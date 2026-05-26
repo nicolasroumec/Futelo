@@ -12,6 +12,7 @@ public class PlayerStatsResponse
     public int Lost { get; set; }
     public int GoalsFor { get; set; }
     public int GoalsAgainst { get; set; }
+    public int GoalDifference => GoalsFor - GoalsAgainst;
     public int EloRating { get; set; }
     public int CurrentStreak { get; set; }
     public StreakType CurrentStreakType { get; set; }
@@ -31,4 +32,5 @@ public class TeamUsageRow
     public int Lost { get; set; }
     public int GoalsFor { get; set; }
     public int GoalsAgainst { get; set; }
+    public int GoalDifference => GoalsFor - GoalsAgainst;
 }

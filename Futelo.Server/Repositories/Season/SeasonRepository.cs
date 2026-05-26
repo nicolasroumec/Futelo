@@ -42,7 +42,7 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         await SaveChangesAsync();
     }
 
-    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, string leagueName, bool leagueIsHomeAndAway, bool hasCup, string cupName, bool hasSuperCup, string superCupName)
+    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, string leagueName, bool leagueIsHomeAndAway, TiebreakerRule leagueTiebreakerRule, DateTime? leagueStartDate, DateTime? leagueEndDate, bool hasCup, string cupName, bool cupIsHomeAndAway, CupSeedingMode cupSeedingMode, bool cupAwayGoalRule, DateTime? cupStartDate, DateTime? cupEndDate, bool hasSuperCup, string superCupName, DateTime? superCupStartDate, DateTime? superCupEndDate)
     {
         var existing = await Context.Set<SeasonPlayer>().Where(p => p.SeasonId == seasonId).ToListAsync();
         Context.Set<SeasonPlayer>().RemoveRange(existing);
@@ -50,28 +50,42 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 
         var league = await Context.Set<Models.League>().FirstOrDefaultAsync(l => l.SeasonId == seasonId);
         if (hasLeague && league == null)
-            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId, Name = leagueName, IsHomeAndAway = leagueIsHomeAndAway });
+            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId, Name = leagueName, IsHomeAndAway = leagueIsHomeAndAway, TiebreakerRule = leagueTiebreakerRule, StartDate = leagueStartDate, EndDate = leagueEndDate });
         else if (hasLeague && league != null)
         {
             league.Name = leagueName;
             league.IsHomeAndAway = leagueIsHomeAndAway;
+            league.TiebreakerRule = leagueTiebreakerRule;
+            league.StartDate = leagueStartDate;
+            league.EndDate = leagueEndDate;
         }
         else if (!hasLeague && league != null)
             Context.Set<Models.League>().Remove(league);
 
         var cup = await Context.Set<Models.Cup>().FirstOrDefaultAsync(c => c.SeasonId == seasonId);
         if (hasCup && cup == null)
-            Context.Set<Models.Cup>().Add(new Models.Cup { SeasonId = seasonId, Name = cupName });
+            Context.Set<Models.Cup>().Add(new Models.Cup { SeasonId = seasonId, Name = cupName, IsHomeAndAway = cupIsHomeAndAway, SeedingMode = cupSeedingMode, AwayGoalRule = cupAwayGoalRule, StartDate = cupStartDate, EndDate = cupEndDate });
         else if (hasCup && cup != null)
+        {
             cup.Name = cupName;
+            cup.IsHomeAndAway = cupIsHomeAndAway;
+            cup.SeedingMode = cupSeedingMode;
+            cup.AwayGoalRule = cupAwayGoalRule;
+            cup.StartDate = cupStartDate;
+            cup.EndDate = cupEndDate;
+        }
         else if (!hasCup && cup != null)
             Context.Set<Models.Cup>().Remove(cup);
 
         var superCup = await Context.Set<Models.SuperCup>().FirstOrDefaultAsync(sc => sc.SeasonId == seasonId);
         if (hasSuperCup && superCup == null)
-            Context.Set<Models.SuperCup>().Add(new Models.SuperCup { SeasonId = seasonId, Name = superCupName });
+            Context.Set<Models.SuperCup>().Add(new Models.SuperCup { SeasonId = seasonId, Name = superCupName, StartDate = superCupStartDate, EndDate = superCupEndDate });
         else if (hasSuperCup && superCup != null)
+        {
             superCup.Name = superCupName;
+            superCup.StartDate = superCupStartDate;
+            superCup.EndDate = superCupEndDate;
+        }
         else if (!hasSuperCup && superCup != null)
             Context.Set<Models.SuperCup>().Remove(superCup);
 
@@ -91,6 +105,15 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         var season = await Context.Set<Models.Season>().FindAsync(seasonId);
         if (season == null) return;
         season.VideoGameId = videoGameId;
+        await SaveChangesAsync();
+    }
+
+    public async Task PatchDatesAsync(int seasonId, DateTime? startDate, DateTime? endDate)
+    {
+        var season = await Context.Set<Models.Season>().FindAsync(seasonId);
+        if (season == null) return;
+        season.StartDate = startDate;
+        season.EndDate = endDate;
         await SaveChangesAsync();
     }
 

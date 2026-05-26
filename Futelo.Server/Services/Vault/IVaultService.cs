@@ -7,6 +7,7 @@ public interface IVaultService
     Task<List<VaultResponse>> GetUserVaultsAsync(string userId);
     Task<VaultResponse> GetByIdAsync(int id, string userId);
     Task<List<RecentMatchResponse>> GetRecentMatchesAsync(int id, string userId, int limit);
+    Task<List<FeedEventDto>> GetFeedAsync(int vaultId, string userId, int limit);
     Task<MatchHistoryPageResponse> GetMatchHistoryAsync(int id, string userId, int page, int pageSize, string? competitionType = null);
     Task<VaultResponse> CreateAsync(string ownerId, CreateVaultRequest request);
     Task UpdateAsync(int id, string userId, UpdateVaultRequest request);

@@ -6,6 +6,7 @@ using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using static Futelo.Client.Shared.AchievementMeta;
 
 namespace Futelo.Client.Pages.Player;
 
@@ -20,14 +21,16 @@ public partial class PlayerProfile : LocalizedComponentBase
 
     private PlayerStatsResponse? stats;
     private PlayerRecordsResponse? records;
-    private List<EloHistoryPoint> eloHistory = [];
+    private GlobalEloHistoryResponse? globalEloHistory;
+    private string? competitionFilter;
     private List<RecentFormEntry> recentForm = [];
     private List<RecentMatchResponse> recentMatches = [];
+    private List<PlayerAchievementResponse> achievements = [];
     private List<VaultPlayerResponse> opponents = [];
     private string selectedOpponentId = string.Empty;
     private string? selectedTitleCompetition;
     private bool isLoading = true;
-    private bool chartRendered = false;
+    private bool globalChartRendered = false;
     private bool countersAnimated = false;
     private string? errorMessage;
 
@@ -39,10 +42,11 @@ public partial class PlayerProfile : LocalizedComponentBase
         try
         {
             stats = await StatsService.GetPlayerStatsAsync(PlayerId, VaultId, ComponentToken);
-            eloHistory = await StatsService.GetEloHistoryAsync(VaultId, PlayerId, ComponentToken);
+            globalEloHistory = await StatsService.GetGlobalEloHistoryAsync(VaultId, PlayerId, ct: ComponentToken);
             recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId, ComponentToken);
             recentMatches = await StatsService.GetPlayerRecentMatchesAsync(VaultId, PlayerId, ct: ComponentToken);
             records = await StatsService.GetPlayerRecordsAsync(VaultId, PlayerId, ComponentToken);
+            achievements = await StatsService.GetPlayerAchievementsAsync(VaultId, PlayerId, ComponentToken);
             var vault = await VaultService.GetByIdAsync(VaultId, ComponentToken);
             opponents = vault.Players.Where(p => p.PlayerId != PlayerId).ToList();
             if (opponents.Count > 0)
@@ -67,12 +71,10 @@ public partial class PlayerProfile : LocalizedComponentBase
             _ = AnimateCountersAsync();
         }
 
-        if (!isLoading && !chartRendered && eloHistory.Count > 0)
+        if (!isLoading && !globalChartRendered && globalEloHistory?.Points.Count > 0)
         {
-            chartRendered = true;
-            var labels = Enumerable.Range(0, eloHistory.Count).Select(i => i.ToString()).ToArray();
-            var data = eloHistory.Select(p => p.Elo).ToArray();
-            await JS.InvokeVoidAsync("renderEloChart", "elo-chart", labels, data);
+            globalChartRendered = true;
+            await RenderGlobalChart();
         }
     }
 
@@ -105,10 +107,29 @@ public partial class PlayerProfile : LocalizedComponentBase
         await InvokeAsync(StateHasChanged);
     }
 
+    private async Task RenderGlobalChart()
+    {
+        if (globalEloHistory == null || globalEloHistory.Points.Count == 0) return;
+        var labels = globalEloHistory.Points.Select(p => p.Date.ToString("dd/MM/yy")).ToArray();
+        var data = globalEloHistory.Points.Select(p => p.Elo).ToArray();
+        var seasons = globalEloHistory.Seasons
+            .Select(s => new { name = s.Name, firstPointIndex = s.FirstPointIndex })
+            .ToArray();
+        await JS.InvokeVoidAsync("renderGlobalEloChart", "global-elo-chart", labels, data, seasons);
+    }
+
+    private async Task SetFilter(string? filter)
+    {
+        competitionFilter = filter;
+        globalChartRendered = false;
+        globalEloHistory = await StatsService.GetGlobalEloHistoryAsync(VaultId, PlayerId, competition: filter, ct: ComponentToken);
+        StateHasChanged();
+    }
+
     private void NavigateToH2H()
     {
         if (!string.IsNullOrEmpty(selectedOpponentId))
-            Navigation.NavigateTo($"/vaults/{VaultId}/h2h/{PlayerId}/{selectedOpponentId}");
+            Navigation.NavigateTo($"/vaults/{VaultId}/compare/{PlayerId}/{selectedOpponentId}");
     }
 
     private string StreakLabel()

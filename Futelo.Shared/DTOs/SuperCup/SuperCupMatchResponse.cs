@@ -14,6 +14,7 @@ public class SuperCupMatchResponse
     public int? AwayPenaltyScore { get; set; }
     public string Status { get; set; } = string.Empty;
     public int Leg { get; set; }
+    public DateTime? ScheduledDate { get; set; }
     public DateTime? PlayedAt { get; set; }
     public int? HomeTeamId { get; set; }
     public string? HomeTeamName { get; set; }

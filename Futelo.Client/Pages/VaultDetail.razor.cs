@@ -24,7 +24,7 @@ public partial class VaultDetail : LocalizedComponentBase
 
     private VaultResponse? vault;
     private List<SeasonResponse> seasons = [];
-    private List<RecentMatchResponse> recentMatches = [];
+    private List<FeedEventDto> feed = [];
     private bool isOwner;
     private bool isAdmin;
     private bool isLoading = true;
@@ -48,10 +48,10 @@ public partial class VaultDetail : LocalizedComponentBase
             isOwner = vault.OwnerId == userId;
             isAdmin = vault.Players.Any(p => p.PlayerId == userId && p.Role == VaultRole.Admin);
             var seasonsTask = SeasonService.GetByVaultAsync(Id, ComponentToken);
-            var recentMatchesTask = VaultService.GetRecentMatchesAsync(Id, 5, ComponentToken);
-            await Task.WhenAll(seasonsTask, recentMatchesTask);
+            var feedTask = VaultService.GetFeedAsync(Id, 5, ComponentToken);
+            await Task.WhenAll(seasonsTask, feedTask);
             seasons = seasonsTask.Result;
-            recentMatches = recentMatchesTask.Result;
+            feed = feedTask.Result;
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
@@ -105,13 +105,9 @@ public partial class VaultDetail : LocalizedComponentBase
         _ => "bg-secondary"
     };
 
-    private static string MatchScore(RecentMatchResponse m)
-    {
-        var score = $"{m.HomeScore} - {m.AwayScore}";
-        if (m.WonOnPenaltiesId is not null)
-            score += $" ({m.HomePenaltyScore}-{m.AwayPenaltyScore} pen.)";
-        return score;
-    }
+    private static string EloChangeClass(int change) => change >= 0 ? "text-success" : "text-danger";
+    private static string FormatEloChange(int change) => change >= 0 ? $"+{change}" : $"{change}";
+    private static string RankChange(int before, int after) => before > 0 ? $" · #{before}→#{after}" : "";
 
     private async Task HandleInvite()
     {
@@ -120,7 +116,7 @@ public partial class VaultDetail : LocalizedComponentBase
         try
         {
             var result = await VaultService.InviteAsync(Id, inviteModel);
-            inviteLink = $"{Navigation.BaseUri}invitations/{result.Token}/accept";
+            inviteLink = $"{Navigation.BaseUri}invite/join?token={result.Token}";
         }
         catch (Exception ex)
         {

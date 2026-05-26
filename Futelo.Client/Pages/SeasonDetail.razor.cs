@@ -5,12 +5,14 @@ using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 
 namespace Futelo.Client.Pages;
 
@@ -23,6 +25,7 @@ public partial class SeasonDetail : LocalizedComponentBase
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private SeasonResponse? season;
@@ -41,6 +44,11 @@ public partial class SeasonDetail : LocalizedComponentBase
     private bool isDeleting;
     private bool confirmDelete;
     private string? errorMessage;
+
+    private bool editingSeasonDates;
+    private DateOnly? editSeasonStartDate;
+    private DateOnly? editSeasonEndDate;
+    private bool isSavingSeasonDates;
 
     private bool HasRightContent => season != null &&
         (season.TopStandings.Count > 0 || season.RecentMatches.Count > 0
@@ -84,6 +92,36 @@ public partial class SeasonDetail : LocalizedComponentBase
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private void BeginEditSeasonDates()
+    {
+        editSeasonStartDate = season?.StartDate is { } s ? DateOnly.FromDateTime(s) : null;
+        editSeasonEndDate = season?.EndDate is { } e ? DateOnly.FromDateTime(e) : null;
+        editingSeasonDates = true;
+    }
+
+    private async Task HandlePatchSeasonDates()
+    {
+        isSavingSeasonDates = true;
+        try
+        {
+            await SeasonService.PatchDatesAsync(Id, new PatchDatesRequest
+            {
+                StartDate = editSeasonStartDate is { } s ? s.ToDateTime(TimeOnly.MinValue) : null,
+                EndDate = editSeasonEndDate is { } e ? e.ToDateTime(TimeOnly.MinValue) : null,
+            });
+            editingSeasonDates = false;
+            season = await SeasonService.GetByIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isSavingSeasonDates = false;
         }
     }
 
@@ -171,6 +209,12 @@ public partial class SeasonDetail : LocalizedComponentBase
         {
             isActivating = false;
         }
+    }
+
+    private async Task CopyRecapLink()
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", $"{Nav.BaseUri}seasons/{Id}/recap");
+        Toast.Show("Link copied!");
     }
 
     private async Task HandleConfigure()

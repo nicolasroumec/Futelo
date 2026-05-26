@@ -1,0 +1,141 @@
+@page "/vaults/{vaultId:int}/compare/{player1Id}/{player2Id}"
+@inherits LocalizedComponentBase
+@attribute [Authorize]
+
+<PageTitle>@(p1?.DisplayName ?? "?") vs @(p2?.DisplayName ?? "?") - Futelo</PageTitle>
+
+@if (isLoading)
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="skeleton-block" style="width:3.5rem;height:2rem"></div>
+        <div class="skeleton-block" style="width:300px;height:1.75rem"></div>
+    </div>
+    <div class="skeleton-block mb-4" style="height:5.5rem;max-width:520px;border-radius:.5rem"></div>
+    <SkeletonTable Rows="12" Columns="3" />
+}
+else if (p1 == null || p2 == null)
+{
+    <p class="text-danger">@Lang.Get("player.notFound")</p>
+}
+else
+{
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/vaults/@VaultId/players/@Player1Id" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+        <h3 class="mb-0">@p1.DisplayName <span class="text-muted fw-normal">vs</span> @p2.DisplayName</h3>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mb-3">@errorMessage</div>
+    }
+
+    @* H2H card *@
+    @if (h2h != null && h2h.Played > 0)
+    {
+        var p1w = H2DP1Width(h2h);
+        <div class="card mb-4" style="max-width:520px">
+            <div class="card-body">
+                <h6 class="text-muted mb-3">@Lang.Get("headToHead.title")</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold">@p1.DisplayName</span>
+                    <div class="text-center">
+                        <div class="fs-5 fw-bold">@h2h.Player1Wins – @h2h.Player2Wins</div>
+                        <div class="text-muted small">@h2h.Draws @Lang.Get("headToHead.draws") · @h2h.Played @Lang.Get("stats.played")</div>
+                    </div>
+                    <span class="fw-semibold">@p2.DisplayName</span>
+                </div>
+                @if (h2h.Player1Wins + h2h.Player2Wins > 0)
+                {
+                    <div class="h2h-bar">
+                        <div class="h2h-bar__p1" style="width:@p1w%"></div>
+                        <div class="h2h-bar__p2" style="width:@(100 - p1w)%"></div>
+                    </div>
+                }
+                <div class="text-center mt-2">
+                    <a href="/vaults/@VaultId/h2h/@Player1Id/@Player2Id" class="text-muted small">
+                        @Lang.Get("player.viewMatchHistory") →
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* Stats comparison table *@
+    <div style="max-width:520px">
+        <table class="compare-table w-100">
+            <thead>
+                <tr>
+                    <th class="text-end">@p1.DisplayName</th>
+                    <th class="compare-label"></th>
+                    <th>@p2.DisplayName</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-end @WinnerClass(p1.EloRating, p2.EloRating)">@p1.EloRating</td>
+                    <td class="compare-label">ELO</td>
+                    <td class="@WinnerClass(p2.EloRating, p1.EloRating)">@p2.EloRating</td>
+                </tr>
+                <tr>
+                    <td class="text-end @WinnerClass(WinRate(p1), WinRate(p2))">@WinRate(p1)%</td>
+                    <td class="compare-label">@Lang.Get("player.winRate")</td>
+                    <td class="@WinnerClass(WinRate(p2), WinRate(p1))">@WinRate(p2)%</td>
+                </tr>
+                <tr>
+                    <td class="text-end">@p1.Played</td>
+                    <td class="compare-label">@Lang.Get("stats.played")</td>
+                    <td>@p2.Played</td>
+                </tr>
+                <tr>
+                    <td class="text-end @WinnerClass(p1.Won, p2.Won)">@p1.Won</td>
+                    <td class="compare-label">@Lang.Get("stats.wins")</td>
+                    <td class="@WinnerClass(p2.Won, p1.Won)">@p2.Won</td>
+                </tr>
+                <tr>
+                    <td class="text-end">@p1.Drawn</td>
+                    <td class="compare-label">@Lang.Get("stats.draws")</td>
+                    <td>@p2.Drawn</td>
+                </tr>
+                <tr>
+                    <td class="text-end @WinnerClass(p1.Lost, p2.Lost, lowerIsBetter: true)">@p1.Lost</td>
+                    <td class="compare-label">@Lang.Get("stats.losses")</td>
+                    <td class="@WinnerClass(p2.Lost, p1.Lost, lowerIsBetter: true)">@p2.Lost</td>
+                </tr>
+                <tr>
+                    <td class="text-end @WinnerClass(p1.GoalsFor, p2.GoalsFor)">@p1.GoalsFor</td>
+                    <td class="compare-label">@Lang.Get("league.goalsFor")</td>
+                    <td class="@WinnerClass(p2.GoalsFor, p1.GoalsFor)">@p2.GoalsFor</td>
+                </tr>
+                <tr>
+                    <td class="text-end @WinnerClass(p1.GoalsAgainst, p2.GoalsAgainst, lowerIsBetter: true)">@p1.GoalsAgainst</td>
+                    <td class="compare-label">@Lang.Get("league.goalsAgainst")</td>
+                    <td class="@WinnerClass(p2.GoalsAgainst, p1.GoalsAgainst, lowerIsBetter: true)">@p2.GoalsAgainst</td>
+                </tr>
+                <tr>
+                    <td class="text-end @WinnerClass(p1.GoalDifference, p2.GoalDifference)">@SignedInt(p1.GoalDifference)</td>
+                    <td class="compare-label">@Lang.Get("league.goalDiff")</td>
+                    <td class="@WinnerClass(p2.GoalDifference, p1.GoalDifference)">@SignedInt(p2.GoalDifference)</td>
+                </tr>
+                <tr>
+                    <td class="text-end @WinnerClass(p1.BestWinStreak, p2.BestWinStreak)">@p1.BestWinStreak</td>
+                    <td class="compare-label">@Lang.Get("stats.bestWinStreak")</td>
+                    <td class="@WinnerClass(p2.BestWinStreak, p1.BestWinStreak)">@p2.BestWinStreak</td>
+                </tr>
+                <tr>
+                    <td class="text-end @WinnerClass(p1.BestUnbeatenStreak, p2.BestUnbeatenStreak)">@p1.BestUnbeatenStreak</td>
+                    <td class="compare-label">@Lang.Get("stats.bestUnbeatenRun")</td>
+                    <td class="@WinnerClass(p2.BestUnbeatenStreak, p1.BestUnbeatenStreak)">@p2.BestUnbeatenStreak</td>
+                </tr>
+                <tr>
+                    <td class="text-end">
+                        <span class="badge @StreakBadgeClass(p1)">@StreakLabel(p1)</span>
+                    </td>
+                    <td class="compare-label">@Lang.Get("player.currentStreak")</td>
+                    <td>
+                        <span class="badge @StreakBadgeClass(p2)">@StreakLabel(p2)</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}

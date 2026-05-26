@@ -44,6 +44,29 @@ else
     <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
     <p class="text-muted">@Lang.Get("season.videoGame"): @(season.VideoGameName ?? "—")</p>
 
+    @if (editingSeasonDates)
+    {
+        <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editSeasonStartDate" />
+            <span class="text-muted">→</span>
+            <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editSeasonEndDate" />
+            <button class="btn btn-sm btn-primary" disabled="@isSavingSeasonDates" @onclick="HandlePatchSeasonDates">
+                @(isSavingSeasonDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingSeasonDates = false">@Lang.Get("common.cancel")</button>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
+            <span>📅 @(season.StartDate.HasValue ? season.StartDate.Value.ToString("dd MMM yyyy") : "—") → @(season.EndDate.HasValue ? season.EndDate.Value.ToString("dd MMM yyyy") : "—")</span>
+            @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
+            {
+                <button class="btn btn-link btn-sm p-0 text-muted" @onclick="BeginEditSeasonDates">✏️</button>
+            }
+        </div>
+    }
+
     @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
     {
         <div class="d-flex align-items-center gap-2 mb-3" style="max-width:420px">
@@ -63,6 +86,11 @@ else
 
     <div class="d-flex gap-2 mb-3">
         <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
+        @if (season.Status == "Finished")
+        {
+            <a href="/seasons/@season.Id/recap" class="btn btn-outline-secondary btn-sm">Recap</a>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="CopyRecapLink">Copy recap link</button>
+        }
         @if (isOwner && season.Status == "Active")
         {
             <button class="btn btn-outline-danger btn-sm" disabled="@(!CanFinish || isFinishing)"

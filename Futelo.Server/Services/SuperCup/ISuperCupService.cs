@@ -9,5 +9,6 @@ public interface ISuperCupService
     Task<RecordSuperCupResultResponse> RecordResultAsync(
         int superCupId, int matchId, int homeScore, int awayScore,
         string? wonOnPenaltiesId, int? homePenaltyScore, int? awayPenaltyScore, string userId);
-    Task PatchMatchAsync(int superCupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, string userId);
+    Task PatchMatchAsync(int superCupId, int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate, string userId);
+    Task PatchDatesAsync(int superCupId, string userId, DateTime? startDate, DateTime? endDate);
 }

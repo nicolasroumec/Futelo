@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Futelo.Server.Services.League;
+using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,20 @@ public class LeagueController(ILeagueService leagueService) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("{id}/start-manual")]
+    public async Task<IActionResult> StartManual(int id)
+    {
+        await leagueService.StartManualAsync(id, UserId);
+        return NoContent();
+    }
+
+    [HttpPost("{id}/matches")]
+    public async Task<IActionResult> AddMatch(int id, AddLeagueMatchRequest request)
+    {
+        await leagueService.AddMatchManuallyAsync(id, request, UserId);
+        return NoContent();
+    }
+
     [HttpPut("{id}/reshuffle")]
     public async Task<IActionResult> Reshuffle(int id)
     {
@@ -37,7 +52,14 @@ public class LeagueController(ILeagueService leagueService) : ControllerBase
     [HttpPatch("{id}/matches/{matchId}")]
     public async Task<IActionResult> PatchMatch(int id, int matchId, PatchMatchRequest request)
     {
-        await leagueService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, UserId);
+        await leagueService.PatchMatchAsync(id, matchId, request.HomeTeamId, request.AwayTeamId, request.VideoGameId, request.ScheduledDate, UserId);
+        return NoContent();
+    }
+
+    [HttpPatch("{id}/dates")]
+    public async Task<IActionResult> PatchDates(int id, PatchDatesRequest request)
+    {
+        await leagueService.PatchDatesAsync(id, UserId, request.StartDate, request.EndDate);
         return NoContent();
     }
 

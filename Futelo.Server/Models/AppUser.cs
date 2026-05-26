@@ -10,4 +10,5 @@ public class AppUser : IdentityUser
 
     public ICollection<VaultPlayer> VaultPlayers { get; set; } = [];
     public ICollection<EloHistory> EloHistories { get; set; } = [];
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 }

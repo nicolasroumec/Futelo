@@ -13,6 +13,8 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
             .Include(c => c.Season).ThenInclude(s => s.Vault).ThenInclude(v => v.Players)
             .Include(c => c.Season).ThenInclude(s => s.Players).ThenInclude(sp => sp.Player)
             .Include(c => c.Season).ThenInclude(s => s.Players).ThenInclude(sp => sp.Team)
+            .Include(c => c.Season).ThenInclude(s => s.League).ThenInclude(l => l!.Matches)
+            .Include(c => c.Season).ThenInclude(s => s.League).ThenInclude(l => l!.Players)
             .Include(c => c.Players).ThenInclude(cp => cp.Player)
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.HomePlayer)
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.AwayPlayer)
@@ -132,13 +134,53 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
         await SaveChangesAsync();
     }
 
-    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId)
+    public async Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate)
     {
         var match = await Context.Set<Match>().FindAsync(matchId);
         if (match == null) return;
         match.HomeTeamId = homeTeamId;
         match.AwayTeamId = awayTeamId;
         match.VideoGameId = videoGameId;
+        match.ScheduledDate = scheduledDate;
+        await SaveChangesAsync();
+    }
+
+    public async Task PatchDatesAsync(int cupId, DateTime? startDate, DateTime? endDate)
+    {
+        var cup = await Context.Set<Models.Cup>().FindAsync(cupId);
+        if (cup == null) return;
+        cup.StartDate = startDate;
+        cup.EndDate = endDate;
+        await SaveChangesAsync();
+    }
+
+    public async Task InitPlayersAsync(int cupId, List<CupPlayer> players)
+    {
+        var existing = await Context.Set<CupPlayer>().Where(cp => cp.CupId == cupId).ToListAsync();
+        Context.Set<CupPlayer>().RemoveRange(existing);
+        Context.Set<CupPlayer>().AddRange(players);
+        await SaveChangesAsync();
+    }
+
+    public async Task ActivateManualAsync(int cupId)
+    {
+        var cup = await Context.Set<Models.Cup>().FindAsync(cupId);
+        if (cup == null) return;
+        cup.IsManual = true;
+        cup.Status = TournamentStatus.Active;
+        await SaveChangesAsync();
+    }
+
+    public async Task<int> AddRoundAsync(CupRound round)
+    {
+        Context.Set<CupRound>().Add(round);
+        await SaveChangesAsync();
+        return round.Id;
+    }
+
+    public async Task AddMatchToRoundAsync(Match match)
+    {
+        Context.Set<Match>().Add(match);
         await SaveChangesAsync();
     }
 }

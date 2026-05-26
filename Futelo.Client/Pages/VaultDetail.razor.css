@@ -1,0 +1,10 @@
+.feed-elo-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    font-size: 0.72rem;
+    margin-top: 0.15rem;
+}
+
+.feed-elo-away {
+    text-align: right;
+}

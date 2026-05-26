@@ -11,6 +11,7 @@ public interface IStatsService
     Task<List<RankingRow>> GetRankingAsync(int seasonId, int vaultId, CancellationToken ct = default);
     Task<List<PalmaresSeasonRow>> GetPalmaresAsync(int vaultId, CancellationToken ct = default);
     Task<List<EloHistoryPoint>> GetEloHistoryAsync(int vaultId, string playerId, CancellationToken ct = default);
+    Task<GlobalEloHistoryResponse> GetGlobalEloHistoryAsync(int vaultId, string playerId, string? competition = null, CancellationToken ct = default);
     Task<List<ScorerRow>> GetScorersAsync(int vaultId, CancellationToken ct = default);
     Task<VaultRecordsResponse> GetVaultRecordsAsync(int vaultId, CancellationToken ct = default);
     Task<List<TeamPanelRow>> GetTeamPanelAsync(int vaultId, CancellationToken ct = default);
@@ -20,4 +21,6 @@ public interface IStatsService
     Task<MatchHistoryPageResponse> GetPlayerMatchHistoryAsync(int vaultId, string playerId, int page = 1, int pageSize = 10, string? competitionType = null, CancellationToken ct = default);
     Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, CancellationToken ct = default);
     Task<PlayerRecordsResponse> GetPlayerRecordsAsync(int vaultId, string playerId, CancellationToken ct = default);
+    Task<List<AllTimeStandingRow>> GetAllTimeStandingsAsync(int vaultId, CancellationToken ct = default);
+    Task<List<PlayerAchievementResponse>> GetPlayerAchievementsAsync(int vaultId, string playerId, CancellationToken ct = default);
 }

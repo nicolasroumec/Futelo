@@ -10,6 +10,8 @@ public class Season
     public int Year { get; set; }
     public SeasonStatus Status { get; set; } = SeasonStatus.Draft;
     public int? VideoGameId { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
 
     public Vault Vault { get; set; } = null!;
     public VideoGame? VideoGame { get; set; }

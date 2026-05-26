@@ -2,6 +2,7 @@ using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Season;
 using Futelo.Server.Repositories.Vault;
+using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.Enums;
 
@@ -9,7 +10,7 @@ namespace Futelo.Server.Services.Season;
 
 using static ErrorMessages;
 
-public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository vaultRepository, ILogger<SeasonService> logger) : ISeasonService
+public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository vaultRepository, IAchievementEngine achievementEngine) : ISeasonService
 {
     public async Task<List<SeasonResponse>> GetByVaultAsync(int vaultId, string userId)
     {
@@ -44,7 +45,9 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             Name = request.Name,
             Year = request.Year,
             Status = SeasonStatus.Draft,
-            VideoGameId = request.VideoGameId
+            VideoGameId = request.VideoGameId,
+            StartDate = request.StartDate,
+            EndDate = request.EndDate
         };
         await seasonRepository.CreateAsync(season);
         var created = await seasonRepository.GetByIdAsync(season.Id);
@@ -74,7 +77,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             SeasonElo = EloCalculator.InitialElo
         }).ToList();
 
-        await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.HasCup, request.CupName, request.HasSuperCup, request.SuperCupName);
+        await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.LeagueTiebreakerRule, request.LeagueStartDate, request.LeagueEndDate, request.HasCup, request.CupName, request.CupIsHomeAndAway, request.CupSeedingMode, request.CupAwayGoalRule, request.CupStartDate, request.CupEndDate, request.HasSuperCup, request.SuperCupName, request.SuperCupStartDate, request.SuperCupEndDate);
     }
 
     public async Task FinishAsync(int id, string userId)
@@ -99,6 +102,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             throw new InvalidOperationException($"The following competitions must be finished first: {string.Join(", ", pending)}.");
 
         await seasonRepository.UpdateStatusAsync(id, SeasonStatus.Finished);
+        await achievementEngine.EvaluateAfterSeasonAsync(id, season.VaultId);
     }
 
     public async Task SetPlayerTeamAsync(int id, string playerId, string userId, int? teamId)
@@ -136,6 +140,17 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         await seasonRepository.PatchVideoGameAsync(id, videoGameId);
     }
 
+    public async Task PatchDatesAsync(int id, string userId, DateTime? startDate, DateTime? endDate)
+    {
+        var season = await seasonRepository.GetByIdAsync(id);
+        if (season == null || season.Vault.Players.All(p => p.PlayerId != userId))
+            throw new KeyNotFoundException(SeasonNotFound);
+        if (season.Vault.OwnerId != userId)
+            throw new UnauthorizedAccessException(OnlyOwnerCanUpdateSeason);
+
+        await seasonRepository.PatchDatesAsync(id, startDate, endDate);
+    }
+
     public async Task ActivateAsync(int id, string userId)
     {
         var season = await seasonRepository.GetByIdAsync(id);
@@ -160,20 +175,32 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         Name = season.Name,
         Year = season.Year,
         Status = season.Status.ToString(),
+        StartDate = season.StartDate,
+        EndDate = season.EndDate,
         VideoGameId = season.VideoGameId,
         VideoGameName = season.VideoGame?.Name,
         HasLeague = season.League != null,
         LeagueId = season.League?.Id,
         LeagueName = season.League?.Name ?? "League",
         LeagueIsHomeAndAway = season.League?.IsHomeAndAway ?? false,
+        LeagueTiebreakerRule = season.League?.TiebreakerRule ?? TiebreakerRule.GoalDifference,
+        LeagueStartDate = season.League?.StartDate,
+        LeagueEndDate = season.League?.EndDate,
         LeagueStatus = season.League?.Status.ToString(),
         HasCup = season.Cup != null,
         CupId = season.Cup?.Id,
         CupName = season.Cup?.Name ?? "Cup",
+        CupIsHomeAndAway = season.Cup?.IsHomeAndAway ?? false,
+        CupSeedingMode = season.Cup?.SeedingMode ?? CupSeedingMode.SeasonElo,
+        CupAwayGoalRule = season.Cup?.AwayGoalRule ?? false,
+        CupStartDate = season.Cup?.StartDate,
+        CupEndDate = season.Cup?.EndDate,
         CupStatus = season.Cup?.Status.ToString(),
         HasSuperCup = season.SuperCup != null,
         SuperCupId = season.SuperCup?.Id,
         SuperCupName = season.SuperCup?.Name ?? "SuperCup",
+        SuperCupStartDate = season.SuperCup?.StartDate,
+        SuperCupEndDate = season.SuperCup?.EndDate,
         SuperCupStatus = season.SuperCup?.Status.ToString(),
         Players = season.Players.Select(p => new SeasonPlayerResponse
         {
@@ -224,6 +251,6 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             return [];
 
         var played = season.League.Matches.Where(m => m.Status == MatchStatus.Played).ToList();
-        return StandingsCalculator.Compute(played, season.League.Players).Take(3).ToList();
+        return StandingsCalculator.Compute(played, season.League.Players, season.League.TiebreakerRule).Take(3).ToList();
     }
 }

@@ -1,0 +1,29 @@
+@page "/invite/join"
+
+<PageTitle>Join Vault - Futelo</PageTitle>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4 text-center">
+        @if (isLoading)
+        {
+            <p>Loading invitation...</p>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+            <a href="/" class="btn btn-outline-secondary mt-2">Go to Home</a>
+        }
+        else if (preview is not null)
+        {
+            <div class="card p-4">
+                <p class="text-muted mb-1">You're invited to join</p>
+                <h3 class="mb-1">@preview.VaultName</h3>
+                <p class="text-muted small mb-4">Role: @preview.Role &middot; Expires @preview.ExpiresAt.ToLocalTime().ToString("MMM d, yyyy")</p>
+                <div class="d-flex flex-column gap-2">
+                    <a href="@LoginUrl" class="btn btn-primary">Login to join</a>
+                    <a href="@RegisterUrl" class="btn btn-outline-primary">Create account &amp; join</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
