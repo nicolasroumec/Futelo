@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.SuperCup;
+using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs.SuperCup;
 using Futelo.Shared.Enums;
 
@@ -8,7 +9,7 @@ namespace Futelo.Server.Services.SuperCup;
 
 using static ErrorMessages;
 
-public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCupService
+public class SuperCupService(ISuperCupRepository superCupRepository, IAchievementEngine achievementEngine) : ISuperCupService
 {
     public async Task<SuperCupResponse> GetByIdAsync(int superCupId, string userId)
     {
@@ -226,6 +227,22 @@ public class SuperCupService(ISuperCupRepository superCupRepository) : ISuperCup
             HomeTeamId = homesp.TeamId,
             AwayTeamId = awaysp.TeamId
         });
+
+        await achievementEngine.EvaluateAfterMatchAsync(new MatchAchievementContext(
+            MatchId: matchId,
+            VaultId: superCup.Season.VaultId,
+            SeasonId: superCup.SeasonId,
+            HomePlayerId: match.HomePlayerId,
+            AwayPlayerId: match.AwayPlayerId,
+            HomeScore: homeScore,
+            AwayScore: awayScore,
+            WonOnPenaltiesId: wonOnPenaltiesId,
+            HomeOldHistElo: homeHistElo,
+            HomeNewHistElo: homeNewHistElo,
+            AwayOldHistElo: awayHistElo,
+            AwayNewHistElo: awayNewHistElo,
+            IsFinal: true
+        ));
 
         return new RecordSuperCupResultResponse
         {

@@ -2,6 +2,7 @@ using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Season;
 using Futelo.Server.Repositories.Vault;
+using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.Enums;
 
@@ -9,7 +10,7 @@ namespace Futelo.Server.Services.Season;
 
 using static ErrorMessages;
 
-public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository vaultRepository) : ISeasonService
+public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository vaultRepository, IAchievementEngine achievementEngine) : ISeasonService
 {
     public async Task<List<SeasonResponse>> GetByVaultAsync(int vaultId, string userId)
     {
@@ -101,6 +102,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             throw new InvalidOperationException($"The following competitions must be finished first: {string.Join(", ", pending)}.");
 
         await seasonRepository.UpdateStatusAsync(id, SeasonStatus.Finished);
+        await achievementEngine.EvaluateAfterSeasonAsync(id, season.VaultId);
     }
 
     public async Task SetPlayerTeamAsync(int id, string playerId, string userId, int? teamId)

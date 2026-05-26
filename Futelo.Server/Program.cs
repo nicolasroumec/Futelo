@@ -2,6 +2,7 @@ using System.Text;
 using Futelo.Server.Data;
 using Futelo.Server.Filters;
 using Futelo.Server.Models;
+using Futelo.Server.Repositories.Achievement;
 using Futelo.Server.Repositories.Invitation;
 using Futelo.Server.Repositories.Cup;
 using Futelo.Server.Repositories.League;
@@ -9,6 +10,7 @@ using Futelo.Server.Repositories.Season;
 using Futelo.Server.Repositories.Teams;
 using Futelo.Server.Repositories.Vault;
 using Futelo.Server.Repositories.VideoGames;
+using Futelo.Server.Services.Achievement;
 using Futelo.Server.Services.Auth;
 using Futelo.Server.Services.Invitation;
 using Futelo.Server.Repositories.Stats;
@@ -61,6 +63,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddScoped<IAchievementRepository, AchievementRepository>();
+builder.Services.AddScoped<IAchievementEvaluationRepository, AchievementEvaluationRepository>();
+builder.Services.AddScoped<IAchievementEngine, AchievementEngine>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVaultRepository, VaultRepository>();
 builder.Services.AddScoped<IVaultService, VaultService>();

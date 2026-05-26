@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Cup;
+using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Cup;
 using Futelo.Shared.Enums;
@@ -9,7 +10,7 @@ namespace Futelo.Server.Services.Cup;
 
 using static ErrorMessages;
 
-public class CupService(ICupRepository cupRepository) : ICupService
+public class CupService(ICupRepository cupRepository, IAchievementEngine achievementEngine) : ICupService
 {
     public async Task<CupResponse> GetByIdAsync(int cupId, string userId)
     {
@@ -420,6 +421,22 @@ public class CupService(ICupRepository cupRepository) : ICupService
             HomeTeamId = homesp.TeamId,
             AwayTeamId = awaysp.TeamId
         });
+
+        await achievementEngine.EvaluateAfterMatchAsync(new MatchAchievementContext(
+            MatchId: matchId,
+            VaultId: cup.Season.VaultId,
+            SeasonId: cup.SeasonId,
+            HomePlayerId: match.HomePlayerId,
+            AwayPlayerId: match.AwayPlayerId,
+            HomeScore: homeScore,
+            AwayScore: awayScore,
+            WonOnPenaltiesId: wonOnPenaltiesId,
+            HomeOldHistElo: homeHistElo,
+            HomeNewHistElo: homeNewHistElo,
+            AwayOldHistElo: awayHistElo,
+            AwayNewHistElo: awayNewHistElo,
+            IsFinal: roundFromEnd == 0
+        ));
 
         return new RecordCupResultResponse
         {

@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.League;
+using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.Enums;
@@ -9,7 +10,7 @@ namespace Futelo.Server.Services.League;
 
 using static ErrorMessages;
 
-public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
+public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngine achievementEngine) : ILeagueService
 {
     public async Task<LeagueResponse> GetByIdAsync(int leagueId, string userId)
     {
@@ -230,6 +231,22 @@ public class LeagueService(ILeagueRepository leagueRepository) : ILeagueService
             HomeTeamId = homesp.TeamId,
             AwayTeamId = awaysp.TeamId
         });
+
+        await achievementEngine.EvaluateAfterMatchAsync(new MatchAchievementContext(
+            MatchId: matchId,
+            VaultId: league.Season.VaultId,
+            SeasonId: league.SeasonId,
+            HomePlayerId: match.HomePlayerId!,
+            AwayPlayerId: match.AwayPlayerId!,
+            HomeScore: homeScore,
+            AwayScore: awayScore,
+            WonOnPenaltiesId: null,
+            HomeOldHistElo: homesp.Player.EloRating,
+            HomeNewHistElo: elo.HomeNewHistElo,
+            AwayOldHistElo: awaysp.Player.EloRating,
+            AwayNewHistElo: elo.AwayNewHistElo,
+            IsFinal: false
+        ));
 
         return new RecordResultResponse
         {

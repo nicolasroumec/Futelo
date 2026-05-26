@@ -24,6 +24,7 @@ public class FuteloContext : IdentityDbContext<AppUser>
     public DbSet<Team> Teams { get; set; } = null!;
     public DbSet<VideoGame> VideoGames { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+    public DbSet<PlayerAchievement> PlayerAchievements { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -171,5 +172,15 @@ public class FuteloContext : IdentityDbContext<AppUser>
 
         builder.Entity<RefreshToken>()
             .HasIndex(rt => rt.TokenHash);
+
+        builder.Entity<PlayerAchievement>()
+            .HasOne(a => a.Player)
+            .WithMany()
+            .HasForeignKey(a => a.PlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<PlayerAchievement>()
+            .HasIndex(a => new { a.PlayerId, a.VaultId, a.Type })
+            .IsUnique();
     }
 }
