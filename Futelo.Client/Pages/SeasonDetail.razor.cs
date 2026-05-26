@@ -12,6 +12,7 @@ using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 
 namespace Futelo.Client.Pages;
 
@@ -24,6 +25,7 @@ public partial class SeasonDetail : LocalizedComponentBase
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
     [Inject] private NavigationManager Nav { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private SeasonResponse? season;
@@ -207,6 +209,12 @@ public partial class SeasonDetail : LocalizedComponentBase
         {
             isActivating = false;
         }
+    }
+
+    private async Task CopyRecapLink()
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", $"{Nav.BaseUri}seasons/{Id}/recap");
+        Toast.Show("Link copied!");
     }
 
     private async Task HandleConfigure()

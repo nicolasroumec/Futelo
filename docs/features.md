@@ -10,6 +10,7 @@ Status: ✅ done · 🔄 in progress · 📋 planned
 | Vault CRUD + player list | ✅ | `VaultController`, `VaultService`, `Pages/VaultDetail.razor` |
 | Vault invitations (email token) | ✅ | `InvitationsController`, `InvitationService`, `Pages/AcceptInvitation.razor` |
 | Invite by link (F4) | ✅ | `InvitationsController.GetPreview`, `Pages/InviteJoin.razor` |
+| Season recap page (F5) | ✅ | `SeasonRecapService`, `GET /api/seasons/{id}/recap`, `Pages/SeasonRecap.razor` |
 | Season lifecycle (Draft→Active→Finished) | ✅ | `SeasonController`, `SeasonService`, `Pages/SeasonDetail.razor` |
 | Season configuration UI | ✅ | `Pages/SeasonCompetitionConfig.razor` + `.razor.css` |
 
@@ -104,6 +105,8 @@ POST   /api/vaults/{id}/invite
 
 GET    /api/invitations/{token}          (public)
 POST   /api/invitations/{token}/accept
+
+GET    /api/seasons/{id}/recap           (public)
 
 GET    /api/seasons?vaultId={id}
 POST   /api/seasons

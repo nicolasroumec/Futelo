@@ -86,6 +86,11 @@ else
 
     <div class="d-flex gap-2 mb-3">
         <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
+        @if (season.Status == "Finished")
+        {
+            <a href="/seasons/@season.Id/recap" class="btn btn-outline-secondary btn-sm">Recap</a>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="CopyRecapLink">Copy recap link</button>
+        }
         @if (isOwner && season.Status == "Active")
         {
             <button class="btn btn-outline-danger btn-sm" disabled="@(!CanFinish || isFinishing)"

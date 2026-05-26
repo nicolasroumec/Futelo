@@ -117,7 +117,7 @@
 
 ---
 
-### F4 — Invitación por Link
+### ~~F4 — Invitación por Link~~ ✅
 
 **Problema que resuelve:** El sistema actual de invitación requiere introducir el email del invitado, que debe estar registrado previamente. En la práctica, los usuarios coordinan por WhatsApp quién tiene cuenta y quién no, lo cual es fricción innecesaria y un obstáculo de onboarding.
 
@@ -131,7 +131,7 @@
 
 ---
 
-### F5 — Resumen Visual de Temporada (Season Recap)
+### ~~F5 — Resumen Visual de Temporada (Season Recap)~~ ✅
 
 **Problema que resuelve:** Cuando termina una temporada no hay un momento de celebración o "recap". La app simplemente muestra la temporada como "Finished". Los jugadores pierden la narrativa completa de lo que pasó y no tienen nada para compartir con orgullo.
 
@@ -248,12 +248,12 @@
 
 | Feature                              | Valor para el usuario (1-5) | Esfuerzo técnico (1-5) | Prioridad sugerida |
 | ------------------------------------ | :-------------------------: | :---------------------: | :----------------: |
-| F4 — Invitación por Link           |              5              |            2            |      **Alto**      |
+| ~~F4 — Invitación por Link~~ ✅   |              5              |            2            |      **Alto**      |
 | ~~F1 — Activity Feed~~  ✅           |              5              |            3            |      **Alto**      |
 | F10 — Comentarios y Reacciones      |              4              |            2            |      **Alto**      |
 | F7 — Vista Calendario               |              3              |            1            |      **Alto**      |
 | ~~F12 — Historial ELO Multi-Temporada~~ ✅ |         3              |            1            |      **Alto**      |
-| F5 — Resumen Visual de Temporada    |              5              |            3            |     **Medio**     |
+| ~~F5 — Resumen Visual de Temporada~~ ✅ |         5              |            3            |     **Medio**     |
 | F2 — Partidos Amistosos             |              4              |            3            |     **Medio**     |
 | F3 — Predicciones de Partidos       |              4              |            3            |     **Medio**     |
 | F11 — Notificaciones In-App         |              4              |            4            |     **Medio**     |
@@ -267,7 +267,7 @@
 
 ---
 
-### 🥇 #1 — F4: Invitación por Link
+### ~~🥇 #1 — F4: Invitación por Link~~ ✅
 
 **Por qué esta sobre las demás:** Es la única feature que desbloquea el crecimiento. Hoy el único camino para sumar un amigo a un Vault es que ese amigo ya esté registrado Y que el dueño sepa su email exacto. En la práctica, esto significa que los Vaults tienen los mismos 3-4 personas que se conocen, sin crecer. Un link compartible por WhatsApp en dos clics elimina esa barrera completamente.
 
@@ -296,7 +296,7 @@
 
 ---
 
-### 🥉 #3 — F5: Resumen Visual de Temporada
+### ~~🥉 #3 — F5: Resumen Visual de Temporada~~ ✅
 
 **Por qué esta sobre las demás:** Las temporadas terminan sin celebración. El flujo de "Finish Season" llama a un endpoint que actualiza el status y listo. Pero para el usuario, esa temporada puede haber durado 2-3 meses, con partidos épicos, remontadas y rivalidades. Un recap visual con diseño cuidado convierte ese momento en un evento, y el link público compartible es marketing orgánico gratuito.
 
