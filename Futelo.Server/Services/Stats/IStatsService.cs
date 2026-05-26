@@ -22,4 +22,5 @@ public interface IStatsService
     Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, string requesterId);
     Task<PlayerRecordsResponse> GetPlayerRecordsAsync(string playerId, int vaultId, string requesterId);
     Task<List<AllTimeStandingRow>> GetAllTimeStandingsAsync(int vaultId, string requesterId);
+    Task<List<PlayerAchievementResponse>> GetPlayerAchievementsAsync(string playerId, int vaultId, string requesterId);
 }

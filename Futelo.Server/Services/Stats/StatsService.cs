@@ -1,4 +1,5 @@
 using Futelo.Server.Models;
+using Futelo.Server.Repositories.Achievement;
 using Futelo.Server.Repositories.Stats;
 using Futelo.Shared.DTOs.Stats;
 using Futelo.Shared.DTOs.Vault;
@@ -8,7 +9,7 @@ namespace Futelo.Server.Services.Stats;
 
 using static ErrorMessages;
 
-public class StatsService(IStatsRepository statsRepository) : IStatsService
+public class StatsService(IStatsRepository statsRepository, IAchievementRepository achievementRepository) : IStatsService
 {
     public async Task<PlayerStatsResponse> GetPlayerStatsAsync(string playerId, int vaultId, string requesterId)
     {
@@ -867,5 +868,19 @@ public class StatsService(IStatsRepository statsRepository) : IStatsService
             .ThenByDescending(r => r.GoalsFor)
             .Select((r, i) => { r.Position = i + 1; return r; })
             .ToList();
+    }
+
+    public async Task<List<PlayerAchievementResponse>> GetPlayerAchievementsAsync(string playerId, int vaultId, string requesterId)
+    {
+        if (!await statsRepository.IsVaultMemberAsync(requesterId, vaultId))
+            throw new KeyNotFoundException(VaultNotFound);
+
+        var achievements = await achievementRepository.GetByPlayerAndVaultAsync(playerId, vaultId);
+        return achievements.Select(a => new PlayerAchievementResponse
+        {
+            Type = a.Type,
+            UnlockedAt = a.UnlockedAt,
+            SeasonId = a.SeasonId
+        }).ToList();
     }
 }

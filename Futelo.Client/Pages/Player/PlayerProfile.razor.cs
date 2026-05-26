@@ -6,6 +6,7 @@ using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.Enums;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using static Futelo.Client.Shared.AchievementMeta;
 
 namespace Futelo.Client.Pages.Player;
 
@@ -24,6 +25,7 @@ public partial class PlayerProfile : LocalizedComponentBase
     private string? competitionFilter;
     private List<RecentFormEntry> recentForm = [];
     private List<RecentMatchResponse> recentMatches = [];
+    private List<PlayerAchievementResponse> achievements = [];
     private List<VaultPlayerResponse> opponents = [];
     private string selectedOpponentId = string.Empty;
     private string? selectedTitleCompetition;
@@ -44,6 +46,7 @@ public partial class PlayerProfile : LocalizedComponentBase
             recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId, ComponentToken);
             recentMatches = await StatsService.GetPlayerRecentMatchesAsync(VaultId, PlayerId, ct: ComponentToken);
             records = await StatsService.GetPlayerRecordsAsync(VaultId, PlayerId, ComponentToken);
+            achievements = await StatsService.GetPlayerAchievementsAsync(VaultId, PlayerId, ComponentToken);
             var vault = await VaultService.GetByIdAsync(VaultId, ComponentToken);
             opponents = vault.Players.Where(p => p.PlayerId != PlayerId).ToList();
             if (opponents.Count > 0)

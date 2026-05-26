@@ -131,4 +131,11 @@ public class StatsController(IStatsService statsService) : ControllerBase
         var standings = await statsService.GetAllTimeStandingsAsync(vaultId, UserId);
         return Ok(standings);
     }
+
+    [HttpGet("vaults/{vaultId}/players/{playerId}/achievements")]
+    public async Task<IActionResult> GetPlayerAchievements(int vaultId, string playerId)
+    {
+        var achievements = await statsService.GetPlayerAchievementsAsync(playerId, vaultId, UserId);
+        return Ok(achievements);
+    }
 }

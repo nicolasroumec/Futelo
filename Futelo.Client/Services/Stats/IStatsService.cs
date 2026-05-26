@@ -22,4 +22,5 @@ public interface IStatsService
     Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, CancellationToken ct = default);
     Task<PlayerRecordsResponse> GetPlayerRecordsAsync(int vaultId, string playerId, CancellationToken ct = default);
     Task<List<AllTimeStandingRow>> GetAllTimeStandingsAsync(int vaultId, CancellationToken ct = default);
+    Task<List<PlayerAchievementResponse>> GetPlayerAchievementsAsync(int vaultId, string playerId, CancellationToken ct = default);
 }

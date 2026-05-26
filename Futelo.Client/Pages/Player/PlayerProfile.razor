@@ -240,6 +240,32 @@ else
         </div>
     </div>
 
+    @* FULL WIDTH — Achievements *@
+    @if (achievements.Count > 0)
+    {
+        <div class="mb-4">
+            <h5>Logros <span class="text-muted fw-normal fs-6">(@achievements.Count)</span></h5>
+            @foreach (var group in achievements.GroupBy(a => AchievementMeta.GetCategory(a.Type)))
+            {
+                <div class="mb-3">
+                    <div class="achievement-category-label">@group.Key</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var a in group)
+                        {
+                            <div class="achievement-badge" title="@AchievementMeta.GetDescription(a.Type)">
+                                <span class="achievement-badge__icon">@AchievementMeta.GetIcon(a.Type)</span>
+                                <div class="achievement-badge__text">
+                                    <span class="achievement-badge__name">@AchievementMeta.GetName(a.Type)</span>
+                                    <span class="achievement-badge__date">@a.UnlockedAt.ToString("dd/MM/yy")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
     @* FULL WIDTH — Top teams, game stats, recent matches *@
     @if (stats.TopTeams.Count > 0)
     {

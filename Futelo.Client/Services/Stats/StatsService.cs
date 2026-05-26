@@ -62,6 +62,9 @@ public class StatsService(HttpClient http) : ApiService(http), IStatsService
     public Task<List<AllTimeStandingRow>> GetAllTimeStandingsAsync(int vaultId, CancellationToken ct = default)
         => GetListAsync<AllTimeStandingRow>($"api/stats/vaults/{vaultId}/all-time-standings", ct);
 
+    public Task<List<PlayerAchievementResponse>> GetPlayerAchievementsAsync(int vaultId, string playerId, CancellationToken ct = default)
+        => GetListAsync<PlayerAchievementResponse>($"api/stats/vaults/{vaultId}/players/{playerId}/achievements", ct);
+
     public async Task<TopScoringMatchResponse?> GetTopScoringMatchAsync(int vaultId, CancellationToken ct = default)
     {
         var response = await Http.GetAsync($"api/stats/vaults/{vaultId}/records/top-scoring-match", ct);
