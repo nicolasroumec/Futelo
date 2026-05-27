@@ -221,41 +221,47 @@ else
             {
                 @if (addingMatchToRoundId == round.Id)
                 {
-                    <div class="d-flex flex-wrap gap-2 align-items-end mb-3" @onclick:stopPropagation="true">
-                        <div>
-                            <label class="form-label small mb-1">@Lang.Get("cup.homePlayer")</label>
-                            <select class="form-select form-select-sm" style="width:160px" @bind="newMatchHomePlayerId">
-                                <option value="">@Lang.Get("common.select")</option>
-                                @foreach (var p in cup.SeasonPlayers)
-                                {
-                                    <option value="@p.Id">@p.DisplayName</option>
-                                }
-                            </select>
+                    <div class="card mb-3" style="border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.03)" @onclick:stopPropagation="true">
+                        <div class="card-body p-3">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-12 col-sm">
+                                    <label class="form-label small mb-1">@Lang.Get("cup.homePlayer")</label>
+                                    <select class="form-select form-select-sm" @bind="newMatchHomePlayerId">
+                                        <option value="">@Lang.Get("common.select")</option>
+                                        @foreach (var p in cup.SeasonPlayers)
+                                        {
+                                            <option value="@p.Id">@p.DisplayName</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm">
+                                    <label class="form-label small mb-1">@Lang.Get("cup.awayPlayer")</label>
+                                    <select class="form-select form-select-sm" @bind="newMatchAwayPlayerId">
+                                        <option value="">@Lang.Get("common.select")</option>
+                                        @foreach (var p in cup.SeasonPlayers)
+                                        {
+                                            <option value="@p.Id">@p.DisplayName</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <label class="form-label small mb-1">@Lang.Get("cup.leg")</label>
+                                    <input type="number" class="form-control form-control-sm" style="max-width:70px" min="1" @bind="newMatchLeg" />
+                                </div>
+                                <div class="col-auto d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
+                                        @if (isAddingMatch)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        }
+                                        @Lang.Get("cup.addMatch")
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatchToRoundId = null">
+                                        @Lang.Get("common.cancel")
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="form-label small mb-1">@Lang.Get("cup.awayPlayer")</label>
-                            <select class="form-select form-select-sm" style="width:160px" @bind="newMatchAwayPlayerId">
-                                <option value="">@Lang.Get("common.select")</option>
-                                @foreach (var p in cup.SeasonPlayers)
-                                {
-                                    <option value="@p.Id">@p.DisplayName</option>
-                                }
-                            </select>
-                        </div>
-                        <div>
-                            <label class="form-label small mb-1">@Lang.Get("cup.leg")</label>
-                            <input type="number" class="form-control form-control-sm" style="width:70px" min="1" @bind="newMatchLeg" />
-                        </div>
-                        <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
-                            @if (isAddingMatch)
-                            {
-                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                            }
-                            @Lang.Get("cup.addMatch")
-                        </button>
-                        <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatchToRoundId = null">
-                            @Lang.Get("common.cancel")
-                        </button>
                     </div>
                 }
                 else
