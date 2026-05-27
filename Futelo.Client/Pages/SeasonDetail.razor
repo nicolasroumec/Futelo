@@ -73,6 +73,58 @@ else
         </div>
     }
 
+    @if (isOwner && season.Status == "Draft")
+    {
+        <div class="d-flex align-items-center mb-4 overflow-auto pb-1" style="gap:0">
+            @* Paso 1: Competiciones *@
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <span class="badge rounded-pill @(StepCompDone ? "bg-success" : "bg-primary") d-inline-flex align-items-center justify-content-center"
+                      style="width:28px;height:28px;font-size:.75rem">
+                    @(StepCompDone ? "✓" : "1")
+                </span>
+                <span class="small fw-semibold">@Lang.Get("season.competitions")</span>
+            </div>
+            <div class="flex-fill mx-2" style="height:2px;background:var(--color-border);min-width:24px"></div>
+            @* Paso 2: Jugadores *@
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                @if (StepPlayersDone)
+                {
+                    <span class="badge rounded-pill bg-success d-inline-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;font-size:.75rem">✓</span>
+                    <span class="small fw-semibold">@Lang.Get("season.players")</span>
+                }
+                else if (StepCompDone)
+                {
+                    <span class="badge rounded-pill bg-primary d-inline-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;font-size:.75rem">2</span>
+                    <span class="small fw-semibold">@Lang.Get("season.players")</span>
+                }
+                else
+                {
+                    <span class="badge rounded-pill bg-secondary d-inline-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;font-size:.75rem;opacity:.5">2</span>
+                    <span class="small text-muted">@Lang.Get("season.players")</span>
+                }
+            </div>
+            <div class="flex-fill mx-2" style="height:2px;background:var(--color-border);min-width:24px"></div>
+            @* Paso 3: Activar *@
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                @if (StepReadyToActivate)
+                {
+                    <span class="badge rounded-pill bg-primary d-inline-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;font-size:.75rem">3</span>
+                    <span class="small fw-semibold">@Lang.Get("season.stepActivate")</span>
+                }
+                else
+                {
+                    <span class="badge rounded-pill bg-secondary d-inline-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;font-size:.75rem;opacity:.5">3</span>
+                    <span class="small text-muted">@Lang.Get("season.stepActivate")</span>
+                }
+            </div>
+        </div>
+    }
+
     <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
     <p class="text-muted">@Lang.Get("season.videoGame"): @(season.VideoGameName ?? "—")</p>
 

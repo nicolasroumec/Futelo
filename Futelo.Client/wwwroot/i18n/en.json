@@ -78,6 +78,7 @@
   "season.configure": "Configure",
   "season.configureSeason": "Configure Season",
   "season.competitions": "Competitions",
+  "season.stepActivate": "Activate",
   "season.homeAndAway": "Home & Away",
   "season.homeAndAway.hint": "Each pair of players plays twice: once as home and once as away.",
   "season.tiebreaker.hint": "How to break ties when players have equal points.",

@@ -59,6 +59,10 @@ public partial class SeasonDetail : LocalizedComponentBase
         (!season.HasCup || season.CupStatus == CompetitionStatus.Finished) &&
         (!season.HasSuperCup || season.SuperCupStatus == CompetitionStatus.Finished);
 
+    private bool StepCompDone => season != null && (season.HasLeague || season.HasCup);
+    private bool StepPlayersDone => season != null && season.Players.Count >= 2;
+    private bool StepReadyToActivate => StepCompDone && StepPlayersDone;
+
     protected override async Task OnInitializedAsync()
     {
         try

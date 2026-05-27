@@ -78,6 +78,7 @@
   "season.configure": "Configurar",
   "season.configureSeason": "Configurar temporada",
   "season.competitions": "Competencias",
+  "season.stepActivate": "Activar",
   "season.homeAndAway": "Ida y vuelta",
   "season.homeAndAway.hint": "Cada par de jugadores se enfrenta dos veces: una como local y otra como visitante.",
   "season.tiebreaker.hint": "Cómo desempatar cuando varios jugadores tienen los mismos puntos.",
