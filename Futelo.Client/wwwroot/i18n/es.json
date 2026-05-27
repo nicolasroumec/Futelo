@@ -85,6 +85,7 @@
   "season.activating": "Activando...",
   "season.deleteSeason": "Eliminar temporada",
   "season.deleteConfirm": "¿Estás seguro? Esto no se puede deshacer.",
+  "season.deleteWarning": "Esta acción eliminará todos los partidos, resultados y cambios de ELO de esta temporada. No se puede deshacer.",
   "season.finishWarning": "Para finalizar la temporada, todas las competencias deben estar completadas.",
   "season.noPlayers": "Sin jugadores asignados aún.",
   "season.noTeam": "— Sin equipo —",

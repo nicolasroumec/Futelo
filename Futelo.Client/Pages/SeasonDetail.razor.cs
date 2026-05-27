@@ -42,7 +42,7 @@ public partial class SeasonDetail : LocalizedComponentBase
     private bool isFinishing;
     private bool isPatchingVideoGame;
     private bool isDeleting;
-    private bool confirmDelete;
+    private bool showDeleteModal;
     private string? errorMessage;
 
     private bool editingSeasonDates;
@@ -137,7 +137,7 @@ public partial class SeasonDetail : LocalizedComponentBase
         {
             errorMessage = ex.Message;
             isDeleting = false;
-            confirmDelete = false;
+            showDeleteModal = false;
         }
     }
 

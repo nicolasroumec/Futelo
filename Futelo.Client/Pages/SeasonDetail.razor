@@ -144,31 +144,10 @@ else
         }
         @if (isOwner)
         {
-            @if (!confirmDelete)
-            {
-                <button class="btn btn-outline-danger btn-sm ms-auto"
-                        @onclick="() => confirmDelete = true">
-                    @Lang.Get("season.deleteSeason")
-                </button>
-            }
-            else
-            {
-                <span class="ms-auto d-flex align-items-center gap-2">
-                    <small class="text-danger">@Lang.Get("season.deleteConfirm")</small>
-                    <button class="btn btn-danger btn-sm" disabled="@isDeleting"
-                            @onclick="HandleDelete">
-                        @if (isDeleting)
-                        {
-                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        }
-                        @(isDeleting ? Lang.Get("common.deleting") : Lang.Get("common.confirmDelete"))
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm"
-                            @onclick="() => confirmDelete = false">
-                        @Lang.Get("common.cancel")
-                    </button>
-                </span>
-            }
+            <button class="btn btn-outline-danger btn-sm ms-auto"
+                    @onclick="() => showDeleteModal = true">
+                @Lang.Get("season.deleteSeason")
+            </button>
         }
     </div>
 
@@ -342,4 +321,33 @@ else
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <div class="alert alert-danger mt-3">@errorMessage</div>
+}
+
+@if (showDeleteModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1" role="dialog" @onclick="() => showDeleteModal = false">
+        <div class="modal-dialog modal-dialog-centered modal-sm" @onclick:stopPropagation>
+            <div class="modal-content" style="background:var(--color-surface);border-color:var(--color-border)">
+                <div class="modal-body p-4">
+                    <h6 class="fw-bold mb-1">@Lang.Get("season.deleteSeason")</h6>
+                    <p class="text-muted small mb-4">@Lang.Get("season.deleteWarning")</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                                @onclick="() => showDeleteModal = false">
+                            @Lang.Get("common.cancel")
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm fw-semibold"
+                                disabled="@isDeleting" @onclick="HandleDelete">
+                            @if (isDeleting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            }
+                            @(isDeleting ? Lang.Get("common.deleting") : Lang.Get("common.confirmDelete"))
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 }

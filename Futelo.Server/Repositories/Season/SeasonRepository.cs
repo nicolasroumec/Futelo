@@ -10,6 +10,7 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 {
     public async Task<IEnumerable<Models.Season>> GetByVaultAsync(int vaultId)
         => await Context.Set<Models.Season>()
+            .Include(s => s.Vault)
             .Include(s => s.VideoGame)
             .Include(s => s.Players).ThenInclude(sp => sp.Player)
             .Include(s => s.Players).ThenInclude(sp => sp.Team)
