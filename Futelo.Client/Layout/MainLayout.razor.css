@@ -1,3 +1,11 @@
 .page-content {
     animation: page-fade-in 0.2s ease-out;
 }
+
+.app-footer {
+    text-align: right;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    color: var(--bs-secondary-color, #6c757d);
+    opacity: 0.6;
+}

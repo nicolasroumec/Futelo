@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using Futelo.Server.Data;
 using Futelo.Server.Filters;
@@ -109,5 +110,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/api/version", () =>
+    Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "unknown")
+    .AllowAnonymous();
 
 app.Run();
