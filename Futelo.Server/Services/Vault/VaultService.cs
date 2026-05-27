@@ -170,6 +170,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
         Name = vault.Name,
         OwnerId = vault.OwnerId,
         OwnerDisplayName = vault.Owner.DisplayName,
+        HasActiveSeason = vault.Seasons.Any(s => s.Status == SeasonStatus.Active),
         Players = vault.Players.Select(p => new VaultPlayerResponse
         {
             PlayerId = p.PlayerId,

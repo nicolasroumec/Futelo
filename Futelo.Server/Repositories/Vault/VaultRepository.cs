@@ -12,6 +12,7 @@ public class VaultRepository(FuteloContext context) : BaseRepository<Models.Vaul
         => await Context.Set<Models.Vault>()
             .Include(v => v.Owner)
             .Include(v => v.Players).ThenInclude(p => p.Player)
+            .Include(v => v.Seasons)
             .Where(v => v.Players.Any(p => p.PlayerId == userId))
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
