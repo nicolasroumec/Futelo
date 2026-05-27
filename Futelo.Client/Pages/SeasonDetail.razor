@@ -35,9 +35,19 @@ else if (season == null)
 }
 else
 {
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@season.VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <h3 class="mb-0">@season.Name</h3>
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/vaults/@season.VaultId" class="breadcrumb-link">@season.VaultName</a>
+            </li>
+            <li class="breadcrumb-item active fw-semibold" aria-current="page">@season.Name</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+        <h3 class="mb-0 me-1">@season.Name</h3>
         <span class="badge @BadgeHelper.StatusBadgeClass(season.Status)">@Lang.Get("season.status." + season.Status.ToLower())</span>
     </div>
 

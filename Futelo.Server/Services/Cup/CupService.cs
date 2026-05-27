@@ -591,6 +591,9 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
         {
             Id = cup.Id,
             SeasonId = cup.SeasonId,
+            SeasonName = cup.Season.Name,
+            VaultId = cup.Season.VaultId,
+            VaultName = cup.Season.Vault.Name,
             Status = cup.Status.ToString(),
             Name = cup.Name,
             IsHomeAndAway = cup.IsHomeAndAway,

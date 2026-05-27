@@ -172,6 +172,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
     {
         Id = season.Id,
         VaultId = season.VaultId,
+        VaultName = season.Vault.Name,
         Name = season.Name,
         Year = season.Year,
         Status = season.Status.ToString(),

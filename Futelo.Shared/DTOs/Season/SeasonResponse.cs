@@ -16,6 +16,7 @@ public class SeasonResponse
 {
     public int Id { get; set; }
     public int VaultId { get; set; }
+    public string VaultName { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public int Year { get; set; }
     public string Status { get; set; } = string.Empty;

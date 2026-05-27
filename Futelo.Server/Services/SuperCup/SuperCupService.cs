@@ -308,7 +308,9 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         {
             Id = superCup.Id,
             SeasonId = superCup.SeasonId,
+            SeasonName = superCup.Season.Name,
             VaultId = superCup.Season.VaultId,
+            VaultName = superCup.Season.Vault.Name,
             Name = superCup.Name,
             Status = superCup.Status.ToString(),
             IsHomeAndAway = superCup.IsHomeAndAway,

@@ -37,9 +37,22 @@ else if (cup == null)
 }
 else
 {
-    <div class="d-flex align-items-center gap-3 mb-2">
-        <a href="/seasons/@cup.SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <h3 class="mb-0">@cup.Name</h3>
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/vaults/@cup.VaultId" class="breadcrumb-link">@cup.VaultName</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/seasons/@cup.SeasonId" class="breadcrumb-link">@cup.SeasonName</a>
+            </li>
+            <li class="breadcrumb-item active fw-semibold" aria-current="page">@cup.Name</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+        <h3 class="mb-0 me-1">@cup.Name</h3>
         <span class="badge @BadgeHelper.StatusBadgeClass(cup.Status)">@Lang.Get("competition.status." + cup.Status.ToLower())</span>
         @if (cup.IsHomeAndAway)
         {

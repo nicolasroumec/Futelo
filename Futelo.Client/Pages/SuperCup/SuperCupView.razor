@@ -32,9 +32,22 @@ else if (superCup == null)
 }
 else
 {
-    <div class="d-flex align-items-center gap-3 mb-2">
-        <a href="/seasons/@superCup.SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <h3 class="mb-0">@superCup.Name</h3>
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/vaults/@superCup.VaultId" class="breadcrumb-link">@superCup.VaultName</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/seasons/@superCup.SeasonId" class="breadcrumb-link">@superCup.SeasonName</a>
+            </li>
+            <li class="breadcrumb-item active fw-semibold" aria-current="page">@superCup.Name</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+        <h3 class="mb-0 me-1">@superCup.Name</h3>
         <span class="badge @BadgeHelper.StatusBadgeClass(superCup.Status)">@Lang.Get("competition.status." + superCup.Status.ToLower())</span>
         @if (superCup.IsHomeAndAway)
         {

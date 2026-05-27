@@ -1,4 +1,26 @@
 /* =============================================
+   BREADCRUMB
+   ============================================= */
+
+.breadcrumb-item + .breadcrumb-item::before {
+  color: var(--color-border);
+}
+
+.breadcrumb-link {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.breadcrumb-link:hover {
+  color: var(--color-text);
+}
+
+.breadcrumb-item.active {
+  color: var(--color-text);
+}
+
+/* =============================================
    CARDS
    ============================================= */
 

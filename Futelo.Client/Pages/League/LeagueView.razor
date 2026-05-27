@@ -40,9 +40,22 @@ else if (league == null)
 }
 else
 {
-    <div class="d-flex align-items-center gap-3 mb-2">
-        <a href="/seasons/@league.SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <h3 class="mb-0">@league.Name</h3>
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/vaults/@league.VaultId" class="breadcrumb-link">@league.VaultName</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/seasons/@league.SeasonId" class="breadcrumb-link">@league.SeasonName</a>
+            </li>
+            <li class="breadcrumb-item active fw-semibold" aria-current="page">@league.Name</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+        <h3 class="mb-0 me-1">@league.Name</h3>
         <span class="badge @BadgeHelper.StatusBadgeClass(league.Status)">@Lang.Get("competition.status." + league.Status.ToLower())</span>
         @if (league.IsHomeAndAway)
         {

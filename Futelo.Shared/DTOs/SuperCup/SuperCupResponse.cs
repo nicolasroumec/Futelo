@@ -4,7 +4,9 @@ public class SuperCupResponse
 {
     public int Id { get; set; }
     public int SeasonId { get; set; }
+    public string SeasonName { get; set; } = string.Empty;
     public int VaultId { get; set; }
+    public string VaultName { get; set; } = string.Empty;
     public string Name { get; set; } = "SuperCup";
     public string Status { get; set; } = string.Empty;
     public bool IsHomeAndAway { get; set; }

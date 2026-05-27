@@ -29,6 +29,9 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
         {
             Id = league.Id,
             SeasonId = league.SeasonId,
+            SeasonName = league.Season.Name,
+            VaultId = league.Season.VaultId,
+            VaultName = league.Season.Vault.Name,
             Status = league.Status.ToString(),
             Name = league.Name,
             IsHomeAndAway = league.IsHomeAndAway,
