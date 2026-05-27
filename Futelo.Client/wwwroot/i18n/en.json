@@ -90,6 +90,7 @@
   "season.deleteConfirm": "Are you sure? This cannot be undone.",
   "season.deleteWarning": "This action will permanently delete all matches, results, and ELO changes for this season. It cannot be undone.",
   "season.finishWarning": "To finish the season, all competitions must be completed first.",
+  "season.playersSelected": "players selected",
   "season.noPlayers": "No players assigned yet.",
   "season.noTeam": "— No team —",
   "season.leagueNamePlaceholder": "League name",
