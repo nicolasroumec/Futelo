@@ -102,7 +102,12 @@ else
             </div>
             @if (seasons.Count == 0)
             {
-                <EmptyState Message="@Lang.Get("vault.noSeasons")" />
+                <EmptyState Title="@Lang.Get("vault.noSeasonsTitle")"
+                            Message="@Lang.Get("vault.noSeasons")"
+                            ActionLabel="@(isOwner ? Lang.Get("vault.newSeason") : null)"
+                            ActionHref="@(isOwner ? $"/vaults/{Id}/seasons/create" : null)">
+                    <Icon>🏆</Icon>
+                </EmptyState>
             }
             else
             {

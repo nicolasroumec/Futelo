@@ -137,7 +137,10 @@ else
                 <h5 class="mt-2">@Lang.Get("league.standings")</h5>
                 @if (league.Standings.Count == 0)
                 {
-                    <EmptyState Message="@Lang.Get("league.noResults")" />
+                    <EmptyState Title="@Lang.Get("league.noResultsTitle")"
+                                Message="@Lang.Get("league.noResults")">
+                        <Icon>⚽</Icon>
+                    </EmptyState>
                 }
                 else
                 {

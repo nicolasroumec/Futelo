@@ -21,7 +21,10 @@ else
     }
     else if (rows.Count == 0)
     {
-        <EmptyState Message="@Lang.Get("stats.noPlayers")" />
+        <EmptyState Title="@Lang.Get("stats.noPlayersTitle")"
+                    Message="@Lang.Get("stats.noPlayers")">
+            <Icon>📊</Icon>
+        </EmptyState>
     }
     else
     {
