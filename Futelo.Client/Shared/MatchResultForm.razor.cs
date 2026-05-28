@@ -29,7 +29,6 @@ public partial class MatchResultForm
 
     private int homeScore;
     private int awayScore;
-    private string wonOnPenaltiesId = string.Empty;
     private int? homePenaltyScore;
     private int? awayPenaltyScore;
 
@@ -49,13 +48,25 @@ public partial class MatchResultForm
 
     private async Task HandleSave()
     {
-        bool hasPenalties = HasPenalties && ShowPenaltyFields && !string.IsNullOrEmpty(wonOnPenaltiesId);
+        string? wonOnPenaltiesId = null;
+        int? finalHome = null;
+        int? finalAway = null;
+
+        if (HasPenalties && ShowPenaltyFields
+            && homePenaltyScore.HasValue && awayPenaltyScore.HasValue
+            && homePenaltyScore != awayPenaltyScore)
+        {
+            wonOnPenaltiesId = homePenaltyScore > awayPenaltyScore ? HomePlayerId : AwayPlayerId;
+            finalHome = homePenaltyScore;
+            finalAway = awayPenaltyScore;
+        }
+
         await OnSave.InvokeAsync(new MatchResultInput(
             homeScore,
             awayScore,
-            hasPenalties ? wonOnPenaltiesId : null,
-            hasPenalties ? homePenaltyScore : null,
-            hasPenalties ? awayPenaltyScore : null));
+            wonOnPenaltiesId,
+            finalHome,
+            finalAway));
     }
 
     private void HandleCancel() => OnCancel.InvokeAsync();
