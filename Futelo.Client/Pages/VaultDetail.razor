@@ -89,6 +89,19 @@ else
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-secondary">@player.EloRating</span>
                             <span class="badge @RoleBadgeClass(player.Role)">@player.Role</span>
+                            @if (isAdmin && player.PlayerId != vault.OwnerId)
+                            {
+                                @if (confirmingRemovePlayerId == player.PlayerId)
+                                {
+                                    <span class="text-muted small">@Lang.Get("vault.removePlayerConfirm")</span>
+                                    <button class="btn btn-danger btn-sm" @onclick="() => ConfirmRemovePlayerAsync(player.PlayerId)" disabled="@isRemovingPlayer">@Lang.Get("common.yes")</button>
+                                    <button class="btn btn-outline-secondary btn-sm" @onclick="CancelRemovePlayer" disabled="@isRemovingPlayer">@Lang.Get("common.no")</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="() => StartRemovePlayer(player.PlayerId)">@Lang.Get("vault.removePlayer")</button>
+                                }
+                            }
                         </div>
                     </li>
                 }

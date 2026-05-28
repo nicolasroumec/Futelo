@@ -13,6 +13,9 @@ internal static class ErrorMessages
     internal const string OnlyAdminsCanUpdate = "Only vault admins can update the vault.";
     internal const string OnlyOwnerCanDelete = "Only the vault owner can delete the vault.";
     internal const string OnlyAdminsAndEditorsCanEdit = "Only vault admins and editors can record results.";
+    internal const string OnlyAdminsCanRemovePlayers = "Only vault admins can remove players.";
+    internal const string CannotRemoveVaultOwner = "Cannot remove the vault owner.";
+    internal const string PlayerInNonFinishedSeason = "Cannot remove a player who is part of an active or draft season.";
 
     // Invitation
     internal const string InvitationNotFound = "Invitation not found.";

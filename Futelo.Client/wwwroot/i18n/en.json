@@ -65,6 +65,9 @@
   "vault.role.viewer": "Viewer",
   "vault.role.editor": "Editor",
   "vault.role.admin": "Admin",
+  "vault.removePlayer": "Remove",
+  "vault.removePlayerConfirm": "Are you sure?",
+  "vault.removePlayerSuccess": "Player removed from vault.",
 
   "createVault.title": "New Vault",
   "createVault.name": "Vault Name",

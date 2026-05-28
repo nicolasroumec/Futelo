@@ -58,6 +58,23 @@ public class VaultService(IVaultRepository repository) : IVaultService
         await repository.DeleteAsync(vault);
     }
 
+    public async Task RemovePlayerAsync(int vaultId, string requestingUserId, string playerId)
+    {
+        var vault = await repository.GetByIdAsync(vaultId);
+        var caller = vault?.Players.FirstOrDefault(p => p.PlayerId == requestingUserId);
+        if (vault == null || caller == null)
+            throw new KeyNotFoundException(VaultNotFound);
+        if (caller.Role != VaultRole.Admin)
+            throw new UnauthorizedAccessException(OnlyAdminsCanRemovePlayers);
+        if (vault.OwnerId == playerId)
+            throw new InvalidOperationException(CannotRemoveVaultOwner);
+        if (vault.Players.All(p => p.PlayerId != playerId))
+            throw new KeyNotFoundException(PlayerNotFound);
+        if (await repository.PlayerHasNonFinishedSeasonAsync(vaultId, playerId))
+            throw new InvalidOperationException(PlayerInNonFinishedSeason);
+        await repository.RemovePlayerAsync(vaultId, playerId);
+    }
+
     public async Task<List<RecentMatchResponse>> GetRecentMatchesAsync(int id, string userId, int limit)
     {
         var vault = await repository.GetByIdAsync(id);

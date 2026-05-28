@@ -38,6 +38,9 @@ public partial class VaultDetail : LocalizedComponentBase
     private bool isInviting;
     private string? inviteLink;
 
+    private string? confirmingRemovePlayerId;
+    private bool isRemovingPlayer;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -134,6 +137,36 @@ public partial class VaultDetail : LocalizedComponentBase
         {
             await JS.InvokeVoidAsync("navigator.clipboard.writeText", inviteLink);
             Toast.Show(Lang.Get("vault.inviteLinkCopied"));
+        }
+    }
+
+    private void StartRemovePlayer(string playerId)
+    {
+        confirmingRemovePlayerId = playerId;
+    }
+
+    private void CancelRemovePlayer()
+    {
+        confirmingRemovePlayerId = null;
+    }
+
+    private async Task ConfirmRemovePlayerAsync(string playerId)
+    {
+        isRemovingPlayer = true;
+        try
+        {
+            await VaultService.RemovePlayerAsync(Id, playerId);
+            vault!.Players.RemoveAll(p => p.PlayerId == playerId);
+            confirmingRemovePlayerId = null;
+            Toast.Show(Lang.Get("vault.removePlayerSuccess"));
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isRemovingPlayer = false;
         }
     }
 }

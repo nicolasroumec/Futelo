@@ -12,4 +12,5 @@ public interface IVaultService
     Task<VaultResponse> CreateAsync(string ownerId, CreateVaultRequest request);
     Task UpdateAsync(int id, string userId, UpdateVaultRequest request);
     Task DeleteAsync(int id, string userId);
+    Task RemovePlayerAsync(int vaultId, string requestingUserId, string playerId);
 }

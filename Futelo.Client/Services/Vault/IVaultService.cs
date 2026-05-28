@@ -14,4 +14,5 @@ public interface IVaultService
     Task UpdateAsync(int id, UpdateVaultRequest request);
     Task DeleteAsync(int id);
     Task<InvitationResponse> InviteAsync(int vaultId, InviteRequest request);
+    Task RemovePlayerAsync(int vaultId, string playerId);
 }

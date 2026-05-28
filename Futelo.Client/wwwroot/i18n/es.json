@@ -65,6 +65,9 @@
   "vault.role.viewer": "Espectador",
   "vault.role.editor": "Editor",
   "vault.role.admin": "Admin",
+  "vault.removePlayer": "Quitar",
+  "vault.removePlayerConfirm": "¿Seguro?",
+  "vault.removePlayerSuccess": "Jugador quitado del vault.",
 
   "createVault.title": "Nuevo Vault",
   "createVault.name": "Nombre del vault",

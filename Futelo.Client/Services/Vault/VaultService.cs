@@ -35,4 +35,7 @@ public class VaultService(HttpClient http) : ApiService(http), IVaultService
 
     public Task<InvitationResponse> InviteAsync(int vaultId, InviteRequest request)
         => PostAsync<InvitationResponse>($"api/vaults/{vaultId}/invite", request);
+
+    public Task RemovePlayerAsync(int vaultId, string playerId)
+        => DeleteAsync($"api/vaults/{vaultId}/players/{playerId}");
 }
