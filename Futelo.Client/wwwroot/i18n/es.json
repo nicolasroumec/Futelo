@@ -205,6 +205,7 @@
   "player.bestEloGain": "Mejor subida de ELO",
   "player.longestTop1Reign": "Mayor racha en el #1",
   "player.totalMatchesAtTop1": "Total de partidos en el #1",
+  "player.achievements": "Logros",
 
   "headToHead.title": "Cara a cara",
   "headToHead.matchHistory": "Historial de partidos",

@@ -246,30 +246,32 @@ else
     </div>
 
     @* FULL WIDTH — Achievements *@
-    @if (achievements.Count > 0)
-    {
-        <div class="mb-4">
-            <h5>Logros <span class="text-muted fw-normal fs-6">(@achievements.Count)</span></h5>
-            @foreach (var group in achievements.GroupBy(a => AchievementMeta.GetCategory(a.Type)))
-            {
-                <div class="mb-3">
-                    <div class="achievement-category-label">@group.Key</div>
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach (var a in group)
-                        {
-                            <div class="achievement-badge" title="@AchievementMeta.GetDescription(a.Type)">
-                                <span class="achievement-badge__icon">@AchievementMeta.GetIcon(a.Type)</span>
-                                <div class="achievement-badge__text">
-                                    <span class="achievement-badge__name">@AchievementMeta.GetName(a.Type)</span>
-                                    <span class="achievement-badge__date">@a.UnlockedAt.ToString("dd/MM/yy")</span>
-                                </div>
+    <div class="mb-4">
+        <h5>@Lang.Get("player.achievements") <span class="text-muted fw-normal fs-6">(@achievements.Count / @AchievementMeta.All.Count)</span></h5>
+        @foreach (var group in AchievementMeta.All.GroupBy(kvp => AchievementMeta.GetCategory(kvp.Key)))
+        {
+            <div class="mb-3">
+                <div class="achievement-category-label">@group.Key</div>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var kvp in group)
+                    {
+                        var unlocked = achievements.FirstOrDefault(a => a.Type == kvp.Key);
+                        <div class="achievement-badge @(unlocked == null ? "achievement-badge--locked" : "")"
+                             title="@AchievementMeta.GetDescription(kvp.Key)">
+                            <span class="achievement-badge__icon">@AchievementMeta.GetIcon(kvp.Key)</span>
+                            <div class="achievement-badge__text">
+                                <span class="achievement-badge__name">@AchievementMeta.GetName(kvp.Key)</span>
+                                @if (unlocked != null)
+                                {
+                                    <span class="achievement-badge__date">@unlocked.UnlockedAt.ToString("dd/MM/yy")</span>
+                                }
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
-            }
-        </div>
-    }
+            </div>
+        }
+    </div>
 
     @* FULL WIDTH — Top teams, game stats, recent matches *@
     @if (stats.TopTeams.Count > 0)

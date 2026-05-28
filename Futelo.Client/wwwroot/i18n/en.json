@@ -205,6 +205,7 @@
   "player.bestEloGain": "Best ELO Gain",
   "player.longestTop1Reign": "Longest Streak at #1",
   "player.totalMatchesAtTop1": "Total Matches at #1",
+  "player.achievements": "Achievements",
 
   "headToHead.title": "Head to Head",
   "headToHead.matchHistory": "Match History",

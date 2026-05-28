@@ -218,6 +218,16 @@
     transform: translateY(-1px);
 }
 
+.achievement-badge--locked {
+    filter: grayscale(1);
+    opacity: .28;
+}
+
+.achievement-badge--locked:hover {
+    border-color: var(--color-border);
+    transform: none;
+}
+
 .achievement-badge__icon {
     font-size: 1.15rem;
     line-height: 1;
