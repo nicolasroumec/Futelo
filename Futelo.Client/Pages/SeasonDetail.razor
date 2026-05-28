@@ -35,6 +35,7 @@ else if (season == null)
 }
 else
 {
+    @* Breadcrumb *@
     <nav aria-label="breadcrumb" class="mb-2">
         <ol class="breadcrumb mb-0 small">
             <li class="breadcrumb-item">
@@ -46,14 +47,17 @@ else
             <li class="breadcrumb-item active fw-semibold" aria-current="page">@season.Name</li>
         </ol>
     </nav>
-    <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+
+    @* Header *@
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
         <h3 class="mb-0 me-1">@season.Name</h3>
         <span class="badge @BadgeHelper.StatusBadgeClass(season.Status)">@Lang.Get("season.status." + season.Status.ToLower())</span>
     </div>
 
+    @* Draft banner *@
     @if (isOwner && season.Status == "Draft")
     {
-        <div class="d-flex align-items-center justify-content-between p-3 mb-4 rounded-3 season-draft-banner">
+        <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-3 season-draft-banner">
             <div>
                 <div class="fw-semibold small">@Lang.Get("season.draftBannerTitle")</div>
                 <div class="text-muted" style="font-size:.8rem">@Lang.Get("season.draftBannerDesc")</div>
@@ -70,12 +74,9 @@ else
                 </button>
             }
         </div>
-    }
 
-    @if (isOwner && season.Status == "Draft")
-    {
+        @* Step wizard *@
         <div class="d-flex align-items-center mb-4 overflow-auto pb-1" style="gap:0">
-            @* Paso 1: Competiciones *@
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 <span class="badge rounded-pill @(StepCompDone ? "bg-success" : "bg-primary") d-inline-flex align-items-center justify-content-center"
                       style="width:28px;height:28px;font-size:.75rem">
@@ -84,7 +85,6 @@ else
                 <span class="small fw-semibold">@Lang.Get("season.competitions")</span>
             </div>
             <div class="flex-fill mx-2" style="height:2px;background:var(--color-border);min-width:24px"></div>
-            @* Paso 2: Jugadores *@
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 @if (StepPlayersDone)
                 {
@@ -106,7 +106,6 @@ else
                 }
             </div>
             <div class="flex-fill mx-2" style="height:2px;background:var(--color-border);min-width:24px"></div>
-            @* Paso 3: Activar *@
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 @if (StepReadyToActivate)
                 {
@@ -124,39 +123,44 @@ else
         </div>
     }
 
-    <p class="text-muted">@Lang.Get("season.year"): @season.Year</p>
-    <p class="text-muted">@Lang.Get("season.videoGame"): @(season.VideoGameName ?? "—")</p>
-
-    @if (editingSeasonDates)
-    {
-        <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-            <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editSeasonStartDate" />
-            <span class="text-muted">→</span>
-            <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editSeasonEndDate" />
-            <button class="btn btn-sm btn-primary" disabled="@isSavingSeasonDates" @onclick="HandlePatchSeasonDates">
-                @if (isSavingSeasonDates)
+    @* Metadata line: dates · video game · year *@
+    <div class="season-meta mb-3">
+        @if (editingSeasonDates)
+        {
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editSeasonStartDate" />
+                <span class="text-muted">→</span>
+                <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editSeasonEndDate" />
+                <button class="btn btn-sm btn-primary" disabled="@isSavingSeasonDates" @onclick="HandlePatchSeasonDates">
+                    @if (isSavingSeasonDates)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    }
+                    @(isSavingSeasonDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingSeasonDates = false">@Lang.Get("common.cancel")</button>
+            </div>
+        }
+        else
+        {
+            <span class="season-meta__item">
+                📅 @(season.StartDate.HasValue ? season.StartDate.Value.ToString("dd MMM yyyy") : "—") → @(season.EndDate.HasValue ? season.EndDate.Value.ToString("dd MMM yyyy") : "—")
+                @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
                 {
-                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    <button class="btn btn-link btn-sm p-0 ms-1 text-muted" @onclick="BeginEditSeasonDates">✏️</button>
                 }
-                @(isSavingSeasonDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingSeasonDates = false">@Lang.Get("common.cancel")</button>
-        </div>
-    }
-    else
-    {
-        <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
-            <span>📅 @(season.StartDate.HasValue ? season.StartDate.Value.ToString("dd MMM yyyy") : "—") → @(season.EndDate.HasValue ? season.EndDate.Value.ToString("dd MMM yyyy") : "—")</span>
-            @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
-            {
-                <button class="btn btn-link btn-sm p-0 text-muted" @onclick="BeginEditSeasonDates">✏️</button>
-            }
-        </div>
-    }
+            </span>
+            <span class="season-meta__sep">·</span>
+            <span class="season-meta__item">🎮 @(season.VideoGameName ?? "—")</span>
+            <span class="season-meta__sep">·</span>
+            <span class="season-meta__item">@season.Year</span>
+        }
+    </div>
 
+    @* Video game selector (owners only, editable states) *@
     @if (isOwner && (season.Status == "Draft" || season.Status == "Active"))
     {
-        <div class="d-flex align-items-center gap-2 mb-3" style="max-width:420px">
+        <div class="d-flex align-items-center gap-2 mb-4" style="max-width:320px">
             <select class="form-select form-select-sm" @bind="selectedVideoGameId">
                 <option value="">@Lang.Get("common.none")</option>
                 @foreach (var g in videoGames)
@@ -164,7 +168,7 @@ else
                     <option value="@g.Id">@g.Name</option>
                 }
             </select>
-            <button class="btn btn-outline-primary btn-sm" disabled="@isPatchingVideoGame"
+            <button class="btn btn-outline-secondary btn-sm flex-shrink-0" disabled="@isPatchingVideoGame"
                     @onclick="HandlePatchVideoGame">
                 @if (isPatchingVideoGame)
                 {
@@ -175,7 +179,90 @@ else
         </div>
     }
 
-    <div class="d-flex gap-2 mb-3">
+    @* Competition cards *@
+    @if (season.HasLeague || season.HasCup || season.HasSuperCup)
+    {
+        <div class="season-competitions mb-4">
+            @if (season.HasLeague)
+            {
+                @if (season.LeagueId.HasValue)
+                {
+                    <a href="/leagues/@season.LeagueId" class="season-comp-card season-comp-card--league">
+                        <div class="season-comp-card__body">
+                            <span class="season-comp-card__name">@season.LeagueName</span>
+                            @if (season.LeagueStatus != null)
+                            {
+                                <span class="badge @BadgeHelper.StatusBadgeClass(season.LeagueStatus)">@Lang.Get("competition.status." + season.LeagueStatus.ToLower())</span>
+                            }
+                        </div>
+                        <span class="season-comp-card__arrow">→</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="season-comp-card season-comp-card--league season-comp-card--pending">
+                        <div class="season-comp-card__body">
+                            <span class="season-comp-card__name">@season.LeagueName</span>
+                            <span class="badge bg-secondary">@Lang.Get("competition.status.notstarted")</span>
+                        </div>
+                    </div>
+                }
+            }
+            @if (season.HasCup)
+            {
+                @if (season.CupId.HasValue)
+                {
+                    <a href="/cups/@season.CupId" class="season-comp-card season-comp-card--cup">
+                        <div class="season-comp-card__body">
+                            <span class="season-comp-card__name">@season.CupName</span>
+                            @if (season.CupStatus != null)
+                            {
+                                <span class="badge @BadgeHelper.StatusBadgeClass(season.CupStatus)">@Lang.Get("competition.status." + season.CupStatus.ToLower())</span>
+                            }
+                        </div>
+                        <span class="season-comp-card__arrow">→</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="season-comp-card season-comp-card--cup season-comp-card--pending">
+                        <div class="season-comp-card__body">
+                            <span class="season-comp-card__name">@season.CupName</span>
+                            <span class="badge bg-secondary">@Lang.Get("competition.status.notstarted")</span>
+                        </div>
+                    </div>
+                }
+            }
+            @if (season.HasSuperCup)
+            {
+                @if (season.SuperCupId.HasValue)
+                {
+                    <a href="/supercups/@season.SuperCupId" class="season-comp-card season-comp-card--supercup">
+                        <div class="season-comp-card__body">
+                            <span class="season-comp-card__name">@season.SuperCupName</span>
+                            @if (season.SuperCupStatus != null)
+                            {
+                                <span class="badge @BadgeHelper.StatusBadgeClass(season.SuperCupStatus)">@Lang.Get("competition.status." + season.SuperCupStatus.ToLower())</span>
+                            }
+                        </div>
+                        <span class="season-comp-card__arrow">→</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="season-comp-card season-comp-card--supercup season-comp-card--pending">
+                        <div class="season-comp-card__body">
+                            <span class="season-comp-card__name">@season.SuperCupName</span>
+                            <span class="badge bg-secondary">@Lang.Get("competition.status.notstarted")</span>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+
+    @* Actions toolbar *@
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
         <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
         @if (season.Status == "Finished")
         {
@@ -184,6 +271,11 @@ else
         }
         @if (isOwner && season.Status == "Active")
         {
+            <span class="season-actions-sep"></span>
+            @if (!CanFinish)
+            {
+                <span class="text-muted small">@Lang.Get("season.finishWarning")</span>
+            }
             <button class="btn btn-outline-danger btn-sm" disabled="@(!CanFinish || isFinishing)"
                     @onclick="HandleFinish">
                 @if (isFinishing)
@@ -193,58 +285,9 @@ else
                 @(isFinishing ? Lang.Get("season.finishing") : Lang.Get("season.finishSeason"))
             </button>
         }
-        @if (isOwner)
-        {
-            <button class="btn btn-outline-danger btn-sm ms-auto"
-                    @onclick="() => showDeleteModal = true">
-                @Lang.Get("season.deleteSeason")
-            </button>
-        }
     </div>
 
-    @if (isOwner && season.Status == "Active" && !CanFinish)
-    {
-        <div class="alert alert-warning mb-3" style="max-width:420px">
-            @Lang.Get("season.finishWarning")
-        </div>
-    }
-
-    <div class="d-flex gap-2 mb-4">
-        @if (season.HasLeague)
-        {
-            @if (season.LeagueId.HasValue)
-            {
-                <a href="/leagues/@season.LeagueId" class="badge bg-primary text-decoration-none">@season.LeagueName</a>
-            }
-            else
-            {
-                <span class="badge bg-primary">@season.LeagueName</span>
-            }
-        }
-        @if (season.HasCup)
-        {
-            @if (season.CupId.HasValue)
-            {
-                <a href="/cups/@season.CupId" class="badge bg-success text-decoration-none">@season.CupName</a>
-            }
-            else
-            {
-                <span class="badge bg-success">@season.CupName</span>
-            }
-        }
-        @if (season.HasSuperCup)
-        {
-            @if (season.SuperCupId.HasValue)
-            {
-                <a href="/supercups/@season.SuperCupId" class="badge bg-warning text-dark text-decoration-none">@season.SuperCupName</a>
-            }
-            else
-            {
-                <span class="badge bg-warning text-dark">@season.SuperCupName</span>
-            }
-        }
-    </div>
-
+    @* Main content *@
     <div class="row g-4">
         <div class="@(HasRightContent ? "col-lg-5" : "col-12")">
             <h5>@Lang.Get("season.players")</h5>
@@ -366,6 +409,16 @@ else
                 }
             </div>
         }
+    </div>
+}
+
+@if (isOwner && season != null)
+{
+    <div class="mt-5 pt-3 border-top">
+        <button class="btn btn-link btn-sm text-danger p-0" style="font-size:.78rem;opacity:.6"
+                @onclick="() => showDeleteModal = true">
+            @Lang.Get("season.deleteSeason")
+        </button>
     </div>
 }
 

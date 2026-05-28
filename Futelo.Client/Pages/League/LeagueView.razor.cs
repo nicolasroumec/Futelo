@@ -35,6 +35,7 @@ public partial class LeagueView : LocalizedComponentBase
     private RecordResultResponse? lastEloResult;
 
     private int selectedMatchday;
+    private bool _matchdayInitialized;
 
     private int? editingMatchId;
     private List<TeamResponse> teams = [];
@@ -101,7 +102,11 @@ public partial class LeagueView : LocalizedComponentBase
         try
         {
             league = await LeagueService.GetByIdAsync(Id, ComponentToken);
-            AutoSelectMatchday();
+            if (!_matchdayInitialized)
+            {
+                AutoSelectMatchday();
+                _matchdayInitialized = true;
+            }
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
