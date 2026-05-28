@@ -105,6 +105,8 @@
   "season.activateSuccess": "Season activated successfully.",
   "season.configSaved": "Configuration saved.",
   "season.notFound": "Season not found.",
+  "season.recap": "Recap",
+  "season.copyRecapLink": "Copy recap link",
   "season.status.draft": "Draft",
   "season.status.active": "Active",
   "season.status.finished": "Finished",

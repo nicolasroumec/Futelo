@@ -88,6 +88,58 @@ Status: ✅ done · 🔄 in progress · 📋 planned
 | Offline indicator | ✅ | `Shared/OfflineIndicator.razor` |
 | i18n (ES / EN) | ✅ | `wwwroot/i18n/`, `Services/Language/LanguageService.cs` |
 
+## Backlog
+
+### Match status lifecycle
+
+**Scope:** Add a `MatchStatus` enum (`NotStarted | InProgress | Finished`) to the `Match` model. All existing matches default to `Finished` on migration.
+
+**State machine:**
+```
+NotStarted → InProgress → Finished
+```
+- `NotStarted` → `InProgress`: vault member marks the match as started.
+- `InProgress` → `Finished`: vault member records the final result (triggers ELO update).
+
+**Edit / correction rules:**
+- Score can be freely updated while `InProgress` (no ELO committed yet).
+- Once `Finished`, result is locked **unless** it is the most recent finished match for **both** players in the vault. In that case the vault owner can reset it to `InProgress`, which rolls back the single ELO delta for that match. Multi-match rollback is out of scope.
+- `NotStarted` matches show no score; `InProgress` matches show a live score badge; `Finished` matches show the final result as today.
+
+**Provisional standings (future):**
+- While a match is `InProgress`, standings/ELO could be projected with the current score. Requires a read-only recalculation endpoint — no SignalR, no real-time push. Deferred until match status is stable.
+
+**API changes needed:**
+```
+PATCH  /api/leagues/{id}/matches/{matchId}/status      (NotStarted → InProgress)
+PATCH  /api/cups/{id}/matches/{matchId}/status
+PATCH  /api/supercups/{id}/matches/{matchId}/status
+PUT    /api/leagues/{id}/matches/{matchId}/result       (InProgress → Finished, same endpoint)
+```
+
+**Other backlog items:**
+| Feature | Priority | Notes |
+|---------|----------|-------|
+| Remove player from vault | High | Needs `DELETE /api/vaults/{id}/players/{playerId}`; check no active season references the player |
+| Clone season config | Medium | Pre-fill new season draft from previous season (players, competition types, rules) |
+| Push notifications (PWA) | Medium | Service Worker already in place; notify players about upcoming scheduled matches |
+| Transfer vault ownership | Low | Owner hands off admin rights to another vault member |
+| Cross-season stats comparison | Low | Table comparing a player's key stats (ELO delta, W/L, goals) across all seasons |
+
+### UX / UI fixes (from branch 16-ux-ui audit)
+
+| Item | Type | Detail |
+|------|------|--------|
+| ~~`PageTitle` hardcoded in competition views~~ | ~~Bug~~ | ~~done~~ |
+| ~~"Recap" / "Copy recap link" not i18n~~ | ~~Bug~~ | ~~done~~ |
+| ~~Scorers missing from VaultDetail stats row~~ | ~~Missing~~ | ~~done~~ |
+| Dashboard empty state uses inline card | Inconsistency | When no vaults exist, the Dashboard renders a custom `<div class="card">` instead of the `<EmptyState>` component introduced in this branch |
+| No current-user row highlight in standings | UX | League standings table has no visual distinction for the logged-in player's own row |
+| Not-found states are bare text | UX | `<p class="text-danger">...notFound</p>` in League/Cup/SuperCup/Vault when resource is missing; replace with `<EmptyState>` |
+| Active season badge doesn't link | UX | The "active season" badge on Dashboard vault cards is static text; it should link to the active season page |
+
+---
+
 ## API surface (all routes require JWT)
 
 ```

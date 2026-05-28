@@ -2,7 +2,7 @@
 @inherits LocalizedComponentBase
 @attribute [Authorize]
 
-<PageTitle>Cup - Futelo</PageTitle>
+<PageTitle>@(cup?.Name ?? "Cup") - Futelo</PageTitle>
 
 @if (isLoading)
 {

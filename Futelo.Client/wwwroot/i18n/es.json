@@ -105,6 +105,8 @@
   "season.activateSuccess": "Temporada activada con éxito.",
   "season.configSaved": "Configuración guardada.",
   "season.notFound": "Temporada no encontrada.",
+  "season.recap": "Resumen",
+  "season.copyRecapLink": "Copiar enlace del resumen",
   "season.status.draft": "Borrador",
   "season.status.active": "Activa",
   "season.status.finished": "Finalizada",

@@ -180,8 +180,8 @@ else
         <a href="/vaults/@season.VaultId/seasons/@season.Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
         @if (season.Status == "Finished")
         {
-            <a href="/seasons/@season.Id/recap" class="btn btn-outline-secondary btn-sm">Recap</a>
-            <button class="btn btn-outline-secondary btn-sm" @onclick="CopyRecapLink">Copy recap link</button>
+            <a href="/seasons/@season.Id/recap" class="btn btn-outline-secondary btn-sm">@Lang.Get("season.recap")</a>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="CopyRecapLink">@Lang.Get("season.copyRecapLink")</button>
         }
         @if (isOwner && season.Status == "Active")
         {
