@@ -49,11 +49,26 @@ public partial class LeagueView : LocalizedComponentBase
     private string newAwayPlayerId = string.Empty;
     private bool isAddingMatch;
 
-    private string TiebreakerKey => league!.TiebreakerRule switch
+    private string TiebreakerSummary => string.Join(" › ",
+        league!.TiebreakerCriteria.Select(c => Lang.Get(CriterionNameKey(c))));
+
+    private string FinalTiebreakerKey => league!.FinalTiebreaker switch
     {
-        Futelo.Shared.Enums.TiebreakerRule.HeadToHead => "season.tiebreaker.headToHead",
-        Futelo.Shared.Enums.TiebreakerRule.HeadToHeadThenGoalDifference => "season.tiebreaker.headToHeadThenGD",
-        _ => "season.tiebreaker.goalDifference"
+        Futelo.Shared.Enums.FinalTiebreaker.DrawingOfLots => "season.tiebreaker.final.drawingOfLots",
+        Futelo.Shared.Enums.FinalTiebreaker.Playoff       => "season.tiebreaker.final.playoff",
+        _                                                  => "season.tiebreaker.final.alphabetical"
+    };
+
+    private static string CriterionNameKey(Futelo.Shared.Enums.TiebreakerCriterion c) => c switch
+    {
+        Futelo.Shared.Enums.TiebreakerCriterion.HeadToHeadPoints         => "season.tiebreaker.h2hPoints",
+        Futelo.Shared.Enums.TiebreakerCriterion.HeadToHeadWins           => "season.tiebreaker.h2hWins",
+        Futelo.Shared.Enums.TiebreakerCriterion.HeadToHeadGoalDifference => "season.tiebreaker.h2hGD",
+        Futelo.Shared.Enums.TiebreakerCriterion.HeadToHeadGoalsFor       => "season.tiebreaker.h2hGF",
+        Futelo.Shared.Enums.TiebreakerCriterion.GoalDifference           => "season.tiebreaker.goalDifference",
+        Futelo.Shared.Enums.TiebreakerCriterion.GoalsFor                 => "season.tiebreaker.goalsFor",
+        Futelo.Shared.Enums.TiebreakerCriterion.Wins                     => "season.tiebreaker.wins",
+        _                                                                 => c.ToString()
     };
 
     private List<int> Matchdays => league?.Matches

@@ -14,7 +14,8 @@ public class LeagueResponse
     public bool IsHomeAndAway { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
-    public TiebreakerRule TiebreakerRule { get; set; }
+    public List<TiebreakerCriterion> TiebreakerCriteria { get; set; } = [];
+    public FinalTiebreaker FinalTiebreaker { get; set; }
     public string? ChampionId { get; set; }
     public string? ChampionName { get; set; }
     public bool CanEdit { get; set; }

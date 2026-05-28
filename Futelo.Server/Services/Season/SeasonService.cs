@@ -77,7 +77,7 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             SeasonElo = EloCalculator.InitialElo
         }).ToList();
 
-        await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.LeagueTiebreakerRule, request.LeagueStartDate, request.LeagueEndDate, request.HasCup, request.CupName, request.CupIsHomeAndAway, request.CupSeedingMode, request.CupAwayGoalRule, request.CupStartDate, request.CupEndDate, request.HasSuperCup, request.SuperCupName, request.SuperCupStartDate, request.SuperCupEndDate);
+        await seasonRepository.ConfigureAsync(id, players, request.HasLeague, request.LeagueName, request.LeagueIsHomeAndAway, request.LeagueTiebreakerCriteria, request.LeagueFinalTiebreaker, request.LeagueStartDate, request.LeagueEndDate, request.HasCup, request.CupName, request.CupIsHomeAndAway, request.CupSeedingMode, request.CupAwayGoalRule, request.CupStartDate, request.CupEndDate, request.HasSuperCup, request.SuperCupName, request.SuperCupStartDate, request.SuperCupEndDate);
     }
 
     public async Task FinishAsync(int id, string userId)
@@ -184,7 +184,8 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
         LeagueId = season.League?.Id,
         LeagueName = season.League?.Name ?? "League",
         LeagueIsHomeAndAway = season.League?.IsHomeAndAway ?? false,
-        LeagueTiebreakerRule = season.League?.TiebreakerRule ?? TiebreakerRule.GoalDifference,
+        LeagueTiebreakerCriteria = season.League?.TiebreakerCriteria ?? Models.League.DefaultCriteria(),
+        LeagueFinalTiebreaker = season.League?.FinalTiebreaker ?? FinalTiebreaker.DrawingOfLots,
         LeagueStartDate = season.League?.StartDate,
         LeagueEndDate = season.League?.EndDate,
         LeagueStatus = season.League?.Status.ToString(),
@@ -252,6 +253,6 @@ public class SeasonService(ISeasonRepository seasonRepository, IVaultRepository 
             return [];
 
         var played = season.League.Matches.Where(m => m.Status == MatchStatus.Played).ToList();
-        return StandingsCalculator.Compute(played, season.League.Players, season.League.TiebreakerRule).Take(3).ToList();
+        return StandingsCalculator.Compute(played, season.League.Players, season.League.TiebreakerCriteria).Take(3).ToList();
     }
 }

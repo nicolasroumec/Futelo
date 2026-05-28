@@ -52,7 +52,7 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
             if (league == null || league.Status == TournamentStatus.NotStarted)
                 throw new InvalidOperationException("League must be active or finished to use league position seeding.");
             var played = league.Matches.Where(m => m.Status == MatchStatus.Played).ToList();
-            var standings = Futelo.Server.Helpers.StandingsCalculator.Compute(played, league.Players, league.TiebreakerRule);
+            var standings = Futelo.Server.Helpers.StandingsCalculator.Compute(played, league.Players, league.TiebreakerCriteria);
             seeds = standings.Select(row => row.PlayerId).ToList();
         }
         else

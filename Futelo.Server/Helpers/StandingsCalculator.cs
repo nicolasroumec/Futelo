@@ -9,8 +9,11 @@ public static class StandingsCalculator
     public static List<StandingRow> Compute(
         List<Match> played,
         IEnumerable<LeaguePlayer> leaguePlayers,
-        TiebreakerRule tiebreaker = TiebreakerRule.GoalDifference)
+        List<TiebreakerCriterion>? criteria = null,
+        bool randomFallback = false)
     {
+        var effectiveCriteria = criteria ?? League.DefaultCriteria();
+
         var rows = leaguePlayers.Select(lp =>
         {
             string pid = lp.PlayerId;
@@ -38,12 +41,11 @@ public static class StandingsCalculator
             };
         }).ToList();
 
-        // Group by points, then apply the chosen tiebreaker within each group.
         var result = new List<StandingRow>();
         foreach (var group in rows.GroupBy(r => r.Points).OrderByDescending(g => g.Key))
         {
             var tied = group.ToList();
-            result.AddRange(tied.Count == 1 ? tied : BreakTie(tied, played, tiebreaker));
+            result.AddRange(tied.Count == 1 ? tied : BreakTie(tied, played, effectiveCriteria, randomFallback));
         }
 
         return result;
@@ -52,31 +54,10 @@ public static class StandingsCalculator
     private static List<StandingRow> BreakTie(
         List<StandingRow> tied,
         List<Match> allPlayed,
-        TiebreakerRule tiebreaker)
+        List<TiebreakerCriterion> criteria,
+        bool randomFallback)
     {
-        return tiebreaker switch
-        {
-            TiebreakerRule.HeadToHead                  => SortByH2H(tied, allPlayed, overallGdFallback: false),
-            TiebreakerRule.HeadToHeadThenGoalDifference => SortByH2H(tied, allPlayed, overallGdFallback: true),
-            _                                           => SortByGoalDifference(tied)
-        };
-    }
-
-    private static List<StandingRow> SortByGoalDifference(List<StandingRow> tied) =>
-        tied.OrderByDescending(r => r.GoalDifference)
-            .ThenByDescending(r => r.GoalsFor)
-            .ThenBy(r => r.DisplayName, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-    // Computes a H2H sub-table among the tied players.
-    // overallGdFallback = true  → after H2H pts, use overall GD (HeadToHeadThenGoalDifference)
-    // overallGdFallback = false → after H2H pts, use H2H GD   (HeadToHead)
-    private static List<StandingRow> SortByH2H(
-        List<StandingRow> tied,
-        List<Match> allPlayed,
-        bool overallGdFallback)
-    {
-        var tiedIds   = tied.Select(r => r.PlayerId).ToHashSet();
+        var tiedIds = tied.Select(r => r.PlayerId).ToHashSet();
         var h2hMatches = allPlayed
             .Where(m => tiedIds.Contains(m.HomePlayerId!) && tiedIds.Contains(m.AwayPlayerId!))
             .ToList();
@@ -87,35 +68,57 @@ public static class StandingsCalculator
             var home = h2hMatches.Where(m => m.HomePlayerId == pid).ToList();
             var away = h2hMatches.Where(m => m.AwayPlayerId == pid).ToList();
 
-            int pts = home.Sum(m => m.HomeScore > m.AwayScore ? 3 : m.HomeScore == m.AwayScore ? 1 : 0)
-                    + away.Sum(m => m.AwayScore > m.HomeScore ? 3 : m.HomeScore == m.AwayScore ? 1 : 0);
-            int gf  = home.Sum(m => m.HomeScore ?? 0) + away.Sum(m => m.AwayScore ?? 0);
-            int ga  = home.Sum(m => m.AwayScore ?? 0) + away.Sum(m => m.HomeScore ?? 0);
+            int pts  = home.Sum(m => m.HomeScore > m.AwayScore ? 3 : m.HomeScore == m.AwayScore ? 1 : 0)
+                     + away.Sum(m => m.AwayScore > m.HomeScore ? 3 : m.HomeScore == m.AwayScore ? 1 : 0);
+            int wins = home.Count(m => m.HomeScore > m.AwayScore) + away.Count(m => m.AwayScore > m.HomeScore);
+            int gf   = home.Sum(m => m.HomeScore ?? 0) + away.Sum(m => m.AwayScore ?? 0);
+            int ga   = home.Sum(m => m.AwayScore ?? 0) + away.Sum(m => m.HomeScore ?? 0);
 
-            return (Pts: pts, GD: gf - ga, GF: gf);
+            return (Pts: pts, Wins: wins, GD: gf - ga, GF: gf);
         });
 
-        if (overallGdFallback)
+        IOrderedEnumerable<StandingRow>? ordered = null;
+
+        foreach (var criterion in criteria)
         {
-            // H2H pts → overall GD → overall GF → alphabetical
-            return tied
-                .OrderByDescending(r => h2h[r.PlayerId].Pts)
-                .ThenByDescending(r => r.GoalDifference)
-                .ThenByDescending(r => r.GoalsFor)
-                .ThenBy(r => r.DisplayName, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            if (ordered == null)
+            {
+                ordered = criterion switch
+                {
+                    TiebreakerCriterion.HeadToHeadPoints         => tied.OrderByDescending(r => h2h[r.PlayerId].Pts),
+                    TiebreakerCriterion.HeadToHeadWins           => tied.OrderByDescending(r => h2h[r.PlayerId].Wins),
+                    TiebreakerCriterion.HeadToHeadGoalDifference => tied.OrderByDescending(r => h2h[r.PlayerId].GD),
+                    TiebreakerCriterion.HeadToHeadGoalsFor       => tied.OrderByDescending(r => h2h[r.PlayerId].GF),
+                    TiebreakerCriterion.GoalDifference           => tied.OrderByDescending(r => r.GoalDifference),
+                    TiebreakerCriterion.GoalsFor                 => tied.OrderByDescending(r => r.GoalsFor),
+                    TiebreakerCriterion.Wins                     => tied.OrderByDescending(r => r.Won),
+                    _                                            => tied.OrderBy(r => r.DisplayName, StringComparer.OrdinalIgnoreCase)
+                };
+            }
+            else
+            {
+                ordered = criterion switch
+                {
+                    TiebreakerCriterion.HeadToHeadPoints         => ordered.ThenByDescending(r => h2h[r.PlayerId].Pts),
+                    TiebreakerCriterion.HeadToHeadWins           => ordered.ThenByDescending(r => h2h[r.PlayerId].Wins),
+                    TiebreakerCriterion.HeadToHeadGoalDifference => ordered.ThenByDescending(r => h2h[r.PlayerId].GD),
+                    TiebreakerCriterion.HeadToHeadGoalsFor       => ordered.ThenByDescending(r => h2h[r.PlayerId].GF),
+                    TiebreakerCriterion.GoalDifference           => ordered.ThenByDescending(r => r.GoalDifference),
+                    TiebreakerCriterion.GoalsFor                 => ordered.ThenByDescending(r => r.GoalsFor),
+                    TiebreakerCriterion.Wins                     => ordered.ThenByDescending(r => r.Won),
+                    _                                            => ordered.ThenBy(r => r.DisplayName, StringComparer.OrdinalIgnoreCase)
+                };
+            }
         }
-        else
+
+        var baseOrdered = ordered ?? tied.OrderBy(r => r.DisplayName, StringComparer.OrdinalIgnoreCase);
+
+        if (randomFallback)
         {
-            // H2H pts → H2H GD → H2H GF → overall GD → overall GF → alphabetical
-            return tied
-                .OrderByDescending(r => h2h[r.PlayerId].Pts)
-                .ThenByDescending(r => h2h[r.PlayerId].GD)
-                .ThenByDescending(r => h2h[r.PlayerId].GF)
-                .ThenByDescending(r => r.GoalDifference)
-                .ThenByDescending(r => r.GoalsFor)
-                .ThenBy(r => r.DisplayName, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            var randomKeys = tied.ToDictionary(r => r.PlayerId, _ => Random.Shared.Next());
+            return baseOrdered.ThenBy(r => randomKeys[r.PlayerId]).ToList();
         }
+
+        return baseOrdered.ThenBy(r => r.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
     }
 }

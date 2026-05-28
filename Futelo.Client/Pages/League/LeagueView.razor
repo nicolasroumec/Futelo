@@ -95,7 +95,7 @@ else
     }
 
     <div class="text-muted small mb-3 d-flex gap-3">
-        <span>@Lang.Get("season.tiebreaker"): <strong>@Lang.Get(TiebreakerKey)</strong></span>
+        <span>@Lang.Get("season.tiebreaker"): <strong>@TiebreakerSummary</strong> · <em>@Lang.Get(FinalTiebreakerKey)</em></span>
         @if (league.IsHomeAndAway)
         {
             <span>· @Lang.Get("season.homeAndAway")</span>

@@ -20,7 +20,7 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
 
         var standings = league.Status == TournamentStatus.NotStarted
             ? []
-            : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players, league.TiebreakerRule);
+            : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players, league.TiebreakerCriteria);
 
         var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
@@ -37,7 +37,8 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
             IsHomeAndAway = league.IsHomeAndAway,
             StartDate = league.StartDate,
             EndDate = league.EndDate,
-            TiebreakerRule = league.TiebreakerRule,
+            TiebreakerCriteria = league.TiebreakerCriteria,
+            FinalTiebreaker = league.FinalTiebreaker,
             ChampionId = league.ChampionId,
             ChampionName = league.ChampionId != null
                 ? league.Season.Players.FirstOrDefault(sp => sp.PlayerId == league.ChampionId)?.Player.DisplayName
@@ -211,7 +212,7 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
 
         var (homeResult, awayResult, goalDiff) = ComputeOutcome(homeScore, awayScore);
         var elo = ComputeEloBlock(homesp, awaysp, seasonPlayers, matchId, league.SeasonId, homeResult, awayResult, goalDiff);
-        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore, league.TiebreakerRule);
+        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore, league.TiebreakerCriteria, league.FinalTiebreaker);
 
         await leagueRepository.SaveMatchResultAsync(new MatchResultData
         {
@@ -361,7 +362,7 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
     private static (bool leagueFinished, Dictionary<string, int> finalPositions, string? championId) DetectFinish(
         IEnumerable<Match> allMatches, IEnumerable<LeaguePlayer> leaguePlayers,
         string homePlayerId, string awayPlayerId, int homeScore, int awayScore,
-        TiebreakerRule tiebreaker)
+        List<TiebreakerCriterion> criteria, FinalTiebreaker finalTiebreaker)
     {
         var matchList = allMatches.ToList();
         if (matchList.Count(m => m.Status == MatchStatus.Pending) != 1)
@@ -379,7 +380,8 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
             })
             .ToList();
 
-        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers, tiebreaker);
+        bool randomFallback = finalTiebreaker == FinalTiebreaker.DrawingOfLots;
+        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers, criteria, randomFallback);
         var finalPositions = finalStandings
             .Select((row, i) => (row.PlayerId, Position: i + 1))
             .ToDictionary(x => x.PlayerId, x => x.Position);

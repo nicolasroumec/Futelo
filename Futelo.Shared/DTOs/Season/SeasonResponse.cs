@@ -26,7 +26,8 @@ public class SeasonResponse
     public int? LeagueId { get; set; }
     public string LeagueName { get; set; } = "League";
     public bool LeagueIsHomeAndAway { get; set; }
-    public TiebreakerRule LeagueTiebreakerRule { get; set; }
+    public List<TiebreakerCriterion> LeagueTiebreakerCriteria { get; set; } = [];
+    public FinalTiebreaker LeagueFinalTiebreaker { get; set; }
     public DateTime? LeagueStartDate { get; set; }
     public DateTime? LeagueEndDate { get; set; }
     public string? LeagueStatus { get; set; }
