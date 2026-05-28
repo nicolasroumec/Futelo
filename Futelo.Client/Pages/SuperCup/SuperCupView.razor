@@ -28,14 +28,14 @@
 }
 else if (superCup == null)
 {
-    <p class="text-danger">@Lang.Get("superCup.notFound")</p>
+    <EmptyState Message="@Lang.Get("superCup.notFound")" />
 }
 else
 {
     <nav aria-label="breadcrumb" class="mb-2">
         <ol class="breadcrumb mb-0 small">
             <li class="breadcrumb-item">
-                <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+                <a href="/dashboard" class="breadcrumb-link">@Lang.Get("nav.dashboard")</a>
             </li>
             <li class="breadcrumb-item">
                 <a href="/vaults/@superCup.VaultId" class="breadcrumb-link">@superCup.VaultName</a>

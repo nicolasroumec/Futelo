@@ -9,6 +9,7 @@ using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.VideoGame;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Futelo.Client.Pages.League;
 
@@ -19,8 +20,10 @@ public partial class LeagueView : LocalizedComponentBase
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
+    [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private LeagueResponse? league;
+    private string? currentUserId;
     private bool isLoading = true;
     private bool isWorking;
     private bool confirmReshuffle;
@@ -69,6 +72,8 @@ public partial class LeagueView : LocalizedComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthStateTask;
+        currentUserId = authState.User.FindFirst("sub")?.Value;
         await LoadAsync();
     }
 

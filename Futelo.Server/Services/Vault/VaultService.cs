@@ -171,6 +171,7 @@ public class VaultService(IVaultRepository repository) : IVaultService
         OwnerId = vault.OwnerId,
         OwnerDisplayName = vault.Owner.DisplayName,
         HasActiveSeason = vault.Seasons.Any(s => s.Status == SeasonStatus.Active),
+        ActiveSeasonId = vault.Seasons.FirstOrDefault(s => s.Status == SeasonStatus.Active)?.Id,
         Players = vault.Players.Select(p => new VaultPlayerResponse
         {
             PlayerId = p.PlayerId,

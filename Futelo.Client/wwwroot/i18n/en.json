@@ -111,6 +111,8 @@
   "season.status.active": "Active",
   "season.status.finished": "Finished",
 
+  "competition.league": "League",
+  "competition.cup": "Cup",
   "competition.status.notstarted": "Not Started",
   "competition.status.active": "Active",
   "competition.status.finished": "Finished",

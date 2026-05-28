@@ -133,10 +133,10 @@ PUT    /api/leagues/{id}/matches/{matchId}/result       (InProgress → Finished
 | ~~`PageTitle` hardcoded in competition views~~ | ~~Bug~~ | ~~done~~ |
 | ~~"Recap" / "Copy recap link" not i18n~~ | ~~Bug~~ | ~~done~~ |
 | ~~Scorers missing from VaultDetail stats row~~ | ~~Missing~~ | ~~done~~ |
-| Dashboard empty state uses inline card | Inconsistency | When no vaults exist, the Dashboard renders a custom `<div class="card">` instead of the `<EmptyState>` component introduced in this branch |
-| No current-user row highlight in standings | UX | League standings table has no visual distinction for the logged-in player's own row |
-| Not-found states are bare text | UX | `<p class="text-danger">...notFound</p>` in League/Cup/SuperCup/Vault when resource is missing; replace with `<EmptyState>` |
-| Active season badge doesn't link | UX | The "active season" badge on Dashboard vault cards is static text; it should link to the active season page |
+| ~~Dashboard empty state uses inline card~~ | ~~Inconsistency~~ | ~~done~~ |
+| ~~No current-user row highlight in standings~~ | ~~UX~~ | ~~done~~ |
+| ~~Not-found states are bare text~~ | ~~UX~~ | ~~done~~ |
+| ~~Active season badge doesn't link~~ | ~~UX~~ | ~~done~~ |
 
 ---
 

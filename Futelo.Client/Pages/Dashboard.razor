@@ -15,13 +15,12 @@
 }
 else if (vaults.Count == 0)
 {
-    <div class="card card-glass text-center py-5" style="max-width:480px">
-        <div class="card-body">
-            <h4 class="card-title mb-2">@Lang.Get("dashboard.emptyTitle")</h4>
-            <p class="card-text mb-4">@Lang.Get("dashboard.emptySubtitle")</p>
-            <a href="/vaults/create" class="btn btn-primary">@Lang.Get("dashboard.newVault")</a>
-        </div>
-    </div>
+    <EmptyState Title="@Lang.Get("dashboard.emptyTitle")"
+                Message="@Lang.Get("dashboard.emptySubtitle")"
+                ActionLabel="@Lang.Get("dashboard.newVault")"
+                ActionHref="/vaults/create">
+        <Icon>🎮</Icon>
+    </EmptyState>
 }
 else
 {
@@ -34,9 +33,9 @@ else
                         <h5 class="card-title fw-bold mb-1">@vault.Name</h5>
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <span class="badge bg-secondary">@vault.Players.Count @Lang.Get("dashboard.players")</span>
-                            @if (vault.HasActiveSeason)
+                            @if (vault.HasActiveSeason && vault.ActiveSeasonId.HasValue)
                             {
-                                <span class="badge" style="background:rgba(34,197,94,.15);color:var(--color-primary)">@Lang.Get("dashboard.activeSeason")</span>
+                                <a href="/seasons/@vault.ActiveSeasonId" class="badge text-decoration-none" style="background:rgba(34,197,94,.15);color:var(--color-primary)">@Lang.Get("dashboard.activeSeason")</a>
                             }
                         </div>
                         <p class="card-text text-muted small mb-0">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>

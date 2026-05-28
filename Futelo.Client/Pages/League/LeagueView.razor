@@ -36,14 +36,14 @@
 }
 else if (league == null)
 {
-    <p class="text-danger">@Lang.Get("league.notFound")</p>
+    <EmptyState Message="@Lang.Get("league.notFound")" />
 }
 else
 {
     <nav aria-label="breadcrumb" class="mb-2">
         <ol class="breadcrumb mb-0 small">
             <li class="breadcrumb-item">
-                <a href="/dashboard" class="breadcrumb-link">Dashboard</a>
+                <a href="/dashboard" class="breadcrumb-link">@Lang.Get("nav.dashboard")</a>
             </li>
             <li class="breadcrumb-item">
                 <a href="/vaults/@league.VaultId" class="breadcrumb-link">@league.VaultName</a>
@@ -164,7 +164,7 @@ else
                                 @{ int pos = 1; }
                                 @foreach (var row in league.Standings)
                                 {
-                                    <tr>
+                                    <tr class="@(row.PlayerId == currentUserId ? "standings-me" : "")">
                                         <td>@pos</td>
                                         <td>@row.DisplayName</td>
                                         <td>@row.Played</td>

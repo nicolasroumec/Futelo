@@ -7,5 +7,6 @@ public class VaultResponse
     public string OwnerId { get; set; } = string.Empty;
     public string OwnerDisplayName { get; set; } = string.Empty;
     public bool HasActiveSeason { get; set; }
+    public int? ActiveSeasonId { get; set; }
     public List<VaultPlayerResponse> Players { get; set; } = [];
 }
