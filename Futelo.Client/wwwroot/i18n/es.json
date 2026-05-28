@@ -130,6 +130,9 @@
   "createSeason.cup": "Copa",
   "createSeason.superCup": "Supercopa",
   "createSeason.namePlaceholder": "ej. Temporada 2026",
+  "createSeason.cloneFrom": "Copiar configuración de temporada anterior",
+  "createSeason.cloneFromNone": "— No copiar —",
+  "createSeason.cloneFromHint": "Copia jugadores y reglas de competencia de una temporada anterior.",
 
   "stats.generalRanking": "Ranking General",
   "stats.ranking": "Ranking de Temporada",

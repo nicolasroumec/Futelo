@@ -11,6 +11,21 @@
             <h3 class="mb-0">@Lang.Get("createSeason.title")</h3>
         </div>
 
+        @if (previousSeasons.Count > 0)
+        {
+            <div class="mb-4 p-3 border rounded">
+                <label class="form-label fw-semibold">@Lang.Get("createSeason.cloneFrom")</label>
+                <p class="text-muted small mb-2">@Lang.Get("createSeason.cloneFromHint")</p>
+                <select class="form-select" @onchange="OnSourceSeasonChanged">
+                    <option value="">@Lang.Get("createSeason.cloneFromNone")</option>
+                    @foreach (var s in previousSeasons)
+                    {
+                        <option value="@s.Id">@s.Name (@s.Year)</option>
+                    }
+                </select>
+            </div>
+        }
+
         <EditForm Model="model" OnValidSubmit="HandleCreate">
             <DataAnnotationsValidator />
 

@@ -121,7 +121,7 @@ PUT    /api/leagues/{id}/matches/{matchId}/result       (InProgress → Finished
 | Feature | Priority | Notes |
 |---------|----------|-------|
 | ~~Remove player from vault~~ | ~~High~~ | ~~done~~ |
-| Clone season config | Medium | Pre-fill new season draft from previous season (players, competition types, rules) |
+| ~~Clone season config~~ | ~~Medium~~ | ~~done~~ |
 | Push notifications (PWA) | Medium | Service Worker already in place; notify players about upcoming scheduled matches |
 | Transfer vault ownership | Low | Owner hands off admin rights to another vault member |
 | Cross-season stats comparison | Low | Table comparing a player's key stats (ELO delta, W/L, goals) across all seasons |
