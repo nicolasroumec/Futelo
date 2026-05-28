@@ -188,6 +188,22 @@ else
                                                     OnCancel="() => recordingMatchId = null" />
                                             </div>
                                         }
+                                        @if (lastResultMatchId == match.Id && lastEloResult != null)
+                                        {
+                                            <EloChangeSummary
+                                                HomeName="@lastEloResult.Home.DisplayName"
+                                                HomeEloChange="@lastEloResult.Home.EloChange"
+                                                HomeEloBefore="@lastEloResult.Home.EloBefore"
+                                                HomeEloAfter="@lastEloResult.Home.EloAfter"
+                                                HomeRankBefore="@lastEloResult.Home.RankBefore"
+                                                HomeRankAfter="@lastEloResult.Home.RankAfter"
+                                                AwayName="@lastEloResult.Away.DisplayName"
+                                                AwayEloChange="@lastEloResult.Away.EloChange"
+                                                AwayEloBefore="@lastEloResult.Away.EloBefore"
+                                                AwayEloAfter="@lastEloResult.Away.EloAfter"
+                                                AwayRankBefore="@lastEloResult.Away.RankBefore"
+                                                AwayRankAfter="@lastEloResult.Away.RankAfter" />
+                                        }
 
                                         <MatchEditPanel
                                             IsEditing="editingMatchId == match.Id"

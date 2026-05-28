@@ -31,6 +31,8 @@ public partial class LeagueView : LocalizedComponentBase
 
     private int? recordingMatchId;
     private bool isRecording;
+    private int? lastResultMatchId;
+    private RecordResultResponse? lastEloResult;
 
     private int selectedMatchday;
 
@@ -132,6 +134,8 @@ public partial class LeagueView : LocalizedComponentBase
         {
             recordingMatchId = matchId;
             editingMatchId = null;
+            lastEloResult = null;
+            lastResultMatchId = null;
         }
     }
 
@@ -227,10 +231,12 @@ public partial class LeagueView : LocalizedComponentBase
     {
         if (recordingMatchId == null) return;
         isRecording = true;
+        var matchId = recordingMatchId.Value;
         try
         {
             var request = new RecordResultRequest { HomeScore = input.HomeScore, AwayScore = input.AwayScore };
-            await LeagueService.RecordResultAsync(Id, recordingMatchId.Value, request);
+            lastEloResult = await LeagueService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
             recordingMatchId = null;
             Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
             await LoadAsync();

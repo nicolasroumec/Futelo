@@ -37,6 +37,8 @@ public partial class SuperCupView : LocalizedComponentBase
     private bool recordingIsLeg2;
     private int? otherLegHomeScore;
     private int? otherLegAwayScore;
+    private int? lastResultMatchId;
+    private RecordSuperCupResultResponse? lastEloResult;
 
     private int? editingMatchId;
     private List<TeamResponse> teams = [];
@@ -119,6 +121,7 @@ public partial class SuperCupView : LocalizedComponentBase
     {
         if (recordingMatchId == null) return;
         isRecording = true;
+        var matchId = recordingMatchId.Value;
         try
         {
             var request = new RecordSuperCupResultRequest
@@ -129,7 +132,8 @@ public partial class SuperCupView : LocalizedComponentBase
                 HomePenaltyScore = input.HomePenaltyScore,
                 AwayPenaltyScore = input.AwayPenaltyScore
             };
-            await SuperCupService.RecordResultAsync(Id, recordingMatchId.Value, request);
+            lastEloResult = await SuperCupService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
             recordingMatchId = null;
             Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
             await LoadAsync();

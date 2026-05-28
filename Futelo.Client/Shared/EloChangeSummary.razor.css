@@ -1,0 +1,34 @@
+.elo-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.elo-summary__row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.78rem;
+}
+
+.elo-summary__name {
+    min-width: 80px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.elo-summary__elo {
+    color: var(--color-muted);
+    min-width: 80px;
+}
+
+.elo-summary__change {
+    font-weight: 600;
+    min-width: 36px;
+}
+
+.elo-summary__rank {
+    font-size: 0.72rem;
+}
