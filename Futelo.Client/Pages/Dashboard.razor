@@ -35,7 +35,7 @@ else
                             <span class="badge bg-secondary">@vault.Players.Count @Lang.Get("dashboard.players")</span>
                             @if (vault.HasActiveSeason && vault.ActiveSeasonId.HasValue)
                             {
-                                <a href="/seasons/@vault.ActiveSeasonId" class="badge text-decoration-none" style="background:rgba(34,197,94,.15);color:var(--color-primary)">@Lang.Get("dashboard.activeSeason")</a>
+                                <a href="/seasons/@vault.ActiveSeasonId" class="badge badge-active-season text-decoration-none">@Lang.Get("dashboard.activeSeason")</a>
                             }
                         </div>
                         <p class="card-text text-muted small mb-0">@Lang.Get("common.owner"): @vault.OwnerDisplayName</p>

@@ -1,4 +1,5 @@
 @page "/seasons/{id:int}/recap"
+@inherits LocalizedComponentBase
 
 <PageTitle>@(recap != null ? $"{recap.SeasonName} {recap.Year} – Recap" : "Season Recap") - Futelo</PageTitle>
 
@@ -27,7 +28,7 @@
             <h2 class="mb-0">@recap.SeasonName</h2>
             <span class="text-muted fs-5">@recap.Year</span>
         </div>
-        <p class="text-muted mb-4">@recap.TotalMatches matches · @recap.TotalGoals goals</p>
+        <p class="text-muted mb-4">@recap.TotalMatches @Lang.Get("recap.matches") · @recap.TotalGoals @Lang.Get("stats.goalsLabel")</p>
 
         @if (recap.LeagueChampion is not null || recap.CupChampion is not null || recap.SuperCupChampion is not null)
         {
@@ -63,7 +64,7 @@
                             <div class="card-body py-3">
                                 <div class="fs-4 mb-1">⭐</div>
                                 <div class="fw-bold">@recap.SuperCupChampion</div>
-                                <div class="text-muted small">Super Cup</div>
+                                <div class="text-muted small">@Lang.Get("superCup.title")</div>
                             </div>
                         </div>
                     </div>
@@ -77,9 +78,9 @@
                 <div class="col-sm-6">
                     <div class="card h-100">
                         <div class="card-body py-3">
-                            <div class="text-muted small mb-1">Top scorer</div>
+                            <div class="text-muted small mb-1">@Lang.Get("recap.topScorer")</div>
                             <div class="fw-bold">@recap.TopScorerName</div>
-                            <div class="fs-5">@recap.TopScorerGoals goals</div>
+                            <div class="fs-5">@recap.TopScorerGoals @Lang.Get("stats.goalsLabel")</div>
                         </div>
                     </div>
                 </div>
@@ -89,7 +90,7 @@
                 <div class="col-sm-6">
                     <div class="card h-100">
                         <div class="card-body py-3">
-                            <div class="text-muted small mb-1">Most improved</div>
+                            <div class="text-muted small mb-1">@Lang.Get("recap.mostImproved")</div>
                             <div class="fw-bold">@recap.MostImprovedName</div>
                             <div class="fs-5 text-success">+@recap.MostImprovedEloGain ELO</div>
                         </div>
@@ -101,7 +102,7 @@
                 <div class="col-sm-6">
                     <div class="card h-100">
                         <div class="card-body py-3">
-                            <div class="text-muted small mb-1">Biggest win</div>
+                            <div class="text-muted small mb-1">@Lang.Get("recap.biggestWin")</div>
                             <div class="fw-bold">@recap.BiggestWinHome @recap.BiggestWinHomeScore – @recap.BiggestWinAwayScore @recap.BiggestWinAway</div>
                         </div>
                     </div>
@@ -112,17 +113,15 @@
                 <div class="col-sm-6">
                     <div class="card h-100">
                         <div class="card-body py-3">
-                            <div class="text-muted small mb-1">Longest win streak</div>
+                            <div class="text-muted small mb-1">@Lang.Get("recap.longestStreak")</div>
                             <div class="fw-bold">@recap.LongestStreakPlayer</div>
-                            <div class="fs-5">@recap.LongestStreak wins</div>
+                            <div class="fs-5">@recap.LongestStreak @Lang.Get("recap.wins")</div>
                         </div>
                     </div>
                 </div>
             }
         </div>
 
-        <button class="btn btn-outline-secondary btn-sm" @onclick="CopyLink">
-            Copy link
-        </button>
+        <button class="btn btn-outline-secondary btn-sm" @onclick="CopyLink">@Lang.Get("recap.copyLink")</button>
     }
 </div>

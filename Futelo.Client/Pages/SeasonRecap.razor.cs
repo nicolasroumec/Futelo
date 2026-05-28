@@ -1,12 +1,13 @@
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Toast;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Season;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace Futelo.Client.Pages;
 
-public partial class SeasonRecap
+public partial class SeasonRecap : LocalizedComponentBase
 {
     [Parameter] public int Id { get; set; }
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
@@ -37,6 +38,6 @@ public partial class SeasonRecap
     private async Task CopyLink()
     {
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", Nav.Uri);
-        Toast.Show("Link copied!");
+        Toast.Show(Lang.Get("recap.linkCopied"));
     }
 }

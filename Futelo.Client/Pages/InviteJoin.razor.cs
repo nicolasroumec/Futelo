@@ -1,11 +1,12 @@
 using Futelo.Client.Services.Invitation;
+using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Invitation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Futelo.Client.Pages;
 
-public partial class InviteJoin
+public partial class InviteJoin : LocalizedComponentBase
 {
     [SupplyParameterFromQuery(Name = "token")]
     private string? Token { get; set; }
@@ -25,7 +26,7 @@ public partial class InviteJoin
     {
         if (string.IsNullOrWhiteSpace(Token))
         {
-            errorMessage = "Invalid invitation link.";
+            errorMessage = Lang.Get("invitation.invalidLink");
             isLoading = false;
             return;
         }

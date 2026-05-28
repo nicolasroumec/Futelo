@@ -1,0 +1,4 @@
+.season-draft-banner {
+    background: rgba(var(--bs-primary-rgb), .06);
+    border: 1px solid rgba(var(--bs-primary-rgb), .2);
+}

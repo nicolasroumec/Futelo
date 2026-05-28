@@ -62,6 +62,9 @@
   "vault.rename": "Renombrar vault",
   "vault.renameSuccess": "Nombre actualizado.",
   "vault.inviteLinkCopied": "Enlace copiado.",
+  "vault.role.viewer": "Espectador",
+  "vault.role.editor": "Editor",
+  "vault.role.admin": "Admin",
 
   "createVault.title": "Nuevo Vault",
   "createVault.name": "Nombre del vault",
@@ -123,6 +126,7 @@
   "createSeason.league": "Liga",
   "createSeason.cup": "Copa",
   "createSeason.superCup": "Supercopa",
+  "createSeason.namePlaceholder": "ej. Temporada 2026",
 
   "stats.generalRanking": "Ranking General",
   "stats.ranking": "Ranking de Temporada",
@@ -214,6 +218,15 @@
   "headToHead.draws": "Empates",
   "headToHead.notFound": "Datos no encontrados.",
 
+  "recap.topScorer": "Máximo goleador",
+  "recap.mostImproved": "Mayor progreso",
+  "recap.biggestWin": "Mayor victoria",
+  "recap.longestStreak": "Racha más larga",
+  "recap.wins": "victorias",
+  "recap.matches": "partidos",
+  "recap.copyLink": "Copiar enlace",
+  "recap.linkCopied": "¡Enlace copiado!",
+
   "league.standings": "Tabla de posiciones",
   "league.fixture": "Fixture",
   "league.enterResult": "Ingresar resultado",
@@ -290,6 +303,25 @@
   "games.name": "Nombre del juego",
   "games.empty": "Sin videojuegos aún.",
   "games.editGame": "Editar juego",
+
+  "offline.noConnection": "Sin conexión a internet",
+  "pwa.updateAvailable": "Nueva versión disponible.",
+  "pwa.reload": "Recargar",
+
+  "invitation.processing": "Procesando invitación...",
+  "invitation.goToDashboard": "Ir al Dashboard",
+  "invitation.joinedSuccess": "¡Te has unido al vault con éxito!",
+  "invitation.loading": "Cargando invitación...",
+  "invitation.goToHome": "Ir al inicio",
+  "invitation.youreInvited": "Estás invitado a unirte a",
+  "invitation.role": "Rol",
+  "invitation.expires": "Vence",
+  "invitation.loginToJoin": "Iniciar sesión para unirte",
+  "invitation.createAccountAndJoin": "Crear cuenta y unirte",
+  "invitation.invalidLink": "Enlace de invitación inválido.",
+
+  "notFound.title": "No encontrado",
+  "notFound.message": "El contenido que buscas no existe.",
 
   "common.all": "Todos",
   "common.save": "Guardar",

@@ -1,4 +1,5 @@
 @page "/invitations/{token}/accept"
+@inherits LocalizedComponentBase
 @attribute [Authorize]
 
 <PageTitle>Accept Invitation - Futelo</PageTitle>
@@ -7,17 +8,17 @@
     <div class="col-md-4 text-center">
         @if (isLoading)
         {
-            <p>Processing invitation...</p>
+            <p>@Lang.Get("invitation.processing")</p>
         }
         else if (!string.IsNullOrEmpty(errorMessage))
         {
             <div class="alert alert-danger">@errorMessage</div>
-            <a href="/dashboard" class="btn btn-outline-secondary mt-2">Go to Dashboard</a>
+            <a href="/dashboard" class="btn btn-outline-secondary mt-2">@Lang.Get("invitation.goToDashboard")</a>
         }
         else
         {
-            <div class="alert alert-success">You have joined the vault successfully!</div>
-            <a href="/dashboard" class="btn btn-primary mt-2">Go to Dashboard</a>
+            <div class="alert alert-success">@Lang.Get("invitation.joinedSuccess")</div>
+            <a href="/dashboard" class="btn btn-primary mt-2">@Lang.Get("invitation.goToDashboard")</a>
         }
     </div>
 </div>

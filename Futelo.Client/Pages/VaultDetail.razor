@@ -130,9 +130,9 @@ else
                     <DataAnnotationsValidator />
                     <div class="input-group mb-2">
                         <InputSelect class="form-select" @bind-Value="inviteModel.Role">
-                            <option value="@VaultRole.Viewer">Viewer</option>
-                            <option value="@VaultRole.Editor">Editor</option>
-                            <option value="@VaultRole.Admin">Admin</option>
+                            <option value="@VaultRole.Viewer">@Lang.Get("vault.role.viewer")</option>
+                            <option value="@VaultRole.Editor">@Lang.Get("vault.role.editor")</option>
+                            <option value="@VaultRole.Admin">@Lang.Get("vault.role.admin")</option>
                         </InputSelect>
                         <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
                             @(isInviting ? Lang.Get("vault.generating") : Lang.Get("vault.generateLink"))

@@ -100,7 +100,7 @@
 
 /* Current-user row in standings */
 .standings-me {
-    background: rgba(34, 197, 94, .07) !important;
+    background: rgba(var(--bs-primary-rgb), .07) !important;
     font-weight: 600;
 }
 

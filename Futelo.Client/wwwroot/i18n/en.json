@@ -62,6 +62,9 @@
   "vault.rename": "Rename vault",
   "vault.renameSuccess": "Name updated.",
   "vault.inviteLinkCopied": "Link copied.",
+  "vault.role.viewer": "Viewer",
+  "vault.role.editor": "Editor",
+  "vault.role.admin": "Admin",
 
   "createVault.title": "New Vault",
   "createVault.name": "Vault Name",
@@ -123,6 +126,7 @@
   "createSeason.league": "League",
   "createSeason.cup": "Cup",
   "createSeason.superCup": "Super Cup",
+  "createSeason.namePlaceholder": "e.g. Season 2026",
 
   "stats.generalRanking": "General Ranking",
   "stats.ranking": "Season Ranking",
@@ -214,6 +218,15 @@
   "headToHead.draws": "Draws",
   "headToHead.notFound": "Data not found.",
 
+  "recap.topScorer": "Top scorer",
+  "recap.mostImproved": "Most improved",
+  "recap.biggestWin": "Biggest win",
+  "recap.longestStreak": "Longest win streak",
+  "recap.wins": "wins",
+  "recap.matches": "matches",
+  "recap.copyLink": "Copy link",
+  "recap.linkCopied": "Link copied!",
+
   "league.standings": "Standings",
   "league.fixture": "Fixture",
   "league.enterResult": "Enter Result",
@@ -290,6 +303,25 @@
   "games.name": "Game Name",
   "games.empty": "No video games yet.",
   "games.editGame": "Edit Game",
+
+  "offline.noConnection": "No internet connection",
+  "pwa.updateAvailable": "New version available.",
+  "pwa.reload": "Reload",
+
+  "invitation.processing": "Processing invitation...",
+  "invitation.goToDashboard": "Go to Dashboard",
+  "invitation.joinedSuccess": "You have joined the vault successfully!",
+  "invitation.loading": "Loading invitation...",
+  "invitation.goToHome": "Go to Home",
+  "invitation.youreInvited": "You're invited to join",
+  "invitation.role": "Role",
+  "invitation.expires": "Expires",
+  "invitation.loginToJoin": "Login to join",
+  "invitation.createAccountAndJoin": "Create account & join",
+  "invitation.invalidLink": "Invalid invitation link.",
+
+  "notFound.title": "Not Found",
+  "notFound.message": "Sorry, the content you are looking for does not exist.",
 
   "common.all": "All",
   "common.save": "Save",

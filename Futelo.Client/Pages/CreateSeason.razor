@@ -16,7 +16,7 @@
 
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("common.name")</label>
-                <InputText class="form-control" @bind-Value="model.Name" placeholder="e.g. Season 2026" />
+                <InputText class="form-control" @bind-Value="model.Name" placeholder="@Lang.Get("createSeason.namePlaceholder")" />
                 <div class="invalid-feedback"><ValidationMessage For="() => model.Name" /></div>
             </div>
 
