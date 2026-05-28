@@ -2,12 +2,44 @@ using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Season;
 using Futelo.Shared.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Futelo.Client.Pages;
 
 public partial class SeasonCompetitionConfig : LocalizedComponentBase
 {
     [Parameter] public ConfigureSeasonRequest Model { get; set; } = new();
+
+    private int _dragIndex = -1;
+    private int _dragOverIndex = -1;
+
+    private void OnDragStart(int index) => _dragIndex = index;
+
+    private void OnDragOver(int index)
+    {
+        if (_dragOverIndex == index) return;
+        _dragOverIndex = index;
+        StateHasChanged();
+    }
+
+    private void OnDrop(int index)
+    {
+        if (_dragIndex >= 0 && _dragIndex != index)
+        {
+            var item = Model.LeagueTiebreakerCriteria[_dragIndex];
+            Model.LeagueTiebreakerCriteria.RemoveAt(_dragIndex);
+            Model.LeagueTiebreakerCriteria.Insert(index, item);
+        }
+        ResetDrag();
+    }
+
+    private void OnDragEnd() => ResetDrag();
+
+    private void ResetDrag()
+    {
+        _dragIndex = -1;
+        _dragOverIndex = -1;
+    }
 
     private void MoveCriterionUp(int index)
     {

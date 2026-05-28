@@ -38,7 +38,17 @@
                         {
                             var idx = i;
                             var criterion = Model.LeagueTiebreakerCriteria[idx];
-                            <div class="tiebreaker-item">
+                            var itemClass = "tiebreaker-item"
+                                + (_dragIndex == idx ? " tiebreaker-item--dragging" : "")
+                                + (_dragOverIndex == idx && _dragIndex != idx ? " tiebreaker-item--drag-over" : "");
+                            <div class="@itemClass"
+                                 draggable="true"
+                                 @ondragstart="() => OnDragStart(idx)"
+                                 @ondragover="() => OnDragOver(idx)"
+                                 @ondragover:preventDefault="true"
+                                 @ondrop="() => OnDrop(idx)"
+                                 @ondrop:preventDefault="true"
+                                 @ondragend="OnDragEnd">
                                 <span class="tiebreaker-rank">@(idx + 1)</span>
                                 <div class="tiebreaker-info">
                                     <span class="tiebreaker-name">@Lang.Get(CriterionNameKey(criterion))</span>
@@ -46,9 +56,13 @@
                                 </div>
                                 <div class="tiebreaker-actions">
                                     <button type="button" class="btn btn-sm btn-outline-secondary tiebreaker-btn"
-                                            @onclick="() => MoveCriterionUp(idx)" disabled="@(idx == 0)">↑</button>
+                                            @onclick="() => MoveCriterionUp(idx)"
+                                            @onclick:stopPropagation="true"
+                                            disabled="@(idx == 0)">↑</button>
                                     <button type="button" class="btn btn-sm btn-outline-secondary tiebreaker-btn"
-                                            @onclick="() => MoveCriterionDown(idx)" disabled="@(idx == Model.LeagueTiebreakerCriteria.Count - 1)">↓</button>
+                                            @onclick="() => MoveCriterionDown(idx)"
+                                            @onclick:stopPropagation="true"
+                                            disabled="@(idx == Model.LeagueTiebreakerCriteria.Count - 1)">↓</button>
                                 </div>
                             </div>
                         }
