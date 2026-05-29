@@ -1,8 +1,29 @@
+.cup-bracket-wrapper {
+    position: relative;
+}
+
+.cup-bracket-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to right, transparent, var(--color-bg));
+    pointer-events: none;
+}
+
 .cup-bracket {
     display: flex;
     align-items: flex-start;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
     padding: 0.5rem 0 1.25rem;
+}
+
+.cup-bracket::-webkit-scrollbar {
+    display: none;
 }
 
 /* ── Round column ── */
@@ -10,7 +31,13 @@
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    width: 164px;
+    width: 140px;
+}
+
+@media (min-width: 480px) {
+    .bracket-round {
+        width: 164px;
+    }
 }
 
 .bracket-round__label {
