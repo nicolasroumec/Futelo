@@ -8,23 +8,37 @@
         <div class="d-flex justify-content-between align-items-end gap-2">
             <div>
                 <label class="form-label form-label-sm mb-1">@HomePlayerName</label>
-                <select class="form-select form-select-sm" style="width:140px" @bind="editHomeTeamIdStr">
-                    <option value="">@Lang.Get("common.none")</option>
-                    @foreach (var t in Teams)
+                <div class="d-flex align-items-center gap-1">
+                    @{ var homeTeam = Teams.FirstOrDefault(t => t.Id.ToString() == editHomeTeamIdStr); }
+                    @if (homeTeam != null)
                     {
-                        <option value="@t.Id">@t.Name</option>
+                        <TeamShield Name="@homeTeam.Name" Size="22" ShieldUrl="@homeTeam.ShieldUrl" />
                     }
-                </select>
+                    <select class="form-select form-select-sm" style="width:140px" @bind="editHomeTeamIdStr">
+                        <option value="">@Lang.Get("common.none")</option>
+                        @foreach (var t in Teams)
+                        {
+                            <option value="@t.Id">@t.Name</option>
+                        }
+                    </select>
+                </div>
             </div>
             <div class="text-end">
                 <label class="form-label form-label-sm mb-1">@AwayPlayerName</label>
-                <select class="form-select form-select-sm" style="width:140px" @bind="editAwayTeamIdStr">
-                    <option value="">@Lang.Get("common.none")</option>
-                    @foreach (var t in Teams)
+                <div class="d-flex align-items-center justify-content-end gap-1">
+                    <select class="form-select form-select-sm" style="width:140px" @bind="editAwayTeamIdStr">
+                        <option value="">@Lang.Get("common.none")</option>
+                        @foreach (var t in Teams)
+                        {
+                            <option value="@t.Id">@t.Name</option>
+                        }
+                    </select>
+                    @{ var awayTeam = Teams.FirstOrDefault(t => t.Id.ToString() == editAwayTeamIdStr); }
+                    @if (awayTeam != null)
                     {
-                        <option value="@t.Id">@t.Name</option>
+                        <TeamShield Name="@awayTeam.Name" Size="22" ShieldUrl="@awayTeam.ShieldUrl" />
                     }
-                </select>
+                </div>
             </div>
         </div>
         <div class="text-center mt-1">

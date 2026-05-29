@@ -25,8 +25,9 @@ public partial class ImageUpload : LocalizedComponentBase
         base.OnParametersSet();
         if (_lastExistingUrl != ExistingImageUrl)
         {
+            var oldUrl = _lastExistingUrl;
             _lastExistingUrl = ExistingImageUrl;
-            if (previewUrl == null || previewUrl == _lastExistingUrl)
+            if (previewUrl == null || previewUrl == oldUrl)
             {
                 previewUrl = ExistingImageUrl;
                 previewFailed = false;

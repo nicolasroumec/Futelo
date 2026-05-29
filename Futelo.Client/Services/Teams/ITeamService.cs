@@ -8,4 +8,6 @@ public interface ITeamService
     Task<TeamResponse> CreateAsync(CreateTeamRequest request);
     Task UpdateAsync(int id, CreateTeamRequest request);
     Task DeleteAsync(int id);
+    Task UploadShieldAsync(int teamId, byte[] data);
+    Task DeleteShieldAsync(int teamId);
 }

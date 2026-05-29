@@ -10,6 +10,8 @@ public partial class MatchDisplay : ComponentBase
     [Parameter] public string? AwayPlayerId { get; set; }
     [Parameter] public string? HomeTeamName { get; set; }
     [Parameter] public string? AwayTeamName { get; set; }
+    [Parameter] public int? HomeTeamId { get; set; }
+    [Parameter] public int? AwayTeamId { get; set; }
     [Parameter] public string? VideoGameName { get; set; }
     [Parameter] public int? HomeScore { get; set; }
     [Parameter] public int? AwayScore { get; set; }

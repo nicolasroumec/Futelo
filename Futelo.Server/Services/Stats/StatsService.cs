@@ -505,7 +505,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
 
         var matches = await statsRepository.GetAllPlayedMatchesWithTeamsInVaultAsync(vaultId);
 
-        var entries = new List<(string TeamName, string PlayerId, string PlayerDisplayName, bool IsWin, bool IsDraw, int GoalsFor, int GoalsAgainst)>();
+        var entries = new List<(string TeamName, int TeamId, string PlayerId, string PlayerDisplayName, bool IsWin, bool IsDraw, int GoalsFor, int GoalsAgainst)>();
 
         foreach (var m in matches)
         {
@@ -513,11 +513,11 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
             int awayScore = m.AwayScore ?? 0;
 
             if (m.HomeTeam != null && m.HomePlayer != null)
-                entries.Add((m.HomeTeam.Name, m.HomePlayerId!, m.HomePlayer.DisplayName,
+                entries.Add((m.HomeTeam.Name, m.HomeTeam.Id, m.HomePlayerId!, m.HomePlayer.DisplayName,
                     homeScore > awayScore, homeScore == awayScore, homeScore, awayScore));
 
             if (m.AwayTeam != null && m.AwayPlayer != null)
-                entries.Add((m.AwayTeam.Name, m.AwayPlayerId!, m.AwayPlayer.DisplayName,
+                entries.Add((m.AwayTeam.Name, m.AwayTeam.Id, m.AwayPlayerId!, m.AwayPlayer.DisplayName,
                     awayScore > homeScore, homeScore == awayScore, awayScore, homeScore));
         }
 
@@ -525,6 +525,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
             .GroupBy(e => e.TeamName)
             .Select(g => new TeamPanelRow
             {
+                TeamId = g.First().TeamId,
                 TeamName = g.Key,
                 TotalUsed = g.Count(),
                 Won = g.Count(e => e.IsWin),

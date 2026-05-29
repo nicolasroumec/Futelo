@@ -43,7 +43,12 @@ else
                     @foreach (var t in rows)
                     {
                         <tr>
-                            <td><strong>@t.TeamName</strong></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <TeamShield Name="@t.TeamName" Size="24" ShieldUrl="@($"/api/teams/{t.TeamId}/shield")" />
+                                    <strong>@t.TeamName</strong>
+                                </div>
+                            </td>
                             <td>@t.TotalUsed</td>
                             <td>@t.Won</td>
                             <td>@t.Drawn</td>

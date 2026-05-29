@@ -101,4 +101,40 @@ public partial class Teams : LocalizedComponentBase
             errorMessage = ex.Message;
         }
     }
+
+    private async Task HandleShieldUpload(int teamId, byte[] data)
+    {
+        try
+        {
+            await TeamService.UploadShieldAsync(teamId, data);
+            var team = teams.FirstOrDefault(t => t.Id == teamId);
+            if (team != null)
+            {
+                team.ShieldUrl = $"/api/teams/{teamId}/shield?v={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task HandleShieldDelete(int teamId)
+    {
+        try
+        {
+            await TeamService.DeleteShieldAsync(teamId);
+            var team = teams.FirstOrDefault(t => t.Id == teamId);
+            if (team != null)
+            {
+                team.ShieldUrl = null;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
 }
