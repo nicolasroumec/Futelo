@@ -37,6 +37,11 @@ public partial class CupView : LocalizedComponentBase
     private RecordCupResultResponse? lastEloResult;
 
     private int? editingMatchId;
+    private int? correctingMatchId;
+    private bool isCorrecting;
+    private bool correctingIsLeg2;
+    private int? correctingOtherLegHomeScore;
+    private int? correctingOtherLegAwayScore;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
 
@@ -282,6 +287,60 @@ public partial class CupView : LocalizedComponentBase
 
         editingMatchId = matchId;
         recordingMatchId = null;
+    }
+
+    private void HandleRequestCorrection(int matchId)
+    {
+        correctingMatchId = matchId;
+        editingMatchId = null;
+        recordingMatchId = null;
+        lastEloResult = null;
+
+        var match = cup!.Rounds.SelectMany(r => r.Matches).First(m => m.Id == matchId);
+        correctingIsLeg2 = cup.IsHomeAndAway && match.Leg == 2;
+        correctingOtherLegHomeScore = null;
+        correctingOtherLegAwayScore = null;
+
+        if (correctingIsLeg2)
+        {
+            var round = cup.Rounds.First(r => r.Matches.Any(m => m.Id == matchId));
+            var ordered = round.Matches.OrderBy(m => m.Id).ToList();
+            int idx = ordered.FindIndex(m => m.Id == matchId);
+            var leg1 = ordered[idx - 1];
+            correctingOtherLegHomeScore = leg1.HomeScore;
+            correctingOtherLegAwayScore = leg1.AwayScore;
+        }
+    }
+
+    private async Task HandleCorrectResult(MatchResultInput input)
+    {
+        if (correctingMatchId == null) return;
+        isCorrecting = true;
+        var matchId = correctingMatchId.Value;
+        try
+        {
+            var request = new RecordCupResultRequest
+            {
+                HomeScore = input.HomeScore,
+                AwayScore = input.AwayScore,
+                WonOnPenaltiesId = input.WonOnPenaltiesId,
+                HomePenaltyScore = input.HomePenaltyScore,
+                AwayPenaltyScore = input.AwayPenaltyScore
+            };
+            lastEloResult = await CupService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
+            correctingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isCorrecting = false;
+        }
     }
 
     private async Task HandlePatchMatch(PatchMatchRequest request)

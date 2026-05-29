@@ -38,6 +38,8 @@ public partial class LeagueView : LocalizedComponentBase
     private bool _matchdayInitialized;
 
     private int? editingMatchId;
+    private int? correctingMatchId;
+    private bool isCorrecting;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
 
@@ -289,6 +291,38 @@ public partial class LeagueView : LocalizedComponentBase
 
         editingMatchId = matchId;
         recordingMatchId = null;
+    }
+
+    private void HandleRequestCorrection(int matchId)
+    {
+        correctingMatchId = matchId;
+        editingMatchId = null;
+        recordingMatchId = null;
+        lastEloResult = null;
+    }
+
+    private async Task HandleCorrectResult(MatchResultInput input)
+    {
+        if (correctingMatchId == null) return;
+        isCorrecting = true;
+        var matchId = correctingMatchId.Value;
+        try
+        {
+            var request = new RecordResultRequest { HomeScore = input.HomeScore, AwayScore = input.AwayScore };
+            lastEloResult = await LeagueService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
+            correctingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isCorrecting = false;
+        }
     }
 
     private async Task HandlePatchMatch(PatchMatchRequest request)

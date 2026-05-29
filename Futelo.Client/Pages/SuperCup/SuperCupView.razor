@@ -187,6 +187,7 @@ else
 
                     <MatchEditPanel
                         IsEditing="editingMatchId == match.Id"
+                        IsLastPlayed="match.IsLastPlayed"
                         HomePlayerName="@match.HomePlayerName"
                         AwayPlayerName="@match.AwayPlayerName"
                         HomeTeamId="match.HomeTeamId"
@@ -196,7 +197,31 @@ else
                         Teams="teams"
                         VideoGames="videoGames"
                         OnSave="HandlePatchMatch"
-                        OnCancel="() => editingMatchId = null" />
+                        OnCancel="() => editingMatchId = null"
+                        OnRequestCorrection="() => HandleRequestCorrection(match.Id)" />
+                    @if (correctingMatchId == match.Id)
+                    {
+                        <div @onclick:stopPropagation="true" @onclick="() => {}">
+                            <MatchResultForm
+                                HasPenalties="true"
+                                IsHomeAndAway="superCup.IsHomeAndAway"
+                                IsLeg2="correctingIsLeg2"
+                                OtherLegHomeScore="correctingOtherLegHomeScore"
+                                OtherLegAwayScore="correctingOtherLegAwayScore"
+                                HomePlayerId="@match.HomePlayerId"
+                                HomePlayerName="@match.HomePlayerName"
+                                AwayPlayerId="@match.AwayPlayerId"
+                                AwayPlayerName="@match.AwayPlayerName"
+                                InitialHomeScore="match.HomeScore"
+                                InitialAwayScore="match.AwayScore"
+                                InitialWonOnPenaltiesId="match.WonOnPenaltiesId"
+                                InitialHomePenaltyScore="match.HomePenaltyScore"
+                                InitialAwayPenaltyScore="match.AwayPenaltyScore"
+                                IsSaving="isCorrecting"
+                                OnSave="HandleCorrectResult"
+                                OnCancel="() => correctingMatchId = null" />
+                        </div>
+                    }
                 </div>
             </div>
         }

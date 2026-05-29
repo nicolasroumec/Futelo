@@ -41,6 +41,11 @@ public partial class SuperCupView : LocalizedComponentBase
     private RecordSuperCupResultResponse? lastEloResult;
 
     private int? editingMatchId;
+    private int? correctingMatchId;
+    private bool isCorrecting;
+    private bool correctingIsLeg2;
+    private int? correctingOtherLegHomeScore;
+    private int? correctingOtherLegAwayScore;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
 
@@ -209,6 +214,57 @@ public partial class SuperCupView : LocalizedComponentBase
 
         editingMatchId = matchId;
         recordingMatchId = null;
+    }
+
+    private void HandleRequestCorrection(int matchId)
+    {
+        correctingMatchId = matchId;
+        editingMatchId = null;
+        recordingMatchId = null;
+        lastEloResult = null;
+
+        var match = superCup!.Matches.First(m => m.Id == matchId);
+        correctingIsLeg2 = superCup.IsHomeAndAway && match.Leg == 2;
+        correctingOtherLegHomeScore = null;
+        correctingOtherLegAwayScore = null;
+
+        if (correctingIsLeg2 && superCup.Matches.Count >= 2)
+        {
+            var leg1 = superCup.Matches.OrderBy(m => m.Id).First();
+            correctingOtherLegHomeScore = leg1.HomeScore;
+            correctingOtherLegAwayScore = leg1.AwayScore;
+        }
+    }
+
+    private async Task HandleCorrectResult(MatchResultInput input)
+    {
+        if (correctingMatchId == null) return;
+        isCorrecting = true;
+        var matchId = correctingMatchId.Value;
+        try
+        {
+            var request = new RecordSuperCupResultRequest
+            {
+                HomeScore = input.HomeScore,
+                AwayScore = input.AwayScore,
+                WonOnPenaltiesId = input.WonOnPenaltiesId,
+                HomePenaltyScore = input.HomePenaltyScore,
+                AwayPenaltyScore = input.AwayPenaltyScore
+            };
+            lastEloResult = await SuperCupService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
+            correctingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isCorrecting = false;
+        }
     }
 
     private async Task HandlePatchMatch(PatchMatchRequest request)
