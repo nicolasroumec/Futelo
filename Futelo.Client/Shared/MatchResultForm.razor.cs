@@ -24,6 +24,11 @@ public partial class MatchResultForm
     [Parameter] public string AwayPlayerId { get; set; } = string.Empty;
     [Parameter] public string AwayPlayerName { get; set; } = string.Empty;
     [Parameter] public bool IsSaving { get; set; }
+    [Parameter] public int? InitialHomeScore { get; set; }
+    [Parameter] public int? InitialAwayScore { get; set; }
+    [Parameter] public string? InitialWonOnPenaltiesId { get; set; }
+    [Parameter] public int? InitialHomePenaltyScore { get; set; }
+    [Parameter] public int? InitialAwayPenaltyScore { get; set; }
     [Parameter] public EventCallback<MatchResultInput> OnSave { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 
@@ -31,6 +36,14 @@ public partial class MatchResultForm
     private int awayScore;
     private int? homePenaltyScore;
     private int? awayPenaltyScore;
+
+    protected override void OnInitialized()
+    {
+        homeScore = InitialHomeScore ?? 0;
+        awayScore = InitialAwayScore ?? 0;
+        homePenaltyScore = InitialHomePenaltyScore;
+        awayPenaltyScore = InitialAwayPenaltyScore;
+    }
 
     private bool ShowPenaltyFields
     {

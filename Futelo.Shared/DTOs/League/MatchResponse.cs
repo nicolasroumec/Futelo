@@ -19,4 +19,5 @@ public class MatchResponse
     public string? AwayTeamName { get; set; }
     public int? VideoGameId { get; set; }
     public string? VideoGameName { get; set; }
+    public bool IsLastPlayed { get; set; }
 }

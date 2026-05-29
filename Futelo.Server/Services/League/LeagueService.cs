@@ -23,6 +23,11 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
             ? []
             : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players, league.TiebreakerCriteria);
 
+        var lastPlayedMatchId = league.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .OrderByDescending(m => m.PlayedAt).ThenByDescending(m => m.Id)
+            .FirstOrDefault()?.Id;
+
         var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
 
@@ -69,7 +74,8 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
                     AwayTeamId = m.AwayTeamId,
                     AwayTeamName = m.AwayTeam?.Name,
                     VideoGameId = m.VideoGameId,
-                    VideoGameName = m.VideoGame?.Name
+                    VideoGameName = m.VideoGame?.Name,
+                    IsLastPlayed = m.Id == lastPlayedMatchId
                 }).ToList(),
             Standings = standings
         };

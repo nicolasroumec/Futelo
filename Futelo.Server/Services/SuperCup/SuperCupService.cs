@@ -20,7 +20,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
 
         var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
-        return MapToResponse(superCup, canEdit);
+        return MapToResponse(superCup, canEdit, LastPlayedMatchId(superCup));
     }
 
     public async Task StartAsync(int superCupId, string userId)
@@ -309,7 +309,13 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         await superCupRepository.PatchDatesAsync(superCupId, startDate, endDate);
     }
 
-    private static SuperCupResponse MapToResponse(Models.SuperCup superCup, bool canEdit = false)
+    private static int? LastPlayedMatchId(Models.SuperCup superCup) =>
+        superCup.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .OrderByDescending(m => m.PlayedAt).ThenByDescending(m => m.Id)
+            .FirstOrDefault()?.Id;
+
+    private static SuperCupResponse MapToResponse(Models.SuperCup superCup, bool canEdit = false, int? lastPlayedMatchId = null)
     {
         var seasonPlayerMap = superCup.Season.Players
             .ToDictionary(sp => sp.PlayerId, sp => sp.Player.DisplayName);
@@ -366,7 +372,8 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
                     AwayTeamId = m.AwayTeamId,
                     AwayTeamName = m.AwayTeam?.Name,
                     VideoGameId = m.VideoGameId,
-                    VideoGameName = m.VideoGame?.Name
+                    VideoGameName = m.VideoGame?.Name,
+                    IsLastPlayed = m.Id == lastPlayedMatchId
                 }).ToList()
         };
     }

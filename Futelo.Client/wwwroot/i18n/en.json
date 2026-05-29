@@ -272,6 +272,7 @@
   "league.homeTeam": "Home team",
   "league.awayTeam": "Away team",
   "match.scheduledDate": "Scheduled date",
+  "match.correctResult": "Correct result",
   "league.startManual": "Enter Manually",
   "league.addMatch": "Add match",
   "league.homePlayer": "Home",

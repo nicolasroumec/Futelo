@@ -21,7 +21,7 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
 
         var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
-        return MapToResponse(cup, canEdit);
+        return MapToResponse(cup, canEdit, LastPlayedMatchId(cup));
     }
 
     public async Task GenerateBracketAsync(int cupId, string userId)
@@ -612,7 +612,13 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
         return positions;
     }
 
-    private static CupResponse MapToResponse(Models.Cup cup, bool canEdit = false)
+    private static int? LastPlayedMatchId(Models.Cup cup) =>
+        cup.Rounds.SelectMany(r => r.Matches)
+            .Where(m => m.Status == MatchStatus.Played)
+            .OrderByDescending(m => m.PlayedAt).ThenByDescending(m => m.Id)
+            .FirstOrDefault()?.Id;
+
+    private static CupResponse MapToResponse(Models.Cup cup, bool canEdit = false, int? lastPlayedMatchId = null)
     {
         var seasonPlayerMap = cup.Season.Players
             .ToDictionary(sp => sp.PlayerId, sp => sp.Player.DisplayName);
@@ -675,7 +681,8 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
                             AwayTeamId = m.AwayTeamId,
                             AwayTeamName = m.AwayTeam?.Name,
                             VideoGameId = m.VideoGameId,
-                            VideoGameName = m.VideoGame?.Name
+                            VideoGameName = m.VideoGame?.Name,
+                            IsLastPlayed = m.Id == lastPlayedMatchId
                         }).ToList()
                 }).ToList()
         };

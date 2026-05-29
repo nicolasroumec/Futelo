@@ -19,8 +19,10 @@ public partial class MatchEditPanel
     [Parameter] public DateTime? ScheduledDate { get; set; }
     [Parameter] public List<TeamResponse> Teams { get; set; } = [];
     [Parameter] public List<VideoGameResponse> VideoGames { get; set; } = [];
+    [Parameter] public bool IsLastPlayed { get; set; }
     [Parameter] public EventCallback<PatchMatchRequest> OnSave { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnRequestCorrection { get; set; }
 
     private string editHomeTeamIdStr = "";
     private string editAwayTeamIdStr = "";
