@@ -379,5 +379,10 @@
   "season.startDate": "Start Date (optional)",
   "season.endDate": "End Date (optional)",
   "common.prevPage": "Previous page",
-  "common.nextPage": "Next page"
+  "common.nextPage": "Next page",
+
+  "avatar.change": "Change photo",
+  "avatar.delete": "Remove photo",
+  "avatar.uploaded": "Photo updated.",
+  "avatar.tooLarge": "Image must be under 5 MB."
 }

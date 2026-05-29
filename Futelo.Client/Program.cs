@@ -10,6 +10,7 @@ using Futelo.Client.Services.League;
 using Futelo.Client.Services.SuperCup;
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.Stats;
 using Futelo.Client.Services.Theme;
@@ -43,6 +44,7 @@ builder.Services.AddScoped<ICupService, CupService>();
 builder.Services.AddScoped<ISuperCupService, SuperCupService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVideoGameService, VideoGameService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 

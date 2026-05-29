@@ -1,0 +1,19 @@
+@inherits LocalizedComponentBase
+
+<div class="image-upload @(isProcessing ? "image-upload--busy" : "")"
+     style="width:@(DisplaySize)px;height:@(DisplaySize)px"
+     title="@Lang.Get("avatar.change")">
+    @if (previewUrl != null && !previewFailed)
+    {
+        <img src="@previewUrl" class="image-upload__img" alt="" @onerror="OnPreviewError" />
+    }
+    else
+    {
+        <span class="image-upload__icon">📷</span>
+    }
+    <InputFile OnChange="OnFileSelected" accept="image/*" class="image-upload__input" disabled="@isProcessing" />
+</div>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="text-danger small mt-1">@errorMessage</div>
+}

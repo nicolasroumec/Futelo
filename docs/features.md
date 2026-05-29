@@ -156,8 +156,8 @@ GET    /api/teams/{id}/shield
 
 | # | Scope | Commit message |
 |---|-------|---------------|
-| 1 | Backend: `byte[]` fields on `AppUser`/`Team`, migration, 6 endpoints, update queries to exclude bytes, add `AvatarUrl`/`ShieldUrl` to DTOs | `feat: add avatar and team shield storage endpoints` |
-| 2 | Reusable `<ImageUpload>` component (drag & drop, preview, validation) + `<PlayerAvatar>` component with initials fallback + avatar upload on player profile page | `feat: image upload component and player avatar on profile page` |
+| ~~1~~ | ~~Backend: `byte[]` fields on `AppUser`/`Team`, migration, 6 endpoints, update queries to exclude bytes, add `AvatarUrl`/`ShieldUrl` to DTOs~~ | ~~`feat: add avatar and team shield storage endpoints`~~ |
+| ~~2~~ | ~~Reusable `<ImageUpload>` component (drag & drop, preview, validation) + `<PlayerAvatar>` component with initials fallback + avatar upload on player profile page~~ | ~~`feat: image upload component and player avatar on profile page`~~ |
 | 3 | `<PlayerAvatar>` throughout app: standings, rankings, vault player list, match cards, H2H | `feat: show player avatars across standings, rankings and match views` |
 | 4 | `<TeamShield>` component + upload in team management + display in MatchEditPanel, match display, team panel | `feat: team shield upload and display in match and stats views` |
 

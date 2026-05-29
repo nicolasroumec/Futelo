@@ -6,6 +6,21 @@ public partial class PlayerAvatar
 {
     [Parameter] public string Name { get; set; } = string.Empty;
     [Parameter] public int Size { get; set; } = 32;
+    [Parameter] public string? AvatarUrl { get; set; }
+
+    private bool _imgFailed;
+    private string? _lastUrl;
+
+    protected override void OnParametersSet()
+    {
+        if (_lastUrl != AvatarUrl)
+        {
+            _imgFailed = false;
+            _lastUrl = AvatarUrl;
+        }
+    }
+
+    private void OnImgError() => _imgFailed = true;
 
     private string Initials => GetInitials(Name);
     private string BgColor => GetColor(Name);

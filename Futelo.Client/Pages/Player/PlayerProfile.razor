@@ -45,7 +45,24 @@ else
 {
     <div class="d-flex align-items-center gap-3 mb-4">
         <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <PlayerAvatar Name="@stats.DisplayName" Size="40" />
+        <div class="d-flex flex-column align-items-center" style="gap:4px">
+            @if (isCurrentUser)
+            {
+                <ImageUpload Width="128" Height="128" DisplaySize="56"
+                             ExistingImageUrl="@avatarUrl"
+                             OnImageReady="HandleAvatarUpload" />
+                <button class="btn btn-link btn-sm text-danger p-0 lh-1"
+                        style="font-size:.7rem"
+                        @onclick="HandleDeleteAvatar"
+                        disabled="@isUploadingAvatar">
+                    @Lang.Get("avatar.delete")
+                </button>
+            }
+            else
+            {
+                <PlayerAvatar Name="@stats.DisplayName" Size="56" AvatarUrl="@avatarUrl" />
+            }
+        </div>
         <div>
             <h3 class="mb-0">@stats.DisplayName</h3>
             <div class="d-flex align-items-baseline gap-2">

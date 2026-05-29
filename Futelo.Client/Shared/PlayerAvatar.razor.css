@@ -12,3 +12,11 @@
     vertical-align: middle;
     user-select: none;
 }
+
+.player-avatar--img {
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    vertical-align: middle;
+    display: inline-block;
+}
