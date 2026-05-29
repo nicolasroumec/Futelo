@@ -132,6 +132,27 @@ else
     }
     else
     {
+        @if (!cup.IsManual)
+        {
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-sm @(showBracket ? "btn-primary" : "btn-outline-secondary")"
+                        @onclick="() => showBracket = true">
+                    🏆 @Lang.Get("cup.viewBracket")
+                </button>
+                <button class="btn btn-sm @(!showBracket ? "btn-primary" : "btn-outline-secondary")"
+                        @onclick="() => showBracket = false">
+                    📋 @Lang.Get("cup.viewRounds")
+                </button>
+            </div>
+        }
+
+        @if (showBracket && !cup.IsManual)
+        {
+            <CupBracket Cup="cup" />
+        }
+        else
+        {
+
         @foreach (var round in cup.Rounds)
         {
             <h5 class="mt-3">@round.Name</h5>
@@ -346,5 +367,7 @@ else
                 </button>
             }
         }
+
+        } @* end else (rounds view) *@
     }
 }

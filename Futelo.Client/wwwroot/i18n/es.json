@@ -273,6 +273,8 @@
   "league.awayTeam": "Equipo visitante",
   "match.scheduledDate": "Fecha programada",
   "match.correctResult": "Corregir resultado",
+  "cup.viewBracket": "Bracket",
+  "cup.viewRounds": "Rondas",
   "league.startManual": "Ingresar Manualmente",
   "league.addMatch": "Agregar partido",
   "league.homePlayer": "Local",

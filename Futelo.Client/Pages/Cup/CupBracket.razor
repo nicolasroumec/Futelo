@@ -1,0 +1,80 @@
+@using Futelo.Shared.DTOs.Cup
+
+@{
+    var rounds = Cup.Rounds.OrderBy(r => r.RoundNumber).ToList();
+    int maxTies = MaxTieCount;
+    int bodyHeight = maxTies * SlotHeight;
+}
+
+<div class="cup-bracket">
+    @for (int ri = 0; ri < rounds.Count; ri++)
+    {
+        var round = rounds[ri];
+        var ties = GetTies(round);
+        int slotsPerTie = Math.Max(1, maxTies / ties.Count);
+        bool isLast = ri == rounds.Count - 1;
+
+        <div class="bracket-round">
+            <div class="bracket-round__label">@round.Name</div>
+            <div class="bracket-round__body" style="height:@(bodyHeight)px">
+                @foreach (var tie in ties)
+                {
+                    var d = GetTieDisplay(tie, round.RoundNumber);
+                    <div class="bracket-slot" style="flex:@slotsPerTie">
+                        <div class="bracket-match @(d.IsDecided ? "bracket-match--played" : "")">
+                            <div class="bracket-match__player @(!d.P1Tbd && d.WinnerId == d.P1Id ? "bracket-match__player--winner" : "") @(d.P1Tbd ? "bracket-match__player--tbd" : "")">
+                                <span class="bracket-match__name">@d.P1Name</span>
+                                @if (d.Score1 != null)
+                                {
+                                    <span class="bracket-match__score">@d.Score1</span>
+                                }
+                            </div>
+                            <div class="bracket-match__divider"></div>
+                            <div class="bracket-match__player @(!d.P2Tbd && d.WinnerId == d.P2Id ? "bracket-match__player--winner" : "") @(d.P2Tbd ? "bracket-match__player--tbd" : "")">
+                                <span class="bracket-match__name">@d.P2Name</span>
+                                @if (d.Score2 != null)
+                                {
+                                    <span class="bracket-match__score">@d.Score2</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (!isLast)
+        {
+            var nextRound = rounds[ri + 1];
+            var nextTies = GetTies(nextRound);
+            bool isHalving = ties.Count == nextTies.Count * 2;
+
+            <div class="bracket-connector-col">
+                <div class="bracket-connector-spacer"></div>
+                <svg width="24" height="@bodyHeight" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+                    @if (isHalving)
+                    {
+                        @for (int ti = 0; ti < ties.Count; ti += 2)
+                        {
+                            double y1 = (ti * slotsPerTie + slotsPerTie * 0.5) * SlotHeight;
+                            double y2 = ((ti + 1) * slotsPerTie + slotsPerTie * 0.5) * SlotHeight;
+                            double yMid = (y1 + y2) / 2.0;
+                            <line x1="0" y1="@y1" x2="12" y2="@y1" class="bracket-svg-line" />
+                            <line x1="12" y1="@y1" x2="12" y2="@y2" class="bracket-svg-line" />
+                            <line x1="0" y1="@y2" x2="12" y2="@y2" class="bracket-svg-line" />
+                            <line x1="12" y1="@yMid" x2="24" y2="@yMid" class="bracket-svg-line" />
+                        }
+                    }
+                    else
+                    {
+                        @for (int ti = 0; ti < ties.Count; ti++)
+                        {
+                            double yCenter = (ti * slotsPerTie + slotsPerTie * 0.5) * SlotHeight;
+                            <line x1="0" y1="@yCenter" x2="24" y2="@yCenter" class="bracket-svg-line" />
+                        }
+                    }
+                </svg>
+            </div>
+        }
+    }
+</div>

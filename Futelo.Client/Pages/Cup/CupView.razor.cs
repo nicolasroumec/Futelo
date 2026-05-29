@@ -61,6 +61,9 @@ public partial class CupView : LocalizedComponentBase
     private int newMatchLeg = 1;
     private bool isAddingMatch;
 
+    private bool showBracket;
+    private bool _viewInitialized;
+
     private string SeedingModeKey => cup!.SeedingMode switch
     {
         Futelo.Shared.Enums.CupSeedingMode.LeaguePosition => "cup.seedingMode.leaguePosition",
@@ -80,6 +83,11 @@ public partial class CupView : LocalizedComponentBase
         try
         {
             cup = await CupService.GetByIdAsync(Id, ComponentToken);
+            if (!_viewInitialized && cup != null && !cup.IsManual)
+            {
+                showBracket = cup.Status == "Finished";
+                _viewInitialized = true;
+            }
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
