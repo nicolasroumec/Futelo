@@ -195,7 +195,8 @@ public class VaultService(IVaultRepository repository) : IVaultService
             DisplayName = p.Player.DisplayName,
             JoinedAt = p.JoinedAt,
             Role = p.Role,
-            EloRating = p.Player.EloRating
+            EloRating = p.Player.EloRating,
+            AvatarUrl = $"/api/users/{p.PlayerId}/avatar"
         }).ToList()
     };
 }

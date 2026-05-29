@@ -125,6 +125,43 @@ PUT    /api/leagues/{id}/matches/{matchId}/result       (InProgress → Finished
 | Push notifications (PWA) | Medium | Service Worker already in place; notify players about upcoming scheduled matches |
 | Transfer vault ownership | Low | Owner hands off admin rights to another vault member |
 | Cross-season stats comparison | Low | Table comparing a player's key stats (ELO delta, W/L, goals) across all seasons |
+| **Player avatars + team shields** | **Medium** | **See full plan below** |
+
+### Player avatars + team shields (planned)
+
+Store images as `byte[]` in DB (no external file storage). Images are resized **client-side** via JS Canvas API interop before upload — no server-side image library needed.
+
+**Technical decisions:**
+- Avatar: 128×128px WebP ~5KB per user
+- Shield: 64×64px WebP ~2KB per team
+- Max upload: 5MB input
+- Queries: bytes excluded by default via `.Select()`; served via dedicated endpoints
+- Frontend fallback: CSS circle with initials when no image set
+- DTOs receive `AvatarUrl`/`ShieldUrl` string pointing to serve endpoint (not Base64 inline)
+
+**New endpoints:**
+```
+PUT    /api/users/me/avatar
+DELETE /api/users/me/avatar
+GET    /api/users/{id}/avatar
+PUT    /api/teams/{id}/shield
+DELETE /api/teams/{id}/shield
+GET    /api/teams/{id}/shield
+```
+
+**Display locations — avatar:** player profile (large), vault player list, standings/rankings (32px), match cards (32px), H2H.
+**Display locations — shield:** MatchEditPanel team selector, match display, stats team panel.
+
+**Implementation increments:**
+
+| # | Scope | Commit message |
+|---|-------|---------------|
+| 1 | Backend: `byte[]` fields on `AppUser`/`Team`, migration, 6 endpoints, update queries to exclude bytes, add `AvatarUrl`/`ShieldUrl` to DTOs | `feat: add avatar and team shield storage endpoints` |
+| 2 | Reusable `<ImageUpload>` component (drag & drop, preview, validation) + `<PlayerAvatar>` component with initials fallback + avatar upload on player profile page | `feat: image upload component and player avatar on profile page` |
+| 3 | `<PlayerAvatar>` throughout app: standings, rankings, vault player list, match cards, H2H | `feat: show player avatars across standings, rankings and match views` |
+| 4 | `<TeamShield>` component + upload in team management + display in MatchEditPanel, match display, team panel | `feat: team shield upload and display in match and stats views` |
+
+---
 
 ### UX / UI fixes (from branch 16-ux-ui audit)
 

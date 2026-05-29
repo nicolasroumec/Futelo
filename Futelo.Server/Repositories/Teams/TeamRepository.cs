@@ -31,4 +31,20 @@ public class TeamRepository(FuteloContext context) : BaseRepository<Team>(contex
         Delete(team);
         await SaveChangesAsync();
     }
+
+    public Task<byte[]?> GetShieldAsync(int teamId)
+        => Context.Set<Team>()
+            .Where(t => t.Id == teamId)
+            .Select(t => t.Shield)
+            .FirstOrDefaultAsync();
+
+    public async Task SetShieldAsync(int teamId, byte[] data)
+        => await Context.Set<Team>()
+            .Where(t => t.Id == teamId)
+            .ExecuteUpdateAsync(t => t.SetProperty(x => x.Shield, data));
+
+    public async Task DeleteShieldAsync(int teamId)
+        => await Context.Set<Team>()
+            .Where(t => t.Id == teamId)
+            .ExecuteUpdateAsync(t => t.SetProperty(x => x.Shield, (byte[]?)null));
 }
