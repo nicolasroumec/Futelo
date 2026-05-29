@@ -56,10 +56,22 @@
             <Authorized>
                 <div class="nav-footer px-3" @onclick:stopPropagation="true">
                     <hr class="nav-footer-divider" />
-                    <div class="nav-user">
-                        <PlayerAvatar Name="@(context.User.Identity?.Name ?? string.Empty)" Size="28" />
-                        <span class="nav-username">@context.User.Identity?.Name</span>
-                    </div>
+                    @if (profileUrl != null)
+                    {
+                        <a href="@profileUrl" class="nav-user text-decoration-none">
+                            <PlayerAvatar Name="@(context.User.Identity?.Name ?? string.Empty)" Size="28"
+                                          AvatarUrl="@(currentUserId != null ? $"/api/users/{currentUserId}/avatar" : null)" />
+                            <span class="nav-username">@context.User.Identity?.Name</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="nav-user">
+                            <PlayerAvatar Name="@(context.User.Identity?.Name ?? string.Empty)" Size="28"
+                                          AvatarUrl="@(currentUserId != null ? $"/api/users/{currentUserId}/avatar" : null)" />
+                            <span class="nav-username">@context.User.Identity?.Name</span>
+                        </div>
+                    }
                     <div class="nav-controls">
                         <LanguageSwitcher />
                     </div>
