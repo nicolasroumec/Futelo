@@ -1,5 +1,6 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
+using Futelo.Server.Repositories.Shared;
 using Futelo.Server.Repositories.SuperCup;
 using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs.SuperCup;
@@ -9,7 +10,7 @@ namespace Futelo.Server.Services.SuperCup;
 
 using static ErrorMessages;
 
-public class SuperCupService(ISuperCupRepository superCupRepository, IAchievementEngine achievementEngine) : ISuperCupService
+public class SuperCupService(ISuperCupRepository superCupRepository, IAchievementEngine achievementEngine, IEloRollbackRepository eloRollback) : ISuperCupService
 {
     public async Task<SuperCupResponse> GetByIdAsync(int superCupId, string userId)
     {
@@ -105,10 +106,19 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         var match = superCup.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
             throw new KeyNotFoundException("Match not found in this SuperCup.");
-        if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException(MatchAlreadyHasResult);
         if (string.IsNullOrEmpty(match.HomePlayerId) || string.IsNullOrEmpty(match.AwayPlayerId))
             throw new InvalidOperationException(MatchParticipantsNotDetermined);
+
+        if (match.Status == MatchStatus.Played)
+        {
+            if (!await eloRollback.IsLastMatchForBothPlayersAsync(matchId, match.HomePlayerId, match.AwayPlayerId))
+                throw new InvalidOperationException(CanOnlyCorrectLastMatch);
+            if (superCup.Status == TournamentStatus.Finished)
+                await superCupRepository.ResetSuperCupFinishAsync(superCupId);
+            await eloRollback.RollbackMatchEloAsync(matchId, match.HomePlayerId, match.AwayPlayerId, superCup.SeasonId);
+            superCup = (await superCupRepository.GetByIdAsync(superCupId))!;
+            match = superCup.Matches.First(m => m.Id == matchId);
+        }
 
         // ELO
         int k = EloCalculator.SuperCupK;

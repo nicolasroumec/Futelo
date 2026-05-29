@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.League;
+using Futelo.Server.Repositories.Shared;
 using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
@@ -10,7 +11,7 @@ namespace Futelo.Server.Services.League;
 
 using static ErrorMessages;
 
-public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngine achievementEngine) : ILeagueService
+public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngine achievementEngine, IEloRollbackRepository eloRollback) : ILeagueService
 {
     public async Task<LeagueResponse> GetByIdAsync(int leagueId, string userId)
     {
@@ -203,8 +204,17 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
         var match = league.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
             throw new KeyNotFoundException(MatchNotFound);
+
         if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException(MatchAlreadyHasResult);
+        {
+            if (!await eloRollback.IsLastMatchForBothPlayersAsync(matchId, match.HomePlayerId!, match.AwayPlayerId!))
+                throw new InvalidOperationException(CanOnlyCorrectLastMatch);
+            if (league.Status == TournamentStatus.Finished)
+                await leagueRepository.ResetLeagueFinishAsync(leagueId);
+            await eloRollback.RollbackMatchEloAsync(matchId, match.HomePlayerId!, match.AwayPlayerId!, league.SeasonId);
+            league = (await leagueRepository.GetByIdAsync(leagueId))!;
+            match = league.Matches.First(m => m.Id == matchId);
+        }
 
         var seasonPlayers = league.Season.Players.ToList();
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);

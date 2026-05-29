@@ -67,6 +67,9 @@ internal static class ErrorMessages
     internal const string CouldNotDetermineRunnerUp = "Could not determine Cup runner-up for SuperCup.";
     internal const string SuperCupNotActive = "SuperCup is not active.";
 
+    // Match correction
+    internal const string CanOnlyCorrectLastMatch = "Only the most recently played match can be corrected.";
+
     // Stats / Players
     internal const string PlayerNotFound = "Player not found.";
 }

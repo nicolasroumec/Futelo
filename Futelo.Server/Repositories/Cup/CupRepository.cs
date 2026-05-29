@@ -183,4 +183,40 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
         Context.Set<Match>().Add(match);
         await SaveChangesAsync();
     }
+
+    public async Task ResetCupFinishAsync(int cupId)
+    {
+        var cup = await Context.Set<Models.Cup>().FindAsync(cupId);
+        if (cup != null)
+        {
+            cup.Status = TournamentStatus.Active;
+            cup.ChampionId = null;
+        }
+
+        var cupPlayers = await Context.Set<CupPlayer>()
+            .Where(cp => cp.CupId == cupId).ToListAsync();
+        foreach (var cp in cupPlayers)
+            cp.CupPosition = null;
+
+        await SaveChangesAsync();
+    }
+
+    public async Task RevertBracketAdvancementAsync(int cupId, string winnerId)
+    {
+        var matches = await Context.Set<Match>()
+            .Include(m => m.CupRound)
+            .Where(m => m.CupRound != null
+                && m.CupRound.CupId == cupId
+                && m.Status == MatchStatus.Pending
+                && (m.HomePlayerId == winnerId || m.AwayPlayerId == winnerId))
+            .ToListAsync();
+
+        foreach (var m in matches)
+        {
+            if (m.HomePlayerId == winnerId) m.HomePlayerId = null;
+            if (m.AwayPlayerId == winnerId) m.AwayPlayerId = null;
+        }
+
+        await SaveChangesAsync();
+    }
 }

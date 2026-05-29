@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Cup;
+using Futelo.Server.Repositories.Shared;
 using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Cup;
@@ -10,7 +11,7 @@ namespace Futelo.Server.Services.Cup;
 
 using static ErrorMessages;
 
-public class CupService(ICupRepository cupRepository, IAchievementEngine achievementEngine) : ICupService
+public class CupService(ICupRepository cupRepository, IAchievementEngine achievementEngine, IEloRollbackRepository eloRollback) : ICupService
 {
     public async Task<CupResponse> GetByIdAsync(int cupId, string userId)
     {
@@ -193,10 +194,39 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
 
         if (matchRound == null || match == null)
             throw new KeyNotFoundException("Match not found in this cup.");
-        if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException(MatchAlreadyHasResult);
         if (string.IsNullOrEmpty(match.HomePlayerId) || string.IsNullOrEmpty(match.AwayPlayerId))
             throw new InvalidOperationException(MatchParticipantsNotDetermined);
+
+        if (match.Status == MatchStatus.Played)
+        {
+            if (!await eloRollback.IsLastMatchForBothPlayersAsync(matchId, match.HomePlayerId, match.AwayPlayerId))
+                throw new InvalidOperationException(CanOnlyCorrectLastMatch);
+
+            var oldWinnerId = cup.Rounds
+                .Where(r => r.RoundNumber > matchRound.RoundNumber)
+                .SelectMany(r => r.Matches)
+                .Where(m => m.Status == MatchStatus.Pending)
+                .SelectMany(m => new[] { m.HomePlayerId, m.AwayPlayerId })
+                .FirstOrDefault(pid => pid == match.HomePlayerId || pid == match.AwayPlayerId);
+
+            if (cup.Status == TournamentStatus.Finished)
+                await cupRepository.ResetCupFinishAsync(cupId);
+            if (oldWinnerId != null)
+                await cupRepository.RevertBracketAdvancementAsync(cupId, oldWinnerId);
+            await eloRollback.RollbackMatchEloAsync(matchId, match.HomePlayerId, match.AwayPlayerId, cup.SeasonId);
+
+            cup = (await cupRepository.GetByIdAsync(cupId))!;
+            allRounds = cup.Rounds.OrderBy(r => r.RoundNumber).ToList();
+            matchRound = null; match = null; matchIndexInRound = -1;
+            foreach (var round in allRounds)
+            {
+                var orderedMatches = round.Matches.OrderBy(m => m.Id).ToList();
+                int idx = orderedMatches.FindIndex(m => m.Id == matchId);
+                if (idx >= 0) { matchRound = round; match = orderedMatches[idx]; matchIndexInRound = idx; break; }
+            }
+            if (matchRound == null || match == null)
+                throw new InvalidOperationException("Failed to reload match after rollback.");
+        }
 
         // ELO
         var seasonPlayers = cup.Season.Players.ToList();

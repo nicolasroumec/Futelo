@@ -107,4 +107,16 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
         superCup.EndDate = endDate;
         await SaveChangesAsync();
     }
+
+    public async Task ResetSuperCupFinishAsync(int superCupId)
+    {
+        var superCup = await Context.Set<Models.SuperCup>().FindAsync(superCupId);
+        if (superCup != null)
+        {
+            superCup.Status = TournamentStatus.Active;
+            superCup.ChampionId = null;
+        }
+
+        await SaveChangesAsync();
+    }
 }
