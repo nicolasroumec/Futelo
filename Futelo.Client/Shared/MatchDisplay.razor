@@ -1,5 +1,11 @@
 <div class="match-layout">
-    <span class="match-card__player @(HomePlayerMuted ? "text-muted" : "")">@HomePlayerName</span>
+    <div class="match-card__player d-flex align-items-center gap-1 @(HomePlayerMuted ? "text-muted" : "")">
+        @if (HomePlayerId != null)
+        {
+            <PlayerAvatar Name="@HomePlayerName" Size="22" AvatarUrl="@($"/api/users/{HomePlayerId}/avatar")" />
+        }
+        <span>@HomePlayerName</span>
+    </div>
     @if (HasGame)
     {
         <span class="match-meta__item text-center fst-italic">@VideoGameName</span>
@@ -12,7 +18,13 @@
     {
         <span class="match-card__vs text-muted text-center">vs</span>
     }
-    <span class="match-card__player text-end @(AwayPlayerMuted ? "text-muted" : "")">@AwayPlayerName</span>
+    <div class="match-card__player d-flex align-items-center justify-content-end gap-1 @(AwayPlayerMuted ? "text-muted" : "")">
+        <span>@AwayPlayerName</span>
+        @if (AwayPlayerId != null)
+        {
+            <PlayerAvatar Name="@AwayPlayerName" Size="22" AvatarUrl="@($"/api/users/{AwayPlayerId}/avatar")" />
+        }
+    </div>
     @if (HasGame)
     {
         <span class="match-meta__item">@HomeTeamName</span>

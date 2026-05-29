@@ -6,6 +6,8 @@ public partial class MatchDisplay : ComponentBase
 {
     [Parameter] public string HomePlayerName { get; set; } = string.Empty;
     [Parameter] public string AwayPlayerName { get; set; } = string.Empty;
+    [Parameter] public string? HomePlayerId { get; set; }
+    [Parameter] public string? AwayPlayerId { get; set; }
     [Parameter] public string? HomeTeamName { get; set; }
     [Parameter] public string? AwayTeamName { get; set; }
     [Parameter] public string? VideoGameName { get; set; }
