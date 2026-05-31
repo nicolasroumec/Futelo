@@ -1,3 +1,4 @@
+using Futelo.Client.Services.Media;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Team;
@@ -8,6 +9,7 @@ namespace Futelo.Client.Pages;
 public partial class Teams : LocalizedComponentBase
 {
     [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private MediaUrlService Media { get; set; } = null!;
 
     private List<TeamResponse> teams = [];
     private bool isLoading = true;
@@ -107,10 +109,11 @@ public partial class Teams : LocalizedComponentBase
         try
         {
             await TeamService.UploadShieldAsync(teamId, data);
+            Media.Bump();
             var team = teams.FirstOrDefault(t => t.Id == teamId);
             if (team != null)
             {
-                team.ShieldUrl = $"/api/teams/{teamId}/shield?v={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+                team.ShieldUrl = $"/api/teams/{teamId}/shield";
                 StateHasChanged();
             }
         }
@@ -125,6 +128,7 @@ public partial class Teams : LocalizedComponentBase
         try
         {
             await TeamService.DeleteShieldAsync(teamId);
+            Media.Bump();
             var team = teams.FirstOrDefault(t => t.Id == teamId);
             if (team != null)
             {

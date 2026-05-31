@@ -1,3 +1,4 @@
+using Futelo.Client.Services.Media;
 using Futelo.Client.Services.Stats;
 using Futelo.Client.Services.Users;
 using Futelo.Client.Services.Vault;
@@ -19,6 +20,7 @@ public partial class PlayerProfile : LocalizedComponentBase
     [Inject] private IStatsService StatsService { get; set; } = null!;
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private IUserService UserService { get; set; } = null!;
+    [Inject] private MediaUrlService Media { get; set; } = null!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
@@ -145,7 +147,8 @@ public partial class PlayerProfile : LocalizedComponentBase
         try
         {
             await UserService.UploadAvatarAsync(data);
-            avatarUrl = $"/api/users/{PlayerId}/avatar?v={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+            Media.Bump();
+            avatarUrl = $"/api/users/{PlayerId}/avatar";
         }
         catch (Exception ex)
         {
@@ -164,6 +167,7 @@ public partial class PlayerProfile : LocalizedComponentBase
         try
         {
             await UserService.DeleteAvatarAsync();
+            Media.Bump();
             avatarUrl = null;
         }
         catch (Exception ex)
