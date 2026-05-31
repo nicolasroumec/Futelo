@@ -5,7 +5,7 @@
      title="@Lang.Get("avatar.change")">
     @if (previewUrl != null && !previewFailed)
     {
-        <img src="@previewUrl" class="image-upload__img" alt="" @onerror="OnPreviewError" />
+        <img src="@Media.Resolve(previewUrl)" class="image-upload__img" alt="" @onerror="OnPreviewError" />
     }
     else
     {

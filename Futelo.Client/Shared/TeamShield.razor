@@ -1,6 +1,6 @@
 @if (ShieldUrl != null && !_imgFailed)
 {
-    <img src="@ShieldUrl"
+    <img src="@Media.Resolve(ShieldUrl)"
          class="team-shield team-shield--img"
          style="width:@(Size)px;height:@(Size)px"
          alt="@Name"

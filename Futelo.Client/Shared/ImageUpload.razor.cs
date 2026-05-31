@@ -1,3 +1,4 @@
+using Futelo.Client.Services.Media;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
@@ -7,6 +8,7 @@ namespace Futelo.Client.Shared;
 public partial class ImageUpload : LocalizedComponentBase
 {
     [Inject] private IJSRuntime JS { get; set; } = null!;
+    [Inject] private MediaUrlService Media { get; set; } = null!;
 
     [Parameter] public int Width { get; set; } = 128;
     [Parameter] public int Height { get; set; } = 128;

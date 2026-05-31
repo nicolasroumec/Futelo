@@ -1,6 +1,6 @@
 @if (AvatarUrl != null && !_imgFailed)
 {
-    <img src="@AvatarUrl"
+    <img src="@Media.Resolve(AvatarUrl)"
          class="player-avatar player-avatar--img"
          style="width:@(Size)px;height:@(Size)px"
          alt="@Name"

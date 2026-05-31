@@ -1,9 +1,12 @@
+using Futelo.Client.Services.Media;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Shared;
 
 public partial class TeamShield : ComponentBase
 {
+    [Inject] private MediaUrlService Media { get; set; } = null!;
+
     [Parameter] public string Name { get; set; } = string.Empty;
     [Parameter] public int Size { get; set; } = 32;
     [Parameter] public string? ShieldUrl { get; set; }
