@@ -16,8 +16,12 @@ public partial class ImageUpload : LocalizedComponentBase
     [Parameter] public string? ExistingImageUrl { get; set; }
     [Parameter] public EventCallback<byte[]> OnImageReady { get; set; }
 
-    private string? previewUrl;
-    private bool previewFailed;
+    // Data URL of a freshly picked file, shown for immediate feedback. While set
+    // it takes priority over ExistingImageUrl; it is cleared whenever the parent
+    // changes ExistingImageUrl (e.g. after a successful upload/delete).
+    private string? localPreview;
+    private bool existingFailed;
+    private bool existingLoaded;
     private string? errorMessage;
     private bool isProcessing;
     private string? _lastExistingUrl;
@@ -27,20 +31,21 @@ public partial class ImageUpload : LocalizedComponentBase
         base.OnParametersSet();
         if (_lastExistingUrl != ExistingImageUrl)
         {
-            var oldUrl = _lastExistingUrl;
             _lastExistingUrl = ExistingImageUrl;
-            if (previewUrl == null || previewUrl == oldUrl)
-            {
-                previewUrl = ExistingImageUrl;
-                previewFailed = false;
-            }
+            existingFailed = false;
+            existingLoaded = false;
+            localPreview = null;
         }
     }
 
-    private void OnPreviewError()
+    private void OnExistingLoad() => existingLoaded = true;
+
+    // Ignore error events that arrive after a successful load: Blazor can fire a
+    // spurious 'error' on the <img> during rapid re-renders, which would
+    // otherwise hide an avatar that actually loaded fine.
+    private void OnExistingError()
     {
-        if (previewUrl == ExistingImageUrl)
-            previewFailed = true;
+        if (!existingLoaded) existingFailed = true;
     }
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
@@ -67,8 +72,7 @@ public partial class ImageUpload : LocalizedComponentBase
 
             var resizedDataUrl = await JS.InvokeAsync<string>("resizeImageToWebP", dataUrl, Width, Height);
 
-            previewUrl = resizedDataUrl;
-            previewFailed = false;
+            localPreview = resizedDataUrl;
             var resizedBytes = Convert.FromBase64String(resizedDataUrl.Split(',')[1]);
             await OnImageReady.InvokeAsync(resizedBytes);
         }

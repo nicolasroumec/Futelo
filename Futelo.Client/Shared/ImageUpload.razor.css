@@ -32,7 +32,10 @@
     user-select: none;
 }
 
-.image-upload__input {
+/* ::deep is required because the file input is rendered by the child
+   <InputFile> component, so it does not carry this component's scoped CSS
+   attribute and a plain .image-upload__input selector would never match it. */
+.image-upload ::deep .image-upload__input {
     position: absolute;
     inset: 0;
     opacity: 0;

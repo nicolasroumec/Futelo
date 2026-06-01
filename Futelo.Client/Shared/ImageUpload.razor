@@ -3,9 +3,14 @@
 <div class="image-upload @(isProcessing ? "image-upload--busy" : "")"
      style="width:@(DisplaySize)px;height:@(DisplaySize)px"
      title="@Lang.Get("avatar.change")">
-    @if (previewUrl != null && !previewFailed)
+    @if (localPreview != null)
     {
-        <img src="@Media.Resolve(previewUrl)" class="image-upload__img" alt="" @onerror="OnPreviewError" />
+        <img src="@localPreview" class="image-upload__img" alt="" />
+    }
+    else if (ExistingImageUrl != null && (existingLoaded || !existingFailed))
+    {
+        <img src="@Media.Resolve(ExistingImageUrl)" class="image-upload__img" alt=""
+             @onload="OnExistingLoad" @onerror="OnExistingError" />
     }
     else
     {

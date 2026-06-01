@@ -17,7 +17,13 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<IActionResult> GetAvatar(string id)
     {
         var bytes = await userService.GetAvatarAsync(id);
-        if (bytes is null) return NotFound();
+        if (bytes is null)
+        {
+            // Never cache the "no image" response: otherwise the browser keeps
+            // serving it after the user uploads an avatar, hiding the new image.
+            Response.Headers.CacheControl = "no-store";
+            return NotFound();
+        }
         var etag = new EntityTagHeaderValue('"' + Convert.ToHexString(MD5.HashData(bytes)) + '"');
         Response.Headers.CacheControl = "no-cache, max-age=0, must-revalidate";
         return File(bytes, "image/webp", lastModified: null, entityTag: etag);
