@@ -9,5 +9,4 @@ public class VaultPlayerResponse
     public DateTime JoinedAt { get; set; }
     public VaultRole Role { get; set; }
     public int EloRating { get; set; }
-    public string? AvatarUrl { get; set; }
 }

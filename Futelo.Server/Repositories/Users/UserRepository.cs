@@ -20,4 +20,10 @@ public class UserRepository(FuteloContext context) : IUserRepository
         => await context.Users
             .Where(u => u.Id == userId)
             .ExecuteUpdateAsync(u => u.SetProperty(x => x.Avatar, (byte[]?)null));
+
+    public Task<List<string>> GetUserIdsWithAvatarAsync()
+        => context.Users
+            .Where(u => u.Avatar != null)
+            .Select(u => u.Id)
+            .ToListAsync();
 }

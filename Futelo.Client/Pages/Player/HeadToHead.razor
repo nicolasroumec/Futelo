@@ -45,7 +45,7 @@ else
 
     <div class="d-flex gap-4 mb-4 align-items-center">
         <div class="text-center">
-            <PlayerAvatar Name="@h2h.Player1DisplayName" Size="40" AvatarUrl="@($"/api/users/{h2h.Player1Id}/avatar")" />
+            <PlayerAvatar Name="@h2h.Player1DisplayName" Size="40" AvatarUrl="@Avatars.UrlFor(h2h.Player1Id)" />
             <div class="fs-2 fw-bold mt-1">@h2h.Player1Wins</div>
             <div class="text-muted small">@h2h.Player1DisplayName @Lang.Get("headToHead.wins")</div>
         </div>
@@ -54,7 +54,7 @@ else
             <div class="text-muted small">@Lang.Get("headToHead.draws")</div>
         </div>
         <div class="text-center">
-            <PlayerAvatar Name="@h2h.Player2DisplayName" Size="40" AvatarUrl="@($"/api/users/{h2h.Player2Id}/avatar")" />
+            <PlayerAvatar Name="@h2h.Player2DisplayName" Size="40" AvatarUrl="@Avatars.UrlFor(h2h.Player2Id)" />
             <div class="fs-2 fw-bold mt-1">@h2h.Player2Wins</div>
             <div class="text-muted small">@h2h.Player2DisplayName @Lang.Get("headToHead.wins")</div>
         </div>
@@ -84,14 +84,14 @@ else
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-1">
-                                    <PlayerAvatar Name="@m.HomePlayerDisplayName" Size="20" AvatarUrl="@($"/api/users/{m.HomePlayerId}/avatar")" />
+                                    <PlayerAvatar Name="@m.HomePlayerDisplayName" Size="20" AvatarUrl="@Avatars.UrlFor(m.HomePlayerId)" />
                                     @m.HomePlayerDisplayName
                                 </div>
                             </td>
                             <td class="fw-bold text-center">@m.HomeScore – @m.AwayScore</td>
                             <td>
                                 <div class="d-flex align-items-center gap-1">
-                                    <PlayerAvatar Name="@m.AwayPlayerDisplayName" Size="20" AvatarUrl="@($"/api/users/{m.AwayPlayerId}/avatar")" />
+                                    <PlayerAvatar Name="@m.AwayPlayerDisplayName" Size="20" AvatarUrl="@Avatars.UrlFor(m.AwayPlayerId)" />
                                     @m.AwayPlayerDisplayName
                                 </div>
                             </td>

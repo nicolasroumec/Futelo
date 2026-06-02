@@ -2,7 +2,7 @@
     <div class="match-card__player d-flex align-items-center gap-1 @(HomePlayerMuted ? "text-muted" : "")">
         @if (HomePlayerId != null)
         {
-            <PlayerAvatar Name="@HomePlayerName" Size="22" AvatarUrl="@($"/api/users/{HomePlayerId}/avatar")" />
+            <PlayerAvatar Name="@HomePlayerName" Size="22" AvatarUrl="@Avatars.UrlFor(HomePlayerId)" />
         }
         <span>@HomePlayerName</span>
     </div>
@@ -22,7 +22,7 @@
         <span>@AwayPlayerName</span>
         @if (AwayPlayerId != null)
         {
-            <PlayerAvatar Name="@AwayPlayerName" Size="22" AvatarUrl="@($"/api/users/{AwayPlayerId}/avatar")" />
+            <PlayerAvatar Name="@AwayPlayerName" Size="22" AvatarUrl="@Avatars.UrlFor(AwayPlayerId)" />
         }
     </div>
     @if (HasGame)

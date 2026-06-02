@@ -1,6 +1,7 @@
 using Futelo.Client.Services.League;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Toast;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
@@ -20,6 +21,7 @@ public partial class LeagueView : LocalizedComponentBase
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private LeagueResponse? league;
@@ -94,6 +96,7 @@ public partial class LeagueView : LocalizedComponentBase
     {
         var authState = await AuthStateTask;
         currentUserId = authState.User.FindFirst("sub")?.Value;
+        await Avatars.EnsureLoadedAsync();
         await LoadAsync();
     }
 

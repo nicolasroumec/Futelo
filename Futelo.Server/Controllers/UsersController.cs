@@ -12,6 +12,12 @@ namespace Futelo.Server.Controllers;
 [Route("api/users")]
 public class UsersController(IUserService userService) : ControllerBase
 {
+    // Lets the client know which users have an avatar so it can skip the
+    // /api/users/{id}/avatar request (and its 404) for those who don't.
+    [HttpGet("with-avatars")]
+    public async Task<IActionResult> GetUsersWithAvatar()
+        => Ok(await userService.GetUserIdsWithAvatarAsync());
+
     [AllowAnonymous]
     [HttpGet("{id}/avatar")]
     public async Task<IActionResult> GetAvatar(string id)

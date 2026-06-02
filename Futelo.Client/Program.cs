@@ -46,6 +46,7 @@ builder.Services.AddScoped<ISuperCupService, SuperCupService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<AvatarDirectory>();
 builder.Services.AddScoped<IVideoGameService, VideoGameService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped(_ => new MediaUrlService(baseAddress));

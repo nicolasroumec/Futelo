@@ -20,6 +20,7 @@ public partial class PlayerProfile : LocalizedComponentBase
     [Inject] private IStatsService StatsService { get; set; } = null!;
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private IUserService UserService { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
     [Inject] private MediaUrlService Media { get; set; } = null!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
@@ -55,6 +56,7 @@ public partial class PlayerProfile : LocalizedComponentBase
             isCurrentUser = currentUserId == PlayerId;
             avatarUrl = $"/api/users/{PlayerId}/avatar";
 
+            await Avatars.EnsureLoadedAsync();
             stats = await StatsService.GetPlayerStatsAsync(PlayerId, VaultId, ComponentToken);
             globalEloHistory = await StatsService.GetGlobalEloHistoryAsync(VaultId, PlayerId, ct: ComponentToken);
             recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId, ComponentToken);
@@ -148,6 +150,7 @@ public partial class PlayerProfile : LocalizedComponentBase
         {
             await UserService.UploadAvatarAsync(data);
             Media.Bump();
+            Avatars.SetHasAvatar(PlayerId, true);
             avatarUrl = $"/api/users/{PlayerId}/avatar";
         }
         catch (Exception ex)
@@ -168,6 +171,7 @@ public partial class PlayerProfile : LocalizedComponentBase
         {
             await UserService.DeleteAvatarAsync();
             Media.Bump();
+            Avatars.SetHasAvatar(PlayerId, false);
             avatarUrl = null;
         }
         catch (Exception ex)

@@ -12,4 +12,7 @@ public class UserService(IUserRepository repository) : IUserService
 
     public Task DeleteAvatarAsync(string userId)
         => repository.DeleteAvatarAsync(userId);
+
+    public Task<List<string>> GetUserIdsWithAvatarAsync()
+        => repository.GetUserIdsWithAvatarAsync();
 }

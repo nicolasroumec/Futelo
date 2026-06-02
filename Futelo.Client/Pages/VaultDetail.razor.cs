@@ -1,5 +1,6 @@
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Toast;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Invitation;
@@ -18,6 +19,7 @@ public partial class VaultDetail : LocalizedComponentBase
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
@@ -52,7 +54,7 @@ public partial class VaultDetail : LocalizedComponentBase
             isAdmin = vault.Players.Any(p => p.PlayerId == userId && p.Role == VaultRole.Admin);
             var seasonsTask = SeasonService.GetByVaultAsync(Id, ComponentToken);
             var feedTask = VaultService.GetFeedAsync(Id, 5, ComponentToken);
-            await Task.WhenAll(seasonsTask, feedTask);
+            await Task.WhenAll(seasonsTask, feedTask, Avatars.EnsureLoadedAsync());
             seasons = seasonsTask.Result;
             feed = feedTask.Result;
         }

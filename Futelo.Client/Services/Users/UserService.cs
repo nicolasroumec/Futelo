@@ -13,4 +13,7 @@ public class UserService(HttpClient http) : ApiService(http), IUserService
     }
 
     public Task DeleteAvatarAsync() => DeleteAsync("api/users/me/avatar");
+
+    public Task<List<string>> GetUsersWithAvatarAsync(CancellationToken ct = default)
+        => GetListAsync<string>("api/users/with-avatars", ct);
 }

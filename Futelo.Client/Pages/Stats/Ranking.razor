@@ -42,7 +42,7 @@ else
                             <td>@row.Position</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <PlayerAvatar Name="@row.DisplayName" Size="24" AvatarUrl="@($"/api/users/{row.PlayerId}/avatar")" />
+                                    <PlayerAvatar Name="@row.DisplayName" Size="24" AvatarUrl="@Avatars.UrlFor(row.PlayerId)" />
                                     <a href="/vaults/@VaultId/players/@row.PlayerId" class="text-decoration-none">
                                         @row.DisplayName
                                     </a>

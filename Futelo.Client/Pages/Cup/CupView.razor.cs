@@ -1,6 +1,7 @@
 using Futelo.Client.Services.Cup;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Toast;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
@@ -20,6 +21,7 @@ public partial class CupView : LocalizedComponentBase
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
 
     private CupResponse? cup;
     private bool isLoading = true;
@@ -73,6 +75,7 @@ public partial class CupView : LocalizedComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        await Avatars.EnsureLoadedAsync();
         await LoadAsync();
     }
 

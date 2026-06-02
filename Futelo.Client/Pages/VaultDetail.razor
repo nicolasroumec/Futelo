@@ -115,7 +115,7 @@ else
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <a href="/vaults/@Id/players/@player.PlayerId" class="d-flex align-items-center gap-2 text-decoration-none">
-                            <PlayerAvatar Name="@player.DisplayName" Size="28" AvatarUrl="@player.AvatarUrl" />
+                            <PlayerAvatar Name="@player.DisplayName" Size="28" AvatarUrl="@Avatars.UrlFor(player.PlayerId)" />
                             @player.DisplayName
                         </a>
                         <div class="d-flex align-items-center gap-2">
