@@ -22,6 +22,7 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
             .Include(sc => sc.Matches).ThenInclude(m => m.HomeTeam)
             .Include(sc => sc.Matches).ThenInclude(m => m.AwayTeam)
             .Include(sc => sc.Matches).ThenInclude(m => m.VideoGame)
+            .AsSplitQuery()
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(sc => sc.Id == id);
 

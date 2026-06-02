@@ -19,6 +19,7 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
             .Include(l => l.Matches).ThenInclude(m => m.HomeTeam)
             .Include(l => l.Matches).ThenInclude(m => m.AwayTeam)
             .Include(l => l.Matches).ThenInclude(m => m.VideoGame)
+            .AsSplitQuery()
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(l => l.Id == id);
 

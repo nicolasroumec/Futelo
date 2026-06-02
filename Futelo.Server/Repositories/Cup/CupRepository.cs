@@ -21,6 +21,7 @@ public class CupRepository(FuteloContext context) : BaseRepository<Models.Cup>(c
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.HomeTeam)
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.AwayTeam)
             .Include(c => c.Rounds).ThenInclude(r => r.Matches).ThenInclude(m => m.VideoGame)
+            .AsSplitQuery()
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(c => c.Id == id);
 
