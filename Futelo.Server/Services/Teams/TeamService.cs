@@ -17,7 +17,7 @@ public class TeamService(ITeamRepository repository, IMemoryCache cache) : ITeam
             return cached!;
 
         var teams = await repository.GetAllAsync();
-        var result = teams.Select(t => new TeamResponse { Id = t.Id, Name = t.Name, ShieldUrl = $"/api/teams/{t.Id}/shield" }).ToList();
+        var result = teams.Select(t => new TeamResponse { Id = t.Id, Name = t.Name }).ToList();
         cache.Set(CacheKey, result, TimeSpan.FromMinutes(30));
         return result;
     }
@@ -65,4 +65,7 @@ public class TeamService(ITeamRepository repository, IMemoryCache cache) : ITeam
         await repository.DeleteShieldAsync(teamId);
         cache.Remove(CacheKey);
     }
+
+    public Task<List<int>> GetTeamIdsWithShieldAsync()
+        => repository.GetTeamIdsWithShieldAsync();
 }

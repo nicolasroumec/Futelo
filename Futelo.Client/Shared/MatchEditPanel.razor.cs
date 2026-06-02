@@ -1,4 +1,5 @@
 using Futelo.Client.Services.Language;
+using Futelo.Client.Services.Teams;
 using Futelo.Shared.DTOs.League;
 using Futelo.Shared.DTOs.Team;
 using Futelo.Shared.DTOs.VideoGame;
@@ -9,6 +10,7 @@ namespace Futelo.Client.Shared;
 public partial class MatchEditPanel
 {
     [Inject] private ILanguageService Lang { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
 
     [Parameter] public bool IsEditing { get; set; }
     [Parameter] public string HomePlayerName { get; set; } = string.Empty;

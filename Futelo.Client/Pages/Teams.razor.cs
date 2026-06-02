@@ -9,6 +9,7 @@ namespace Futelo.Client.Pages;
 public partial class Teams : LocalizedComponentBase
 {
     [Inject] private ITeamService TeamService { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
     [Inject] private MediaUrlService Media { get; set; } = null!;
 
     private List<TeamResponse> teams = [];
@@ -32,7 +33,9 @@ public partial class Teams : LocalizedComponentBase
         errorMessage = null;
         try
         {
-            teams = await TeamService.GetAllAsync(ComponentToken);
+            var teamsTask = TeamService.GetAllAsync(ComponentToken);
+            await Task.WhenAll(teamsTask, Shields.EnsureLoadedAsync());
+            teams = teamsTask.Result;
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
@@ -110,12 +113,8 @@ public partial class Teams : LocalizedComponentBase
         {
             await TeamService.UploadShieldAsync(teamId, data);
             Media.Bump();
-            var team = teams.FirstOrDefault(t => t.Id == teamId);
-            if (team != null)
-            {
-                team.ShieldUrl = $"/api/teams/{teamId}/shield";
-                StateHasChanged();
-            }
+            Shields.SetHasShield(teamId, true);
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -129,12 +128,8 @@ public partial class Teams : LocalizedComponentBase
         {
             await TeamService.DeleteShieldAsync(teamId);
             Media.Bump();
-            var team = teams.FirstOrDefault(t => t.Id == teamId);
-            if (team != null)
-            {
-                team.ShieldUrl = null;
-                StateHasChanged();
-            }
+            Shields.SetHasShield(teamId, false);
+            StateHasChanged();
         }
         catch (Exception ex)
         {

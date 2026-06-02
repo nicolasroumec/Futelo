@@ -47,4 +47,10 @@ public class TeamRepository(FuteloContext context) : BaseRepository<Team>(contex
         => await Context.Set<Team>()
             .Where(t => t.Id == teamId)
             .ExecuteUpdateAsync(t => t.SetProperty(x => x.Shield, (byte[]?)null));
+
+    public Task<List<int>> GetTeamIdsWithShieldAsync()
+        => Context.Set<Team>()
+            .Where(t => t.Shield != null)
+            .Select(t => t.Id)
+            .ToListAsync();
 }

@@ -12,7 +12,7 @@
                     @{ var homeTeam = Teams.FirstOrDefault(t => t.Id.ToString() == editHomeTeamIdStr); }
                     @if (homeTeam != null)
                     {
-                        <TeamShield Name="@homeTeam.Name" Size="22" ShieldUrl="@homeTeam.ShieldUrl" />
+                        <TeamShield Name="@homeTeam.Name" Size="22" ShieldUrl="@Shields.UrlFor(homeTeam.Id)" />
                     }
                     <select class="form-select form-select-sm" style="width:140px" @bind="editHomeTeamIdStr">
                         <option value="">@Lang.Get("common.none")</option>
@@ -36,7 +36,7 @@
                     @{ var awayTeam = Teams.FirstOrDefault(t => t.Id.ToString() == editAwayTeamIdStr); }
                     @if (awayTeam != null)
                     {
-                        <TeamShield Name="@awayTeam.Name" Size="22" ShieldUrl="@awayTeam.ShieldUrl" />
+                        <TeamShield Name="@awayTeam.Name" Size="22" ShieldUrl="@Shields.UrlFor(awayTeam.Id)" />
                     }
                 </div>
             </div>

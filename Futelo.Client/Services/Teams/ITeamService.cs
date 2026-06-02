@@ -10,4 +10,5 @@ public interface ITeamService
     Task DeleteAsync(int id);
     Task UploadShieldAsync(int teamId, byte[] data);
     Task DeleteShieldAsync(int teamId);
+    Task<List<int>> GetTeamsWithShieldAsync(CancellationToken ct = default);
 }

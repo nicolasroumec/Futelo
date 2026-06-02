@@ -22,6 +22,7 @@ public partial class CupView : LocalizedComponentBase
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
     [Inject] private AvatarDirectory Avatars { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
 
     private CupResponse? cup;
     private bool isLoading = true;
@@ -75,7 +76,7 @@ public partial class CupView : LocalizedComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        await Avatars.EnsureLoadedAsync();
+        await Task.WhenAll(Avatars.EnsureLoadedAsync(), Shields.EnsureLoadedAsync());
         await LoadAsync();
     }
 

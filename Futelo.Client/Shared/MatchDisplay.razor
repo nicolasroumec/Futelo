@@ -30,7 +30,7 @@
         <div class="match-meta__item d-flex align-items-center gap-1">
             @if (HomeTeamId != null)
             {
-                <TeamShield Name="@(HomeTeamName ?? "")" Size="16" ShieldUrl="@($"/api/teams/{HomeTeamId}/shield")" />
+                <TeamShield Name="@(HomeTeamName ?? "")" Size="16" ShieldUrl="@Shields.UrlFor(HomeTeamId)" />
             }
             @HomeTeamName
         </div>
@@ -52,7 +52,7 @@
             @AwayTeamName
             @if (AwayTeamId != null)
             {
-                <TeamShield Name="@(AwayTeamName ?? "")" Size="16" ShieldUrl="@($"/api/teams/{AwayTeamId}/shield")" />
+                <TeamShield Name="@(AwayTeamName ?? "")" Size="16" ShieldUrl="@Shields.UrlFor(AwayTeamId)" />
             }
         </div>
     }
@@ -61,7 +61,7 @@
         <div class="match-meta__item d-flex align-items-center gap-1">
             @if (HomeTeamId != null)
             {
-                <TeamShield Name="@(HomeTeamName ?? "")" Size="16" ShieldUrl="@($"/api/teams/{HomeTeamId}/shield")" />
+                <TeamShield Name="@(HomeTeamName ?? "")" Size="16" ShieldUrl="@Shields.UrlFor(HomeTeamId)" />
             }
             @HomeTeamName
         </div>
@@ -70,7 +70,7 @@
             @AwayTeamName
             @if (AwayTeamId != null)
             {
-                <TeamShield Name="@(AwayTeamName ?? "")" Size="16" ShieldUrl="@($"/api/teams/{AwayTeamId}/shield")" />
+                <TeamShield Name="@(AwayTeamName ?? "")" Size="16" ShieldUrl="@Shields.UrlFor(AwayTeamId)" />
             }
         </div>
     }

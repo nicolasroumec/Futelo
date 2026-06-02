@@ -26,4 +26,7 @@ public class TeamService(HttpClient http) : ApiService(http), ITeamService
 
     public Task DeleteShieldAsync(int teamId)
         => DeleteAsync($"api/teams/{teamId}/shield");
+
+    public Task<List<int>> GetTeamsWithShieldAsync(CancellationToken ct = default)
+        => GetListAsync<int>("api/teams/with-shields", ct);
 }

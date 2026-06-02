@@ -40,6 +40,12 @@ public class TeamController(ITeamService teamService) : ControllerBase
         return NoContent();
     }
 
+    // Lets the client know which teams have a shield so it can skip the
+    // /api/teams/{id}/shield request (and its 404) for those that don't.
+    [HttpGet("with-shields")]
+    public async Task<IActionResult> GetTeamsWithShield()
+        => Ok(await teamService.GetTeamIdsWithShieldAsync());
+
     [AllowAnonymous]
     [HttpGet("{id}/shield")]
     public async Task<IActionResult> GetShield(int id)

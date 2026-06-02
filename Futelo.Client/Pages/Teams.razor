@@ -57,7 +57,7 @@ else
                 <div class="card card-glass h-100">
                     <div class="card-body d-flex align-items-center gap-3">
                         <ImageUpload Width="64" Height="64" DisplaySize="52"
-                                     ExistingImageUrl="@team.ShieldUrl"
+                                     ExistingImageUrl="@Shields.UrlFor(team.Id)"
                                      OnImageReady="(bytes) => HandleShieldUpload(team.Id, bytes)" />
                         <h5 class="card-title mb-0">@team.Name</h5>
                     </div>

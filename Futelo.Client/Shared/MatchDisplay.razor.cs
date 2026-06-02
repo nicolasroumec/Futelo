@@ -1,3 +1,4 @@
+using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Users;
 using Microsoft.AspNetCore.Components;
 
@@ -6,6 +7,7 @@ namespace Futelo.Client.Shared;
 public partial class MatchDisplay : ComponentBase
 {
     [Inject] private AvatarDirectory Avatars { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
 
     [Parameter] public string HomePlayerName { get; set; } = string.Empty;
     [Parameter] public string AwayPlayerName { get; set; } = string.Empty;

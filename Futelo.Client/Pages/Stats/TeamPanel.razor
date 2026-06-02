@@ -45,7 +45,7 @@ else
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <TeamShield Name="@t.TeamName" Size="24" ShieldUrl="@($"/api/teams/{t.TeamId}/shield")" />
+                                    <TeamShield Name="@t.TeamName" Size="24" ShieldUrl="@Shields.UrlFor(t.TeamId)" />
                                     <strong>@t.TeamName</strong>
                                 </div>
                             </td>

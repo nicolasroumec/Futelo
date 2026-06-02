@@ -22,6 +22,7 @@ public partial class LeagueView : LocalizedComponentBase
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
     [Inject] private AvatarDirectory Avatars { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
 
     private LeagueResponse? league;
@@ -96,7 +97,7 @@ public partial class LeagueView : LocalizedComponentBase
     {
         var authState = await AuthStateTask;
         currentUserId = authState.User.FindFirst("sub")?.Value;
-        await Avatars.EnsureLoadedAsync();
+        await Task.WhenAll(Avatars.EnsureLoadedAsync(), Shields.EnsureLoadedAsync());
         await LoadAsync();
     }
 

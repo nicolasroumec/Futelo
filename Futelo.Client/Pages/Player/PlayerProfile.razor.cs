@@ -1,5 +1,6 @@
 using Futelo.Client.Services.Media;
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Users;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Shared;
@@ -21,6 +22,7 @@ public partial class PlayerProfile : LocalizedComponentBase
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private IUserService UserService { get; set; } = null!;
     [Inject] private AvatarDirectory Avatars { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
     [Inject] private MediaUrlService Media { get; set; } = null!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
@@ -56,7 +58,7 @@ public partial class PlayerProfile : LocalizedComponentBase
             isCurrentUser = currentUserId == PlayerId;
             avatarUrl = $"/api/users/{PlayerId}/avatar";
 
-            await Avatars.EnsureLoadedAsync();
+            await Task.WhenAll(Avatars.EnsureLoadedAsync(), Shields.EnsureLoadedAsync());
             stats = await StatsService.GetPlayerStatsAsync(PlayerId, VaultId, ComponentToken);
             globalEloHistory = await StatsService.GetGlobalEloHistoryAsync(VaultId, PlayerId, ct: ComponentToken);
             recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId, ComponentToken);
