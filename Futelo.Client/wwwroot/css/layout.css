@@ -126,22 +126,24 @@ article.content {
 }
 
 .sidebar .navbar-toggler {
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-text-muted);
   border-radius: var(--radius-sm);
-  padding: 0.3rem 0.5rem;
-  color: var(--color-text-muted);
+  padding: 0.3rem 0.45rem;
+  color: var(--color-text);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.sidebar .navbar-toggler:hover {
+  opacity: 1;
+  border-color: var(--color-text);
 }
 .sidebar .navbar-toggler:focus {
   box-shadow: none;
   outline: none;
-}
-.sidebar .navbar-toggler-icon {
-  filter: invert(1) brightness(0.7);
-  width: 1.1em;
-  height: 1.1em;
-}
-body.light .sidebar .navbar-toggler-icon {
-  filter: none;
 }
 
 @media (min-width: 992px) {
