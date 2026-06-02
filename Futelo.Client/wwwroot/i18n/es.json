@@ -15,6 +15,7 @@
   "auth.login.signingIn": "Iniciando sesión...",
   "auth.login.noAccount": "¿No tenés cuenta?",
   "auth.login.registerLink": "Registrate",
+  "auth.login.error": "Usuario o contraseña incorrectos.",
   "auth.register.title": "Crear cuenta",
   "auth.register.subtitle": "Unite a Futelo",
   "auth.register.email": "Email",

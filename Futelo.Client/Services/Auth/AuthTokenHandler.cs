@@ -30,7 +30,9 @@ public class AuthTokenHandler(
         if (response.StatusCode != HttpStatusCode.Unauthorized)
             return response;
 
-        if (request.RequestUri?.AbsolutePath.Contains("auth/refresh") == true)
+        // Auth endpoints return 401 to signal bad/expired credentials, not an
+        // expired access token — let those flow back to the caller untouched.
+        if (request.RequestUri?.AbsolutePath.Contains("api/auth/") == true)
             return response;
 
         await RefreshLock.WaitAsync(cancellationToken);

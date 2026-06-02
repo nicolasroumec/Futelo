@@ -15,6 +15,7 @@
   "auth.login.signingIn": "Signing in...",
   "auth.login.noAccount": "Don't have an account?",
   "auth.login.registerLink": "Register",
+  "auth.login.error": "Incorrect username or password.",
   "auth.register.title": "Create Account",
   "auth.register.subtitle": "Join Futelo",
   "auth.register.email": "Email",

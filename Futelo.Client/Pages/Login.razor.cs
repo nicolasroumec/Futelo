@@ -27,9 +27,9 @@ public partial class Login : LocalizedComponentBase
             await AuthService.LoginAsync(model);
             Nav.NavigateTo(ReturnUrl ?? "/dashboard");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            errorMessage = ex.Message;
+            errorMessage = Lang.Get("auth.login.error");
         }
         finally
         {
