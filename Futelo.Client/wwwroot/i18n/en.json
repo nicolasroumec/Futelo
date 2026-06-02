@@ -382,6 +382,7 @@
   "common.yes": "Yes",
   "common.no": "No",
   "common.resultRecorded": "Result recorded",
+  "common.saved": "Saved",
   "common.select": "-- select --",
   "season.startDate": "Start Date (optional)",
   "season.endDate": "End Date (optional)",

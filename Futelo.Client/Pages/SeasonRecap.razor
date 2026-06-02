@@ -24,11 +24,11 @@
     }
     else if (recap is not null)
     {
-        <div class="d-flex align-items-center gap-3 mb-1">
-            <h2 class="mb-0">@recap.SeasonName</h2>
-            <span class="text-muted fs-5">@recap.Year</span>
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <a href="/seasons/@Id" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
+            <h3 class="mb-0">@recap.SeasonName <span class="text-muted fs-5 fw-normal">@recap.Year</span></h3>
         </div>
-        <p class="text-muted mb-4">@recap.TotalMatches @Lang.Get("recap.matches") · @recap.TotalGoals @Lang.Get("stats.goalsLabel")</p>
+        <p class="text-muted small mb-4">@recap.TotalMatches @Lang.Get("recap.matches") · @recap.TotalGoals @Lang.Get("stats.goalsLabel")</p>
 
         @if (recap.LeagueChampion is not null || recap.CupChampion is not null || recap.SuperCupChampion is not null)
         {

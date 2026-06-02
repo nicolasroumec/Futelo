@@ -171,6 +171,7 @@ public partial class SuperCupView : LocalizedComponentBase
                 EndDate = editEndDate is { } e ? e.ToDateTime(TimeOnly.MinValue) : null,
             });
             editingDates = false;
+            Toast.Show(Lang.Get("common.saved"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -274,6 +275,7 @@ public partial class SuperCupView : LocalizedComponentBase
         {
             await SuperCupService.PatchMatchAsync(Id, editingMatchId.Value, request);
             editingMatchId = null;
+            Toast.Show(Lang.Get("common.saved"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)

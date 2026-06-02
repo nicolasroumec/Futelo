@@ -20,7 +20,7 @@
 }
 
 .elo-summary__elo {
-    color: var(--color-muted);
+    color: var(--color-text-muted);
     min-width: 80px;
 }
 

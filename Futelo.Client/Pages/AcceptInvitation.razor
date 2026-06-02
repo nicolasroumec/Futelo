@@ -8,7 +8,12 @@
     <div class="col-md-4 text-center">
         @if (isLoading)
         {
-            <p>@Lang.Get("invitation.processing")</p>
+            <div class="d-flex flex-column align-items-center gap-3 py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">@Lang.Get("invitation.processing")</span>
+                </div>
+                <span class="text-muted small">@Lang.Get("invitation.processing")</span>
+            </div>
         }
         else if (!string.IsNullOrEmpty(errorMessage))
         {
