@@ -37,8 +37,13 @@
         </div>
     }
 
+    @if (ShowPenaltyDrawWarning)
+    {
+        <div class="text-center text-warning small mb-2">@Lang.Get("cup.penalties.required")</div>
+    }
+
     <div class="d-flex justify-content-center gap-2">
-        <button class="btn btn-sm btn-success" disabled="@IsSaving" @onclick="HandleSave">
+        <button class="btn btn-sm btn-success" disabled="@(IsSaving || !PenaltiesResolved)" @onclick="HandleSave">
             @if (IsSaving)
             {
                 <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>

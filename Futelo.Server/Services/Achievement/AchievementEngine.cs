@@ -1,20 +1,30 @@
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Achievement;
 using Futelo.Shared.Enums;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Futelo.Server.Services.Achievement;
 
 public class AchievementEngine(
     IAchievementRepository achievementRepo,
-    IAchievementEvaluationRepository evalRepo) : IAchievementEngine
+    IAchievementEvaluationRepository evalRepo,
+    IServiceScopeFactory scopeFactory) : IAchievementEngine
 {
-    public async Task EvaluateAfterMatchAsync(MatchAchievementContext ctx)
+    public Task EvaluateAfterMatchAsync(MatchAchievementContext ctx)
+        => Task.WhenAll(
+            EvaluatePlayerInScopeAsync(ctx, isHome: true),
+            EvaluatePlayerInScopeAsync(ctx, isHome: false));
+
+    private async Task EvaluatePlayerInScopeAsync(MatchAchievementContext ctx, bool isHome)
     {
-        await EvaluatePlayerAfterMatchAsync(ctx, isHome: true);
-        await EvaluatePlayerAfterMatchAsync(ctx, isHome: false);
+        using var scope = scopeFactory.CreateScope();
+        var ar = scope.ServiceProvider.GetRequiredService<IAchievementRepository>();
+        var er = scope.ServiceProvider.GetRequiredService<IAchievementEvaluationRepository>();
+        await EvaluatePlayerAfterMatchAsync(ctx, isHome, ar, er);
     }
 
-    private async Task EvaluatePlayerAfterMatchAsync(MatchAchievementContext ctx, bool isHome)
+    private static async Task EvaluatePlayerAfterMatchAsync(MatchAchievementContext ctx, bool isHome,
+        IAchievementRepository achievementRepo, IAchievementEvaluationRepository evalRepo)
     {
         string playerId = isHome ? ctx.HomePlayerId : ctx.AwayPlayerId;
         int myNewHistElo = isHome ? ctx.HomeNewHistElo : ctx.AwayNewHistElo;

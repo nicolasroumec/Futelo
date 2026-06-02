@@ -59,19 +59,32 @@ public partial class MatchResultForm
         }
     }
 
+    private bool PenaltiesResolved =>
+        !HasPenalties ||
+        !ShowPenaltyFields ||
+        (homePenaltyScore ?? 0) != (awayPenaltyScore ?? 0);
+
+    private bool ShowPenaltyDrawWarning =>
+        HasPenalties && ShowPenaltyFields &&
+        homePenaltyScore.HasValue && awayPenaltyScore.HasValue &&
+        homePenaltyScore == awayPenaltyScore;
+
     private async Task HandleSave()
     {
         string? wonOnPenaltiesId = null;
         int? finalHome = null;
         int? finalAway = null;
 
-        if (HasPenalties && ShowPenaltyFields
-            && homePenaltyScore.HasValue && awayPenaltyScore.HasValue
-            && homePenaltyScore != awayPenaltyScore)
+        if (HasPenalties && ShowPenaltyFields)
         {
-            wonOnPenaltiesId = homePenaltyScore > awayPenaltyScore ? HomePlayerId : AwayPlayerId;
-            finalHome = homePenaltyScore;
-            finalAway = awayPenaltyScore;
+            int h = homePenaltyScore ?? 0;
+            int a = awayPenaltyScore ?? 0;
+            if (h != a)
+            {
+                wonOnPenaltiesId = h > a ? HomePlayerId : AwayPlayerId;
+                finalHome = h;
+                finalAway = a;
+            }
         }
 
         await OnSave.InvokeAsync(new MatchResultInput(

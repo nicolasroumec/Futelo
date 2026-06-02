@@ -302,6 +302,7 @@
   "cup.firstLeg": "First Leg",
   "cup.secondLeg": "Second Leg",
   "cup.penalties": "Penalties",
+  "cup.penalties.required": "Enter a winner on penalties before saving.",
   "cup.notFound": "Cup not found.",
   "cup.generating": "Generating...",
   "cup.generateBracket": "Generate Bracket",

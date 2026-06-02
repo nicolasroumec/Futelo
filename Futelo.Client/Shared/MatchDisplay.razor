@@ -12,7 +12,13 @@
     }
     else if (IsPlayed)
     {
-        <span class="match-card__score fw-bold text-center">@HomeScore – @AwayScore</span>
+        <span class="match-card__score fw-bold text-center">
+            @HomeScore – @AwayScore
+            @if (WonOnPenaltiesId != null)
+            {
+                <span class="text-muted small"> (@HomePenaltyScore–@AwayPenaltyScore pen)</span>
+            }
+        </span>
     }
     else
     {

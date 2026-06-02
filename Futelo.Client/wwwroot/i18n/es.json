@@ -302,6 +302,7 @@
   "cup.firstLeg": "Ida",
   "cup.secondLeg": "Vuelta",
   "cup.penalties": "Penales",
+  "cup.penalties.required": "Ingresá un ganador por penales antes de guardar.",
   "cup.notFound": "Copa no encontrada.",
   "cup.generating": "Generando...",
   "cup.generateBracket": "Generar Cuadro",
