@@ -855,12 +855,12 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
 
             if (m.WonOnPenaltiesId != null)
             {
-                home.Drawn++;
-                away.Drawn++;
+                home.Drawn++; home.Points++;
+                away.Drawn++; away.Points++;
             }
-            else if (m.HomeScore > m.AwayScore) { home.Won++; away.Lost++; }
-            else if (m.HomeScore < m.AwayScore) { away.Won++; home.Lost++; }
-            else { home.Drawn++; away.Drawn++; }
+            else if (m.HomeScore > m.AwayScore) { home.Won++; home.Points += 3; away.Lost++; }
+            else if (m.HomeScore < m.AwayScore) { away.Won++; away.Points += 3; home.Lost++; }
+            else { home.Drawn++; home.Points++; away.Drawn++; away.Points++; }
         }
 
         return dict.Values
