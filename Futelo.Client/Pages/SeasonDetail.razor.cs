@@ -218,7 +218,7 @@ public partial class SeasonDetail : LocalizedComponentBase
     private async Task CopyRecapLink()
     {
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", $"{Nav.BaseUri}seasons/{Id}/recap");
-        Toast.Show("Link copied!");
+        Toast.Show(Lang.Get("vault.inviteLinkCopied"));
     }
 
     private async Task HandleConfigure()

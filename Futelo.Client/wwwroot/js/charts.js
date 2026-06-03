@@ -1,3 +1,26 @@
+function _futeloTheme(ctx, height) {
+    const s = getComputedStyle(document.documentElement);
+    const v = n => s.getPropertyValue(n).trim();
+    const primaryRgb = v('--bs-primary-rgb');
+    const borderHex  = v('--color-border');
+    const br = parseInt(borderHex.slice(1, 3), 16);
+    const bg = parseInt(borderHex.slice(3, 5), 16);
+    const bb = parseInt(borderHex.slice(5, 7), 16);
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, `rgba(${primaryRgb}, 0.25)`);
+    gradient.addColorStop(1, `rgba(${primaryRgb}, 0)`);
+    return {
+        primary:    v('--color-primary'),
+        border:     borderHex,
+        textMuted:  v('--color-text-muted'),
+        surface2:   v('--color-surface-2'),
+        text:       v('--color-text'),
+        bg:         v('--color-bg'),
+        seasonLine: `rgba(${br}, ${bg}, ${bb}, 0.6)`,
+        gradient,
+    };
+}
+
 window.renderGlobalEloChart = function (canvasId, labels, data, seasons) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -7,17 +30,14 @@ window.renderGlobalEloChart = function (canvasId, labels, data, seasons) {
     }
 
     const ctx = canvas.getContext('2d');
-    const height = canvas.offsetHeight || 200;
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.25)');
-    gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+    const t = _futeloTheme(ctx, canvas.offsetHeight || 200);
 
     const seasonPlugin = {
         id: 'seasonBoundaries',
         afterDraw(chart) {
             const xAxis = chart.scales.x;
             const yAxis = chart.scales.y;
-            const pCtx = chart.ctx;
+            const pCtx  = chart.ctx;
 
             seasons.forEach(season => {
                 if (season.firstPointIndex <= 0 || season.firstPointIndex >= labels.length) return;
@@ -29,11 +49,11 @@ window.renderGlobalEloChart = function (canvasId, labels, data, seasons) {
                 pCtx.moveTo(x, yAxis.top);
                 pCtx.lineTo(x, yAxis.bottom);
                 pCtx.lineWidth = 1;
-                pCtx.strokeStyle = 'rgba(148,163,184,0.45)';
+                pCtx.strokeStyle = t.seasonLine;
                 pCtx.setLineDash([4, 4]);
                 pCtx.stroke();
                 pCtx.setLineDash([]);
-                pCtx.fillStyle = '#9AA4B2';
+                pCtx.fillStyle = t.textMuted;
                 pCtx.font = '10px sans-serif';
                 pCtx.fillText(season.name, x + 4, yAxis.top + 12);
                 pCtx.restore();
@@ -48,14 +68,14 @@ window.renderGlobalEloChart = function (canvasId, labels, data, seasons) {
             labels: labels,
             datasets: [{
                 data: data,
-                borderColor: '#22C55E',
-                backgroundColor: gradient,
+                borderColor: t.primary,
+                backgroundColor: t.gradient,
                 fill: true,
                 tension: 0.4,
                 pointRadius: labels.length > 60 ? 2 : 4,
                 pointHoverRadius: 6,
-                pointBackgroundColor: '#22C55E',
-                pointBorderColor: '#0F1115',
+                pointBackgroundColor: t.primary,
+                pointBorderColor: t.bg,
                 pointBorderWidth: 2,
                 borderWidth: 2
             }]
@@ -65,11 +85,11 @@ window.renderGlobalEloChart = function (canvasId, labels, data, seasons) {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: '#1F2430',
-                    borderColor: '#2B3240',
+                    backgroundColor: t.surface2,
+                    borderColor: t.border,
                     borderWidth: 1,
-                    titleColor: '#9AA4B2',
-                    bodyColor: '#F5F7FA',
+                    titleColor: t.textMuted,
+                    bodyColor: t.text,
                     padding: 10,
                     displayColors: false,
                     callbacks: {
@@ -79,9 +99,9 @@ window.renderGlobalEloChart = function (canvasId, labels, data, seasons) {
             },
             scales: {
                 x: {
-                    grid: { color: '#2B3240' },
+                    grid: { color: t.border },
                     ticks: {
-                        color: '#9AA4B2',
+                        color: t.textMuted,
                         font: { size: 11 },
                         maxTicksLimit: 8,
                         maxRotation: 0
@@ -89,8 +109,8 @@ window.renderGlobalEloChart = function (canvasId, labels, data, seasons) {
                 },
                 y: {
                     beginAtZero: false,
-                    grid: { color: '#2B3240' },
-                    ticks: { color: '#9AA4B2', font: { size: 11 } }
+                    grid: { color: t.border },
+                    ticks: { color: t.textMuted, font: { size: 11 } }
                 }
             }
         }
@@ -106,10 +126,7 @@ window.renderEloChart = function (canvasId, labels, data) {
     }
 
     const ctx = canvas.getContext('2d');
-    const height = canvas.offsetHeight || 200;
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.25)');
-    gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
+    const t = _futeloTheme(ctx, canvas.offsetHeight || 200);
 
     canvas._chart = new Chart(canvas, {
         type: 'line',
@@ -117,14 +134,14 @@ window.renderEloChart = function (canvasId, labels, data) {
             labels: labels,
             datasets: [{
                 data: data,
-                borderColor: '#22C55E',
-                backgroundColor: gradient,
+                borderColor: t.primary,
+                backgroundColor: t.gradient,
                 fill: true,
                 tension: 0.4,
                 pointRadius: 4,
                 pointHoverRadius: 6,
-                pointBackgroundColor: '#22C55E',
-                pointBorderColor: '#0F1115',
+                pointBackgroundColor: t.primary,
+                pointBorderColor: t.bg,
                 pointBorderWidth: 2,
                 borderWidth: 2
             }]
@@ -134,11 +151,11 @@ window.renderEloChart = function (canvasId, labels, data) {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: '#1F2430',
-                    borderColor: '#2B3240',
+                    backgroundColor: t.surface2,
+                    borderColor: t.border,
                     borderWidth: 1,
-                    titleColor: '#9AA4B2',
-                    bodyColor: '#F5F7FA',
+                    titleColor: t.textMuted,
+                    bodyColor: t.text,
                     padding: 10,
                     displayColors: false,
                     callbacks: {
@@ -148,13 +165,13 @@ window.renderEloChart = function (canvasId, labels, data) {
             },
             scales: {
                 x: {
-                    grid: { color: '#2B3240' },
-                    ticks: { color: '#9AA4B2', font: { size: 11 } }
+                    grid: { color: t.border },
+                    ticks: { color: t.textMuted, font: { size: 11 } }
                 },
                 y: {
                     beginAtZero: false,
-                    grid: { color: '#2B3240' },
-                    ticks: { color: '#9AA4B2', font: { size: 11 } }
+                    grid: { color: t.border },
+                    ticks: { color: t.textMuted, font: { size: 11 } }
                 }
             }
         }
