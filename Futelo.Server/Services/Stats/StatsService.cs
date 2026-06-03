@@ -265,7 +265,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
 
         var points = new List<EloHistoryPoint>
         {
-            new() { Date = history[0].CreatedAt, Elo = history[0].EloBefore }
+            new() { Date = history[0].CreatedAt.AddDays(-1), Elo = history[0].EloBefore }
         };
         points.AddRange(history.Select(h => new EloHistoryPoint { Date = h.CreatedAt, Elo = h.EloAfter }));
 
@@ -286,7 +286,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
         {
             new()
             {
-                Date            = history[0].CreatedAt,
+                Date            = history[0].CreatedAt.AddDays(-1),
                 Elo             = history[0].EloBefore,
                 CompetitionType = GetCompetitionType(history[0].Match),
                 SeasonName      = history[0].Season.Name

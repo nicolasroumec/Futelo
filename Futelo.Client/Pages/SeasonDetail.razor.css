@@ -3,6 +3,35 @@
     border: 1px solid rgba(var(--bs-primary-rgb), .2);
 }
 
+.season-draft-banner__desc {
+    font-size: .8rem;
+}
+
+.season-wizard {
+    gap: 0;
+}
+
+.season-wizard__badge {
+    width: 28px;
+    height: 28px;
+    font-size: .75rem;
+}
+
+.season-wizard__badge--dim {
+    opacity: .5;
+}
+
+.season-wizard__connector {
+    height: 2px;
+    background: var(--color-border);
+    min-width: 24px;
+}
+
+.modal-content {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+}
+
 .season-meta {
     display: flex;
     flex-wrap: wrap;

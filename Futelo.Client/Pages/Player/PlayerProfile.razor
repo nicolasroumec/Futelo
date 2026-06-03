@@ -43,8 +43,19 @@ else if (stats == null)
 }
 else
 {
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="breadcrumb-link">@Lang.Get("nav.dashboard")</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/vaults/@VaultId" class="breadcrumb-link">@vaultName</a>
+            </li>
+            <li class="breadcrumb-item active fw-semibold" aria-current="page">@(stats?.DisplayName ?? "...")</li>
+        </ol>
+    </nav>
+
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
         <div class="d-flex flex-column align-items-center" style="gap:4px">
             @if (isCurrentUser)
             {

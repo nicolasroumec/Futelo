@@ -60,7 +60,7 @@ else
         <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-3 season-draft-banner">
             <div>
                 <div class="fw-semibold small">@Lang.Get("season.draftBannerTitle")</div>
-                <div class="text-muted" style="font-size:.8rem">@Lang.Get("season.draftBannerDesc")</div>
+                <div class="season-draft-banner__desc text-muted">@Lang.Get("season.draftBannerDesc")</div>
             </div>
             @if (season.Players.Count >= 2 && (season.HasLeague || season.HasCup))
             {
@@ -76,47 +76,41 @@ else
         </div>
 
         @* Step wizard *@
-        <div class="d-flex align-items-center mb-4 overflow-auto pb-1" style="gap:0">
+        <div class="season-wizard d-flex align-items-center mb-4 overflow-auto pb-1">
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                <span class="badge rounded-pill @(StepCompDone ? "bg-success" : "bg-primary") d-inline-flex align-items-center justify-content-center"
-                      style="width:28px;height:28px;font-size:.75rem">
+                <span class="badge rounded-pill @(StepCompDone ? "bg-success" : "bg-primary") d-inline-flex align-items-center justify-content-center season-wizard__badge">
                     @(StepCompDone ? "✓" : "1")
                 </span>
                 <span class="small fw-semibold">@Lang.Get("season.competitions")</span>
             </div>
-            <div class="flex-fill mx-2" style="height:2px;background:var(--color-border);min-width:24px"></div>
+            <div class="flex-fill mx-2 season-wizard__connector"></div>
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 @if (StepPlayersDone)
                 {
-                    <span class="badge rounded-pill bg-success d-inline-flex align-items-center justify-content-center"
-                          style="width:28px;height:28px;font-size:.75rem">✓</span>
+                    <span class="badge rounded-pill bg-success d-inline-flex align-items-center justify-content-center season-wizard__badge">✓</span>
                     <span class="small fw-semibold">@Lang.Get("season.players")</span>
                 }
                 else if (StepCompDone)
                 {
-                    <span class="badge rounded-pill bg-primary d-inline-flex align-items-center justify-content-center"
-                          style="width:28px;height:28px;font-size:.75rem">2</span>
+                    <span class="badge rounded-pill bg-primary d-inline-flex align-items-center justify-content-center season-wizard__badge">2</span>
                     <span class="small fw-semibold">@Lang.Get("season.players")</span>
                 }
                 else
                 {
-                    <span class="badge rounded-pill bg-secondary d-inline-flex align-items-center justify-content-center"
-                          style="width:28px;height:28px;font-size:.75rem;opacity:.5">2</span>
+                    <span class="badge rounded-pill bg-secondary d-inline-flex align-items-center justify-content-center season-wizard__badge season-wizard__badge--dim">2</span>
                     <span class="small text-muted">@Lang.Get("season.players")</span>
                 }
             </div>
-            <div class="flex-fill mx-2" style="height:2px;background:var(--color-border);min-width:24px"></div>
+            <div class="flex-fill mx-2 season-wizard__connector"></div>
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 @if (StepReadyToActivate)
                 {
-                    <span class="badge rounded-pill bg-primary d-inline-flex align-items-center justify-content-center"
-                          style="width:28px;height:28px;font-size:.75rem">3</span>
+                    <span class="badge rounded-pill bg-primary d-inline-flex align-items-center justify-content-center season-wizard__badge">3</span>
                     <span class="small fw-semibold">@Lang.Get("season.stepActivate")</span>
                 }
                 else
                 {
-                    <span class="badge rounded-pill bg-secondary d-inline-flex align-items-center justify-content-center"
-                          style="width:28px;height:28px;font-size:.75rem;opacity:.5">3</span>
+                    <span class="badge rounded-pill bg-secondary d-inline-flex align-items-center justify-content-center season-wizard__badge season-wizard__badge--dim">3</span>
                     <span class="small text-muted">@Lang.Get("season.stepActivate")</span>
                 }
             </div>
@@ -432,7 +426,7 @@ else
     <div class="modal-backdrop fade show"></div>
     <div class="modal d-block" tabindex="-1" role="dialog" @onclick="() => showDeleteModal = false">
         <div class="modal-dialog modal-dialog-centered modal-sm" @onclick:stopPropagation>
-            <div class="modal-content" style="background:var(--color-surface);border-color:var(--color-border)">
+            <div class="modal-content">
                 <div class="modal-body p-4">
                     <h6 class="fw-bold mb-1">@Lang.Get("season.deleteSeason")</h6>
                     <p class="text-muted small mb-4">@Lang.Get("season.deleteWarning")</p>

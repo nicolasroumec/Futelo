@@ -31,6 +31,7 @@ public partial class PlayerProfile : LocalizedComponentBase
     private PlayerStatsResponse? stats;
     private PlayerRecordsResponse? records;
     private GlobalEloHistoryResponse? globalEloHistory;
+    private string? vaultName;
     private string? competitionFilter;
     private List<RecentFormEntry> recentForm = [];
     private List<RecentMatchResponse> recentMatches = [];
@@ -66,6 +67,7 @@ public partial class PlayerProfile : LocalizedComponentBase
             records = await StatsService.GetPlayerRecordsAsync(VaultId, PlayerId, ComponentToken);
             achievements = await StatsService.GetPlayerAchievementsAsync(VaultId, PlayerId, ComponentToken);
             var vault = await VaultService.GetByIdAsync(VaultId, ComponentToken);
+            vaultName = vault.Name;
             opponents = vault.Players.Where(p => p.PlayerId != PlayerId).ToList();
             if (opponents.Count > 0)
                 selectedOpponentId = opponents[0].PlayerId;

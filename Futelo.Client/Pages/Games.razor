@@ -11,7 +11,7 @@
 
 @if (showForm)
 {
-    <div class="card mb-4" style="max-width:400px">
+    <div class="card card-form mb-4">
         <div class="card-body">
             <h5 class="card-title">@(editingId.HasValue ? Lang.Get("games.editGame") : Lang.Get("games.newGame"))</h5>
             <EditForm Model="formModel" OnValidSubmit="HandleSubmit">
