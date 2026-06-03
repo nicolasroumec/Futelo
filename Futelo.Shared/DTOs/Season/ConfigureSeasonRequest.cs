@@ -7,7 +7,17 @@ public class ConfigureSeasonRequest
     public bool HasLeague { get; set; }
     public string LeagueName { get; set; } = "League";
     public bool LeagueIsHomeAndAway { get; set; }
-    public TiebreakerRule LeagueTiebreakerRule { get; set; } = TiebreakerRule.GoalDifference;
+    public List<TiebreakerCriterion> LeagueTiebreakerCriteria { get; set; } =
+    [
+        TiebreakerCriterion.HeadToHeadPoints,
+        TiebreakerCriterion.HeadToHeadWins,
+        TiebreakerCriterion.HeadToHeadGoalDifference,
+        TiebreakerCriterion.HeadToHeadGoalsFor,
+        TiebreakerCriterion.GoalDifference,
+        TiebreakerCriterion.GoalsFor,
+        TiebreakerCriterion.Wins
+    ];
+    public FinalTiebreaker LeagueFinalTiebreaker { get; set; } = FinalTiebreaker.DrawingOfLots;
     public DateTime? LeagueStartDate { get; set; }
     public DateTime? LeagueEndDate { get; set; }
     public bool HasCup { get; set; }

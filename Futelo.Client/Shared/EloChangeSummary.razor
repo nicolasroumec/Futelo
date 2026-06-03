@@ -1,0 +1,16 @@
+<div class="elo-summary mt-2 border-top pt-2">
+    @foreach (var p in new[] {
+        (Name: HomeName, Change: HomeEloChange, Before: HomeEloBefore, After: HomeEloAfter, RankBefore: HomeRankBefore, RankAfter: HomeRankAfter),
+        (Name: AwayName, Change: AwayEloChange, Before: AwayEloBefore, After: AwayEloAfter, RankBefore: AwayRankBefore, RankAfter: AwayRankAfter)
+    })
+    {
+        <div class="elo-summary__row">
+            <span class="elo-summary__name">@p.Name</span>
+            <span class="elo-summary__elo">@p.Before → @p.After</span>
+            <span class="elo-summary__change @ChangeClass(p.Change)">@ChangeLabel(p.Change)</span>
+            <span class="elo-summary__rank @RankArrowClass(p.RankBefore, p.RankAfter)">
+                @RankArrow(p.RankBefore, p.RankAfter) #@p.RankBefore → #@p.RankAfter
+            </span>
+        </div>
+    }
+</div>

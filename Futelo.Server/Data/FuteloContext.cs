@@ -1,5 +1,7 @@
+using Futelo.Shared.Enums;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Futelo.Server.Models;
 
 namespace Futelo.Server.Data;
@@ -77,6 +79,22 @@ public class FuteloContext : IdentityDbContext<AppUser>
             .HasOne(s => s.League)
             .WithOne(l => l.Season)
             .HasForeignKey<League>(l => l.SeasonId);
+
+        builder.Entity<League>()
+            .Property(l => l.TiebreakerCriteria)
+            .HasConversion(
+                v => string.Join(",", v.Select(c => (int)c)),
+                v => string.IsNullOrEmpty(v)
+                    ? League.DefaultCriteria()
+                    : v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                       .Select(s => (TiebreakerCriterion)int.Parse(s))
+                       .ToList()
+            )
+            .Metadata.SetValueComparer(new ValueComparer<List<TiebreakerCriterion>>(
+                (a, b) => a != null && b != null && a.SequenceEqual(b),
+                v => v.Aggregate(0, (h, c) => HashCode.Combine(h, c.GetHashCode())),
+                v => v.ToList()
+            ));
 
         builder.Entity<League>()
             .HasOne(l => l.Champion)

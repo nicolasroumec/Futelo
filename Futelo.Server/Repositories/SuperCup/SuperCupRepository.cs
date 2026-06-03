@@ -22,6 +22,7 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
             .Include(sc => sc.Matches).ThenInclude(m => m.HomeTeam)
             .Include(sc => sc.Matches).ThenInclude(m => m.AwayTeam)
             .Include(sc => sc.Matches).ThenInclude(m => m.VideoGame)
+            .AsSplitQuery()
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(sc => sc.Id == id);
 
@@ -105,6 +106,18 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
         if (superCup == null) return;
         superCup.StartDate = startDate;
         superCup.EndDate = endDate;
+        await SaveChangesAsync();
+    }
+
+    public async Task ResetSuperCupFinishAsync(int superCupId)
+    {
+        var superCup = await Context.Set<Models.SuperCup>().FindAsync(superCupId);
+        if (superCup != null)
+        {
+            superCup.Status = TournamentStatus.Active;
+            superCup.ChampionId = null;
+        }
+
         await SaveChangesAsync();
     }
 }

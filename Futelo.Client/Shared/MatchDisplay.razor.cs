@@ -1,13 +1,22 @@
+using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Users;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Shared;
 
 public partial class MatchDisplay : ComponentBase
 {
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
+
     [Parameter] public string HomePlayerName { get; set; } = string.Empty;
     [Parameter] public string AwayPlayerName { get; set; } = string.Empty;
+    [Parameter] public string? HomePlayerId { get; set; }
+    [Parameter] public string? AwayPlayerId { get; set; }
     [Parameter] public string? HomeTeamName { get; set; }
     [Parameter] public string? AwayTeamName { get; set; }
+    [Parameter] public int? HomeTeamId { get; set; }
+    [Parameter] public int? AwayTeamId { get; set; }
     [Parameter] public string? VideoGameName { get; set; }
     [Parameter] public int? HomeScore { get; set; }
     [Parameter] public int? AwayScore { get; set; }

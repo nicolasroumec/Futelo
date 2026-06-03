@@ -1,21 +1,45 @@
 <div class="match-layout">
-    <span class="match-card__player @(HomePlayerMuted ? "text-muted" : "")">@HomePlayerName</span>
+    <div class="match-card__player d-flex align-items-center gap-1 @(HomePlayerMuted ? "text-muted" : "")">
+        @if (HomePlayerId != null)
+        {
+            <PlayerAvatar Name="@HomePlayerName" Size="22" AvatarUrl="@Avatars.UrlFor(HomePlayerId)" />
+        }
+        <span>@HomePlayerName</span>
+    </div>
     @if (HasGame)
     {
         <span class="match-meta__item text-center fst-italic">@VideoGameName</span>
     }
     else if (IsPlayed)
     {
-        <span class="match-card__score fw-bold text-center">@HomeScore – @AwayScore</span>
+        <span class="match-card__score fw-bold text-center">
+            @HomeScore – @AwayScore
+            @if (WonOnPenaltiesId != null)
+            {
+                <span class="text-muted small"> (@HomePenaltyScore–@AwayPenaltyScore pen)</span>
+            }
+        </span>
     }
     else
     {
         <span class="match-card__vs text-muted text-center">vs</span>
     }
-    <span class="match-card__player text-end @(AwayPlayerMuted ? "text-muted" : "")">@AwayPlayerName</span>
+    <div class="match-card__player d-flex align-items-center justify-content-end gap-1 @(AwayPlayerMuted ? "text-muted" : "")">
+        <span>@AwayPlayerName</span>
+        @if (AwayPlayerId != null)
+        {
+            <PlayerAvatar Name="@AwayPlayerName" Size="22" AvatarUrl="@Avatars.UrlFor(AwayPlayerId)" />
+        }
+    </div>
     @if (HasGame)
     {
-        <span class="match-meta__item">@HomeTeamName</span>
+        <div class="match-meta__item d-flex align-items-center gap-1">
+            @if (HomeTeamId != null)
+            {
+                <TeamShield Name="@(HomeTeamName ?? "")" Size="16" ShieldUrl="@Shields.UrlFor(HomeTeamId)" />
+            }
+            @HomeTeamName
+        </div>
         @if (IsPlayed)
         {
             <span class="match-card__score fw-bold text-center">
@@ -30,12 +54,30 @@
         {
             <span class="match-card__vs text-muted text-center">vs</span>
         }
-        <span class="match-meta__item text-end">@AwayTeamName</span>
+        <div class="match-meta__item d-flex align-items-center justify-content-end gap-1">
+            @AwayTeamName
+            @if (AwayTeamId != null)
+            {
+                <TeamShield Name="@(AwayTeamName ?? "")" Size="16" ShieldUrl="@Shields.UrlFor(AwayTeamId)" />
+            }
+        </div>
     }
     else if (HasTeams)
     {
-        <span class="match-meta__item">@HomeTeamName</span>
+        <div class="match-meta__item d-flex align-items-center gap-1">
+            @if (HomeTeamId != null)
+            {
+                <TeamShield Name="@(HomeTeamName ?? "")" Size="16" ShieldUrl="@Shields.UrlFor(HomeTeamId)" />
+            }
+            @HomeTeamName
+        </div>
         <span></span>
-        <span class="match-meta__item text-end">@AwayTeamName</span>
+        <div class="match-meta__item d-flex align-items-center justify-content-end gap-1">
+            @AwayTeamName
+            @if (AwayTeamId != null)
+            {
+                <TeamShield Name="@(AwayTeamName ?? "")" Size="16" ShieldUrl="@Shields.UrlFor(AwayTeamId)" />
+            }
+        </div>
     }
 </div>

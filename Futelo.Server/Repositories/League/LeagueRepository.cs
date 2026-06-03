@@ -19,6 +19,7 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
             .Include(l => l.Matches).ThenInclude(m => m.HomeTeam)
             .Include(l => l.Matches).ThenInclude(m => m.AwayTeam)
             .Include(l => l.Matches).ThenInclude(m => m.VideoGame)
+            .AsSplitQuery()
             .AsNoTrackingWithIdentityResolution()
             .FirstOrDefaultAsync(l => l.Id == id);
 
@@ -135,6 +136,23 @@ public class LeagueRepository(FuteloContext context) : BaseRepository<Models.Lea
         if (league == null) return;
         league.StartDate = startDate;
         league.EndDate = endDate;
+        await SaveChangesAsync();
+    }
+
+    public async Task ResetLeagueFinishAsync(int leagueId)
+    {
+        var league = await Context.Set<Models.League>().FindAsync(leagueId);
+        if (league != null)
+        {
+            league.Status = TournamentStatus.Active;
+            league.ChampionId = null;
+        }
+
+        var leaguePlayers = await Context.Set<LeaguePlayer>()
+            .Where(lp => lp.LeagueId == leagueId).ToListAsync();
+        foreach (var lp in leaguePlayers)
+            lp.LeaguePosition = null;
+
         await SaveChangesAsync();
     }
 }

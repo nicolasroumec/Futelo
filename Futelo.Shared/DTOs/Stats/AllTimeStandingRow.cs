@@ -12,4 +12,6 @@ public class AllTimeStandingRow
     public int GoalsFor { get; set; }
     public int GoalsAgainst { get; set; }
     public int GoalDifference => GoalsFor - GoalsAgainst;
+    public int Points { get; set; }
+    public double PointsAverage => Played > 0 ? (double)Points / Played : 0;
 }

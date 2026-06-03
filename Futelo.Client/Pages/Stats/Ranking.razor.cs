@@ -1,4 +1,5 @@
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
@@ -10,6 +11,7 @@ public partial class Ranking : LocalizedComponentBase
     [Parameter] public int VaultId { get; set; }
     [Parameter] public int SeasonId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
 
     private List<RankingRow> rows = [];
     private bool isLoading = true;
@@ -19,7 +21,9 @@ public partial class Ranking : LocalizedComponentBase
     {
         try
         {
-            rows = await StatsService.GetRankingAsync(SeasonId, VaultId, ComponentToken);
+            var rankingTask = StatsService.GetRankingAsync(SeasonId, VaultId, ComponentToken);
+            await Task.WhenAll(rankingTask, Avatars.EnsureLoadedAsync());
+            rows = rankingTask.Result;
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)

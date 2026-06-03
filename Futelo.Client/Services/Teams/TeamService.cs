@@ -15,4 +15,18 @@ public class TeamService(HttpClient http) : ApiService(http), ITeamService
 
     public Task DeleteAsync(int id)
         => DeleteAsync($"api/teams/{id}");
+
+    public async Task UploadShieldAsync(int teamId, byte[] data)
+    {
+        using var content = new MultipartFormDataContent();
+        content.Add(new ByteArrayContent(data), "file", "shield.webp");
+        var res = await Http.PutAsync($"api/teams/{teamId}/shield", content);
+        await res.EnsureSuccessAsync();
+    }
+
+    public Task DeleteShieldAsync(int teamId)
+        => DeleteAsync($"api/teams/{teamId}/shield");
+
+    public Task<List<int>> GetTeamsWithShieldAsync(CancellationToken ct = default)
+        => GetListAsync<int>("api/teams/with-shields", ct);
 }

@@ -34,7 +34,7 @@
 }
 else if (vault == null)
 {
-    <p class="text-danger">@Lang.Get("vault.notFound")</p>
+    <EmptyState Message="@Lang.Get("vault.notFound")" />
 }
 else
 {
@@ -72,27 +72,14 @@ else
         <a href="/vaults/@Id/ranking" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.ranking")</a>
         <a href="/vaults/@Id/records" class="btn btn-outline-secondary btn-sm">@Lang.Get("vault.records")</a>
         <a href="/vaults/@Id/palmares" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.palmares")</a>
+        <a href="/vaults/@Id/scorers" class="btn btn-outline-secondary btn-sm">@Lang.Get("stats.scorers")</a>
         <a href="/vaults/@Id/teams" class="btn btn-outline-secondary btn-sm">@Lang.Get("teams.title")</a>
         <a href="/vaults/@Id/games" class="btn btn-outline-secondary btn-sm">@Lang.Get("games.title")</a>
     </div>
 
     <div class="row g-4">
-        @* LEFT — Players, seasons, invite *@
+        @* LEFT — Seasons, players, invite *@
         <div class="col-lg-4">
-            <h5>@Lang.Get("vault.players")</h5>
-            <ul class="list-group mb-4">
-                @foreach (var player in vault.Players)
-                {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <a href="/vaults/@Id/players/@player.PlayerId" class="text-decoration-none">@player.DisplayName</a>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-secondary">@player.EloRating</span>
-                            <span class="badge @RoleBadgeClass(player.Role)">@player.Role</span>
-                        </div>
-                    </li>
-                }
-            </ul>
-
             <div class="d-flex align-items-center gap-3 mb-2">
                 <h5 class="mb-0">@Lang.Get("vault.seasons")</h5>
                 @if (isOwner)
@@ -102,20 +89,55 @@ else
             </div>
             @if (seasons.Count == 0)
             {
-                <EmptyState Message="@Lang.Get("vault.noSeasons")" />
+                <EmptyState Title="@Lang.Get("vault.noSeasonsTitle")"
+                            Message="@Lang.Get("vault.noSeasons")"
+                            ActionLabel="@(isOwner ? Lang.Get("vault.newSeason") : null)"
+                            ActionHref="@(isOwner ? $"/vaults/{Id}/seasons/create" : null)">
+                    <Icon>🏆</Icon>
+                </EmptyState>
             }
             else
             {
                 <ul class="list-group mb-4">
                     @foreach (var s in seasons)
                     {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center" @key="s.Id">
                             <a href="/seasons/@s.Id" class="text-decoration-none">@s.Name (@s.Year)</a>
                             <span class="badge @BadgeHelper.StatusBadgeClass(s.Status)">@Lang.Get("season.status." + s.Status.ToLower())</span>
                         </li>
                     }
                 </ul>
             }
+
+            <h5>@Lang.Get("vault.players")</h5>
+            <ul class="list-group mb-4">
+                @foreach (var player in vault.Players)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center" @key="player.PlayerId">
+                        <a href="/vaults/@Id/players/@player.PlayerId" class="d-flex align-items-center gap-2 text-decoration-none">
+                            <PlayerAvatar Name="@player.DisplayName" Size="28" AvatarUrl="@Avatars.UrlFor(player.PlayerId)" />
+                            @player.DisplayName
+                        </a>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary">@player.EloRating</span>
+                            <span class="badge @RoleBadgeClass(player.Role)">@player.Role</span>
+                            @if (isAdmin && player.PlayerId != vault.OwnerId)
+                            {
+                                @if (confirmingRemovePlayerId == player.PlayerId)
+                                {
+                                    <span class="text-muted small">@Lang.Get("vault.removePlayerConfirm")</span>
+                                    <button class="btn btn-danger btn-sm" @onclick="() => ConfirmRemovePlayerAsync(player.PlayerId)" disabled="@isRemovingPlayer">@Lang.Get("common.yes")</button>
+                                    <button class="btn btn-outline-secondary btn-sm" @onclick="CancelRemovePlayer" disabled="@isRemovingPlayer">@Lang.Get("common.no")</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="() => StartRemovePlayer(player.PlayerId)">@Lang.Get("vault.removePlayer")</button>
+                                }
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
 
             @if (isAdmin)
             {
@@ -124,9 +146,9 @@ else
                     <DataAnnotationsValidator />
                     <div class="input-group mb-2">
                         <InputSelect class="form-select" @bind-Value="inviteModel.Role">
-                            <option value="@VaultRole.Viewer">Viewer</option>
-                            <option value="@VaultRole.Editor">Editor</option>
-                            <option value="@VaultRole.Admin">Admin</option>
+                            <option value="@VaultRole.Viewer">@Lang.Get("vault.role.viewer")</option>
+                            <option value="@VaultRole.Editor">@Lang.Get("vault.role.editor")</option>
+                            <option value="@VaultRole.Admin">@Lang.Get("vault.role.admin")</option>
                         </InputSelect>
                         <button type="submit" class="btn btn-outline-primary" disabled="@isInviting">
                             @(isInviting ? Lang.Get("vault.generating") : Lang.Get("vault.generateLink"))
@@ -160,9 +182,13 @@ else
                 <div class="recent-matches mb-4">
                     @foreach (var ev in feed)
                     {
-                        <div class="recent-match-row">
+                        <div class="recent-match-row" @key="ev.MatchId">
                             <span class="recent-match-competition text-muted small">@ev.SeasonName · @ev.CompetitionName</span>
                             <MatchDisplay
+                                HomePlayerId="@ev.HomePlayerId"
+                                AwayPlayerId="@ev.AwayPlayerId"
+                                HomeTeamId="@ev.HomeTeamId"
+                                AwayTeamId="@ev.AwayTeamId"
                                 HomePlayerName="@ev.HomePlayerName"
                                 AwayPlayerName="@ev.AwayPlayerName"
                                 HomeTeamName="@ev.HomeTeamName"

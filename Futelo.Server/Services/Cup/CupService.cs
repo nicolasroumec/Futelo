@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Cup;
+using Futelo.Server.Repositories.Shared;
 using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.Cup;
@@ -10,7 +11,7 @@ namespace Futelo.Server.Services.Cup;
 
 using static ErrorMessages;
 
-public class CupService(ICupRepository cupRepository, IAchievementEngine achievementEngine) : ICupService
+public class CupService(ICupRepository cupRepository, IAchievementEngine achievementEngine, IEloRollbackRepository eloRollback) : ICupService
 {
     public async Task<CupResponse> GetByIdAsync(int cupId, string userId)
     {
@@ -20,7 +21,7 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
 
         var caller = cup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
-        return MapToResponse(cup, canEdit);
+        return MapToResponse(cup, canEdit, LastPlayedMatchId(cup));
     }
 
     public async Task GenerateBracketAsync(int cupId, string userId)
@@ -52,7 +53,7 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
             if (league == null || league.Status == TournamentStatus.NotStarted)
                 throw new InvalidOperationException("League must be active or finished to use league position seeding.");
             var played = league.Matches.Where(m => m.Status == MatchStatus.Played).ToList();
-            var standings = Futelo.Server.Helpers.StandingsCalculator.Compute(played, league.Players, league.TiebreakerRule);
+            var standings = Futelo.Server.Helpers.StandingsCalculator.Compute(played, league.Players, league.TiebreakerCriteria);
             seeds = standings.Select(row => row.PlayerId).ToList();
         }
         else
@@ -193,10 +194,39 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
 
         if (matchRound == null || match == null)
             throw new KeyNotFoundException("Match not found in this cup.");
-        if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException(MatchAlreadyHasResult);
         if (string.IsNullOrEmpty(match.HomePlayerId) || string.IsNullOrEmpty(match.AwayPlayerId))
             throw new InvalidOperationException(MatchParticipantsNotDetermined);
+
+        if (match.Status == MatchStatus.Played)
+        {
+            if (!await eloRollback.IsLastMatchForBothPlayersAsync(matchId, match.HomePlayerId, match.AwayPlayerId))
+                throw new InvalidOperationException(CanOnlyCorrectLastMatch);
+
+            var oldWinnerId = cup.Rounds
+                .Where(r => r.RoundNumber > matchRound.RoundNumber)
+                .SelectMany(r => r.Matches)
+                .Where(m => m.Status == MatchStatus.Pending)
+                .SelectMany(m => new[] { m.HomePlayerId, m.AwayPlayerId })
+                .FirstOrDefault(pid => pid == match.HomePlayerId || pid == match.AwayPlayerId);
+
+            if (cup.Status == TournamentStatus.Finished)
+                await cupRepository.ResetCupFinishAsync(cupId);
+            if (oldWinnerId != null)
+                await cupRepository.RevertBracketAdvancementAsync(cupId, oldWinnerId);
+            await eloRollback.RollbackMatchEloAsync(matchId, match.HomePlayerId, match.AwayPlayerId, cup.SeasonId);
+
+            cup = (await cupRepository.GetByIdAsync(cupId))!;
+            allRounds = cup.Rounds.OrderBy(r => r.RoundNumber).ToList();
+            matchRound = null; match = null; matchIndexInRound = -1;
+            foreach (var round in allRounds)
+            {
+                var orderedMatches = round.Matches.OrderBy(m => m.Id).ToList();
+                int idx = orderedMatches.FindIndex(m => m.Id == matchId);
+                if (idx >= 0) { matchRound = round; match = orderedMatches[idx]; matchIndexInRound = idx; break; }
+            }
+            if (matchRound == null || match == null)
+                throw new InvalidOperationException("Failed to reload match after rollback.");
+        }
 
         // ELO
         var seasonPlayers = cup.Season.Players.ToList();
@@ -582,7 +612,13 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
         return positions;
     }
 
-    private static CupResponse MapToResponse(Models.Cup cup, bool canEdit = false)
+    private static int? LastPlayedMatchId(Models.Cup cup) =>
+        cup.Rounds.SelectMany(r => r.Matches)
+            .Where(m => m.Status == MatchStatus.Played)
+            .OrderByDescending(m => m.PlayedAt).ThenByDescending(m => m.Id)
+            .FirstOrDefault()?.Id;
+
+    private static CupResponse MapToResponse(Models.Cup cup, bool canEdit = false, int? lastPlayedMatchId = null)
     {
         var seasonPlayerMap = cup.Season.Players
             .ToDictionary(sp => sp.PlayerId, sp => sp.Player.DisplayName);
@@ -591,6 +627,9 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
         {
             Id = cup.Id,
             SeasonId = cup.SeasonId,
+            SeasonName = cup.Season.Name,
+            VaultId = cup.Season.VaultId,
+            VaultName = cup.Season.Vault.Name,
             Status = cup.Status.ToString(),
             Name = cup.Name,
             IsHomeAndAway = cup.IsHomeAndAway,
@@ -642,7 +681,8 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
                             AwayTeamId = m.AwayTeamId,
                             AwayTeamName = m.AwayTeam?.Name,
                             VideoGameId = m.VideoGameId,
-                            VideoGameName = m.VideoGame?.Name
+                            VideoGameName = m.VideoGame?.Name,
+                            IsLastPlayed = m.Id == lastPlayedMatchId
                         }).ToList()
                 }).ToList()
         };

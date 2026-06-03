@@ -2,7 +2,7 @@
 @inherits LocalizedComponentBase
 @attribute [Authorize]
 
-<PageTitle>Cup - Futelo</PageTitle>
+<PageTitle>@(cup?.Name ?? "Cup") - Futelo</PageTitle>
 
 @if (isLoading)
 {
@@ -33,13 +33,26 @@
 }
 else if (cup == null)
 {
-    <p class="text-danger">@Lang.Get("cup.notFound")</p>
+    <EmptyState Message="@Lang.Get("cup.notFound")" />
 }
 else
 {
-    <div class="d-flex align-items-center gap-3 mb-2">
-        <a href="/seasons/@cup.SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <h3 class="mb-0">@cup.Name</h3>
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="breadcrumb-link">@Lang.Get("nav.dashboard")</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/vaults/@cup.VaultId" class="breadcrumb-link">@cup.VaultName</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/seasons/@cup.SeasonId" class="breadcrumb-link">@cup.SeasonName</a>
+            </li>
+            <li class="breadcrumb-item active fw-semibold" aria-current="page">@cup.Name</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+        <h3 class="mb-0 me-1">@cup.Name</h3>
         <span class="badge @BadgeHelper.StatusBadgeClass(cup.Status)">@Lang.Get("competition.status." + cup.Status.ToLower())</span>
         @if (cup.IsHomeAndAway)
         {
@@ -58,6 +71,10 @@ else
             <span class="text-muted">→</span>
             <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editEndDate" />
             <button class="btn btn-sm btn-primary" disabled="@isSavingDates" @onclick="HandlePatchDates">
+                @if (isSavingDates)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
                 @(isSavingDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
             </button>
             <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingDates = false">@Lang.Get("common.cancel")</button>
@@ -94,12 +111,20 @@ else
     @if (cup.Status == "NotStarted")
     {
         <div class="d-flex gap-2 mb-4">
-            <button class="btn btn-success" disabled="@isLoading" @onclick="HandleStart">
-                @(isLoading ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
+            <button class="btn btn-success" disabled="@isWorking" @onclick="HandleStart">
+                @if (isWorking)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
+                @(isWorking ? Lang.Get("cup.generating") : Lang.Get("cup.generateBracket"))
             </button>
             @if (cup.CanEdit)
             {
-                <button class="btn btn-outline-secondary" disabled="@isLoading" @onclick="HandleStartManual">
+                <button class="btn btn-outline-secondary" disabled="@isWorking" @onclick="HandleStartManual">
+                    @if (isWorking)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    }
                     @Lang.Get("cup.startManual")
                 </button>
             }
@@ -107,32 +132,40 @@ else
     }
     else
     {
-        @if (lastResult != null)
+        @if (!cup.IsManual)
         {
-            <div class="alert alert-success mb-4">
-                <strong>@Lang.Get("common.resultRecorded")</strong>
-                @if (lastResult.TieDecided)
-                {
-                    <div class="text-muted small">@Lang.Get("cup.tieDecided")</div>
-                }
-                <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
-                <div>@FormatEloChange(lastResult.Away)</div>
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-sm @(showBracket ? "btn-primary" : "btn-outline-secondary")"
+                        @onclick="() => showBracket = true">
+                    🏆 @Lang.Get("cup.viewBracket")
+                </button>
+                <button class="btn btn-sm @(!showBracket ? "btn-primary" : "btn-outline-secondary")"
+                        @onclick="() => showBracket = false">
+                    📋 @Lang.Get("cup.viewRounds")
+                </button>
             </div>
         }
 
+        @if (showBracket && !cup.IsManual)
+        {
+            <CupBracket Cup="cup" />
+        }
+        else
+        {
+
         @foreach (var round in cup.Rounds)
         {
-            <h5 class="mt-3">@round.Name</h5>
+            <h5 class="mt-3" @key="round.Id">@round.Name</h5>
             <div class="row g-3 mb-2">
                 @foreach (var tie in GetTies(round))
                 {
-                    <div class="col-lg-6">
+                    <div class="col-lg-6" @key="tie[0].Id">
                         <div class="card h-100">
                             <div class="card-body py-2 px-3">
                                 @foreach (var match in tie)
                                 {
                                     var isEditable = cup.CanEdit && cup.Status != "NotStarted";
-                                    <div class="@(tie.Count > 1 ? "mb-2" : "") @(isEditable ? "match-card--editable" : "")"
+                                    <div @key="match.Id" class="@(tie.Count > 1 ? "mb-2" : "") @(isEditable ? "match-card--editable" : "")"
                                          style="@(isEditable ? "cursor:pointer" : "")"
                                          @onclick="() => HandleMatchClick(match.Id)">
                                         @if (cup.IsHomeAndAway)
@@ -176,9 +209,26 @@ else
                                                     OnCancel="() => recordingMatchId = null" />
                                             </div>
                                         }
+                                        @if (lastResultMatchId == match.Id && lastEloResult != null)
+                                        {
+                                            <EloChangeSummary
+                                                HomeName="@lastEloResult.Home.DisplayName"
+                                                HomeEloChange="@lastEloResult.Home.EloChange"
+                                                HomeEloBefore="@lastEloResult.Home.EloBefore"
+                                                HomeEloAfter="@lastEloResult.Home.EloAfter"
+                                                HomeRankBefore="@lastEloResult.Home.RankBefore"
+                                                HomeRankAfter="@lastEloResult.Home.RankAfter"
+                                                AwayName="@lastEloResult.Away.DisplayName"
+                                                AwayEloChange="@lastEloResult.Away.EloChange"
+                                                AwayEloBefore="@lastEloResult.Away.EloBefore"
+                                                AwayEloAfter="@lastEloResult.Away.EloAfter"
+                                                AwayRankBefore="@lastEloResult.Away.RankBefore"
+                                                AwayRankAfter="@lastEloResult.Away.RankAfter" />
+                                        }
 
                                         <MatchEditPanel
                                             IsEditing="editingMatchId == match.Id"
+                                            IsLastPlayed="match.IsLastPlayed"
                                             HomePlayerName="@match.HomePlayerName"
                                             AwayPlayerName="@match.AwayPlayerName"
                                             HomeTeamId="match.HomeTeamId"
@@ -188,7 +238,31 @@ else
                                             Teams="teams"
                                             VideoGames="videoGames"
                                             OnSave="HandlePatchMatch"
-                                            OnCancel="() => editingMatchId = null" />
+                                            OnCancel="() => editingMatchId = null"
+                                            OnRequestCorrection="() => HandleRequestCorrection(match.Id)" />
+                                        @if (correctingMatchId == match.Id)
+                                        {
+                                            <div @onclick:stopPropagation="true" @onclick="() => {}">
+                                                <MatchResultForm
+                                                    HasPenalties="true"
+                                                    IsHomeAndAway="cup.IsHomeAndAway"
+                                                    IsLeg2="correctingIsLeg2"
+                                                    OtherLegHomeScore="correctingOtherLegHomeScore"
+                                                    OtherLegAwayScore="correctingOtherLegAwayScore"
+                                                    HomePlayerId="@match.HomePlayerId"
+                                                    HomePlayerName="@match.HomePlayerName"
+                                                    AwayPlayerId="@match.AwayPlayerId"
+                                                    AwayPlayerName="@match.AwayPlayerName"
+                                                    InitialHomeScore="match.HomeScore"
+                                                    InitialAwayScore="match.AwayScore"
+                                                    InitialWonOnPenaltiesId="match.WonOnPenaltiesId"
+                                                    InitialHomePenaltyScore="match.HomePenaltyScore"
+                                                    InitialAwayPenaltyScore="match.AwayPenaltyScore"
+                                                    IsSaving="isCorrecting"
+                                                    OnSave="HandleCorrectResult"
+                                                    OnCancel="() => correctingMatchId = null" />
+                                            </div>
+                                        }
                                     </div>
                                 }
 
@@ -209,37 +283,47 @@ else
             {
                 @if (addingMatchToRoundId == round.Id)
                 {
-                    <div class="d-flex flex-wrap gap-2 align-items-end mb-3" @onclick:stopPropagation="true">
-                        <div>
-                            <label class="form-label small mb-1">@Lang.Get("cup.homePlayer")</label>
-                            <select class="form-select form-select-sm" style="width:160px" @bind="newMatchHomePlayerId">
-                                <option value="">@Lang.Get("common.select")</option>
-                                @foreach (var p in cup.SeasonPlayers)
-                                {
-                                    <option value="@p.Id">@p.DisplayName</option>
-                                }
-                            </select>
+                    <div class="card mb-3" style="border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.03)" @onclick:stopPropagation="true">
+                        <div class="card-body p-3">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-12 col-sm">
+                                    <label class="form-label small mb-1">@Lang.Get("cup.homePlayer")</label>
+                                    <select class="form-select form-select-sm" @bind="newMatchHomePlayerId">
+                                        <option value="">@Lang.Get("common.select")</option>
+                                        @foreach (var p in cup.SeasonPlayers)
+                                        {
+                                            <option value="@p.Id">@p.DisplayName</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm">
+                                    <label class="form-label small mb-1">@Lang.Get("cup.awayPlayer")</label>
+                                    <select class="form-select form-select-sm" @bind="newMatchAwayPlayerId">
+                                        <option value="">@Lang.Get("common.select")</option>
+                                        @foreach (var p in cup.SeasonPlayers)
+                                        {
+                                            <option value="@p.Id">@p.DisplayName</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <label class="form-label small mb-1">@Lang.Get("cup.leg")</label>
+                                    <input type="number" class="form-control form-control-sm" style="max-width:70px" min="1" @bind="newMatchLeg" />
+                                </div>
+                                <div class="col-auto d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
+                                        @if (isAddingMatch)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        }
+                                        @Lang.Get("cup.addMatch")
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatchToRoundId = null">
+                                        @Lang.Get("common.cancel")
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="form-label small mb-1">@Lang.Get("cup.awayPlayer")</label>
-                            <select class="form-select form-select-sm" style="width:160px" @bind="newMatchAwayPlayerId">
-                                <option value="">@Lang.Get("common.select")</option>
-                                @foreach (var p in cup.SeasonPlayers)
-                                {
-                                    <option value="@p.Id">@p.DisplayName</option>
-                                }
-                            </select>
-                        </div>
-                        <div>
-                            <label class="form-label small mb-1">@Lang.Get("cup.leg")</label>
-                            <input type="number" class="form-control form-control-sm" style="width:70px" min="1" @bind="newMatchLeg" />
-                        </div>
-                        <button class="btn btn-primary btn-sm" disabled="@isAddingMatch" @onclick="HandleAddMatch">
-                            @(isAddingMatch ? "..." : Lang.Get("cup.addMatch"))
-                        </button>
-                        <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingMatchToRoundId = null">
-                            @Lang.Get("common.cancel")
-                        </button>
                     </div>
                 }
                 else
@@ -265,7 +349,11 @@ else
                         <input type="number" class="form-control form-control-sm" style="width:80px" min="1" @bind="newRoundNumber" />
                     </div>
                     <button class="btn btn-primary btn-sm" disabled="@isAddingRound" @onclick="HandleAddRound">
-                        @(isAddingRound ? "..." : Lang.Get("cup.addRound"))
+                        @if (isAddingRound)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        }
+                        @Lang.Get("cup.addRound")
                     </button>
                     <button class="btn btn-outline-secondary btn-sm" @onclick="() => addingRound = false">
                         @Lang.Get("common.cancel")
@@ -279,5 +367,7 @@ else
                 </button>
             }
         }
+
+        } @* end else (rounds view) *@
     }
 }

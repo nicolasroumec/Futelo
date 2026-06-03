@@ -14,4 +14,6 @@ public interface IVaultRepository
     Task UpdateAsync(Models.Vault vault);
     Task DeleteAsync(Models.Vault vault);
     Task AddPlayerAsync(VaultPlayer player);
+    Task<bool> PlayerHasNonFinishedSeasonAsync(int vaultId, string playerId);
+    Task RemovePlayerAsync(int vaultId, string playerId);
 }

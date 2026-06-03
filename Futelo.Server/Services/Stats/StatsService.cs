@@ -265,7 +265,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
 
         var points = new List<EloHistoryPoint>
         {
-            new() { Date = history[0].CreatedAt, Elo = history[0].EloBefore }
+            new() { Date = history[0].CreatedAt.AddDays(-1), Elo = history[0].EloBefore }
         };
         points.AddRange(history.Select(h => new EloHistoryPoint { Date = h.CreatedAt, Elo = h.EloAfter }));
 
@@ -286,7 +286,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
         {
             new()
             {
-                Date            = history[0].CreatedAt,
+                Date            = history[0].CreatedAt.AddDays(-1),
                 Elo             = history[0].EloBefore,
                 CompetitionType = GetCompetitionType(history[0].Match),
                 SeasonName      = history[0].Season.Name
@@ -505,7 +505,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
 
         var matches = await statsRepository.GetAllPlayedMatchesWithTeamsInVaultAsync(vaultId);
 
-        var entries = new List<(string TeamName, string PlayerId, string PlayerDisplayName, bool IsWin, bool IsDraw, int GoalsFor, int GoalsAgainst)>();
+        var entries = new List<(string TeamName, int TeamId, string PlayerId, string PlayerDisplayName, bool IsWin, bool IsDraw, int GoalsFor, int GoalsAgainst)>();
 
         foreach (var m in matches)
         {
@@ -513,11 +513,11 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
             int awayScore = m.AwayScore ?? 0;
 
             if (m.HomeTeam != null && m.HomePlayer != null)
-                entries.Add((m.HomeTeam.Name, m.HomePlayerId!, m.HomePlayer.DisplayName,
+                entries.Add((m.HomeTeam.Name, m.HomeTeam.Id, m.HomePlayerId!, m.HomePlayer.DisplayName,
                     homeScore > awayScore, homeScore == awayScore, homeScore, awayScore));
 
             if (m.AwayTeam != null && m.AwayPlayer != null)
-                entries.Add((m.AwayTeam.Name, m.AwayPlayerId!, m.AwayPlayer.DisplayName,
+                entries.Add((m.AwayTeam.Name, m.AwayTeam.Id, m.AwayPlayerId!, m.AwayPlayer.DisplayName,
                     awayScore > homeScore, homeScore == awayScore, awayScore, homeScore));
         }
 
@@ -525,6 +525,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
             .GroupBy(e => e.TeamName)
             .Select(g => new TeamPanelRow
             {
+                TeamId = g.First().TeamId,
                 TeamName = g.Key,
                 TotalUsed = g.Count(),
                 Won = g.Count(e => e.IsWin),
@@ -854,12 +855,12 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
 
             if (m.WonOnPenaltiesId != null)
             {
-                home.Drawn++;
-                away.Drawn++;
+                home.Drawn++; home.Points++;
+                away.Drawn++; away.Points++;
             }
-            else if (m.HomeScore > m.AwayScore) { home.Won++; away.Lost++; }
-            else if (m.HomeScore < m.AwayScore) { away.Won++; home.Lost++; }
-            else { home.Drawn++; away.Drawn++; }
+            else if (m.HomeScore > m.AwayScore) { home.Won++; home.Points += 3; away.Lost++; }
+            else if (m.HomeScore < m.AwayScore) { away.Won++; away.Points += 3; home.Lost++; }
+            else { home.Drawn++; home.Points++; away.Drawn++; away.Points++; }
         }
 
         return dict.Values

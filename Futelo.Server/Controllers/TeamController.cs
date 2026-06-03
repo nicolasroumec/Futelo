@@ -1,7 +1,9 @@
+using System.Security.Cryptography;
 using Futelo.Server.Services.Teams;
 using Futelo.Shared.DTOs.Team;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace Futelo.Server.Controllers;
 
@@ -35,6 +37,46 @@ public class TeamController(ITeamService teamService) : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         await teamService.DeleteAsync(id);
+        return NoContent();
+    }
+
+    // Lets the client know which teams have a shield so it can skip the
+    // /api/teams/{id}/shield request (and its 404) for those that don't.
+    [HttpGet("with-shields")]
+    public async Task<IActionResult> GetTeamsWithShield()
+        => Ok(await teamService.GetTeamIdsWithShieldAsync());
+
+    [AllowAnonymous]
+    [HttpGet("{id}/shield")]
+    public async Task<IActionResult> GetShield(int id)
+    {
+        var bytes = await teamService.GetShieldAsync(id);
+        if (bytes is null)
+        {
+            // Never cache the "no image" response: otherwise the browser keeps
+            // serving it after a shield is uploaded, hiding the new image.
+            Response.Headers.CacheControl = "no-store";
+            return NotFound();
+        }
+        var etag = new EntityTagHeaderValue('"' + Convert.ToHexString(MD5.HashData(bytes)) + '"');
+        Response.Headers.CacheControl = "no-cache, max-age=0, must-revalidate";
+        return File(bytes, "image/webp", lastModified: null, entityTag: etag);
+    }
+
+    [HttpPut("{id}/shield")]
+    public async Task<IActionResult> UploadShield(int id, IFormFile file)
+    {
+        if (file.Length > 200_000) return BadRequest("Image must be under 200 KB.");
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms);
+        await teamService.SetShieldAsync(id, ms.ToArray());
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/shield")]
+    public async Task<IActionResult> DeleteShield(int id)
+    {
+        await teamService.DeleteShieldAsync(id);
         return NoContent();
     }
 }

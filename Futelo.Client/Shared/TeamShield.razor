@@ -1,0 +1,16 @@
+@if (ShieldUrl != null && !_imgFailed)
+{
+    <img src="@Media.Resolve(ShieldUrl)"
+         class="team-shield team-shield--img"
+         style="width:@(Size)px;height:@(Size)px"
+         alt="@Name"
+         @onerror="OnImgError" />
+}
+else
+{
+    <span class="team-shield"
+          style="background-color:@BgColor;width:@(Size)px;height:@(Size)px;font-size:@(Size * 0.34)px"
+          title="@Name">
+        @Abbr
+    </span>
+}

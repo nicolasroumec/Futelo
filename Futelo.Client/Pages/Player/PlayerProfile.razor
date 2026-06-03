@@ -43,11 +43,44 @@ else if (stats == null)
 }
 else
 {
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="breadcrumb-link">@Lang.Get("nav.dashboard")</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/vaults/@VaultId" class="breadcrumb-link">@vaultName</a>
+            </li>
+            <li class="breadcrumb-item active fw-semibold" aria-current="page">@(stats?.DisplayName ?? "...")</li>
+        </ol>
+    </nav>
+
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/vaults/@VaultId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <PlayerAvatar Name="@stats.DisplayName" Size="40" />
-        <h3 class="mb-0">@stats.DisplayName</h3>
-        <span class="badge bg-secondary">ELO @_elo</span>
+        <div class="d-flex flex-column align-items-center" style="gap:4px">
+            @if (isCurrentUser)
+            {
+                <ImageUpload Width="128" Height="128" DisplaySize="56"
+                             ExistingImageUrl="@avatarUrl"
+                             OnImageReady="HandleAvatarUpload" />
+                <button class="btn btn-link btn-sm text-danger p-0 lh-1"
+                        style="font-size:.7rem"
+                        @onclick="HandleDeleteAvatar"
+                        disabled="@isUploadingAvatar">
+                    @Lang.Get("avatar.delete")
+                </button>
+            }
+            else
+            {
+                <PlayerAvatar Name="@stats!.DisplayName" Size="56" AvatarUrl="@Avatars.UrlFor(PlayerId)" />
+            }
+        </div>
+        <div>
+            <h3 class="mb-0">@stats!.DisplayName</h3>
+            <div class="d-flex align-items-baseline gap-2">
+                <span class="elo-hero">@_elo</span>
+                <span class="text-muted fw-semibold text-uppercase elo-hero__label">ELO</span>
+            </div>
+        </div>
     </div>
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -241,30 +274,32 @@ else
     </div>
 
     @* FULL WIDTH — Achievements *@
-    @if (achievements.Count > 0)
-    {
-        <div class="mb-4">
-            <h5>Logros <span class="text-muted fw-normal fs-6">(@achievements.Count)</span></h5>
-            @foreach (var group in achievements.GroupBy(a => AchievementMeta.GetCategory(a.Type)))
-            {
-                <div class="mb-3">
-                    <div class="achievement-category-label">@group.Key</div>
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach (var a in group)
-                        {
-                            <div class="achievement-badge" title="@AchievementMeta.GetDescription(a.Type)">
-                                <span class="achievement-badge__icon">@AchievementMeta.GetIcon(a.Type)</span>
-                                <div class="achievement-badge__text">
-                                    <span class="achievement-badge__name">@AchievementMeta.GetName(a.Type)</span>
-                                    <span class="achievement-badge__date">@a.UnlockedAt.ToString("dd/MM/yy")</span>
-                                </div>
+    <div class="mb-4">
+        <h5>@Lang.Get("player.achievements") <span class="text-muted fw-normal fs-6">(@achievements.Count / @AchievementMeta.All.Count)</span></h5>
+        @foreach (var group in AchievementMeta.All.GroupBy(kvp => AchievementMeta.GetCategory(kvp.Key)))
+        {
+            <div class="mb-3">
+                <div class="achievement-category-label">@group.Key</div>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var kvp in group)
+                    {
+                        var unlocked = achievements.FirstOrDefault(a => a.Type == kvp.Key);
+                        <div class="achievement-badge @(unlocked == null ? "achievement-badge--locked" : "")"
+                             title="@AchievementMeta.GetDescription(kvp.Key)">
+                            <span class="achievement-badge__icon">@AchievementMeta.GetIcon(kvp.Key)</span>
+                            <div class="achievement-badge__text">
+                                <span class="achievement-badge__name">@AchievementMeta.GetName(kvp.Key)</span>
+                                @if (unlocked != null)
+                                {
+                                    <span class="achievement-badge__date">@unlocked.UnlockedAt.ToString("dd/MM/yy")</span>
+                                }
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
-            }
-        </div>
-    }
+            </div>
+        }
+    </div>
 
     @* FULL WIDTH — Top teams, game stats, recent matches *@
     @if (stats.TopTeams.Count > 0)
@@ -352,9 +387,13 @@ else
         <div class="recent-matches mb-4">
             @foreach (var m in recentMatches)
             {
-                <div class="recent-match-row">
+                <div class="recent-match-row" @key="m.Id">
                     <span class="recent-match-competition text-muted small">@m.SeasonName · @m.CompetitionName</span>
                     <MatchDisplay
+                        HomePlayerId="@m.HomePlayerId"
+                        AwayPlayerId="@m.AwayPlayerId"
+                        HomeTeamId="@m.HomeTeamId"
+                        AwayTeamId="@m.AwayTeamId"
                         HomePlayerName="@m.HomePlayerName"
                         AwayPlayerName="@m.AwayPlayerName"
                         HomeTeamName="@m.HomeTeamName"

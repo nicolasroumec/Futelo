@@ -15,4 +15,6 @@ public interface ICupRepository
     Task ActivateManualAsync(int cupId);
     Task<int> AddRoundAsync(CupRound round);
     Task AddMatchToRoundAsync(Match match);
+    Task ResetCupFinishAsync(int cupId);
+    Task RevertBracketAdvancementAsync(int cupId, string winnerId);
 }

@@ -88,6 +88,95 @@ Status: ✅ done · 🔄 in progress · 📋 planned
 | Offline indicator | ✅ | `Shared/OfflineIndicator.razor` |
 | i18n (ES / EN) | ✅ | `wwwroot/i18n/`, `Services/Language/LanguageService.cs` |
 
+## Backlog
+
+### Match status lifecycle
+
+**Scope:** Add a `MatchStatus` enum (`NotStarted | InProgress | Finished`) to the `Match` model. All existing matches default to `Finished` on migration.
+
+**State machine:**
+```
+NotStarted → InProgress → Finished
+```
+- `NotStarted` → `InProgress`: vault member marks the match as started.
+- `InProgress` → `Finished`: vault member records the final result (triggers ELO update).
+
+**Edit / correction rules:**
+- Score can be freely updated while `InProgress` (no ELO committed yet).
+- Once `Finished`, result is locked **unless** it is the most recent finished match for **both** players in the vault. In that case the vault owner can reset it to `InProgress`, which rolls back the single ELO delta for that match. Multi-match rollback is out of scope.
+- `NotStarted` matches show no score; `InProgress` matches show a live score badge; `Finished` matches show the final result as today.
+
+**Provisional standings (future):**
+- While a match is `InProgress`, standings/ELO could be projected with the current score. Requires a read-only recalculation endpoint — no SignalR, no real-time push. Deferred until match status is stable.
+
+**API changes needed:**
+```
+PATCH  /api/leagues/{id}/matches/{matchId}/status      (NotStarted → InProgress)
+PATCH  /api/cups/{id}/matches/{matchId}/status
+PATCH  /api/supercups/{id}/matches/{matchId}/status
+PUT    /api/leagues/{id}/matches/{matchId}/result       (InProgress → Finished, same endpoint)
+```
+
+**Other backlog items:**
+| Feature | Priority | Notes |
+|---------|----------|-------|
+| ~~Remove player from vault~~ | ~~High~~ | ~~done~~ |
+| ~~Clone season config~~ | ~~Medium~~ | ~~done~~ |
+| Push notifications (PWA) | Medium | Service Worker already in place; notify players about upcoming scheduled matches |
+| Transfer vault ownership | Low | Owner hands off admin rights to another vault member |
+| Cross-season stats comparison | Low | Table comparing a player's key stats (ELO delta, W/L, goals) across all seasons |
+| **Player avatars + team shields** | **Medium** | **See full plan below** |
+
+### Player avatars + team shields (planned)
+
+Store images as `byte[]` in DB (no external file storage). Images are resized **client-side** via JS Canvas API interop before upload — no server-side image library needed.
+
+**Technical decisions:**
+- Avatar: 128×128px WebP ~5KB per user
+- Shield: 64×64px WebP ~2KB per team
+- Max upload: 5MB input
+- Queries: bytes excluded by default via `.Select()`; served via dedicated endpoints
+- Frontend fallback: CSS circle with initials when no image set
+- DTOs receive `AvatarUrl`/`ShieldUrl` string pointing to serve endpoint (not Base64 inline)
+
+**New endpoints:**
+```
+PUT    /api/users/me/avatar
+DELETE /api/users/me/avatar
+GET    /api/users/{id}/avatar
+PUT    /api/teams/{id}/shield
+DELETE /api/teams/{id}/shield
+GET    /api/teams/{id}/shield
+```
+
+**Display locations — avatar:** player profile (large), vault player list, standings/rankings (32px), match cards (32px), H2H.
+**Display locations — shield:** MatchEditPanel team selector, match display, stats team panel.
+
+**Implementation increments:**
+
+| # | Scope | Commit message |
+|---|-------|---------------|
+| ~~1~~ | ~~Backend: `byte[]` fields on `AppUser`/`Team`, migration, 6 endpoints, update queries to exclude bytes, add `AvatarUrl`/`ShieldUrl` to DTOs~~ | ~~`feat: add avatar and team shield storage endpoints`~~ |
+| ~~2~~ | ~~Reusable `<ImageUpload>` component (drag & drop, preview, validation) + `<PlayerAvatar>` component with initials fallback + avatar upload on player profile page~~ | ~~`feat: image upload component and player avatar on profile page`~~ |
+| ~~3~~ | ~~`<PlayerAvatar>` throughout app: standings, rankings, vault player list, match cards, H2H~~ | ~~`feat: show player avatars across standings, rankings and match views`~~ |
+| ~~4~~ | ~~`<TeamShield>` component + upload in team management + display in MatchEditPanel, match display, team panel~~ | ~~`feat: team shield upload and display in match and stats views`~~ |
+
+---
+
+### UX / UI fixes (from branch 16-ux-ui audit)
+
+| Item | Type | Detail |
+|------|------|--------|
+| ~~`PageTitle` hardcoded in competition views~~ | ~~Bug~~ | ~~done~~ |
+| ~~"Recap" / "Copy recap link" not i18n~~ | ~~Bug~~ | ~~done~~ |
+| ~~Scorers missing from VaultDetail stats row~~ | ~~Missing~~ | ~~done~~ |
+| ~~Dashboard empty state uses inline card~~ | ~~Inconsistency~~ | ~~done~~ |
+| ~~No current-user row highlight in standings~~ | ~~UX~~ | ~~done~~ |
+| ~~Not-found states are bare text~~ | ~~UX~~ | ~~done~~ |
+| ~~Active season badge doesn't link~~ | ~~UX~~ | ~~done~~ |
+
+---
+
 ## API surface (all routes require JWT)
 
 ```

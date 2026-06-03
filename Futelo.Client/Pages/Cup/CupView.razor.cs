@@ -1,6 +1,7 @@
 using Futelo.Client.Services.Cup;
 using Futelo.Client.Services.Teams;
 using Futelo.Client.Services.Toast;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared;
@@ -20,9 +21,12 @@ public partial class CupView : LocalizedComponentBase
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
 
     private CupResponse? cup;
     private bool isLoading = true;
+    private bool isWorking;
     private bool isRecording;
     private string? errorMessage;
 
@@ -32,9 +36,15 @@ public partial class CupView : LocalizedComponentBase
     private bool recordingIsLeg2;
     private int? otherLegHomeScore;
     private int? otherLegAwayScore;
-    private RecordCupResultResponse? lastResult;
+    private int? lastResultMatchId;
+    private RecordCupResultResponse? lastEloResult;
 
     private int? editingMatchId;
+    private int? correctingMatchId;
+    private bool isCorrecting;
+    private bool correctingIsLeg2;
+    private int? correctingOtherLegHomeScore;
+    private int? correctingOtherLegAwayScore;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
 
@@ -54,6 +64,9 @@ public partial class CupView : LocalizedComponentBase
     private int newMatchLeg = 1;
     private bool isAddingMatch;
 
+    private bool showBracket;
+    private bool _viewInitialized;
+
     private string SeedingModeKey => cup!.SeedingMode switch
     {
         Futelo.Shared.Enums.CupSeedingMode.LeaguePosition => "cup.seedingMode.leaguePosition",
@@ -63,6 +76,7 @@ public partial class CupView : LocalizedComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        await Task.WhenAll(Avatars.EnsureLoadedAsync(), Shields.EnsureLoadedAsync());
         await LoadAsync();
     }
 
@@ -73,6 +87,11 @@ public partial class CupView : LocalizedComponentBase
         try
         {
             cup = await CupService.GetByIdAsync(Id, ComponentToken);
+            if (!_viewInitialized && cup != null && !cup.IsManual)
+            {
+                showBracket = cup.Status == "Finished";
+                _viewInitialized = true;
+            }
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
@@ -94,7 +113,6 @@ public partial class CupView : LocalizedComponentBase
         }
 
         recordingMatchId = matchId;
-        lastResult = null;
         recordingHomeId = homeId;
         recordingAwayId = awayId;
 
@@ -116,7 +134,7 @@ public partial class CupView : LocalizedComponentBase
 
     private async Task HandleStart()
     {
-        isLoading = true;
+        isWorking = true;
         try
         {
             await CupService.StartAsync(Id);
@@ -128,13 +146,13 @@ public partial class CupView : LocalizedComponentBase
         }
         finally
         {
-            isLoading = false;
+            isWorking = false;
         }
     }
 
     private async Task HandleStartManual()
     {
-        isLoading = true;
+        isWorking = true;
         try
         {
             await CupService.StartManualAsync(Id);
@@ -146,7 +164,7 @@ public partial class CupView : LocalizedComponentBase
         }
         finally
         {
-            isLoading = false;
+            isWorking = false;
         }
     }
 
@@ -220,6 +238,7 @@ public partial class CupView : LocalizedComponentBase
     {
         if (recordingMatchId == null) return;
         isRecording = true;
+        var matchId = recordingMatchId.Value;
         try
         {
             var request = new RecordCupResultRequest
@@ -230,8 +249,10 @@ public partial class CupView : LocalizedComponentBase
                 HomePenaltyScore = input.HomePenaltyScore,
                 AwayPenaltyScore = input.AwayPenaltyScore
             };
-            lastResult = await CupService.RecordResultAsync(Id, recordingMatchId.Value, request);
+            lastEloResult = await CupService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
             recordingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -280,6 +301,60 @@ public partial class CupView : LocalizedComponentBase
         recordingMatchId = null;
     }
 
+    private void HandleRequestCorrection(int matchId)
+    {
+        correctingMatchId = matchId;
+        editingMatchId = null;
+        recordingMatchId = null;
+        lastEloResult = null;
+
+        var match = cup!.Rounds.SelectMany(r => r.Matches).First(m => m.Id == matchId);
+        correctingIsLeg2 = cup.IsHomeAndAway && match.Leg == 2;
+        correctingOtherLegHomeScore = null;
+        correctingOtherLegAwayScore = null;
+
+        if (correctingIsLeg2)
+        {
+            var round = cup.Rounds.First(r => r.Matches.Any(m => m.Id == matchId));
+            var ordered = round.Matches.OrderBy(m => m.Id).ToList();
+            int idx = ordered.FindIndex(m => m.Id == matchId);
+            var leg1 = ordered[idx - 1];
+            correctingOtherLegHomeScore = leg1.HomeScore;
+            correctingOtherLegAwayScore = leg1.AwayScore;
+        }
+    }
+
+    private async Task HandleCorrectResult(MatchResultInput input)
+    {
+        if (correctingMatchId == null) return;
+        isCorrecting = true;
+        var matchId = correctingMatchId.Value;
+        try
+        {
+            var request = new RecordCupResultRequest
+            {
+                HomeScore = input.HomeScore,
+                AwayScore = input.AwayScore,
+                WonOnPenaltiesId = input.WonOnPenaltiesId,
+                HomePenaltyScore = input.HomePenaltyScore,
+                AwayPenaltyScore = input.AwayPenaltyScore
+            };
+            lastEloResult = await CupService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
+            correctingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isCorrecting = false;
+        }
+    }
+
     private async Task HandlePatchMatch(PatchMatchRequest request)
     {
         if (editingMatchId == null) return;
@@ -287,6 +362,7 @@ public partial class CupView : LocalizedComponentBase
         {
             await CupService.PatchMatchAsync(Id, editingMatchId.Value, request);
             editingMatchId = null;
+            Toast.Show(Lang.Get("common.saved"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -313,6 +389,7 @@ public partial class CupView : LocalizedComponentBase
                 EndDate = editEndDate is { } e ? e.ToDateTime(TimeOnly.MinValue) : null,
             });
             editingDates = false;
+            Toast.Show(Lang.Get("common.saved"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -358,10 +435,4 @@ public partial class CupView : LocalizedComponentBase
         return (leg1.HomePlayerName, homeGoals, awayGoals, leg1.AwayPlayerName);
     }
 
-    private static string FormatEloChange(CupEloChangeResult p)
-    {
-        string arrow = p.RankAfter < p.RankBefore ? "↑" : p.RankAfter > p.RankBefore ? "↓" : "→";
-        string sign = p.EloChange >= 0 ? "+" : "";
-        return $"{p.DisplayName}   {p.EloBefore} → {p.EloAfter} ({sign}{p.EloChange})  {arrow} #{p.RankAfter}";
-    }
 }

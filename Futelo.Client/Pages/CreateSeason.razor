@@ -11,19 +11,34 @@
             <h3 class="mb-0">@Lang.Get("createSeason.title")</h3>
         </div>
 
+        @if (previousSeasons.Count > 0)
+        {
+            <div class="mb-4 p-3 border rounded">
+                <label class="form-label fw-semibold">@Lang.Get("createSeason.cloneFrom")</label>
+                <p class="text-muted small mb-2">@Lang.Get("createSeason.cloneFromHint")</p>
+                <select class="form-select" @onchange="OnSourceSeasonChanged">
+                    <option value="">@Lang.Get("createSeason.cloneFromNone")</option>
+                    @foreach (var s in previousSeasons)
+                    {
+                        <option value="@s.Id">@s.Name (@s.Year)</option>
+                    }
+                </select>
+            </div>
+        }
+
         <EditForm Model="model" OnValidSubmit="HandleCreate">
             <DataAnnotationsValidator />
 
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("common.name")</label>
-                <InputText class="form-control" @bind-Value="model.Name" placeholder="e.g. Season 2026" />
-                <ValidationMessage For="() => model.Name" />
+                <InputText class="form-control" @bind-Value="model.Name" placeholder="@Lang.Get("createSeason.namePlaceholder")" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.Name" /></div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">@Lang.Get("season.year")</label>
                 <InputNumber class="form-control" @bind-Value="model.Year" />
-                <ValidationMessage For="() => model.Year" />
+                <div class="invalid-feedback"><ValidationMessage For="() => model.Year" /></div>
             </div>
 
             <div class="mb-3">
@@ -54,6 +69,10 @@
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    }
                     @(isLoading ? Lang.Get("common.creating") : Lang.Get("common.create"))
                 </button>
                 <a href="/vaults/@VaultId" class="btn btn-outline-secondary">@Lang.Get("common.cancel")</a>

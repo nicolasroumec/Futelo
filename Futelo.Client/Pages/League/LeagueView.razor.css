@@ -55,7 +55,11 @@
 
 .match-card--played {
     border-left: 3px solid transparent;
-    opacity: .72;
+}
+
+.match-card--played .match-meta,
+.match-card--played .match-card__date {
+    opacity: 0.55;
 }
 
 .match-card--editable {
@@ -64,19 +68,6 @@
 
 .match-card--editable:hover {
     border-color: rgba(34, 197, 94, 0.35);
-}
-
-.match-card__player {
-    font-size: .9rem;
-}
-
-.match-card__score {
-    font-size: 1rem;
-    letter-spacing: .03em;
-}
-
-.match-card__vs {
-    font-size: .85rem;
 }
 
 /* Pending summary row */
@@ -105,5 +96,20 @@
 .pending-summary__chip strong {
     color: var(--color-primary);
     margin-left: .2rem;
+}
+
+/* Current-user row in standings */
+.standings-me {
+    background: rgba(var(--bs-primary-rgb), .07) !important;
+    font-weight: 600;
+}
+
+/* Result form highlight */
+.result-form-section {
+    background: rgba(34, 197, 94, 0.04);
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: var(--radius);
+    padding: var(--space-5);
+    margin-top: var(--space-4);
 }
 

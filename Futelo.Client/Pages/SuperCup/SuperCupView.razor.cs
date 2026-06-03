@@ -27,6 +27,7 @@ public partial class SuperCupView : LocalizedComponentBase
     private SuperCupResponse? superCup;
     private HeadToHeadResponse? h2h;
     private bool isLoading = true;
+    private bool isWorking;
     private bool isRecording;
     private string? errorMessage;
 
@@ -36,9 +37,15 @@ public partial class SuperCupView : LocalizedComponentBase
     private bool recordingIsLeg2;
     private int? otherLegHomeScore;
     private int? otherLegAwayScore;
-    private RecordSuperCupResultResponse? lastResult;
+    private int? lastResultMatchId;
+    private RecordSuperCupResultResponse? lastEloResult;
 
     private int? editingMatchId;
+    private int? correctingMatchId;
+    private bool isCorrecting;
+    private bool correctingIsLeg2;
+    private int? correctingOtherLegHomeScore;
+    private int? correctingOtherLegAwayScore;
     private List<TeamResponse> teams = [];
     private List<VideoGameResponse> videoGames = [];
 
@@ -84,7 +91,6 @@ public partial class SuperCupView : LocalizedComponentBase
         }
 
         recordingMatchId = matchId;
-        lastResult = null;
         recordingHomeId = homeId;
         recordingAwayId = awayId;
         recordingIsLeg2 = superCup!.IsHomeAndAway && leg == 2;
@@ -100,7 +106,7 @@ public partial class SuperCupView : LocalizedComponentBase
 
     private async Task HandleStart()
     {
-        isLoading = true;
+        isWorking = true;
         try
         {
             await SuperCupService.StartAsync(Id);
@@ -112,7 +118,7 @@ public partial class SuperCupView : LocalizedComponentBase
         }
         finally
         {
-            isLoading = false;
+            isWorking = false;
         }
     }
 
@@ -120,6 +126,7 @@ public partial class SuperCupView : LocalizedComponentBase
     {
         if (recordingMatchId == null) return;
         isRecording = true;
+        var matchId = recordingMatchId.Value;
         try
         {
             var request = new RecordSuperCupResultRequest
@@ -130,8 +137,10 @@ public partial class SuperCupView : LocalizedComponentBase
                 HomePenaltyScore = input.HomePenaltyScore,
                 AwayPenaltyScore = input.AwayPenaltyScore
             };
-            lastResult = await SuperCupService.RecordResultAsync(Id, recordingMatchId.Value, request);
+            lastEloResult = await SuperCupService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
             recordingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -162,6 +171,7 @@ public partial class SuperCupView : LocalizedComponentBase
                 EndDate = editEndDate is { } e ? e.ToDateTime(TimeOnly.MinValue) : null,
             });
             editingDates = false;
+            Toast.Show(Lang.Get("common.saved"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -207,6 +217,57 @@ public partial class SuperCupView : LocalizedComponentBase
         recordingMatchId = null;
     }
 
+    private void HandleRequestCorrection(int matchId)
+    {
+        correctingMatchId = matchId;
+        editingMatchId = null;
+        recordingMatchId = null;
+        lastEloResult = null;
+
+        var match = superCup!.Matches.First(m => m.Id == matchId);
+        correctingIsLeg2 = superCup.IsHomeAndAway && match.Leg == 2;
+        correctingOtherLegHomeScore = null;
+        correctingOtherLegAwayScore = null;
+
+        if (correctingIsLeg2 && superCup.Matches.Count >= 2)
+        {
+            var leg1 = superCup.Matches.OrderBy(m => m.Id).First();
+            correctingOtherLegHomeScore = leg1.HomeScore;
+            correctingOtherLegAwayScore = leg1.AwayScore;
+        }
+    }
+
+    private async Task HandleCorrectResult(MatchResultInput input)
+    {
+        if (correctingMatchId == null) return;
+        isCorrecting = true;
+        var matchId = correctingMatchId.Value;
+        try
+        {
+            var request = new RecordSuperCupResultRequest
+            {
+                HomeScore = input.HomeScore,
+                AwayScore = input.AwayScore,
+                WonOnPenaltiesId = input.WonOnPenaltiesId,
+                HomePenaltyScore = input.HomePenaltyScore,
+                AwayPenaltyScore = input.AwayPenaltyScore
+            };
+            lastEloResult = await SuperCupService.RecordResultAsync(Id, matchId, request);
+            lastResultMatchId = matchId;
+            correctingMatchId = null;
+            Toast.Show(Lang.Get("common.resultRecorded"), ToastType.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isCorrecting = false;
+        }
+    }
+
     private async Task HandlePatchMatch(PatchMatchRequest request)
     {
         if (editingMatchId == null) return;
@@ -214,6 +275,7 @@ public partial class SuperCupView : LocalizedComponentBase
         {
             await SuperCupService.PatchMatchAsync(Id, editingMatchId.Value, request);
             editingMatchId = null;
+            Toast.Show(Lang.Get("common.saved"), ToastType.Success);
             await LoadAsync();
         }
         catch (Exception ex)
@@ -232,10 +294,4 @@ public partial class SuperCupView : LocalizedComponentBase
         return (p1Goals, p2Goals);
     }
 
-    private static string FormatEloChange(SuperCupEloChangeResult p)
-    {
-        string arrow = p.RankAfter < p.RankBefore ? "↑" : p.RankAfter > p.RankBefore ? "↓" : "→";
-        string sign = p.EloChange >= 0 ? "+" : "";
-        return $"{p.DisplayName}   {p.EloBefore} → {p.EloAfter} ({sign}{p.EloChange})  {arrow} #{p.RankAfter}";
-    }
 }

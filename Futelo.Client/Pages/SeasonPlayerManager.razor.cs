@@ -9,9 +9,11 @@ public partial class SeasonPlayerManager : LocalizedComponentBase
     [Parameter] public List<VaultPlayerResponse> VaultPlayers { get; set; } = [];
     [Parameter] public HashSet<string> SelectedPlayerIds { get; set; } = [];
 
-    private void Toggle(string playerId, bool selected)
+    private void Toggle(string playerId)
     {
-        if (selected) SelectedPlayerIds.Add(playerId);
-        else SelectedPlayerIds.Remove(playerId);
+        if (SelectedPlayerIds.Contains(playerId))
+            SelectedPlayerIds.Remove(playerId);
+        else
+            SelectedPlayerIds.Add(playerId);
     }
 }

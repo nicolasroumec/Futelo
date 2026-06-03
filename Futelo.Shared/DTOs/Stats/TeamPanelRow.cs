@@ -2,6 +2,7 @@ namespace Futelo.Shared.DTOs.Stats;
 
 public class TeamPanelRow
 {
+    public int TeamId { get; set; }
     public string TeamName { get; set; } = string.Empty;
     public int TotalUsed { get; set; }
     public int Won { get; set; }

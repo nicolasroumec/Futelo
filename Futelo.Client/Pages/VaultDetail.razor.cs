@@ -1,5 +1,6 @@
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Toast;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Invitation;
@@ -18,6 +19,7 @@ public partial class VaultDetail : LocalizedComponentBase
     [Inject] private IVaultService VaultService { get; set; } = null!;
     [Inject] private ISeasonService SeasonService { get; set; } = null!;
     [Inject] private IToastService Toast { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
     [CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; } = null!;
@@ -38,6 +40,9 @@ public partial class VaultDetail : LocalizedComponentBase
     private bool isInviting;
     private string? inviteLink;
 
+    private string? confirmingRemovePlayerId;
+    private bool isRemovingPlayer;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -49,7 +54,7 @@ public partial class VaultDetail : LocalizedComponentBase
             isAdmin = vault.Players.Any(p => p.PlayerId == userId && p.Role == VaultRole.Admin);
             var seasonsTask = SeasonService.GetByVaultAsync(Id, ComponentToken);
             var feedTask = VaultService.GetFeedAsync(Id, 5, ComponentToken);
-            await Task.WhenAll(seasonsTask, feedTask);
+            await Task.WhenAll(seasonsTask, feedTask, Avatars.EnsureLoadedAsync());
             seasons = seasonsTask.Result;
             feed = feedTask.Result;
         }
@@ -134,6 +139,36 @@ public partial class VaultDetail : LocalizedComponentBase
         {
             await JS.InvokeVoidAsync("navigator.clipboard.writeText", inviteLink);
             Toast.Show(Lang.Get("vault.inviteLinkCopied"));
+        }
+    }
+
+    private void StartRemovePlayer(string playerId)
+    {
+        confirmingRemovePlayerId = playerId;
+    }
+
+    private void CancelRemovePlayer()
+    {
+        confirmingRemovePlayerId = null;
+    }
+
+    private async Task ConfirmRemovePlayerAsync(string playerId)
+    {
+        isRemovingPlayer = true;
+        try
+        {
+            await VaultService.RemovePlayerAsync(Id, playerId);
+            vault!.Players.RemoveAll(p => p.PlayerId == playerId);
+            confirmingRemovePlayerId = null;
+            Toast.Show(Lang.Get("vault.removePlayerSuccess"));
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastType.Error);
+        }
+        finally
+        {
+            isRemovingPlayer = false;
         }
     }
 }

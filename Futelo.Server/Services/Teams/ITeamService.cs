@@ -8,4 +8,8 @@ public interface ITeamService
     Task<TeamResponse> CreateAsync(CreateTeamRequest request);
     Task UpdateAsync(int id, CreateTeamRequest request);
     Task DeleteAsync(int id);
+    Task<byte[]?> GetShieldAsync(int teamId);
+    Task SetShieldAsync(int teamId, byte[] data);
+    Task DeleteShieldAsync(int teamId);
+    Task<List<int>> GetTeamIdsWithShieldAsync();
 }

@@ -13,4 +13,5 @@ public interface ILeagueRepository
     Task SaveMatchResultAsync(MatchResultData data);
     Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate);
     Task PatchDatesAsync(int leagueId, DateTime? startDate, DateTime? endDate);
+    Task ResetLeagueFinishAsync(int leagueId);
 }

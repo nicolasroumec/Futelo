@@ -1,4 +1,5 @@
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Microsoft.AspNetCore.Components;
@@ -9,6 +10,7 @@ public partial class GeneralRanking : LocalizedComponentBase
 {
     [Parameter] public int VaultId { get; set; }
     [Inject] private IStatsService StatsService { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
 
     private List<RankingRow> rows = [];
     private List<ScorerRow> scorers = [];
@@ -21,7 +23,7 @@ public partial class GeneralRanking : LocalizedComponentBase
         {
             var rankingTask = StatsService.GetGeneralRankingAsync(VaultId, ComponentToken);
             var scorersTask = StatsService.GetScorersAsync(VaultId, ComponentToken);
-            await Task.WhenAll(rankingTask, scorersTask);
+            await Task.WhenAll(rankingTask, scorersTask, Avatars.EnsureLoadedAsync());
             rows = rankingTask.Result;
             scorers = scorersTask.Result;
         }

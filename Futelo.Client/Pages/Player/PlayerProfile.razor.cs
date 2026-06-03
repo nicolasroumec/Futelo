@@ -1,10 +1,14 @@
+using Futelo.Client.Services.Media;
 using Futelo.Client.Services.Stats;
+using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Stats;
 using Futelo.Shared.DTOs.Vault;
 using Futelo.Shared.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using static Futelo.Client.Shared.AchievementMeta;
 
@@ -16,12 +20,18 @@ public partial class PlayerProfile : LocalizedComponentBase
     [Parameter] public string PlayerId { get; set; } = string.Empty;
     [Inject] private IStatsService StatsService { get; set; } = null!;
     [Inject] private IVaultService VaultService { get; set; } = null!;
+    [Inject] private IUserService UserService { get; set; } = null!;
+    [Inject] private AvatarDirectory Avatars { get; set; } = null!;
+    [Inject] private ShieldDirectory Shields { get; set; } = null!;
+    [Inject] private MediaUrlService Media { get; set; } = null!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = null!;
     [Inject] private NavigationManager Navigation { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = null!;
 
     private PlayerStatsResponse? stats;
     private PlayerRecordsResponse? records;
     private GlobalEloHistoryResponse? globalEloHistory;
+    private string? vaultName;
     private string? competitionFilter;
     private List<RecentFormEntry> recentForm = [];
     private List<RecentMatchResponse> recentMatches = [];
@@ -33,6 +43,9 @@ public partial class PlayerProfile : LocalizedComponentBase
     private bool globalChartRendered = false;
     private bool countersAnimated = false;
     private string? errorMessage;
+    private bool isCurrentUser;
+    private string? avatarUrl;
+    private bool isUploadingAvatar;
 
     private int _elo;
     private int _played, _won, _drawn, _lost, _gf, _ga;
@@ -41,6 +54,12 @@ public partial class PlayerProfile : LocalizedComponentBase
     {
         try
         {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var currentUserId = authState.User.FindFirst("sub")?.Value;
+            isCurrentUser = currentUserId == PlayerId;
+            avatarUrl = $"/api/users/{PlayerId}/avatar";
+
+            await Task.WhenAll(Avatars.EnsureLoadedAsync(), Shields.EnsureLoadedAsync());
             stats = await StatsService.GetPlayerStatsAsync(PlayerId, VaultId, ComponentToken);
             globalEloHistory = await StatsService.GetGlobalEloHistoryAsync(VaultId, PlayerId, ct: ComponentToken);
             recentForm = await StatsService.GetRecentFormAsync(VaultId, PlayerId, ComponentToken);
@@ -48,6 +67,7 @@ public partial class PlayerProfile : LocalizedComponentBase
             records = await StatsService.GetPlayerRecordsAsync(VaultId, PlayerId, ComponentToken);
             achievements = await StatsService.GetPlayerAchievementsAsync(VaultId, PlayerId, ComponentToken);
             var vault = await VaultService.GetByIdAsync(VaultId, ComponentToken);
+            vaultName = vault.Name;
             opponents = vault.Players.Where(p => p.PlayerId != PlayerId).ToList();
             if (opponents.Count > 0)
                 selectedOpponentId = opponents[0].PlayerId;
@@ -121,9 +141,51 @@ public partial class PlayerProfile : LocalizedComponentBase
     private async Task SetFilter(string? filter)
     {
         competitionFilter = filter;
-        globalChartRendered = false;
         globalEloHistory = await StatsService.GetGlobalEloHistoryAsync(VaultId, PlayerId, competition: filter, ct: ComponentToken);
+        globalChartRendered = false;
         StateHasChanged();
+    }
+
+    private async Task HandleAvatarUpload(byte[] data)
+    {
+        isUploadingAvatar = true;
+        errorMessage = null;
+        try
+        {
+            await UserService.UploadAvatarAsync(data);
+            Media.Bump();
+            Avatars.SetHasAvatar(PlayerId, true);
+            avatarUrl = $"/api/users/{PlayerId}/avatar";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isUploadingAvatar = false;
+        }
+    }
+
+    private async Task HandleDeleteAvatar()
+    {
+        isUploadingAvatar = true;
+        errorMessage = null;
+        try
+        {
+            await UserService.DeleteAvatarAsync();
+            Media.Bump();
+            Avatars.SetHasAvatar(PlayerId, false);
+            avatarUrl = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isUploadingAvatar = false;
+        }
     }
 
     private void NavigateToH2H()

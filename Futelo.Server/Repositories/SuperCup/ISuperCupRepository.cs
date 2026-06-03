@@ -10,4 +10,5 @@ public interface ISuperCupRepository
     Task SaveMatchResultAsync(SuperCupMatchResultData data);
     Task PatchMatchAsync(int matchId, int? homeTeamId, int? awayTeamId, int? videoGameId, DateTime? scheduledDate);
     Task PatchDatesAsync(int superCupId, DateTime? startDate, DateTime? endDate);
+    Task ResetSuperCupFinishAsync(int superCupId);
 }

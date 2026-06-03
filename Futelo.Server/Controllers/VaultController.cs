@@ -71,6 +71,13 @@ public class VaultController(IVaultService vaultService, IInvitationService invi
         return Ok(feed);
     }
 
+    [HttpDelete("{id}/players/{playerId}")]
+    public async Task<IActionResult> RemovePlayer(int id, string playerId)
+    {
+        await vaultService.RemovePlayerAsync(id, UserId, playerId);
+        return NoContent();
+    }
+
     [HttpPost("{id}/invite")]
     public async Task<IActionResult> Invite(int id, InviteRequest request)
     {

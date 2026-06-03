@@ -10,6 +10,7 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 {
     public async Task<IEnumerable<Models.Season>> GetByVaultAsync(int vaultId)
         => await Context.Set<Models.Season>()
+            .Include(s => s.Vault)
             .Include(s => s.VideoGame)
             .Include(s => s.Players).ThenInclude(sp => sp.Player)
             .Include(s => s.Players).ThenInclude(sp => sp.Team)
@@ -42,7 +43,7 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
         await SaveChangesAsync();
     }
 
-    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, string leagueName, bool leagueIsHomeAndAway, TiebreakerRule leagueTiebreakerRule, DateTime? leagueStartDate, DateTime? leagueEndDate, bool hasCup, string cupName, bool cupIsHomeAndAway, CupSeedingMode cupSeedingMode, bool cupAwayGoalRule, DateTime? cupStartDate, DateTime? cupEndDate, bool hasSuperCup, string superCupName, DateTime? superCupStartDate, DateTime? superCupEndDate)
+    public async Task ConfigureAsync(int seasonId, List<SeasonPlayer> players, bool hasLeague, string leagueName, bool leagueIsHomeAndAway, List<TiebreakerCriterion> leagueTiebreakerCriteria, FinalTiebreaker leagueFinalTiebreaker, DateTime? leagueStartDate, DateTime? leagueEndDate, bool hasCup, string cupName, bool cupIsHomeAndAway, CupSeedingMode cupSeedingMode, bool cupAwayGoalRule, DateTime? cupStartDate, DateTime? cupEndDate, bool hasSuperCup, string superCupName, DateTime? superCupStartDate, DateTime? superCupEndDate)
     {
         var existing = await Context.Set<SeasonPlayer>().Where(p => p.SeasonId == seasonId).ToListAsync();
         Context.Set<SeasonPlayer>().RemoveRange(existing);
@@ -50,12 +51,13 @@ public class SeasonRepository(FuteloContext context) : BaseRepository<Models.Sea
 
         var league = await Context.Set<Models.League>().FirstOrDefaultAsync(l => l.SeasonId == seasonId);
         if (hasLeague && league == null)
-            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId, Name = leagueName, IsHomeAndAway = leagueIsHomeAndAway, TiebreakerRule = leagueTiebreakerRule, StartDate = leagueStartDate, EndDate = leagueEndDate });
+            Context.Set<Models.League>().Add(new Models.League { SeasonId = seasonId, Name = leagueName, IsHomeAndAway = leagueIsHomeAndAway, TiebreakerCriteria = leagueTiebreakerCriteria, FinalTiebreaker = leagueFinalTiebreaker, StartDate = leagueStartDate, EndDate = leagueEndDate });
         else if (hasLeague && league != null)
         {
             league.Name = leagueName;
             league.IsHomeAndAway = leagueIsHomeAndAway;
-            league.TiebreakerRule = leagueTiebreakerRule;
+            league.TiebreakerCriteria = leagueTiebreakerCriteria;
+            league.FinalTiebreaker = leagueFinalTiebreaker;
             league.StartDate = leagueStartDate;
             league.EndDate = leagueEndDate;
         }

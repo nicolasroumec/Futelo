@@ -1,3 +1,21 @@
 @namespace Futelo.Client.Shared
 
-<p class="empty-state">@Message</p>
+<div class="empty-state">
+    @if (Icon is not null)
+    {
+        <div class="empty-state__icon">@Icon</div>
+    }
+    @if (Title is not null)
+    {
+        <p class="empty-state__title">@Title</p>
+    }
+    <p class="mb-0">@Message</p>
+    @if (ActionLabel is not null && ActionHref is not null)
+    {
+        <a href="@ActionHref" class="btn btn-outline-primary btn-sm mt-1">@ActionLabel</a>
+    }
+    else if (ActionLabel is not null && OnAction.HasDelegate)
+    {
+        <button class="btn btn-outline-primary btn-sm mt-1" @onclick="OnAction">@ActionLabel</button>
+    }
+</div>

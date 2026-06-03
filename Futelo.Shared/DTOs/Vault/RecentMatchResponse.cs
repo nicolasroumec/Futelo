@@ -14,6 +14,8 @@ public class RecentMatchResponse
     public int? AwayPenaltyScore { get; set; }
     public string? HomeTeamName { get; set; }
     public string? AwayTeamName { get; set; }
+    public int? HomeTeamId { get; set; }
+    public int? AwayTeamId { get; set; }
     public string? VideoGameName { get; set; }
     public DateTime? PlayedAt { get; set; }
     public string CompetitionType { get; set; } = string.Empty;

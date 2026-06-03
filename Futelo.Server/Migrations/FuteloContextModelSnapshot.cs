@@ -30,6 +30,9 @@ namespace Futelo.Server.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<byte[]>("Avatar")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -255,6 +258,9 @@ namespace Futelo.Server.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FinalTiebreaker")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsHomeAndAway")
                         .HasColumnType("bit");
 
@@ -271,8 +277,9 @@ namespace Futelo.Server.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("TiebreakerRule")
-                        .HasColumnType("int");
+                    b.Property<string>("TiebreakerCriteria")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -573,6 +580,9 @@ namespace Futelo.Server.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Shield")
+                        .HasColumnType("varbinary(max)");
 
                     b.HasKey("Id");
 

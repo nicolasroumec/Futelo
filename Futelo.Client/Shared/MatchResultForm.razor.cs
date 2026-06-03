@@ -24,14 +24,26 @@ public partial class MatchResultForm
     [Parameter] public string AwayPlayerId { get; set; } = string.Empty;
     [Parameter] public string AwayPlayerName { get; set; } = string.Empty;
     [Parameter] public bool IsSaving { get; set; }
+    [Parameter] public int? InitialHomeScore { get; set; }
+    [Parameter] public int? InitialAwayScore { get; set; }
+    [Parameter] public string? InitialWonOnPenaltiesId { get; set; }
+    [Parameter] public int? InitialHomePenaltyScore { get; set; }
+    [Parameter] public int? InitialAwayPenaltyScore { get; set; }
     [Parameter] public EventCallback<MatchResultInput> OnSave { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 
     private int homeScore;
     private int awayScore;
-    private string wonOnPenaltiesId = string.Empty;
     private int? homePenaltyScore;
     private int? awayPenaltyScore;
+
+    protected override void OnInitialized()
+    {
+        homeScore = InitialHomeScore ?? 0;
+        awayScore = InitialAwayScore ?? 0;
+        homePenaltyScore = InitialHomePenaltyScore;
+        awayPenaltyScore = InitialAwayPenaltyScore;
+    }
 
     private bool ShowPenaltyFields
     {
@@ -47,15 +59,40 @@ public partial class MatchResultForm
         }
     }
 
+    private bool PenaltiesResolved =>
+        !HasPenalties ||
+        !ShowPenaltyFields ||
+        (homePenaltyScore ?? 0) != (awayPenaltyScore ?? 0);
+
+    private bool ShowPenaltyDrawWarning =>
+        HasPenalties && ShowPenaltyFields &&
+        homePenaltyScore.HasValue && awayPenaltyScore.HasValue &&
+        homePenaltyScore == awayPenaltyScore;
+
     private async Task HandleSave()
     {
-        bool hasPenalties = HasPenalties && ShowPenaltyFields && !string.IsNullOrEmpty(wonOnPenaltiesId);
+        string? wonOnPenaltiesId = null;
+        int? finalHome = null;
+        int? finalAway = null;
+
+        if (HasPenalties && ShowPenaltyFields)
+        {
+            int h = homePenaltyScore ?? 0;
+            int a = awayPenaltyScore ?? 0;
+            if (h != a)
+            {
+                wonOnPenaltiesId = h > a ? HomePlayerId : AwayPlayerId;
+                finalHome = h;
+                finalAway = a;
+            }
+        }
+
         await OnSave.InvokeAsync(new MatchResultInput(
             homeScore,
             awayScore,
-            hasPenalties ? wonOnPenaltiesId : null,
-            hasPenalties ? homePenaltyScore : null,
-            hasPenalties ? awayPenaltyScore : null));
+            wonOnPenaltiesId,
+            finalHome,
+            finalAway));
     }
 
     private void HandleCancel() => OnCancel.InvokeAsync();

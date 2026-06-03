@@ -1,0 +1,4 @@
+.badge-active-season {
+    background: rgba(var(--bs-primary-rgb), .15);
+    color: var(--color-primary);
+}

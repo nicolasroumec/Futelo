@@ -1,5 +1,6 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
+using Futelo.Server.Repositories.Shared;
 using Futelo.Server.Repositories.SuperCup;
 using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs.SuperCup;
@@ -9,7 +10,7 @@ namespace Futelo.Server.Services.SuperCup;
 
 using static ErrorMessages;
 
-public class SuperCupService(ISuperCupRepository superCupRepository, IAchievementEngine achievementEngine) : ISuperCupService
+public class SuperCupService(ISuperCupRepository superCupRepository, IAchievementEngine achievementEngine, IEloRollbackRepository eloRollback) : ISuperCupService
 {
     public async Task<SuperCupResponse> GetByIdAsync(int superCupId, string userId)
     {
@@ -19,7 +20,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
 
         var caller = superCup.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
-        return MapToResponse(superCup, canEdit);
+        return MapToResponse(superCup, canEdit, LastPlayedMatchId(superCup));
     }
 
     public async Task StartAsync(int superCupId, string userId)
@@ -105,10 +106,19 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         var match = superCup.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
             throw new KeyNotFoundException("Match not found in this SuperCup.");
-        if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException(MatchAlreadyHasResult);
         if (string.IsNullOrEmpty(match.HomePlayerId) || string.IsNullOrEmpty(match.AwayPlayerId))
             throw new InvalidOperationException(MatchParticipantsNotDetermined);
+
+        if (match.Status == MatchStatus.Played)
+        {
+            if (!await eloRollback.IsLastMatchForBothPlayersAsync(matchId, match.HomePlayerId, match.AwayPlayerId))
+                throw new InvalidOperationException(CanOnlyCorrectLastMatch);
+            if (superCup.Status == TournamentStatus.Finished)
+                await superCupRepository.ResetSuperCupFinishAsync(superCupId);
+            await eloRollback.RollbackMatchEloAsync(matchId, match.HomePlayerId, match.AwayPlayerId, superCup.SeasonId);
+            superCup = (await superCupRepository.GetByIdAsync(superCupId))!;
+            match = superCup.Matches.First(m => m.Id == matchId);
+        }
 
         // ELO
         int k = EloCalculator.SuperCupK;
@@ -299,7 +309,13 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         await superCupRepository.PatchDatesAsync(superCupId, startDate, endDate);
     }
 
-    private static SuperCupResponse MapToResponse(Models.SuperCup superCup, bool canEdit = false)
+    private static int? LastPlayedMatchId(Models.SuperCup superCup) =>
+        superCup.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .OrderByDescending(m => m.PlayedAt).ThenByDescending(m => m.Id)
+            .FirstOrDefault()?.Id;
+
+    private static SuperCupResponse MapToResponse(Models.SuperCup superCup, bool canEdit = false, int? lastPlayedMatchId = null)
     {
         var seasonPlayerMap = superCup.Season.Players
             .ToDictionary(sp => sp.PlayerId, sp => sp.Player.DisplayName);
@@ -308,7 +324,9 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         {
             Id = superCup.Id,
             SeasonId = superCup.SeasonId,
+            SeasonName = superCup.Season.Name,
             VaultId = superCup.Season.VaultId,
+            VaultName = superCup.Season.Vault.Name,
             Name = superCup.Name,
             Status = superCup.Status.ToString(),
             IsHomeAndAway = superCup.IsHomeAndAway,
@@ -354,7 +372,8 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
                     AwayTeamId = m.AwayTeamId,
                     AwayTeamName = m.AwayTeam?.Name,
                     VideoGameId = m.VideoGameId,
-                    VideoGameName = m.VideoGame?.Name
+                    VideoGameName = m.VideoGame?.Name,
+                    IsLastPlayed = m.Id == lastPlayedMatchId
                 }).ToList()
         };
     }

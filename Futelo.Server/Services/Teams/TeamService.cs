@@ -46,4 +46,26 @@ public class TeamService(ITeamRepository repository, IMemoryCache cache) : ITeam
         await repository.DeleteAsync(team);
         cache.Remove(CacheKey);
     }
+
+    public Task<byte[]?> GetShieldAsync(int teamId)
+        => repository.GetShieldAsync(teamId);
+
+    public async Task SetShieldAsync(int teamId, byte[] data)
+    {
+        _ = await repository.GetByIdAsync(teamId)
+            ?? throw new KeyNotFoundException($"Team {teamId} not found.");
+        await repository.SetShieldAsync(teamId, data);
+        cache.Remove(CacheKey);
+    }
+
+    public async Task DeleteShieldAsync(int teamId)
+    {
+        _ = await repository.GetByIdAsync(teamId)
+            ?? throw new KeyNotFoundException($"Team {teamId} not found.");
+        await repository.DeleteShieldAsync(teamId);
+        cache.Remove(CacheKey);
+    }
+
+    public Task<List<int>> GetTeamIdsWithShieldAsync()
+        => repository.GetTeamIdsWithShieldAsync();
 }

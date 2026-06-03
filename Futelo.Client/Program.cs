@@ -7,9 +7,11 @@ using Futelo.Client.Services.Invitation;
 using Futelo.Client.Services.Cup;
 using Futelo.Client.Services.Language;
 using Futelo.Client.Services.League;
+using Futelo.Client.Services.Media;
 using Futelo.Client.Services.SuperCup;
 using Futelo.Client.Services.Season;
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Users;
 using Futelo.Client.Services.Vault;
 using Futelo.Client.Services.Stats;
 using Futelo.Client.Services.Theme;
@@ -43,8 +45,12 @@ builder.Services.AddScoped<ICupService, CupService>();
 builder.Services.AddScoped<ISuperCupService, SuperCupService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<ShieldDirectory>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<AvatarDirectory>();
 builder.Services.AddScoped<IVideoGameService, VideoGameService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
+builder.Services.AddScoped(_ => new MediaUrlService(baseAddress));
 
 builder.Services.AddSingleton<IToastService, ToastService>();
 

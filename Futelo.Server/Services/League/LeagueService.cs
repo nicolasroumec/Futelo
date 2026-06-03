@@ -1,6 +1,7 @@
 using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.League;
+using Futelo.Server.Repositories.Shared;
 using Futelo.Server.Services.Achievement;
 using Futelo.Shared.DTOs;
 using Futelo.Shared.DTOs.League;
@@ -10,7 +11,7 @@ namespace Futelo.Server.Services.League;
 
 using static ErrorMessages;
 
-public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngine achievementEngine) : ILeagueService
+public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngine achievementEngine, IEloRollbackRepository eloRollback) : ILeagueService
 {
     public async Task<LeagueResponse> GetByIdAsync(int leagueId, string userId)
     {
@@ -20,7 +21,12 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
 
         var standings = league.Status == TournamentStatus.NotStarted
             ? []
-            : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players, league.TiebreakerRule);
+            : StandingsCalculator.Compute(league.Matches.Where(m => m.Status == MatchStatus.Played).ToList(), league.Players, league.TiebreakerCriteria);
+
+        var lastPlayedMatchId = league.Matches
+            .Where(m => m.Status == MatchStatus.Played)
+            .OrderByDescending(m => m.PlayedAt).ThenByDescending(m => m.Id)
+            .FirstOrDefault()?.Id;
 
         var caller = league.Season.Vault.Players.FirstOrDefault(p => p.PlayerId == userId);
         bool canEdit = caller?.Role == VaultRole.Admin || caller?.Role == VaultRole.Editor;
@@ -29,12 +35,16 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
         {
             Id = league.Id,
             SeasonId = league.SeasonId,
+            SeasonName = league.Season.Name,
+            VaultId = league.Season.VaultId,
+            VaultName = league.Season.Vault.Name,
             Status = league.Status.ToString(),
             Name = league.Name,
             IsHomeAndAway = league.IsHomeAndAway,
             StartDate = league.StartDate,
             EndDate = league.EndDate,
-            TiebreakerRule = league.TiebreakerRule,
+            TiebreakerCriteria = league.TiebreakerCriteria,
+            FinalTiebreaker = league.FinalTiebreaker,
             ChampionId = league.ChampionId,
             ChampionName = league.ChampionId != null
                 ? league.Season.Players.FirstOrDefault(sp => sp.PlayerId == league.ChampionId)?.Player.DisplayName
@@ -64,7 +74,8 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
                     AwayTeamId = m.AwayTeamId,
                     AwayTeamName = m.AwayTeam?.Name,
                     VideoGameId = m.VideoGameId,
-                    VideoGameName = m.VideoGame?.Name
+                    VideoGameName = m.VideoGame?.Name,
+                    IsLastPlayed = m.Id == lastPlayedMatchId
                 }).ToList(),
             Standings = standings
         };
@@ -199,8 +210,17 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
         var match = league.Matches.FirstOrDefault(m => m.Id == matchId);
         if (match == null)
             throw new KeyNotFoundException(MatchNotFound);
+
         if (match.Status == MatchStatus.Played)
-            throw new InvalidOperationException(MatchAlreadyHasResult);
+        {
+            if (!await eloRollback.IsLastMatchForBothPlayersAsync(matchId, match.HomePlayerId!, match.AwayPlayerId!))
+                throw new InvalidOperationException(CanOnlyCorrectLastMatch);
+            if (league.Status == TournamentStatus.Finished)
+                await leagueRepository.ResetLeagueFinishAsync(leagueId);
+            await eloRollback.RollbackMatchEloAsync(matchId, match.HomePlayerId!, match.AwayPlayerId!, league.SeasonId);
+            league = (await leagueRepository.GetByIdAsync(leagueId))!;
+            match = league.Matches.First(m => m.Id == matchId);
+        }
 
         var seasonPlayers = league.Season.Players.ToList();
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);
@@ -208,7 +228,7 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
 
         var (homeResult, awayResult, goalDiff) = ComputeOutcome(homeScore, awayScore);
         var elo = ComputeEloBlock(homesp, awaysp, seasonPlayers, matchId, league.SeasonId, homeResult, awayResult, goalDiff);
-        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore, league.TiebreakerRule);
+        var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore, league.TiebreakerCriteria, league.FinalTiebreaker);
 
         await leagueRepository.SaveMatchResultAsync(new MatchResultData
         {
@@ -358,7 +378,7 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
     private static (bool leagueFinished, Dictionary<string, int> finalPositions, string? championId) DetectFinish(
         IEnumerable<Match> allMatches, IEnumerable<LeaguePlayer> leaguePlayers,
         string homePlayerId, string awayPlayerId, int homeScore, int awayScore,
-        TiebreakerRule tiebreaker)
+        List<TiebreakerCriterion> criteria, FinalTiebreaker finalTiebreaker)
     {
         var matchList = allMatches.ToList();
         if (matchList.Count(m => m.Status == MatchStatus.Pending) != 1)
@@ -376,7 +396,8 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
             })
             .ToList();
 
-        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers, tiebreaker);
+        bool randomFallback = finalTiebreaker == FinalTiebreaker.DrawingOfLots;
+        var finalStandings = StandingsCalculator.Compute(allPlayed, leaguePlayers, criteria, randomFallback);
         var finalPositions = finalStandings
             .Select((row, i) => (row.PlayerId, Position: i + 1))
             .ToDictionary(x => x.PlayerId, x => x.Position);

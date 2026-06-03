@@ -1,0 +1,107 @@
+.season-draft-banner {
+    background: rgba(var(--bs-primary-rgb), .06);
+    border: 1px solid rgba(var(--bs-primary-rgb), .2);
+}
+
+.season-draft-banner__desc {
+    font-size: .8rem;
+}
+
+.season-wizard {
+    gap: 0;
+}
+
+.season-wizard__badge {
+    width: 28px;
+    height: 28px;
+    font-size: .75rem;
+}
+
+.season-wizard__badge--dim {
+    opacity: .5;
+}
+
+.season-wizard__connector {
+    height: 2px;
+    background: var(--color-border);
+    min-width: 24px;
+}
+
+.modal-content {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+}
+
+.season-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+}
+
+.season-meta__sep {
+    color: var(--color-border);
+    user-select: none;
+}
+
+.season-competitions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.625rem;
+}
+
+.season-comp-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-left-width: 3px;
+    border-radius: 0.5rem;
+    background: var(--color-surface);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.season-comp-card:hover {
+    background: var(--color-surface-2);
+    color: inherit;
+}
+
+.season-comp-card--league       { border-left-color: var(--bs-primary); }
+.season-comp-card--cup          { border-left-color: var(--bs-success); }
+.season-comp-card--supercup     { border-left-color: var(--bs-warning); }
+
+.season-comp-card--pending {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.season-comp-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.season-comp-card__name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.2;
+}
+
+.season-comp-card__arrow {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.season-actions-sep {
+    width: 1px;
+    height: 1.25rem;
+    background: var(--color-border);
+    margin: 0 0.25rem;
+}

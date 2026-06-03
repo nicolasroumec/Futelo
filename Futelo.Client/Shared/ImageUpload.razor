@@ -1,0 +1,24 @@
+@inherits LocalizedComponentBase
+
+<div class="image-upload @(isProcessing ? "image-upload--busy" : "")"
+     style="width:@(DisplaySize)px;height:@(DisplaySize)px"
+     title="@Lang.Get("avatar.change")">
+    @if (localPreview != null)
+    {
+        <img src="@localPreview" class="image-upload__img" alt="" />
+    }
+    else if (ExistingImageUrl != null && (existingLoaded || !existingFailed))
+    {
+        <img src="@Media.Resolve(ExistingImageUrl)" class="image-upload__img" alt=""
+             @onload="OnExistingLoad" @onerror="OnExistingError" />
+    }
+    else
+    {
+        <span class="image-upload__icon">📷</span>
+    }
+    <InputFile OnChange="OnFileSelected" accept="image/*" class="image-upload__input" disabled="@isProcessing" />
+</div>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="text-danger small mt-1">@errorMessage</div>
+}

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using Futelo.Server.Data;
 using Futelo.Server.Filters;
@@ -5,9 +6,11 @@ using Futelo.Server.Models;
 using Futelo.Server.Repositories.Achievement;
 using Futelo.Server.Repositories.Invitation;
 using Futelo.Server.Repositories.Cup;
+using Futelo.Server.Repositories.Shared;
 using Futelo.Server.Repositories.League;
 using Futelo.Server.Repositories.Season;
 using Futelo.Server.Repositories.Teams;
+using Futelo.Server.Repositories.Users;
 using Futelo.Server.Repositories.Vault;
 using Futelo.Server.Repositories.VideoGames;
 using Futelo.Server.Services.Achievement;
@@ -21,6 +24,7 @@ using Futelo.Server.Services.Stats;
 using Futelo.Server.Services.SuperCup;
 using Futelo.Server.Services.Season;
 using Futelo.Server.Services.Teams;
+using Futelo.Server.Services.Users;
 using Futelo.Server.Services.Vault;
 using Futelo.Server.Services.VideoGames;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -42,7 +46,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<FuteloContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentityCore<AppUser>()
+builder.Services.AddIdentityCore<AppUser>(options =>
+    {
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequiredLength = 6;
+    })
     .AddEntityFrameworkStores<FuteloContext>()
     .AddDefaultTokenProviders();
 
@@ -66,6 +75,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IAchievementRepository, AchievementRepository>();
 builder.Services.AddScoped<IAchievementEvaluationRepository, AchievementEvaluationRepository>();
 builder.Services.AddScoped<IAchievementEngine, AchievementEngine>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVaultRepository, VaultRepository>();
 builder.Services.AddScoped<IVaultService, VaultService>();
@@ -79,6 +90,7 @@ builder.Services.AddScoped<ISeasonRepository, SeasonRepository>();
 builder.Services.AddScoped<ISeasonRecapRepository, SeasonRecapRepository>();
 builder.Services.AddScoped<ISeasonService, SeasonService>();
 builder.Services.AddScoped<ISeasonRecapService, SeasonRecapService>();
+builder.Services.AddScoped<IEloRollbackRepository, EloRollbackRepository>();
 builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<ICupRepository, CupRepository>();
@@ -104,5 +116,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/api/version", () =>
+    Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "unknown")
+    .AllowAnonymous();
 
 app.Run();

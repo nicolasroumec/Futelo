@@ -1,9 +1,10 @@
 using Futelo.Client.Services.Invitation;
+using Futelo.Client.Shared;
 using Microsoft.AspNetCore.Components;
 
 namespace Futelo.Client.Pages;
 
-public partial class AcceptInvitation
+public partial class AcceptInvitation : LocalizedComponentBase
 {
     [Parameter] public string Token { get; set; } = string.Empty;
     [Inject] private IInvitationService InvitationService { get; set; } = null!;

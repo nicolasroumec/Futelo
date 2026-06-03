@@ -2,7 +2,7 @@
 @inherits LocalizedComponentBase
 @attribute [Authorize]
 
-<PageTitle>SuperCup - Futelo</PageTitle>
+<PageTitle>@(superCup?.Name ?? "SuperCup") - Futelo</PageTitle>
 
 @if (isLoading)
 {
@@ -28,13 +28,26 @@
 }
 else if (superCup == null)
 {
-    <p class="text-danger">@Lang.Get("superCup.notFound")</p>
+    <EmptyState Message="@Lang.Get("superCup.notFound")" />
 }
 else
 {
-    <div class="d-flex align-items-center gap-3 mb-2">
-        <a href="/seasons/@superCup.SeasonId" class="btn btn-outline-secondary btn-sm">@Lang.Get("common.back")</a>
-        <h3 class="mb-0">@superCup.Name</h3>
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="breadcrumb-link">@Lang.Get("nav.dashboard")</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/vaults/@superCup.VaultId" class="breadcrumb-link">@superCup.VaultName</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/seasons/@superCup.SeasonId" class="breadcrumb-link">@superCup.SeasonName</a>
+            </li>
+            <li class="breadcrumb-item active fw-semibold" aria-current="page">@superCup.Name</li>
+        </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+        <h3 class="mb-0 me-1">@superCup.Name</h3>
         <span class="badge @BadgeHelper.StatusBadgeClass(superCup.Status)">@Lang.Get("competition.status." + superCup.Status.ToLower())</span>
         @if (superCup.IsHomeAndAway)
         {
@@ -53,6 +66,10 @@ else
             <span class="text-muted">→</span>
             <input type="date" class="form-control form-control-sm" style="width:160px" @bind="editEndDate" />
             <button class="btn btn-sm btn-primary" disabled="@isSavingDates" @onclick="HandlePatchDates">
+                @if (isSavingDates)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
                 @(isSavingDates ? Lang.Get("common.saving") : Lang.Get("common.save"))
             </button>
             <button class="btn btn-sm btn-outline-secondary" @onclick="() => editingDates = false">@Lang.Get("common.cancel")</button>
@@ -79,8 +96,12 @@ else
         <div class="mb-3 text-muted">
             <p>@Lang.Get("superCup.participantsInfo")</p>
         </div>
-        <button class="btn btn-success mb-4" disabled="@isLoading" @onclick="HandleStart">
-            @(isLoading ? Lang.Get("superCup.starting") : Lang.Get("superCup.start"))
+        <button class="btn btn-success mb-4" disabled="@isWorking" @onclick="HandleStart">
+            @if (isWorking)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            @(isWorking ? Lang.Get("superCup.starting") : Lang.Get("superCup.start"))
         </button>
     }
     else
@@ -93,23 +114,10 @@ else
             </div>
         </div>
 
-        @if (lastResult != null)
-        {
-            <div class="alert alert-success mb-4" style="max-width:420px">
-                <strong>@Lang.Get("common.resultRecorded")</strong>
-                @if (lastResult.Finished)
-                {
-                    <div class="text-muted small">@Lang.Get("superCup.finished")</div>
-                }
-                <div class="mt-1">@FormatEloChange(lastResult.Home)</div>
-                <div>@FormatEloChange(lastResult.Away)</div>
-            </div>
-        }
-
         @foreach (var match in superCup.Matches.OrderBy(m => m.Id))
         {
             var isEditable = superCup.CanEdit && superCup.Status != "NotStarted";
-            <div class="card mb-3 @(isEditable ? "match-card--editable" : "")" style="max-width:520px"
+            <div @key="match.Id" class="card mb-3 @(isEditable ? "match-card--editable" : "")" style="max-width:520px"
                  @onclick="() => HandleMatchClick(match.Id)">
                 <div class="card-body py-2 px-3">
                     @if (superCup.IsHomeAndAway)
@@ -160,9 +168,26 @@ else
                                 OnCancel="() => recordingMatchId = null" />
                         </div>
                     }
+                    @if (lastResultMatchId == match.Id && lastEloResult != null)
+                    {
+                        <EloChangeSummary
+                            HomeName="@lastEloResult.Home.DisplayName"
+                            HomeEloChange="@lastEloResult.Home.EloChange"
+                            HomeEloBefore="@lastEloResult.Home.EloBefore"
+                            HomeEloAfter="@lastEloResult.Home.EloAfter"
+                            HomeRankBefore="@lastEloResult.Home.RankBefore"
+                            HomeRankAfter="@lastEloResult.Home.RankAfter"
+                            AwayName="@lastEloResult.Away.DisplayName"
+                            AwayEloChange="@lastEloResult.Away.EloChange"
+                            AwayEloBefore="@lastEloResult.Away.EloBefore"
+                            AwayEloAfter="@lastEloResult.Away.EloAfter"
+                            AwayRankBefore="@lastEloResult.Away.RankBefore"
+                            AwayRankAfter="@lastEloResult.Away.RankAfter" />
+                    }
 
                     <MatchEditPanel
                         IsEditing="editingMatchId == match.Id"
+                        IsLastPlayed="match.IsLastPlayed"
                         HomePlayerName="@match.HomePlayerName"
                         AwayPlayerName="@match.AwayPlayerName"
                         HomeTeamId="match.HomeTeamId"
@@ -172,7 +197,31 @@ else
                         Teams="teams"
                         VideoGames="videoGames"
                         OnSave="HandlePatchMatch"
-                        OnCancel="() => editingMatchId = null" />
+                        OnCancel="() => editingMatchId = null"
+                        OnRequestCorrection="() => HandleRequestCorrection(match.Id)" />
+                    @if (correctingMatchId == match.Id)
+                    {
+                        <div @onclick:stopPropagation="true" @onclick="() => {}">
+                            <MatchResultForm
+                                HasPenalties="true"
+                                IsHomeAndAway="superCup.IsHomeAndAway"
+                                IsLeg2="correctingIsLeg2"
+                                OtherLegHomeScore="correctingOtherLegHomeScore"
+                                OtherLegAwayScore="correctingOtherLegAwayScore"
+                                HomePlayerId="@match.HomePlayerId"
+                                HomePlayerName="@match.HomePlayerName"
+                                AwayPlayerId="@match.AwayPlayerId"
+                                AwayPlayerName="@match.AwayPlayerName"
+                                InitialHomeScore="match.HomeScore"
+                                InitialAwayScore="match.AwayScore"
+                                InitialWonOnPenaltiesId="match.WonOnPenaltiesId"
+                                InitialHomePenaltyScore="match.HomePenaltyScore"
+                                InitialAwayPenaltyScore="match.AwayPenaltyScore"
+                                IsSaving="isCorrecting"
+                                OnSave="HandleCorrectResult"
+                                OnCancel="() => correctingMatchId = null" />
+                        </div>
+                    }
                 </div>
             </div>
         }

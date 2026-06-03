@@ -12,6 +12,7 @@ public class VaultRepository(FuteloContext context) : BaseRepository<Models.Vaul
         => await Context.Set<Models.Vault>()
             .Include(v => v.Owner)
             .Include(v => v.Players).ThenInclude(p => p.Player)
+            .Include(v => v.Seasons)
             .Where(v => v.Players.Any(p => p.PlayerId == userId))
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
@@ -108,5 +109,22 @@ public class VaultRepository(FuteloContext context) : BaseRepository<Models.Vaul
     {
         Context.Set<VaultPlayer>().Add(player);
         await SaveChangesAsync();
+    }
+
+    public Task<bool> PlayerHasNonFinishedSeasonAsync(int vaultId, string playerId)
+        => Context.Set<SeasonPlayer>()
+            .AnyAsync(sp => sp.Season.VaultId == vaultId
+                         && sp.PlayerId == playerId
+                         && sp.Season.Status != SeasonStatus.Finished);
+
+    public async Task RemovePlayerAsync(int vaultId, string playerId)
+    {
+        var entry = await Context.Set<VaultPlayer>()
+            .FirstOrDefaultAsync(vp => vp.VaultId == vaultId && vp.PlayerId == playerId);
+        if (entry != null)
+        {
+            Context.Set<VaultPlayer>().Remove(entry);
+            await SaveChangesAsync();
+        }
     }
 }

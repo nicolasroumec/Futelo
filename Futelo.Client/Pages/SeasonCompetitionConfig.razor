@@ -31,14 +31,53 @@
                     <div class="form-text">@Lang.Get("season.homeAndAway.hint")</div>
                 </div>
 
-                <div class="mb-0" style="max-width:280px">
+                <div class="mb-3">
                     <label class="form-label form-label-sm mb-1">@Lang.Get("season.tiebreaker")</label>
-                    <select class="form-select form-select-sm" @bind="Model.LeagueTiebreakerRule">
-                        <option value="@TiebreakerRule.GoalDifference">@Lang.Get("season.tiebreaker.goalDifference")</option>
-                        <option value="@TiebreakerRule.HeadToHead">@Lang.Get("season.tiebreaker.headToHead")</option>
-                        <option value="@TiebreakerRule.HeadToHeadThenGoalDifference">@Lang.Get("season.tiebreaker.headToHeadThenGD")</option>
+                    <div class="tiebreaker-list">
+                        @for (int i = 0; i < Model.LeagueTiebreakerCriteria.Count; i++)
+                        {
+                            var idx = i;
+                            var criterion = Model.LeagueTiebreakerCriteria[idx];
+                            var itemClass = "tiebreaker-item"
+                                + (_dragIndex == idx ? " tiebreaker-item--dragging" : "")
+                                + (_dragOverIndex == idx && _dragIndex != idx ? " tiebreaker-item--drag-over" : "");
+                            <div class="@itemClass"
+                                 draggable="true"
+                                 @ondragstart="() => OnDragStart(idx)"
+                                 @ondragover="() => OnDragOver(idx)"
+                                 @ondragover:preventDefault="true"
+                                 @ondrop="() => OnDrop(idx)"
+                                 @ondrop:preventDefault="true"
+                                 @ondragend="OnDragEnd">
+                                <span class="tiebreaker-rank">@(idx + 1)</span>
+                                <div class="tiebreaker-info">
+                                    <span class="tiebreaker-name">@Lang.Get(CriterionNameKey(criterion))</span>
+                                    <span class="tiebreaker-desc">@Lang.Get(CriterionDescKey(criterion))</span>
+                                </div>
+                                <div class="tiebreaker-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary tiebreaker-btn"
+                                            @onclick="() => MoveCriterionUp(idx)"
+                                            @onclick:stopPropagation="true"
+                                            disabled="@(idx == 0)">↑</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary tiebreaker-btn"
+                                            @onclick="() => MoveCriterionDown(idx)"
+                                            @onclick:stopPropagation="true"
+                                            disabled="@(idx == Model.LeagueTiebreakerCriteria.Count - 1)">↓</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="form-text mt-1">@Lang.Get("season.tiebreaker.hint")</div>
+                </div>
+
+                <div class="mb-0" style="max-width:280px">
+                    <label class="form-label form-label-sm mb-1">@Lang.Get("season.tiebreaker.final")</label>
+                    <select class="form-select form-select-sm" @bind="Model.LeagueFinalTiebreaker">
+                        <option value="@FinalTiebreaker.DrawingOfLots">@Lang.Get("season.tiebreaker.final.drawingOfLots")</option>
+                        <option value="@FinalTiebreaker.Alphabetical">@Lang.Get("season.tiebreaker.final.alphabetical")</option>
+                        <option value="@FinalTiebreaker.Playoff">@Lang.Get("season.tiebreaker.final.playoff")</option>
                     </select>
-                    <div class="form-text">@Lang.Get("season.tiebreaker.hint")</div>
+                    <div class="form-text">@Lang.Get("season.tiebreaker.final.hint")</div>
                 </div>
             </div>
         }

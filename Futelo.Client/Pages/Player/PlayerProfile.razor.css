@@ -1,3 +1,18 @@
+/* ── ELO hero ── */
+
+.elo-hero {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+}
+
+.elo-hero__label {
+    font-size: .7rem;
+    letter-spacing: .06em;
+}
+
 /* ── Win rate bar ── */
 
 .win-rate-track {
@@ -201,6 +216,16 @@
 .achievement-badge:hover {
     border-color: var(--color-primary);
     transform: translateY(-1px);
+}
+
+.achievement-badge--locked {
+    filter: grayscale(1);
+    opacity: .28;
+}
+
+.achievement-badge--locked:hover {
+    border-color: var(--color-border);
+    transform: none;
 }
 
 .achievement-badge__icon {

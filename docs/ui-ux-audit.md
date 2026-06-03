@@ -1200,25 +1200,25 @@ Ejemplo de uso en Dashboard cuando no hay vaults:
 
 | # | Mejora | Dimensión | Esfuerzo | Impacto |
 |---|--------|-----------|----------|---------|
-| 1 | ⚡ Spinner en todos los botones de guardado | Feedback | S | Alto |
-| 2 | ⚡ Labels visibles en MatchResultForm (reemplazar solo-placeholder) | Formularios | S | Alto |
-| 3 | ⚡ Eliminar `alert-success` permanente; redirigir al ToastService | Feedback | S | Alto |
-| 4 | ⚡ `is-invalid` + `invalid-feedback` inline en todos los EditForm | Formularios | S | Alto |
-| 5 | ⚡ Score como dato primario en match cards (`fs-5 fw-bold font-display`) | Jerarquía | S | Alto |
-| 6 | ⚡ ELO como número hero en PlayerProfile (`display-5 fw-bold`) | Jerarquía | S | Alto |
-| 7 | ⚡ Botón "Activar temporada" elevado al top de SeasonDetail Draft | Navegación | S | Alto |
+| ~~1~~ | ~~⚡ Spinner en todos los botones de guardado~~ ✅ | ~~Feedback~~ | ~~S~~ | ~~Alto~~ |
+| ~~2~~ | ~~⚡ Labels visibles en MatchResultForm (reemplazar solo-placeholder)~~ ✅ | ~~Formularios~~ | ~~S~~ | ~~Alto~~ |
+| ~~3~~ | ~~⚡ Eliminar `alert-success` permanente; redirigir al ToastService~~ ✅ | ~~Feedback~~ | ~~S~~ | ~~Alto~~ |
+| ~~4~~ | ~~⚡ `is-invalid` + `invalid-feedback` inline en todos los EditForm~~ ✅ | ~~Formularios~~ | ~~S~~ | ~~Alto~~ |
+| ~~5~~ | ~~⚡ Score como dato primario en match cards (`fs-5 fw-bold font-display`)~~ ✅ | ~~Jerarquía~~ | ~~S~~ | ~~Alto~~ |
+| ~~6~~ | ~~⚡ ELO como número hero en PlayerProfile (`display-5 fw-bold`)~~ ✅ | ~~Jerarquía~~ | ~~S~~ | ~~Alto~~ |
+| ~~7~~ | ~~⚡ Botón "Activar temporada" elevado al top de SeasonDetail Draft~~ ✅ | ~~Navegación~~ | ~~S~~ | ~~Alto~~ |
 | 8 | Breadcrumbs en LeagueView / CupView / SeasonDetail | Navegación | M | Alto |
 | 9 | EmptyState con Icon + Title + CTA button | Feedback | M | Medio |
 | 10 | Modal de confirmación para Delete Season / Delete Vault | Formularios | M | Alto |
 | 11 | Stepper de configuración de temporada (Draft flow) | Navegación | M | Medio |
 | 12 | Add Match form responsive (col Bootstrap, sin widths hardcodeados) | Formularios | M | Medio |
-| 13 | Jerarquía de vault cards en Dashboard (h5 nombre, badge estado) | Jerarquía | M | Medio |
-| 14 | `--radius-md` definido + adoptado en record cards | CSS tokens | S | Medio |
-| 15 | Base font-size de 15px → 16px | CSS tokens | S | Medio |
-| 16 | Section labels nav: opacity 0.5 → 0.65 | Accesibilidad | S | Medio |
-| 17 | `card-glass` temeable via `--color-surface-rgb` | CSS tokens | S | Bajo |
-| 18 | Bootstrap vars (`--bs-success`) → tokens propios (`--color-success`) | CSS tokens | S | Bajo |
-| 19 | `match-card--played` sin opacity global; solo `.match-meta` atenuado | CSS tokens | S | Medio |
+| 13 | Jerarquía de vault cards en Dashboard (h5 nombre, badge estado) — ⚠️ parcial: nombre `fw-bold` + badge jugadores + CTA con flecha ✅; badge "Temporada activa" pendiente (requiere `HasActiveSeason` en `VaultResponse`) | Jerarquía | M | Medio |
+| ~~14~~ | ~~`--radius-md` definido + adoptado en record cards~~ ✅ | ~~CSS tokens~~ | ~~S~~ | ~~Medio~~ |
+| ~~15~~ | ~~Base font-size de 15px → 16px~~ ✅ | ~~CSS tokens~~ | ~~S~~ | ~~Medio~~ |
+| ~~16~~ | ~~Section labels nav: opacity 0.5 → 0.65~~ ✅ | ~~Accesibilidad~~ | ~~S~~ | ~~Medio~~ |
+| ~~17~~ | ~~`card-glass` temeable via `--color-surface-rgb`~~ ✅ | ~~CSS tokens~~ | ~~S~~ | ~~Bajo~~ |
+| 18 | Bootstrap vars (`--bs-success`) → tokens propios (`--color-success`) — pendiente hasta implementar `PlayerCompare` | CSS tokens | S | Bajo |
+| ~~19~~ | ~~`match-card--played` sin opacity global; solo `.match-meta` atenuado~~ ✅ | ~~CSS tokens~~ | ~~S~~ | ~~Medio~~ |
 | 20 | Spacing tokens `--space-*` adoptados como estándar en nuevos componentes | CSS tokens | L | Bajo |
 
 > ⚡ = Aplicable en < 1 hora cambiando clases Bootstrap o snippets de Razor. Sin nueva arquitectura.

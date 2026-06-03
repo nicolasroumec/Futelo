@@ -67,12 +67,14 @@ else
                         <th title="@Lang.Get("stats.goalsFor.full")">@Lang.Get("stats.goalsFor")</th>
                         <th title="@Lang.Get("stats.goalsAgainst.full")">@Lang.Get("stats.goalsAgainst")</th>
                         <th title="@Lang.Get("stats.goalDiff.full")">@Lang.Get("stats.goalDiff")</th>
+                        <th title="@Lang.Get("stats.points.full")">@Lang.Get("stats.points")</th>
+                        <th title="@Lang.Get("stats.pointsAvg.full")">@Lang.Get("stats.pointsAvg")</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var row in standings)
                     {
-                        <tr class="@(row.Position == 1 ? "rank-gold" : "")">
+                        <tr @key="row.PlayerId" class="@(row.Position == 1 ? "rank-gold" : "")">
                             <td>@row.Position</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
@@ -89,6 +91,8 @@ else
                             <td class="@(row.GoalDifference > 0 ? "text-success" : row.GoalDifference < 0 ? "text-danger" : "")">
                                 @(row.GoalDifference > 0 ? $"+{row.GoalDifference}" : row.GoalDifference.ToString())
                             </td>
+                            <td><strong>@row.Points</strong></td>
+                            <td>@row.PointsAverage.ToString("F3")</td>
                         </tr>
                     }
                 </tbody>

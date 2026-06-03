@@ -42,7 +42,7 @@ public partial class SeasonDetail : LocalizedComponentBase
     private bool isFinishing;
     private bool isPatchingVideoGame;
     private bool isDeleting;
-    private bool confirmDelete;
+    private bool showDeleteModal;
     private string? errorMessage;
 
     private bool editingSeasonDates;
@@ -58,6 +58,10 @@ public partial class SeasonDetail : LocalizedComponentBase
         (!season.HasLeague || season.LeagueStatus == CompetitionStatus.Finished) &&
         (!season.HasCup || season.CupStatus == CompetitionStatus.Finished) &&
         (!season.HasSuperCup || season.SuperCupStatus == CompetitionStatus.Finished);
+
+    private bool StepCompDone => season != null && (season.HasLeague || season.HasCup);
+    private bool StepPlayersDone => season != null && season.Players.Count >= 2;
+    private bool StepReadyToActivate => StepCompDone && StepPlayersDone;
 
     protected override async Task OnInitializedAsync()
     {
@@ -137,7 +141,7 @@ public partial class SeasonDetail : LocalizedComponentBase
         {
             errorMessage = ex.Message;
             isDeleting = false;
-            confirmDelete = false;
+            showDeleteModal = false;
         }
     }
 
@@ -214,7 +218,7 @@ public partial class SeasonDetail : LocalizedComponentBase
     private async Task CopyRecapLink()
     {
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", $"{Nav.BaseUri}seasons/{Id}/recap");
-        Toast.Show("Link copied!");
+        Toast.Show(Lang.Get("vault.inviteLinkCopied"));
     }
 
     private async Task HandleConfigure()

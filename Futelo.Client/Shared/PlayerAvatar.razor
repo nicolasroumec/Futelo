@@ -1,5 +1,16 @@
-<span class="player-avatar"
-      style="background-color:@BgColor;width:@(Size)px;height:@(Size)px;font-size:@(Size * 0.38)px"
-      title="@Name">
-    @Initials
-</span>
+@if (AvatarUrl != null && !_imgFailed)
+{
+    <img src="@Media.Resolve(AvatarUrl)"
+         class="player-avatar player-avatar--img"
+         style="width:@(Size)px;height:@(Size)px"
+         alt="@Name"
+         @onerror="OnImgError" />
+}
+else
+{
+    <span class="player-avatar"
+          style="background-color:@BgColor;width:@(Size)px;height:@(Size)px;font-size:@(Size * 0.38)px"
+          title="@Name">
+        @Initials
+    </span>
+}
