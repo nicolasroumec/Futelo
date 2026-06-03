@@ -63,16 +63,31 @@ Rama: `17-deploy`
 
 ---
 
-### Sprint D4 — Dockerfile y despliegue (~2h) ⬜
-`feat: add Dockerfile and deploy`
+### Sprint D4 — Dockerfile y despliegue (~2h) 🔄
+`feat: add Dockerfile and host Blazor client from server`
 
-- [ ] `Dockerfile` multi-stage en la raíz:
-  - Stage `build`: `mcr.microsoft.com/dotnet/sdk:10.0` — publica `Futelo.Server` (incluye el Client como assets estáticos)
-  - Stage `runtime`: `mcr.microsoft.com/dotnet/aspnet:10.0` — copia el publish output
-- [ ] `.dockerignore`
-- [ ] Deploy en el proveedor elegido (conectar repo GitHub; detecta Dockerfile)
-- [ ] Configurar env vars: `JWT_KEY`, `JWT_ISSUER`, `JWT_AUDIENCE`, `ASPNETCORE_ENVIRONMENT=Production`
-- [ ] Verificar que la app levanta y migra la DB al arrancar (`Migrate`)
+**Código (hecho):**
+- [x] Server hospeda el Client WASM: ref a `Futelo.Client` + paquete `Microsoft.AspNetCore.Components.WebAssembly.Server` en el csproj; `UseBlazorFrameworkFiles()` + `UseStaticFiles()` + `MapFallbackToFile("index.html")` en `Program.cs`
+- [x] `Dockerfile` multi-stage en la raíz:
+  - Stage `build` (`sdk:10.0`): restore cacheado por csproj, luego `dotnet publish Futelo.Server` (arrastra el Client WASM como assets estáticos)
+  - Stage `runtime` (`aspnet:10.0`): copia el publish; entrypoint con `sh -c` para bindear Kestrel a `$PORT` de Railway (fallback 8080)
+- [x] `.dockerignore` (bin/obj, secrets, docs, tests, .git)
+- [x] Verificado: `dotnet publish` Release genera `wwwroot/index.html` + `_framework/*.wasm`
+- [x] Migración al arrancar ya estaba en `Program.cs` (`db.Database.MigrateAsync()`)
+
+**Migración SQL Server → PostgreSQL (hecho):**
+- [x] Provider swap: `Microsoft.EntityFrameworkCore.SqlServer` → `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.2
+- [x] `Program.cs`: `UseSqlServer` → `UseNpgsql`
+- [x] Borradas las migraciones de SQL Server; regenerada `InitialCreate` para Postgres (tipos `text`/`integer`/`timestamptz`/`bytea`)
+- [x] `appsettings.Development.json` apunta a Postgres local
+- [x] Sin cambios en queries: todo LINQ-to-EF, sin SQL crudo ni funciones de SQL Server
+- [ ] **Pendiente local:** instalar Postgres (o Docker) y aplicar `dotnet ef database update` — no verificable sin DB
+
+**Deploy en Railway (manual — pendiente del usuario):**
+- [ ] Conectar repo GitHub (Railway detecta el Dockerfile)
+- [ ] Provisionar PostgreSQL gestionado (add-on de un clic en Railway)
+- [ ] Env vars: `ConnectionStrings__DefaultConnection`, `Jwt__Key`, `ASPNETCORE_ENVIRONMENT=Production`
+- [ ] Verificar arranque + migración automática de DB (`MigrateAsync` al iniciar)
 
 ---
 

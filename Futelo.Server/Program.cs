@@ -46,7 +46,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddDbContext<FuteloContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentityCore<AppUser>(options =>
     {
@@ -127,6 +127,9 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 }
 
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+
 app.UseCors("DevClient");
 app.UseHttpsRedirection();
 app.UseRateLimiter();
@@ -136,5 +139,6 @@ app.MapControllers();
 app.MapGet("/api/version", () =>
     Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "unknown")
     .AllowAnonymous();
+app.MapFallbackToFile("index.html");
 
 app.Run();
