@@ -71,11 +71,11 @@ else
             }
             else
             {
-                <PlayerAvatar Name="@stats.DisplayName" Size="56" AvatarUrl="@Avatars.UrlFor(PlayerId)" />
+                <PlayerAvatar Name="@stats!.DisplayName" Size="56" AvatarUrl="@Avatars.UrlFor(PlayerId)" />
             }
         </div>
         <div>
-            <h3 class="mb-0">@stats.DisplayName</h3>
+            <h3 class="mb-0">@stats!.DisplayName</h3>
             <div class="d-flex align-items-baseline gap-2">
                 <span class="elo-hero">@_elo</span>
                 <span class="text-muted fw-semibold text-uppercase elo-hero__label">ELO</span>
