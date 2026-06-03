@@ -139,8 +139,8 @@ public partial class PlayerProfile : LocalizedComponentBase
     private async Task SetFilter(string? filter)
     {
         competitionFilter = filter;
-        globalChartRendered = false;
         globalEloHistory = await StatsService.GetGlobalEloHistoryAsync(VaultId, PlayerId, competition: filter, ct: ComponentToken);
+        globalChartRendered = false;
         StateHasChanged();
     }
 
