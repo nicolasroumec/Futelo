@@ -56,7 +56,7 @@ else
             var treble = GetTrebleWinner(row);
             var doublee = GetDoubleWinner(row);
 
-            <div class="season-trophy-card mb-3">
+            <div class="season-trophy-card mb-3" @key="row.SeasonId">
                 <div class="season-trophy-card__header">
                     <div>
                         <span class="season-trophy-card__year">@row.Year</span>

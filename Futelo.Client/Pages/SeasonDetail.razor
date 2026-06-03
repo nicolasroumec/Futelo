@@ -338,7 +338,7 @@ else
                                 @{ int pos = 1; }
                                 @foreach (var row in season.TopStandings)
                                 {
-                                    <tr class="@(pos == 1 ? "rank-gold" : "")">
+                                    <tr class="@(pos == 1 ? "rank-gold" : "")" @key="row.PlayerId">
                                         <td>@pos</td>
                                         <td>@row.DisplayName</td>
                                         <td>@row.Played</td>
@@ -360,7 +360,7 @@ else
                     <div class="d-flex flex-column gap-2 mb-4">
                         @foreach (var m in season.RecentMatches)
                         {
-                            <div class="recent-match-row">
+                            <div class="recent-match-row" @key="(m.HomePlayerName, m.AwayPlayerName, m.HomeScore, m.AwayScore)">
                                 <span class="recent-match-competition text-muted small">@m.Competition</span>
                                 <MatchDisplay HomePlayerName="@m.HomePlayerName"
                                               AwayPlayerName="@m.AwayPlayerName"

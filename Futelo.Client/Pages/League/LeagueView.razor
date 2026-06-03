@@ -164,7 +164,7 @@ else
                                 @{ int pos = 1; }
                                 @foreach (var row in league.Standings)
                                 {
-                                    <tr class="@(row.PlayerId == currentUserId ? "standings-me" : "")">
+                                    <tr class="@(row.PlayerId == currentUserId ? "standings-me" : "")" @key="row.PlayerId">
                                         <td>@pos</td>
                                         <td>@row.DisplayName</td>
                                         <td>@row.Played</td>
@@ -189,7 +189,7 @@ else
                         <span class="pending-summary__label">@Lang.Get("league.pendingByPlayer"):</span>
                         @foreach (var (name, count) in PendingByPlayer)
                         {
-                            <span class="pending-summary__chip">@name <strong>@count</strong></span>
+                            <span class="pending-summary__chip" @key="name">@name <strong>@count</strong></span>
                         }
                     </div>
                 }
@@ -205,7 +205,7 @@ else
                         @foreach (var day in Matchdays)
                         {
                             var hasPending = league.Matches.Any(m => m.Matchday == day && m.Status == "Pending");
-                            <button class="matchday-tab @(selectedMatchday == day ? "matchday-tab--active" : "") @(hasPending ? "matchday-tab--has-pending" : "")"
+                            <button @key="day" class="matchday-tab @(selectedMatchday == day ? "matchday-tab--active" : "") @(hasPending ? "matchday-tab--has-pending" : "")"
                                     @onclick="() => { selectedMatchday = day; recordingMatchId = null; }">
                                 @day
                                 @if (hasPending)
@@ -221,7 +221,7 @@ else
                     @foreach (var match in league.Matches.Where(m => m.Matchday == selectedMatchday))
                     {
                         var isEditable = league.CanEdit && league.Status != "NotStarted";
-                        <div class="match-card @(match.Status == "Played" ? "match-card--played" : "match-card--pending") @(isEditable ? "match-card--editable" : "") mb-2"
+                        <div @key="match.Id" class="match-card @(match.Status == "Played" ? "match-card--played" : "match-card--pending") @(isEditable ? "match-card--editable" : "") mb-2"
                              @onclick="() => HandleMatchClick(match.Id)">
                             <div class="card-body py-2 px-3">
                                 <MatchDisplay

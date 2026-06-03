@@ -48,7 +48,7 @@ else
         <div class="recent-matches mb-3">
             @foreach (var m in history.Items)
             {
-                <div class="recent-match-row">
+                <div class="recent-match-row" @key="m.Id">
                     <span class="recent-match-competition text-muted small">@m.SeasonName · @m.CompetitionName</span>
                     <MatchDisplay
                         HomePlayerName="@m.HomePlayerName"

@@ -101,7 +101,7 @@ else
                 <ul class="list-group mb-4">
                     @foreach (var s in seasons)
                     {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center" @key="s.Id">
                             <a href="/seasons/@s.Id" class="text-decoration-none">@s.Name (@s.Year)</a>
                             <span class="badge @BadgeHelper.StatusBadgeClass(s.Status)">@Lang.Get("season.status." + s.Status.ToLower())</span>
                         </li>
@@ -113,7 +113,7 @@ else
             <ul class="list-group mb-4">
                 @foreach (var player in vault.Players)
                 {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <li class="list-group-item d-flex justify-content-between align-items-center" @key="player.PlayerId">
                         <a href="/vaults/@Id/players/@player.PlayerId" class="d-flex align-items-center gap-2 text-decoration-none">
                             <PlayerAvatar Name="@player.DisplayName" Size="28" AvatarUrl="@Avatars.UrlFor(player.PlayerId)" />
                             @player.DisplayName
@@ -182,7 +182,7 @@ else
                 <div class="recent-matches mb-4">
                     @foreach (var ev in feed)
                     {
-                        <div class="recent-match-row">
+                        <div class="recent-match-row" @key="ev.MatchId">
                             <span class="recent-match-competition text-muted small">@ev.SeasonName · @ev.CompetitionName</span>
                             <MatchDisplay
                                 HomePlayerId="@ev.HomePlayerId"

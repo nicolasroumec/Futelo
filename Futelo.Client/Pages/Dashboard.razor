@@ -27,7 +27,7 @@ else
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var vault in vaults)
         {
-            <div class="col">
+            <div class="col" @key="vault.Id">
                 <div class="card card-glass h-100">
                     <div class="card-body">
                         <h5 class="card-title fw-bold mb-1">@vault.Name</h5>

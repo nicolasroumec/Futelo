@@ -74,7 +74,7 @@ else
                 <tbody>
                     @foreach (var row in standings)
                     {
-                        <tr class="@(row.Position == 1 ? "rank-gold" : "")">
+                        <tr @key="row.PlayerId" class="@(row.Position == 1 ? "rank-gold" : "")">
                             <td>@row.Position</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">

@@ -387,7 +387,7 @@ else
         <div class="recent-matches mb-4">
             @foreach (var m in recentMatches)
             {
-                <div class="recent-match-row">
+                <div class="recent-match-row" @key="m.Id">
                     <span class="recent-match-competition text-muted small">@m.SeasonName · @m.CompetitionName</span>
                     <MatchDisplay
                         HomePlayerId="@m.HomePlayerId"

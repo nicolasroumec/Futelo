@@ -155,17 +155,17 @@ else
 
         @foreach (var round in cup.Rounds)
         {
-            <h5 class="mt-3">@round.Name</h5>
+            <h5 class="mt-3" @key="round.Id">@round.Name</h5>
             <div class="row g-3 mb-2">
                 @foreach (var tie in GetTies(round))
                 {
-                    <div class="col-lg-6">
+                    <div class="col-lg-6" @key="tie[0].Id">
                         <div class="card h-100">
                             <div class="card-body py-2 px-3">
                                 @foreach (var match in tie)
                                 {
                                     var isEditable = cup.CanEdit && cup.Status != "NotStarted";
-                                    <div class="@(tie.Count > 1 ? "mb-2" : "") @(isEditable ? "match-card--editable" : "")"
+                                    <div @key="match.Id" class="@(tie.Count > 1 ? "mb-2" : "") @(isEditable ? "match-card--editable" : "")"
                                          style="@(isEditable ? "cursor:pointer" : "")"
                                          @onclick="() => HandleMatchClick(match.Id)">
                                         @if (cup.IsHomeAndAway)

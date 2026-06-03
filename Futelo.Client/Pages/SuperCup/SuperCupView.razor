@@ -117,7 +117,7 @@ else
         @foreach (var match in superCup.Matches.OrderBy(m => m.Id))
         {
             var isEditable = superCup.CanEdit && superCup.Status != "NotStarted";
-            <div class="card mb-3 @(isEditable ? "match-card--editable" : "")" style="max-width:520px"
+            <div @key="match.Id" class="card mb-3 @(isEditable ? "match-card--editable" : "")" style="max-width:520px"
                  @onclick="() => HandleMatchClick(match.Id)">
                 <div class="card-body py-2 px-3">
                     @if (superCup.IsHomeAndAway)

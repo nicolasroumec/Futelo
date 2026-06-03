@@ -53,7 +53,7 @@ else
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var team in teams)
         {
-            <div class="col">
+            <div class="col" @key="team.Id">
                 <div class="card card-glass h-100">
                     <div class="card-body d-flex align-items-center gap-3">
                         <ImageUpload Width="64" Height="64" DisplaySize="52"

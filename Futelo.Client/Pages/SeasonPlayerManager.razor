@@ -7,7 +7,7 @@
         {
             var pid = vp.PlayerId;
             bool isSelected = SelectedPlayerIds.Contains(pid);
-            <button type="button"
+            <button @key="pid" type="button"
                     class="player-chip @(isSelected ? "player-chip--on" : "player-chip--off")"
                     @onclick="() => Toggle(pid)">
                 @if (isSelected)

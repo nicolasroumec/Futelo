@@ -84,7 +84,7 @@ else
                         <tbody>
                             @foreach (var row in rows)
                             {
-                                <tr class="@(row.Position == 1 ? "rank-gold" : "")">
+                                <tr @key="row.PlayerId" class="@(row.Position == 1 ? "rank-gold" : "")">
                                     <td>@row.Position</td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
@@ -118,7 +118,7 @@ else
                             <tbody>
                                 @foreach (var scorer in scorers)
                                 {
-                                    <tr class="@(scorer.Position == 1 ? "rank-gold" : "")">
+                                    <tr @key="scorer.PlayerId" class="@(scorer.Position == 1 ? "rank-gold" : "")">
                                         <td>@scorer.Position</td>
                                         <td>
                                             <div class="d-flex align-items-center gap-2">

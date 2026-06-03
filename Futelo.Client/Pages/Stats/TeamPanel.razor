@@ -42,7 +42,7 @@ else
                 <tbody>
                     @foreach (var t in rows)
                     {
-                        <tr>
+                        <tr @key="t.TeamId">
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <TeamShield Name="@t.TeamName" Size="24" ShieldUrl="@Shields.UrlFor(t.TeamId)" />
@@ -58,7 +58,7 @@ else
                             <td>
                                 @foreach (var p in t.Players)
                                 {
-                                    <a href="/vaults/@VaultId/players/@p.PlayerId"
+                                    <a @key="p.PlayerId" href="/vaults/@VaultId/players/@p.PlayerId"
                                        class="badge bg-secondary text-decoration-none me-1">
                                         @p.DisplayName (@p.TimesUsed)
                                     </a>
