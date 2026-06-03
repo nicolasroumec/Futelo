@@ -30,12 +30,13 @@ Rama: `17-deploy`
 
 ---
 
-### Sprint D2 — Security hardening (~1h) ⬜
+### Sprint D2 — Security hardening (~1h) ✅
 `feat: add rate limiting to auth endpoints`
 
-- [ ] Rate limiting en `Program.cs` con `AddRateLimiter`:
-  - Política `"auth"`: 5 requests / 1 minuto por IP
-  - Aplicar `[EnableRateLimiting("auth")]` en `AuthController.Login` y `AuthController.Register`
+- [x] Rate limiting en `Program.cs` con `AddRateLimiter`:
+  - Política `"auth"`: fixed window 5 requests / 1 minuto particionada por IP, rechazo con 429
+  - `app.UseRateLimiter()` tras `UseHttpsRedirection`
+  - Aplicado `[EnableRateLimiting("auth")]` en `AuthController.Login` y `AuthController.Register`
 
 > **Ya hecho (no rehacer):**
 > - ✅ Refresh tokens — access 15min + refresh 30 días, endpoints `POST /api/auth/refresh` y `/logout`, manejado en `AuthService` + `AuthTokenHandler` (Client).
@@ -43,15 +44,22 @@ Rama: `17-deploy`
 
 ---
 
-### Sprint D3 — Configuración de producción (~45min) ⬜
+### Sprint D3 — Configuración de producción (~45min) ✅
 `feat: add production configuration and environment variable support`
 
-- [ ] Crear `Futelo.Server/appsettings.Production.json`:
-  - `ConnectionStrings:DefaultConnection` (SQL Server en el servidor)
-  - `Jwt:Key`, `Jwt:Issuer`, `Jwt:Audience` leídos de env vars
-  - `Cors:AllowedOrigins` con la URL del cliente
-- [ ] Verificar que ningún secreto esté hardcodeado en el repo
-- [ ] Crear `Futelo.Client/wwwroot/appsettings.Production.json` con la URL del API en producción
+- [x] Creado `Futelo.Server/appsettings.Production.json`:
+  - `ConnectionStrings:DefaultConnection` y `Jwt:Key` vacíos → se inyectan por env var
+  - `Jwt:Issuer`/`Audience` (no secretos) quedan en el archivo
+  - `AllowedOrigins: []` (vacío en prod: single-service → mismo origen, sin CORS)
+- [x] Verificado: sin secretos en el repo (`appsettings.Development.json` gitignoreado; base solo placeholders)
+- [x] Creado `Futelo.Client/wwwroot/appsettings.Production.json` con `ApiBaseUrl: ""` (mismo origen)
+- [x] `.gitignore`: añadido `!appsettings.Production.json` para que sí se versione
+
+> **Decisión de topología:** un solo servicio — el Server hospeda el Client WASM como assets estáticos (se cablea en D4). Por eso no hace falta CORS ni `ApiBaseUrl` absoluto en producción.
+> **Env vars en Railway** (convención .NET, doble guion bajo):
+> - `ConnectionStrings__DefaultConnection`
+> - `Jwt__Key`
+> - `ASPNETCORE_ENVIRONMENT=Production`
 
 ---
 
