@@ -359,6 +359,12 @@
 
   "notFound.title": "Not Found",
   "notFound.message": "Sorry, the content you are looking for does not exist.",
+  "notFound.backHome": "Back to dashboard",
+
+  "error.title": "Something went wrong",
+  "error.message": "An unexpected error occurred. You can go back home or reload the page.",
+  "error.backHome": "Back to home",
+  "error.reload": "Reload",
 
   "common.all": "All",
   "common.save": "Save",

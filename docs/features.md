@@ -27,6 +27,8 @@ Status: ✅ done · 🔄 in progress · 📋 planned
 | Matchday tabs + pending dot indicator | ✅ | `Pages/League/LeagueView.razor` |
 | Pending matches per player summary | ✅ | `LeagueView.razor` — `PendingByPlayer` |
 | Inline match edit (team / video game / date) | ✅ | `Shared/MatchEditPanel.razor` |
+| Manual match entry (F7) | ✅ | `LeagueService.StartManualAsync` / `AddMatchManuallyAsync` |
+| Correct last played result (ELO rollback) | ✅ | `LeagueService`, `MatchEditPanel` — `IsLastPlayed` |
 
 ## Cup
 
@@ -36,6 +38,8 @@ Status: ✅ done · 🔄 in progress · 📋 planned
 | Seeding modes (SeasonElo / LeaguePosition / Random) | ✅ | `CupSeedingMode` enum, `CupService` |
 | Home-and-away legs | ✅ | `Cup.IsHomeAndAway`, `CupView.razor` — `GetTies()` |
 | Away goal rule | ✅ | `Cup.AwayGoalRule`, `CupService.RecordResultAsync` |
+| Visual bracket view | ✅ | `Pages/Cup/CupView.razor` — round toggle + horizontal scroll |
+| Manual match entry (F8) | ✅ | `CupService.StartManualAsync` / `AddRoundAsync` / `AddMatchAsync` |
 | Penalties support | ✅ | `WonOnPenaltiesId`, `Shared/MatchResultForm.razor` |
 | Aggregate score display | ✅ | `CupView.razor` — `ComputeAggregate()` |
 | Inline match edit | ✅ | `Shared/MatchEditPanel.razor` |
@@ -49,6 +53,7 @@ Status: ✅ done · 🔄 in progress · 📋 planned
 | Penalties support | ✅ | `SuperCupView.razor` |
 | Head-to-head stats display | ✅ | `SuperCupView.razor`, `StatsService.GetHeadToHeadAsync` |
 | Inline match edit | ✅ | `Shared/MatchEditPanel.razor` |
+| Manual match entry (F9) | ✅ | `SuperCupService.StartManualAsync` |
 
 ## Dates (F1)
 
