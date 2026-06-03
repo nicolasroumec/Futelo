@@ -1,6 +1,12 @@
-﻿@page "/not-found"
+@page "/not-found"
 @layout MainLayout
 @inject ILanguageService Lang
 
-<h3>@Lang.Get("notFound.title")</h3>
-<p>@Lang.Get("notFound.message")</p>
+<PageTitle>@Lang.Get("notFound.title") · Futelo</PageTitle>
+
+<div class="not-found" role="alert">
+    <div class="not-found__code">404</div>
+    <h1 class="not-found__title">@Lang.Get("notFound.title")</h1>
+    <p class="not-found__message">@Lang.Get("notFound.message")</p>
+    <a href="/dashboard" class="btn btn-primary">@Lang.Get("notFound.backHome")</a>
+</div>

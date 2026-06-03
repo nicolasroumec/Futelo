@@ -4,7 +4,7 @@ See `docs/domain.md` for the domain model and `docs/features.md` for feature sta
 
 ## Stack
 
-Blazor 10 WASM (`Futelo.Client`) + ASP.NET Core 10 (`Futelo.Server`) + SQL Server via EF Core. Shared DTOs/enums live in `Futelo.Shared`.
+Blazor 10 WASM (`Futelo.Client`) + ASP.NET Core 10 (`Futelo.Server`) + PostgreSQL via EF Core (Npgsql). Shared DTOs/enums live in `Futelo.Shared`. In production the Server also hosts the Client WASM as static assets (single-origin).
 
 ## Architecture layers (Server)
 

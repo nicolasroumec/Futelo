@@ -359,6 +359,12 @@
 
   "notFound.title": "No encontrado",
   "notFound.message": "El contenido que buscas no existe.",
+  "notFound.backHome": "Volver al panel",
+
+  "error.title": "Algo salió mal",
+  "error.message": "Ocurrió un error inesperado. Podés volver al inicio o recargar la página.",
+  "error.backHome": "Volver al inicio",
+  "error.reload": "Recargar",
 
   "common.all": "Todos",
   "common.save": "Guardar",
