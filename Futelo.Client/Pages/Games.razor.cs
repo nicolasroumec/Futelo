@@ -1,3 +1,4 @@
+using Futelo.Client.Services.Toast;
 using Futelo.Client.Services.VideoGames;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.VideoGame;
@@ -8,6 +9,7 @@ namespace Futelo.Client.Pages;
 public partial class Games : LocalizedComponentBase
 {
     [Inject] private IVideoGameService VideoGameService { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
 
     private List<VideoGameResponse> games = [];
     private bool isLoading = true;
@@ -15,6 +17,8 @@ public partial class Games : LocalizedComponentBase
 
     private bool showForm;
     private bool isSubmitting;
+    private bool isDeleting;
+    private int? confirmingDeleteId;
     private string? formError;
     private int? editingId;
     private CreateVideoGameRequest formModel = new();
@@ -77,6 +81,7 @@ public partial class Games : LocalizedComponentBase
                 await VideoGameService.CreateAsync(formModel);
 
             showForm = false;
+            Toast.Show(Lang.Get("games.saved"));
             await LoadGames();
         }
         catch (Exception ex)
@@ -89,16 +94,34 @@ public partial class Games : LocalizedComponentBase
         }
     }
 
+    private void StartDeleteGame(int id)
+    {
+        confirmingDeleteId = id;
+    }
+
+    private void CancelDelete()
+    {
+        confirmingDeleteId = null;
+    }
+
     private async Task DeleteGame(int id)
     {
+        isDeleting = true;
         try
         {
             await VideoGameService.DeleteAsync(id);
+            confirmingDeleteId = null;
+            Toast.Show(Lang.Get("games.deleted"));
             await LoadGames();
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
+            confirmingDeleteId = null;
+        }
+        finally
+        {
+            isDeleting = false;
         }
     }
 }

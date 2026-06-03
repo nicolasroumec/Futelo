@@ -330,12 +330,16 @@
   "teams.name": "Nombre del equipo",
   "teams.empty": "Sin equipos aún.",
   "teams.editTeam": "Editar equipo",
+  "teams.saved": "Equipo guardado.",
+  "teams.deleted": "Equipo eliminado.",
 
   "games.title": "Videojuegos",
   "games.newGame": "Nuevo juego",
   "games.name": "Nombre del juego",
   "games.empty": "Sin videojuegos aún.",
   "games.editGame": "Editar juego",
+  "games.saved": "Juego guardado.",
+  "games.deleted": "Juego eliminado.",
 
   "offline.noConnection": "Sin conexión a internet",
   "pwa.updateAvailable": "Nueva versión disponible.",

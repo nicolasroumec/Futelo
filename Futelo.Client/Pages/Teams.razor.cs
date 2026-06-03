@@ -1,5 +1,6 @@
 using Futelo.Client.Services.Media;
 using Futelo.Client.Services.Teams;
+using Futelo.Client.Services.Toast;
 using Futelo.Client.Shared;
 using Futelo.Shared.DTOs.Team;
 using Microsoft.AspNetCore.Components;
@@ -11,6 +12,7 @@ public partial class Teams : LocalizedComponentBase
     [Inject] private ITeamService TeamService { get; set; } = null!;
     [Inject] private ShieldDirectory Shields { get; set; } = null!;
     [Inject] private MediaUrlService Media { get; set; } = null!;
+    [Inject] private IToastService Toast { get; set; } = null!;
 
     private List<TeamResponse> teams = [];
     private bool isLoading = true;
@@ -18,6 +20,8 @@ public partial class Teams : LocalizedComponentBase
 
     private bool showForm;
     private bool isSubmitting;
+    private bool isDeleting;
+    private int? confirmingDeleteId;
     private string? formError;
     private int? editingId;
     private CreateTeamRequest formModel = new();
@@ -82,6 +86,7 @@ public partial class Teams : LocalizedComponentBase
                 await TeamService.CreateAsync(formModel);
 
             showForm = false;
+            Toast.Show(Lang.Get("teams.saved"));
             await LoadTeams();
         }
         catch (Exception ex)
@@ -94,16 +99,34 @@ public partial class Teams : LocalizedComponentBase
         }
     }
 
+    private void StartDeleteTeam(int id)
+    {
+        confirmingDeleteId = id;
+    }
+
+    private void CancelDelete()
+    {
+        confirmingDeleteId = null;
+    }
+
     private async Task DeleteTeam(int id)
     {
+        isDeleting = true;
         try
         {
             await TeamService.DeleteAsync(id);
+            confirmingDeleteId = null;
+            Toast.Show(Lang.Get("teams.deleted"));
             await LoadTeams();
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
+            confirmingDeleteId = null;
+        }
+        finally
+        {
+            isDeleting = false;
         }
     }
 

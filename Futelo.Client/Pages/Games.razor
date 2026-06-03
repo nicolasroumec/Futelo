@@ -58,9 +58,18 @@ else
                     <div class="card-body">
                         <h5 class="card-title mb-0">@game.Name</h5>
                     </div>
-                    <div class="card-footer d-flex gap-2">
+                    <div class="card-footer d-flex align-items-center gap-2">
                         <button class="btn btn-outline-secondary btn-sm" @onclick="() => EditGame(game)">@Lang.Get("common.edit")</button>
-                        <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteGame(game.Id)">@Lang.Get("common.delete")</button>
+                        @if (confirmingDeleteId == game.Id)
+                        {
+                            <span class="text-muted small">@Lang.Get("common.confirmDelete")?</span>
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteGame(game.Id)" disabled="@isDeleting">@Lang.Get("common.yes")</button>
+                            <button class="btn btn-outline-secondary btn-sm" @onclick="CancelDelete" disabled="@isDeleting">@Lang.Get("common.no")</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-danger btn-sm" @onclick="() => StartDeleteGame(game.Id)">@Lang.Get("common.delete")</button>
+                        }
                     </div>
                 </div>
             </div>

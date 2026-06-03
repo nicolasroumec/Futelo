@@ -330,12 +330,16 @@
   "teams.name": "Team Name",
   "teams.empty": "No teams yet.",
   "teams.editTeam": "Edit Team",
+  "teams.saved": "Team saved.",
+  "teams.deleted": "Team deleted.",
 
   "games.title": "Video Games",
   "games.newGame": "New Game",
   "games.name": "Game Name",
   "games.empty": "No video games yet.",
   "games.editGame": "Edit Game",
+  "games.saved": "Game saved.",
+  "games.deleted": "Game deleted.",
 
   "offline.noConnection": "No internet connection",
   "pwa.updateAvailable": "New version available.",
