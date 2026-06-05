@@ -65,6 +65,17 @@ builder.Services.AddIdentityCore<AppUser>(options =>
     .AddEntityFrameworkStores<FuteloContext>()
     .AddDefaultTokenProviders();
 
+// Fail fast (with a clear message) if the JWT signing key is missing or too
+// short. Otherwise the SymmetricSecurityKey ctor throws on every request,
+// surfacing only as opaque 500s. HS256 requires at least 256 bits (32 bytes).
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException(
+        "Jwt:Key is not configured. Set the Jwt__Key environment variable (min. 32 bytes).");
+if (Encoding.UTF8.GetByteCount(jwtKey) < 32)
+    throw new InvalidOperationException(
+        $"Jwt:Key is too short ({Encoding.UTF8.GetByteCount(jwtKey)} bytes). HS256 requires at least 32 bytes.");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -77,8 +88,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 
