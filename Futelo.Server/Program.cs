@@ -45,8 +45,16 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
+// Railway (and most managed Postgres) expose a single DATABASE_URL in URI form.
+// Npgsql only accepts keyword format, and building it by hand breaks when the
+// password contains special chars (;, =, @...). Parse the URI here instead.
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+var connectionString = string.IsNullOrWhiteSpace(databaseUrl)
+    ? builder.Configuration.GetConnectionString("DefaultConnection")
+    : BuildNpgsqlConnectionString(databaseUrl);
+
 builder.Services.AddDbContext<FuteloContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddIdentityCore<AppUser>(options =>
     {
@@ -56,6 +64,17 @@ builder.Services.AddIdentityCore<AppUser>(options =>
     })
     .AddEntityFrameworkStores<FuteloContext>()
     .AddDefaultTokenProviders();
+
+// Fail fast (with a clear message) if the JWT signing key is missing or too
+// short. Otherwise the SymmetricSecurityKey ctor throws on every request,
+// surfacing only as opaque 500s. HS256 requires at least 256 bits (32 bytes).
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException(
+        "Jwt:Key is not configured. Set the Jwt__Key environment variable (min. 32 bytes).");
+if (Encoding.UTF8.GetByteCount(jwtKey) < 32)
+    throw new InvalidOperationException(
+        $"Jwt:Key is too short ({Encoding.UTF8.GetByteCount(jwtKey)} bytes). HS256 requires at least 32 bytes.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -69,8 +88,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 
@@ -142,3 +160,22 @@ app.MapGet("/api/version", () =>
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+// Converts a postgres://user:pass@host:port/db URI into an Npgsql keyword
+// connection string. NpgsqlConnectionStringBuilder handles all escaping, so
+// special characters in the password no longer break the connection.
+static string BuildNpgsqlConnectionString(string databaseUrl)
+{
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':', 2);
+    var csb = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.Port,
+        Database = uri.AbsolutePath.TrimStart('/'),
+        Username = Uri.UnescapeDataString(userInfo[0]),
+        Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : null,
+        SslMode = Npgsql.SslMode.Prefer
+    };
+    return csb.ConnectionString;
+}

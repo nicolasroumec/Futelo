@@ -81,7 +81,7 @@ Rama: `17-deploy`
 - [x] Borradas las migraciones de SQL Server; regenerada `InitialCreate` para Postgres (tipos `text`/`integer`/`timestamptz`/`bytea`)
 - [x] `appsettings.Development.json` apunta a Postgres local
 - [x] Sin cambios en queries: todo LINQ-to-EF, sin SQL crudo ni funciones de SQL Server
-- [ ] **Pendiente local:** instalar Postgres (o Docker) y aplicar `dotnet ef database update` — no verificable sin DB
+- [x] **Verificado:** `InitialCreate` aplicada contra Postgres 16 en Docker — 24 tablas creadas + `__EFMigrationsHistory` OK
 
 **Deploy en Railway (manual — pendiente del usuario):**
 - [ ] Conectar repo GitHub (Railway detecta el Dockerfile)
