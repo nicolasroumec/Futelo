@@ -21,5 +21,6 @@ All services use primary-constructor DI. Never inject `ILogger` unless logging i
 
 ## Branch / commits
 
-- Branch format: `{number}-{feature-name}` (e.g. `15-features`)
+- Branch format: `{type}/{name}` (e.g. `feat/avatars`, `fix/login`, `chore/release-please`)
+- Conventional Commits (`feat:`, `fix:`, `chore:`, …) — release-please builds the changelog and version bump from them.
 - Commit after each logical chunk. The user commits manually — only suggest the message.
