@@ -1,6 +1,8 @@
 # Futelo ⚽
 
-App para trackear torneos de fútbol entre amigos. Cada temporada puede tener Liga, Copa y Supercopa.
+App para trackear torneos de fútbol de consola entre amigos.
+
+👉 **¿Qué es Futelo y qué se puede hacer?** — [Español](./docs/que-es-futelo.md) · [English](./docs/what-is-futelo.md)
 
 ## Stack
 
