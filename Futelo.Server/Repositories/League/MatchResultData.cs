@@ -9,6 +9,7 @@ public class MatchResultData
     public int AwayScore { get; init; }
     public int LeagueId { get; init; }
     public int SeasonId { get; init; }
+    public int VaultId { get; init; }
     public string HomePlayerId { get; init; } = string.Empty;
     public int HomeNewSeasonElo { get; init; }
     public int HomeNewHistoricalElo { get; init; }

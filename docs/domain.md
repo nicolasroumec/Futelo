@@ -48,7 +48,7 @@ Fixed 1v1 between League champion and Cup champion. Optional home-and-away (2 le
 
 ## ELO
 
-Every recorded match result updates both players' ELO. `EloHistory` rows are appended for each match. `SeasonElo` is tracked per `SeasonPlayer` row and resets each season. Global ELO lives on `AppUser`.
+Every recorded match result updates both players' ELO. `EloHistory` rows are appended for each match. `SeasonElo` is tracked per `SeasonPlayer` row and resets each season. Historical ELO is tracked **per vault** on `VaultPlayer.EloRating` — a player carries an independent historical rating in each vault they belong to, and it persists across seasons within that vault.
 
 ## Auth
 

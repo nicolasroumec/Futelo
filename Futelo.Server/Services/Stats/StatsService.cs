@@ -1,3 +1,4 @@
+using Futelo.Server.Helpers;
 using Futelo.Server.Models;
 using Futelo.Server.Repositories.Achievement;
 using Futelo.Server.Repositories.Stats;
@@ -19,6 +20,8 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
         var player = await statsRepository.GetPlayerAsync(playerId);
         if (player == null)
             throw new KeyNotFoundException(PlayerNotFound);
+
+        var vaultElos = await statsRepository.GetVaultEloMapAsync(vaultId);
 
         var matches = await statsRepository.GetPlayerMatchesInVaultAsync(playerId, vaultId);
 
@@ -131,7 +134,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
             Lost = lost,
             GoalsFor = goalsFor,
             GoalsAgainst = goalsAgainst,
-            EloRating = player.EloRating,
+            EloRating = vaultElos.GetValueOrDefault(playerId, EloCalculator.InitialElo),
             CurrentStreak = currentStreak,
             CurrentStreakType = currentStreakType,
             BestWinStreak = bestWinStreak,
@@ -211,7 +214,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
                 Position = i + 1,
                 PlayerId = vp.PlayerId,
                 DisplayName = vp.Player.DisplayName,
-                HistoricalElo = vp.Player.EloRating
+                HistoricalElo = vp.EloRating
             }).ToList();
     }
 
@@ -221,6 +224,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
             throw new KeyNotFoundException(VaultNotFound);
 
         var seasonPlayers = await statsRepository.GetSeasonRankingAsync(seasonId, vaultId);
+        var vaultElos = await statsRepository.GetVaultEloMapAsync(vaultId);
 
         return seasonPlayers
             .Select((sp, i) => new RankingRow
@@ -229,7 +233,7 @@ public class StatsService(IStatsRepository statsRepository, IAchievementReposito
                 PlayerId = sp.PlayerId,
                 DisplayName = sp.Player.DisplayName,
                 SeasonElo = sp.SeasonElo,
-                HistoricalElo = sp.Player.EloRating
+                HistoricalElo = vaultElos.GetValueOrDefault(sp.PlayerId, EloCalculator.InitialElo)
             }).ToList();
     }
 

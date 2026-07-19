@@ -22,7 +22,6 @@
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | DisplayName | string | Nombre visible en la app |
-| EloRating | int | ELO histórico acumulado (arranca en 1500) |
 
 ### Vault (Bóveda)
 | Campo | Tipo | Descripción |
@@ -40,6 +39,8 @@
 | VaultId | int | FK → Vault |
 | PlayerId | string | FK → AppUser |
 | JoinedAt | DateTime | Fecha en que se unió al vault |
+| Role | VaultRole | Rol del jugador en el vault |
+| EloRating | int | ELO histórico del jugador **en este vault** (arranca en 1500) |
 
 ### VaultInvitation
 | Campo | Tipo | Descripción |
@@ -249,7 +250,7 @@ QF: 1v8, 2v7, 3v6, 4v5  →  SF  →  Final
 - 1 o 2 partidos según `IsHomeAndAway`
 
 ### ELO
-- **ELO histórico** (`AppUser.EloRating`): acumula todas las temporadas, nunca se resetea
+- **ELO histórico** (`VaultPlayer.EloRating`): por vault, acumula todas las temporadas de ese vault, nunca se resetea
 - **ELO de temporada** (`SeasonPlayer.SeasonElo`): arranca en 1500 al inicio de cada temporada
 - Cada partido actualiza ambos ELOs simultáneamente
 - Todo cambio queda registrado en `EloHistory`

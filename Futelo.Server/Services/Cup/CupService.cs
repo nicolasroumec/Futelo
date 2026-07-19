@@ -58,8 +58,9 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
         }
         else
         {
-            // SeasonElo (default)
-            seeds = seasonPlayers.OrderByDescending(sp => sp.Player.EloRating).Select(sp => sp.PlayerId).ToList();
+            // SeasonElo (default) — seeded by the vault's historical ELO
+            var seedElos = cup.Season.Vault.Players.ToDictionary(vp => vp.PlayerId, vp => vp.EloRating);
+            seeds = seasonPlayers.OrderByDescending(sp => seedElos[sp.PlayerId]).Select(sp => sp.PlayerId).ToList();
         }
 
         var (rounds, players) = BuildBracket(seeds, cupId, cup.IsHomeAndAway);
@@ -230,6 +231,7 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
 
         // ELO
         var seasonPlayers = cup.Season.Players.ToList();
+        var vaultElos = cup.Season.Vault.Players.ToDictionary(vp => vp.PlayerId, vp => vp.EloRating);
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);
         var awaysp = seasonPlayers.First(sp => sp.PlayerId == match.AwayPlayerId);
 
@@ -251,8 +253,8 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
         var (homeSeasonChange, homeNewSeasonElo) = EloCalculator.Compute(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k);
         var (awaySeasonChange, awayNewSeasonElo) = EloCalculator.Compute(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k);
 
-        int homeHistElo = homesp.Player.EloRating;
-        int awayHistElo = awaysp.Player.EloRating;
+        int homeHistElo = vaultElos[homesp.PlayerId];
+        int awayHistElo = vaultElos[awaysp.PlayerId];
         var (homeHistChange, homeNewHistElo) = EloCalculator.Compute(homeHistElo, awayHistElo, homeResult, goalDiff, k);
         var (awayHistChange, awayNewHistElo) = EloCalculator.Compute(awayHistElo, homeHistElo, awayResult, goalDiff, k);
 
@@ -264,7 +266,7 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
         int homeSeasonRankAfter = seasonElos.Count(kv => kv.Value > homeNewSeasonElo) + 1;
         int awaySeasonRankAfter = seasonElos.Count(kv => kv.Value > awayNewSeasonElo) + 1;
 
-        var histElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.Player.EloRating);
+        var histElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => vaultElos[sp.PlayerId]);
         int homeHistRankBefore = histElos.Count(kv => kv.Value > homeHistElo) + 1;
         int awayHistRankBefore = histElos.Count(kv => kv.Value > awayHistElo) + 1;
         histElos[match.HomePlayerId] = homeNewHistElo;
@@ -428,6 +430,7 @@ public class CupService(ICupRepository cupRepository, IAchievementEngine achieve
             MatchId = matchId,
             CupId = cupId,
             SeasonId = cup.SeasonId,
+            VaultId = cup.Season.VaultId,
             HomeScore = homeScore,
             AwayScore = awayScore,
             WonOnPenaltiesId = wonOnPenaltiesId,

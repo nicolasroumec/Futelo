@@ -7,6 +7,7 @@ public class CupMatchResultData
     public int MatchId { get; init; }
     public int CupId { get; init; }
     public int SeasonId { get; init; }
+    public int VaultId { get; init; }
     public int HomeScore { get; init; }
     public int AwayScore { get; init; }
     public string? WonOnPenaltiesId { get; init; }

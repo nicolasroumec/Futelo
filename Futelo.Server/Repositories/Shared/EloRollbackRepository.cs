@@ -30,6 +30,11 @@ public class EloRollbackRepository(FuteloContext context) : IEloRollbackReposito
             .Where(h => h.MatchId == matchId && (h.PlayerId == player1Id || h.PlayerId == player2Id))
             .ToListAsync();
 
+        var vaultId = await context.Set<Models.Season>()
+            .Where(s => s.Id == seasonId)
+            .Select(s => s.VaultId)
+            .FirstAsync();
+
         foreach (var h in histories)
         {
             if (h.IsSeasonElo)
@@ -40,8 +45,9 @@ public class EloRollbackRepository(FuteloContext context) : IEloRollbackReposito
             }
             else
             {
-                var user = await context.Set<AppUser>().FindAsync(h.PlayerId);
-                if (user != null) user.EloRating = h.EloBefore;
+                var vp = await context.Set<VaultPlayer>()
+                    .FirstOrDefaultAsync(vp => vp.VaultId == vaultId && vp.PlayerId == h.PlayerId);
+                if (vp != null) vp.EloRating = h.EloBefore;
             }
         }
 
