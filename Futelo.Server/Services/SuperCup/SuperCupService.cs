@@ -123,6 +123,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         // ELO
         int k = EloCalculator.SuperCupK;
         var seasonPlayers = superCup.Season.Players.ToList();
+        var vaultElos = superCup.Season.Vault.Players.ToDictionary(vp => vp.PlayerId, vp => vp.EloRating);
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);
         var awaysp = seasonPlayers.First(sp => sp.PlayerId == match.AwayPlayerId);
 
@@ -139,8 +140,8 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         var (homeSeasonChange, homeNewSeasonElo) = EloCalculator.Compute(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k);
         var (awaySeasonChange, awayNewSeasonElo) = EloCalculator.Compute(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k);
 
-        int homeHistElo = homesp.Player.EloRating;
-        int awayHistElo = awaysp.Player.EloRating;
+        int homeHistElo = vaultElos[homesp.PlayerId];
+        int awayHistElo = vaultElos[awaysp.PlayerId];
         var (homeHistChange, homeNewHistElo) = EloCalculator.Compute(homeHistElo, awayHistElo, homeResult, goalDiff, k);
         var (awayHistChange, awayNewHistElo) = EloCalculator.Compute(awayHistElo, homeHistElo, awayResult, goalDiff, k);
 
@@ -152,7 +153,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
         int homeSeasonRankAfter = seasonElos.Count(kv => kv.Value > homeNewSeasonElo) + 1;
         int awaySeasonRankAfter = seasonElos.Count(kv => kv.Value > awayNewSeasonElo) + 1;
 
-        var histElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.Player.EloRating);
+        var histElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => vaultElos[sp.PlayerId]);
         int homeHistRankBefore = histElos.Count(kv => kv.Value > homeHistElo) + 1;
         int awayHistRankBefore = histElos.Count(kv => kv.Value > awayHistElo) + 1;
         histElos[match.HomePlayerId] = homeNewHistElo;
@@ -219,6 +220,7 @@ public class SuperCupService(ISuperCupRepository superCupRepository, IAchievemen
             MatchId = matchId,
             SuperCupId = superCupId,
             SeasonId = superCup.SeasonId,
+            VaultId = superCup.Season.VaultId,
             HomeScore = homeScore,
             AwayScore = awayScore,
             WonOnPenaltiesId = wonOnPenaltiesId,

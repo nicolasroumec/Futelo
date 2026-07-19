@@ -7,6 +7,7 @@ public class SuperCupMatchResultData
     public int MatchId { get; init; }
     public int SuperCupId { get; init; }
     public int SeasonId { get; init; }
+    public int VaultId { get; init; }
     public int HomeScore { get; init; }
     public int AwayScore { get; init; }
     public string? WonOnPenaltiesId { get; init; }

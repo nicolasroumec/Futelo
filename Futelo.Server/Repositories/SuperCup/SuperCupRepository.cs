@@ -66,13 +66,15 @@ public class SuperCupRepository(FuteloContext context) : BaseRepository<Models.S
         if (awaySeasonPlayer != null)
             awaySeasonPlayer.SeasonElo = data.AwayNewSeasonElo;
 
-        var homeUser = await Context.Set<AppUser>().FindAsync(data.HomePlayerId);
-        if (homeUser != null)
-            homeUser.EloRating = data.HomeNewHistoricalElo;
+        var homeVaultPlayer = await Context.Set<VaultPlayer>()
+            .FirstOrDefaultAsync(vp => vp.VaultId == data.VaultId && vp.PlayerId == data.HomePlayerId);
+        if (homeVaultPlayer != null)
+            homeVaultPlayer.EloRating = data.HomeNewHistoricalElo;
 
-        var awayUser = await Context.Set<AppUser>().FindAsync(data.AwayPlayerId);
-        if (awayUser != null)
-            awayUser.EloRating = data.AwayNewHistoricalElo;
+        var awayVaultPlayer = await Context.Set<VaultPlayer>()
+            .FirstOrDefaultAsync(vp => vp.VaultId == data.VaultId && vp.PlayerId == data.AwayPlayerId);
+        if (awayVaultPlayer != null)
+            awayVaultPlayer.EloRating = data.AwayNewHistoricalElo;
 
         Context.Set<EloHistory>().AddRange(data.EloHistories);
 

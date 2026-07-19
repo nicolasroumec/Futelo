@@ -223,11 +223,12 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
         }
 
         var seasonPlayers = league.Season.Players.ToList();
+        var vaultElos = league.Season.Vault.Players.ToDictionary(vp => vp.PlayerId, vp => vp.EloRating);
         var homesp = seasonPlayers.First(sp => sp.PlayerId == match.HomePlayerId);
         var awaysp = seasonPlayers.First(sp => sp.PlayerId == match.AwayPlayerId);
 
         var (homeResult, awayResult, goalDiff) = ComputeOutcome(homeScore, awayScore);
-        var elo = ComputeEloBlock(homesp, awaysp, seasonPlayers, matchId, league.SeasonId, homeResult, awayResult, goalDiff);
+        var elo = ComputeEloBlock(homesp, awaysp, seasonPlayers, vaultElos, matchId, league.SeasonId, homeResult, awayResult, goalDiff);
         var (leagueFinished, finalPositions, championId) = DetectFinish(league.Matches, league.Players, match.HomePlayerId!, match.AwayPlayerId!, homeScore, awayScore, league.TiebreakerCriteria, league.FinalTiebreaker);
 
         await leagueRepository.SaveMatchResultAsync(new MatchResultData
@@ -237,6 +238,7 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
             AwayScore = awayScore,
             LeagueId = leagueId,
             SeasonId = league.SeasonId,
+            VaultId = league.Season.VaultId,
             HomePlayerId = match.HomePlayerId!,
             HomeNewSeasonElo = elo.HomeNewSeasonElo,
             HomeNewHistoricalElo = elo.HomeNewHistElo,
@@ -261,9 +263,9 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
             HomeScore: homeScore,
             AwayScore: awayScore,
             WonOnPenaltiesId: null,
-            HomeOldHistElo: homesp.Player.EloRating,
+            HomeOldHistElo: vaultElos[homesp.PlayerId],
             HomeNewHistElo: elo.HomeNewHistElo,
-            AwayOldHistElo: awaysp.Player.EloRating,
+            AwayOldHistElo: vaultElos[awaysp.PlayerId],
             AwayNewHistElo: elo.AwayNewHistElo,
             IsFinal: false
         ));
@@ -329,14 +331,15 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
     private static EloBlock ComputeEloBlock(
         SeasonPlayer homesp, SeasonPlayer awaysp,
         List<SeasonPlayer> seasonPlayers,
+        Dictionary<string, int> vaultElos,
         int matchId, int seasonId,
         double homeResult, double awayResult, int goalDiff)
     {
         var (homeSeasonChange, homeNewSeasonElo) = EloCalculator.Compute(homesp.SeasonElo, awaysp.SeasonElo, homeResult, goalDiff, k: EloCalculator.LeagueK);
         var (awaySeasonChange, awayNewSeasonElo) = EloCalculator.Compute(awaysp.SeasonElo, homesp.SeasonElo, awayResult, goalDiff, k: EloCalculator.LeagueK);
 
-        int homeHistElo = homesp.Player.EloRating;
-        int awayHistElo = awaysp.Player.EloRating;
+        int homeHistElo = vaultElos[homesp.PlayerId];
+        int awayHistElo = vaultElos[awaysp.PlayerId];
         var (homeHistChange, homeNewHistElo) = EloCalculator.Compute(homeHistElo, awayHistElo, homeResult, goalDiff, k: EloCalculator.LeagueK);
         var (awayHistChange, awayNewHistElo) = EloCalculator.Compute(awayHistElo, homeHistElo, awayResult, goalDiff, k: EloCalculator.LeagueK);
 
@@ -348,7 +351,7 @@ public class LeagueService(ILeagueRepository leagueRepository, IAchievementEngin
         int homeSeasonRankAfter = seasonElos.Count(kv => kv.Value > homeNewSeasonElo) + 1;
         int awaySeasonRankAfter = seasonElos.Count(kv => kv.Value > awayNewSeasonElo) + 1;
 
-        var histElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => sp.Player.EloRating);
+        var histElos = seasonPlayers.ToDictionary(sp => sp.PlayerId, sp => vaultElos[sp.PlayerId]);
         int homeHistRankBefore = histElos.Count(kv => kv.Value > homeHistElo) + 1;
         int awayHistRankBefore = histElos.Count(kv => kv.Value > awayHistElo) + 1;
         histElos[homesp.PlayerId] = homeNewHistElo;

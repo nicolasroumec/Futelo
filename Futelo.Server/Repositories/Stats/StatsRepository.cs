@@ -46,9 +46,15 @@ public class StatsRepository(FuteloContext context) : IStatsRepository
         => await context.VaultPlayers
             .Where(vp => vp.VaultId == vaultId)
             .Include(vp => vp.Player)
-            .OrderByDescending(vp => vp.Player.EloRating)
+            .OrderByDescending(vp => vp.EloRating)
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync();
+
+    public async Task<Dictionary<string, int>> GetVaultEloMapAsync(int vaultId)
+        => await context.VaultPlayers
+            .Where(vp => vp.VaultId == vaultId)
+            .AsNoTrackingWithIdentityResolution()
+            .ToDictionaryAsync(vp => vp.PlayerId, vp => vp.EloRating);
 
     public async Task<bool> IsVaultMemberAsync(string playerId, int vaultId)
         => await context.VaultPlayers

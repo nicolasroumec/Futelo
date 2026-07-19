@@ -156,7 +156,7 @@ Controller  →  Service  →  Repository  →  FuteloContext
   - Stats de jugador: partidos, W/D/L, goles, top equipos, rendimiento por videojuego (W/D/L)
   - Rachas: actual, mejor racha de victorias, mayor racha sin perder (por jugador y récords all-time del vault)
   - Head-to-head entre dos jugadores
-  - Ranking general del vault por `AppUser.EloRating` (histórico)
+  - Ranking general del vault por `VaultPlayer.EloRating` (histórico por vault)
   - Ranking de temporada por `SeasonPlayer.SeasonElo`
   - Goleadores del vault
   - Historial de ELO por jugador (para gráfico de línea)

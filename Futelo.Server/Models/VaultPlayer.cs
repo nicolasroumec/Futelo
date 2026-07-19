@@ -1,3 +1,4 @@
+using Futelo.Server.Helpers;
 using Futelo.Shared.Enums;
 
 namespace Futelo.Server.Models;
@@ -8,6 +9,7 @@ public class VaultPlayer
     public string PlayerId { get; set; } = string.Empty;
     public DateTime JoinedAt { get; set; }
     public VaultRole Role { get; set; } = VaultRole.Viewer;
+    public int EloRating { get; set; } = EloCalculator.InitialElo;
 
     public Vault Vault { get; set; } = null!;
     public AppUser Player { get; set; } = null!;
