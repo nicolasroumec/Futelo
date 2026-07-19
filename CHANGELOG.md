@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/nicolasroumec/Futelo/compare/futelo-v0.2.0...futelo-v0.3.0) (2026-07-19)
+
+
+### Features
+
+* track historical ELO per vault instead of globally ([40f723e](https://github.com/nicolasroumec/Futelo/commit/40f723ecccb9fc8c6ed7dc2b1258cde686590f67))
+* track historical ELO per vault instead of globally ([b3c2a2d](https://github.com/nicolasroumec/Futelo/commit/b3c2a2deccbf8fa1f6e208aca00a637cb2c4c2de))
+
 ## [0.2.0](https://github.com/nicolasroumec/Futelo/compare/futelo-v0.1.1...futelo-v0.2.0) (2026-07-16)
 
 
